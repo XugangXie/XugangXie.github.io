@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>并发-volatile底层实现原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-5A.101.并发-volatile底层实现原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  并发-volatile底层实现原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.101.%E5%B9%B6%E5%8F%91-volatile%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">24 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/jiyiqinlovexx/article/details/50989328">Java&#x5E76;&#x53D1;&#xFF1A;volatile&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x6307;&#x4EE4;&#x91CD;&#x6392;</a></p>
+</blockquote>
+<p>&#x4E00;&#x4E0A;&#x6765;&#x5148;&#x8BF4;&#x4E0B;&#x51E0;&#x4E2A;&#x603B;&#x7ED3;&#x548C;&#x5173;&#x952E;&#x672F;&#x8BED;&#xFF1A;</p>
+<ul>
+<li>&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x548C;&#x4E3B;&#x5185;&#x5B58;</li>
+<li>&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x987A;&#x5E8F;&#x6027;&#xFF0C;&#x4E0D;&#x80FD;&#x4FDD;&#x8BC1;&#x539F;&#x5B50;&#x6027;&#xFF1B;</li>
+<li>&#x4F7F;&#x7528;CPU&#x6307;&#x4EE4;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#xFF0C;&#x6765;&#x9632;&#x6B62;&#x91CD;&#x6392;&#x4F18;&#x5316;&#xFF0C;&#x6216;&#x8005;&#x8BF4;&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#xFF0C;&#x8FD9;&#x4F1A;&#x964D;&#x4F4E;&#x6027;&#x80FD;&#xFF0C;&#x4F46;&#x662F;&#x80FD;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;&#x548C;&#x53EF;&#x89C1;&#x6027;&#xFF1B;</li>
+<li><code>happens-before</code></li>
+<li><code>as-if-serial</code></li>
+</ul>
+<hr>
+<span id="more"></span>
+
+
+
+<ul>
+<li><p>volatile &#x5173;&#x952E;&#x5B57;&#x7684;&#x4E3B;&#x8981;&#x4F5C;&#x7528;&#x5C31;&#x662F;&#x4FDD;&#x8BC1;&#x53D8;&#x91CF;&#x7684;&#x987A;&#x5E8F;&#x6027;&#x548C;&#x53EF;&#x89C1;&#x6027;&#xFF1B;&#x7136;&#x540E;&#x8FD8;&#x6709;&#x4E00;&#x4E2A;&#x4F5C;&#x7528;&#x662F;&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#xFF0C;&#x5177;&#x4F53;&#x5B9E;&#x73B0;&#x624B;&#x6BB5;&#x662F;&#xFF1A;&#x4F7F;&#x7528;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#xFF08;&#x5176;&#x5B9E;&#x5C31;&#x662F;CPU&#x7684;&#x4E00;&#x4E2A;&#x6307;&#x4EE4;&#xFF09;</p>
+</li>
+<li><p>volatile&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x987A;&#x5E8F;&#x6027;&#xFF0C;&#x4E0D;&#x80FD;&#x4FDD;&#x8BC1;&#x539F;&#x5B50;&#x6027;</p>
+</li>
+<li><p>&#x5177;&#x4F53;&#x8868;&#x73B0;&#x4E3A;&#xFF1A;</p>
+<ul>
+<li><strong>&#x5F53;&#x5199;&#x4E00;&#x4E2A; volatile &#x53D8;&#x91CF;&#x65F6;&#xFF0C;JMM &#x4F1A;&#x628A;&#x8BE5;&#x7EBF;&#x7A0B;&#x5BF9;&#x5E94;&#x7684;&#x672C;&#x5730;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x503C;&#x7ACB;&#x5373;&#x5237;&#x65B0;&#x5230;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x3002;</strong></li>
+<li><strong>&#x5F53;&#x8BFB;&#x4E00;&#x4E2A; volatile &#x53D8;&#x91CF;&#x65F6;&#xFF0C;JMM &#x4F1A;&#x628A;&#x8BE5;&#x7EBF;&#x7A0B;&#x5BF9;&#x5E94;&#x7684;&#x672C;&#x5730;&#x5185;&#x5B58;&#x8BBE;&#x7F6E;&#x4E3A;&#x65E0;&#x6548;&#xFF0C;&#x76F4;&#x63A5;&#x4ECE;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x8BFB;&#x53D6;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x3002;</strong></li>
+</ul>
+</li>
+<li><p>&#x4ECE;&#x800C;&#x4FDD;&#x8BC1;&#x4E86;&#xFF0C;&#x5982;&#x679C;&#x67D0;&#x4E2A;&#x7EBF;&#x7A0B;&#x5BF9;volatile&#x4FEE;&#x9970;&#x7684;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x8FDB;&#x884C;&#x66F4;&#x65B0;&#xFF0C;&#x90A3;&#x4E48;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x7ACB;&#x9A6C;&#x770B;&#x5230;&#x8FD9;&#x4E2A;&#x66F4;&#x65B0;&#xFF0C;&#x8FD9;&#x5C31;&#x662F;&#x6240;&#x8C13;&#x7684;&#x7EBF;&#x7A0B;&#x53EF;&#x89C1;&#x6027;&#x3002;</p>
+</li>
+<li><p>volatile&#x539F;&#x7406;&#x2013;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x6307;&#x4EE4;<br>&#x52A0;&#x4E86;volatile&#x4FEE;&#x9970;&#x7B26;&#x7684;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x4E4B;&#x6240;&#x4EE5;&#x80FD;&#x5728;&#x7EBF;&#x7A0B;&#x4E4B;&#x95F4;&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#xFF0C;&#x662F;&#x56E0;&#x4E3A;&#x8BE5;&#x53D8;&#x91CF;&#x52A0;&#x4E86;&#x57FA;&#x4E8E;CPU&#x7684;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x6307;&#x4EE4;&#xFF0C;&#x88AB;JSR-133&#x7684;java&#x5185;&#x5B58;&#x6A21;&#x578B;&#x62BD;&#x8C61;&#x4E3A; <strong>happens-before</strong> &#x539F;&#x5219;&#x3002;</p>
+</li>
+<li><p>&#x89C2;&#x5BDF;&#x52A0;&#x5165;volatile&#x5173;&#x952E;&#x5B57;&#x548C;&#x6CA1;&#x6709;&#x52A0;&#x5165;volatile&#x5173;&#x952E;&#x5B57;&#x65F6;&#x6240;&#x751F;&#x6210;&#x7684;&#x6C47;&#x7F16;&#x4EE3;&#x7801;&#x53D1;&#x73B0;&#xFF0C;&#x52A0;&#x5165;volatile&#x5173;&#x952E;&#x5B57;&#x65F6;&#xFF0C;&#x4F1A;&#x591A;&#x51FA;&#x4E00;&#x4E2A;lock&#x524D;&#x7F00;&#x6307;&#x4EE4;&#x3002;&#x8FD9;&#x4E2A;&#x6307;&#x4EE4;&#x5C31;&#x76F8;&#x5F53;&#x4E8E;&#x4E00;&#x4E2A;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x3002;&#x53C2;&#x8003;&#x535A;&#x6587;&#xFF1A;&#x67E5;&#x770B;java&#x6587;&#x4EF6;&#x6C47;&#x7F16;&#x4EE3;&#x7801;&#x3002;</p>
+</li>
+<li><p>volatile&#x5173;&#x952E;&#x5B57;&#x53E6;&#x4E00;&#x4E2A;&#x4F5C;&#x7528;&#x5C31;&#x662F;&#x7981;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x4F18;&#x5316;&#xFF0C;&#x4ECE;&#x800C;&#x907F;&#x514D;&#x591A;&#x7EBF;&#x7A0B;&#x73AF;&#x5883;&#x4E0B;&#x7A0B;&#x5E8F;&#x51FA;&#x73B0;&#x4E71;&#x5E8F;&#x6267;&#x884C;&#x7684;&#x73B0;&#x8C61;&#x3002;</p>
+</li>
+<li><p>&#x91CD;&#x6392;&#x5E8F;&#x5C4F;&#x969C;&#x7C7B;&#x578B;&#x6709;&#x56DB;&#x79CD;&#xFF0C;StoreStore&#x5C4F;&#x969C;&#xFF0C;StoreLoad&#x5C4F;&#x969C;&#xFF0C;LoadLoad&#x5C4F;&#x969C;&#xFF0C;LoadStore&#x5C4F;&#x969C;&#x3002;&#x7B80;&#x5355;&#x6765;&#x8BF4;&#xFF0C;&#x53EA;&#x8981;volatile&#x53D8;&#x91CF;&#x4E8E;&#x666E;&#x901A;&#x53D8;&#x91CF;&#x4E4B;&#x95F4;&#x7684;&#x91CD;&#x6392;&#x5E8F;&#x53EF;&#x80FD;&#x7834;&#x574F;volatile&#x7684;&#x5185;&#x5B58;&#x8BED;&#x4E49;&#xFF0C;&#x8FD9;&#x79CD;&#x91CD;&#x6392;&#x5E8F;&#x5C31;&#x4F1A;&#x88AB;&#x7F16;&#x8BD1;&#x5668;&#x91CD;&#x6392;&#x5E8F;&#x89C4;&#x5219;&#x548C;&#x5904;&#x7406;&#x5668;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x63D2;&#x5165;&#x7B56;&#x7565;&#x7981;&#x6B62;&#x3002;</p>
+</li>
+</ul>
+<hr>
+<h3 id="volatile&#x4E24;&#x5927;&#x4F5C;&#x7528;"><a href="#volatile&#x4E24;&#x5927;&#x4F5C;&#x7528;" class="headerlink" title="volatile&#x4E24;&#x5927;&#x4F5C;&#x7528;"></a>volatile&#x4E24;&#x5927;&#x4F5C;&#x7528;</h3><p>1&#x3001;&#x4FDD;&#x8BC1;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;<br>2&#x3001;&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;</p>
+<p>&#x6B64;&#x5916;&#x9700;&#x6CE8;&#x610F;volatile<strong>&#x5E76;&#x4E0D;&#x4FDD;&#x8BC1;&#x64CD;&#x4F5C;&#x7684;&#x539F;&#x5B50;&#x6027;</strong>&#x3002;</p>
+<h3 id="&#xFF08;&#x4E00;&#xFF09;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;"><a href="#&#xFF08;&#x4E00;&#xFF09;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;" class="headerlink" title="&#xFF08;&#x4E00;&#xFF09;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;"></a>&#xFF08;&#x4E00;&#xFF09;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;</h3><p>JVM&#x5185;&#x5B58;&#x6A21;&#x578B;&#xFF1A;&#x4E3B;&#x5185;&#x5B58;&#x548C;&#x7EBF;&#x7A0B;&#x72EC;&#x7ACB;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;</p>
+<p>Java&#x5185;&#x5B58;&#x6A21;&#x578B;&#x89C4;&#x5B9A;&#xFF0C;&#x5BF9;&#x4E8E;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x5171;&#x4EAB;&#x7684;&#x53D8;&#x91CF;&#xFF0C;&#x5B58;&#x50A8;&#x5728;&#x4E3B;&#x5185;&#x5B58;&#x5F53;&#x4E2D;&#xFF0C;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x90FD;&#x6709;&#x81EA;&#x5DF1;&#x72EC;&#x7ACB;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#xFF08;&#x6BD4;&#x5982;CPU&#x7684;&#x5BC4;&#x5B58;&#x5668;&#xFF09;&#xFF0C;&#x7EBF;&#x7A0B;&#x53EA;&#x80FD;&#x8BBF;&#x95EE;&#x81EA;&#x5DF1;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#xFF0C;&#x4E0D;&#x53EF;&#x4EE5;&#x8BBF;&#x95EE;&#x5176;&#x5B83;&#x7EBF;&#x7A0B;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x3002;</p>
+<p>&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E2D;&#x4FDD;&#x5B58;&#x4E86;&#x4E3B;&#x5185;&#x5B58;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x7684;&#x526F;&#x672C;&#xFF0C;&#x7EBF;&#x7A0B;&#x8981;&#x64CD;&#x4F5C;&#x8FD9;&#x4E9B;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#xFF0C;&#x53EA;&#x80FD;&#x901A;&#x8FC7;&#x64CD;&#x4F5C;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x526F;&#x672C;&#x6765;&#x5B9E;&#x73B0;&#xFF0C;&#x64CD;&#x4F5C;&#x5B8C;&#x6BD5;&#x4E4B;&#x540E;&#x518D;&#x540C;&#x6B65;&#x56DE;&#x5230;&#x4E3B;&#x5185;&#x5B58;&#x5F53;&#x4E2D;&#x3002;</p>
+<p>&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x64CD;&#x4F5C;&#x4E3B;&#x5185;&#x5B58;&#x7684;&#x6570;&#x636E;&#x5B8C;&#x6574;&#x6027;&#x662F;&#x4E00;&#x4E2A;&#x96BE;&#x9898;&#xFF0C;Java&#x5185;&#x5B58;&#x6A21;&#x578B;&#x4E5F;&#x89C4;&#x5B9A;&#x4E86;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E0E;&#x4E3B;&#x5185;&#x5B58;&#x4E4B;&#x95F4;&#x4EA4;&#x4E92;&#x7684;&#x534F;&#x8BAE;&#xFF0C;&#x5B9A;&#x4E49;&#x4E86;8&#x79CD;&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#xFF1A;</p>
+<p>(1) <code>lock</code>:&#x5C06;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x53D8;&#x91CF;&#x9501;&#x5B9A;&#xFF0C;&#x4E3A;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x6240;&#x72EC;&#x5360;</p>
+<p>(2) <code>unclock</code>:&#x5C06;lock&#x52A0;&#x7684;&#x9501;&#x5B9A;&#x89E3;&#x9664;&#xFF0C;&#x6B64;&#x65F6;&#x5176;&#x5B83;&#x7684;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x6709;&#x673A;&#x4F1A;&#x8BBF;&#x95EE;&#x6B64;&#x53D8;&#x91CF;</p>
+<p>(3) <code>read</code>:&#x5C06;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x53D8;&#x91CF;&#x503C;&#x8BFB;&#x5230;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x5F53;&#x4E2D;</p>
+<p>(4) <code>load</code>:&#x5C06;read&#x8BFB;&#x53D6;&#x7684;&#x503C;&#x4FDD;&#x5B58;&#x5230;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x53D8;&#x91CF;&#x526F;&#x672C;&#x4E2D;&#x3002;</p>
+<p>(5) <code>use</code>:&#x5C06;&#x503C;&#x4F20;&#x9012;&#x7ED9;&#x7EBF;&#x7A0B;&#x7684;&#x4EE3;&#x7801;&#x6267;&#x884C;&#x5F15;&#x64CE;</p>
+<p>(6) <code>assign</code>:&#x5C06;&#x6267;&#x884C;&#x5F15;&#x64CE;&#x5904;&#x7406;&#x8FD4;&#x56DE;&#x7684;&#x503C;&#x91CD;&#x65B0;&#x8D4B;&#x503C;&#x7ED9;&#x53D8;&#x91CF;&#x526F;&#x672C;</p>
+<p>(7) <code>store</code>:&#x5C06;&#x53D8;&#x91CF;&#x526F;&#x672C;&#x7684;&#x503C;&#x5B58;&#x50A8;&#x5230;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x3002;</p>
+<p>(8) <code>write</code>:&#x5C06;store&#x5B58;&#x50A8;&#x7684;&#x503C;&#x5199;&#x5165;&#x5230;&#x4E3B;&#x5185;&#x5B58;&#x7684;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x5F53;&#x4E2D;&#x3002;</p>
+<p><strong>&#x901A;&#x8FC7;&#x4E0A;&#x9762;Java&#x5185;&#x5B58;&#x6A21;&#x578B;&#x7684;&#x6982;&#x8FF0;&#xFF0C;&#x6211;&#x4EEC;&#x4F1A;&#x6CE8;&#x610F;&#x5230;&#x8FD9;&#x4E48;&#x4E00;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x5728;&#x83B7;&#x53D6;&#x9501;&#x4E4B;&#x540E;&#x4F1A;&#x5728;&#x81EA;&#x5DF1;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x6765;&#x64CD;&#x4F5C;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#xFF0C;&#x64CD;&#x4F5C;&#x5B8C;&#x6210;&#x4E4B;&#x540E;&#x5C06;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x526F;&#x672C;&#x56DE;&#x5199;&#x5230;&#x4E3B;&#x5185;&#x5B58;&#xFF0C;&#x5E76;&#x4E14;&#x5728;&#x5176;&#x5B83;&#x7EBF;&#x7A0B;&#x4ECE;&#x4E3B;&#x5185;&#x5B58;&#x5C06;&#x53D8;&#x91CF;&#x540C;&#x6B65;&#x56DE;&#x81EA;&#x5DF1;&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E4B;&#x524D;&#xFF0C;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x7684;&#x6539;&#x53D8;&#x5BF9;&#x5176;&#x662F;&#x4E0D;&#x53EF;&#x89C1;&#x7684;&#x3002;&#x5373;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x7684;&#x672C;&#x5730;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x53D8;&#x91CF;&#x5DF2;&#x7ECF;&#x662F;&#x8FC7;&#x65F6;&#x7684;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x66F4;&#x65B0;&#x540E;&#x7684;&#x503C;&#x3002;</strong></p>
+<h4 id="&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;"><a href="#&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;" class="headerlink" title="&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;"></a>&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;</h4><p>&#x5F88;&#x591A;&#x65F6;&#x5019;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5BF9;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x7684;&#x6539;&#x52A8;&#xFF0C;&#x5176;&#x5B83;&#x7EBF;&#x7A0B;&#x4E5F;&#x9700;&#x8981;&#x7ACB;&#x5373;&#x5F97;&#x77E5;&#x8FD9;&#x4E2A;&#x6539;&#x52A8;&#x8BE5;&#x600E;&#x4E48;&#x529E;&#x5462;&#xFF1F;&#x4E0B;&#x9762;&#x4E3E;&#x4E24;&#x4E2A;&#x4F8B;&#x5B50;&#x8BF4;&#x660E;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x7684;&#x91CD;&#x8981;&#x6027;&#xFF1A;</p>
+<p><strong>&#x4F8B;&#x5B50;1</strong><br>&#x6709;&#x4E00;&#x4E2A;&#x5168;&#x5C40;&#x7684;&#x72B6;&#x6001;&#x53D8;&#x91CF;open:<br><code>boolean open=true;</code></p>
+<p>&#x8FD9;&#x4E2A;&#x53D8;&#x91CF;&#x7528;&#x6765;&#x63CF;&#x8FF0;&#x5BF9;&#x4E00;&#x4E2A;&#x8D44;&#x6E90;&#x7684;&#x6253;&#x5F00;&#x5173;&#x95ED;&#x72B6;&#x6001;&#xFF0C;true&#x8868;&#x793A;&#x6253;&#x5F00;&#xFF0C;false&#x8868;&#x793A;&#x5173;&#x95ED;&#xFF0C;&#x5047;&#x8BBE;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;A,&#x5728;&#x6267;&#x884C;&#x4E00;&#x4E9B;&#x64CD;&#x4F5C;&#x540E;&#x5C06;open&#x4FEE;&#x6539;&#x4E3A;false:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//&#x7EBF;&#x7A0B;A</span><br><span class="line"></span><br><span class="line">resource.close();</span><br><span class="line"></span><br><span class="line">open = false;</span><br></pre></td></tr></table></figure>
+<p>&#xA0;</p>
+<p>&#x7EBF;&#x7A0B;B&#x968F;&#x65F6;&#x5173;&#x6CE8;open&#x7684;&#x72B6;&#x6001;&#xFF0C;&#x5F53;open&#x4E3A;true&#x7684;&#x65F6;&#x5019;&#x901A;&#x8FC7;&#x8BBF;&#x95EE;&#x8D44;&#x6E90;&#x6765;&#x8FDB;&#x884C;&#x4E00;&#x4E9B;&#x64CD;&#x4F5C;:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//&#x7EBF;&#x7A0B;B</span><br><span class="line"></span><br><span class="line">while(open) {</span><br><span class="line"></span><br><span class="line">doSomethingWithResource(resource);</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5F53;A&#x628A;&#x8D44;&#x6E90;&#x5173;&#x95ED;&#x7684;&#x65F6;&#x5019;&#xFF0C;open&#x53D8;&#x91CF;&#x5BF9;&#x7EBF;&#x7A0B;B&#x662F;&#x4E0D;&#x53EF;&#x89C1;&#x7684;&#xFF0C;&#x5982;&#x679C;&#x6B64;&#x65F6;open&#x53D8;&#x91CF;&#x7684;&#x6539;&#x52A8;&#x5C1A;&#x672A;&#x540C;&#x6B65;&#x5230;&#x7EBF;&#x7A0B;B&#x7684;&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x4E2D;,&#x90A3;&#x4E48;&#x7EBF;&#x7A0B;B&#x5C31;&#x4F1A;&#x7528;&#x4E00;&#x4E2A;&#x5DF2;&#x7ECF;&#x5173;&#x95ED;&#x4E86;&#x7684;&#x8D44;&#x6E90;&#x53BB;&#x505A;&#x4E00;&#x4E9B;&#x64CD;&#x4F5C;&#xFF0C;&#x56E0;&#x6B64;&#x4EA7;&#x751F;&#x9519;&#x8BEF;&#x3002;</p>
+<p><strong>&#x4F8B;&#x5B50;2</strong><br>&#x4E0B;&#x9762;&#x662F;&#x4E00;&#x4E2A;&#x901A;&#x8FC7;&#x5E03;&#x5C14;&#x6807;&#x5FD7;&#x5224;&#x65AD;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x7ED3;&#x675F;&#x7684;&#x4F8B;&#x5B50;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CancelThreadTest</span> {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; publicstatic <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception{</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; PrimeGeneratorgen = <span class="keyword">new</span> <span class="title class_">PrimeGenerator</span>();</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; newThread(gen).start();</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; <span class="keyword">try</span></span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; Thread.sleep(<span class="number">3000</span>);</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; }<span class="keyword">finally</span>{</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; gen.cancel();</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; }</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; }</span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">&#xA0;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PrimeGenerator</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span>{</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; privateboolean cancelled;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; publicvoid <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; <span class="keyword">while</span>(!cancelled)</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; System.out.println(<span class="string">&quot;Running...&quot;</span>);</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; <span class="comment">//doingsomething here...</span></span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; }&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; &#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; }&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; publicvoid <span class="title function_">cancel</span><span class="params">()</span>{cancelled = <span class="literal">true</span>;}</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<p>&#x4E3B;&#x7EBF;&#x7A0B;&#x4E2D;&#x8BBE;&#x7F6E;PrimeGenerator&#x7EBF;&#x7A0B;&#x7684;&#x662F;&#x5426;&#x53D6;&#x6D88;&#x6807;&#x8BC6;&#xFF0C;PrimeGenerator&#x7EBF;&#x7A0B;&#x68C0;&#x6D4B;&#x5230;&#x8FD9;&#x4E2A;&#x6807;&#x8BC6;&#x540E;&#x5C31;&#x4F1A;&#x7ED3;&#x675F;&#x7EBF;&#x7A0B;&#xFF0C;&#x7531;&#x4E8E;&#x4E3B;&#x7EBF;&#x7A0B;&#x4FEE;&#x6539;cancelled&#x53D8;&#x91CF;&#x7684;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#xFF0C;&#x4E3B;&#x7EBF;&#x7A0B;&#x4FEE;&#x6539;cancelled&#x6807;&#x8BC6;&#x540E;&#x5E76;&#x4E0D;&#x9A6C;&#x4E0A;&#x540C;&#x6B65;&#x56DE;&#x4E3B;&#x5185;&#x5B58;&#xFF0C;&#x6240;&#x4EE5;PrimeGenerator&#x7EBF;&#x7A0B;&#x7ED3;&#x675F;&#x7684;&#x65F6;&#x95F4;&#x96BE;&#x4EE5;&#x628A;&#x63A7;&#xFF08;&#x6700;&#x7EC8;&#x662F;&#x4E00;&#x5B9A;&#x4F1A;&#x540C;&#x6B65;&#x56DE;&#x4E3B;&#x5185;&#x5B58;&#xFF0C;&#x8BA9;PrimeGenerator&#x7EBF;&#x7A0B;&#x7ED3;&#x675F;&#xFF09;&#x3002;</p>
+<p>&#x5982;&#x679C;PrimeGenerator&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x4E00;&#x4E9B;&#x6BD4;&#x8F83;&#x5173;&#x952E;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x4E3B;&#x7EBF;&#x7A0B;&#x5E0C;&#x671B;&#x80FD;&#x591F;&#x53CA;&#x65F6;&#x7EC8;&#x6B62;&#x5B83;&#xFF0C;&#x8FD9;&#x65F6;&#x5C06;cenceled&#x7528;volatile&#x5173;&#x952E;&#x5B57;&#x4FEE;&#x9970;&#x5C31;&#x662F;&#x5FC5;&#x8981;&#x7684;&#x3002;</p>
+<p>&#x7279;&#x522B;&#x6CE8;&#x610F;&#xFF1A;<strong>&#x4E0A;&#x9762;&#x6F14;&#x793A;&#x8FD9;&#x4E2A;&#x5E76;&#x4E0D;&#x662F;&#x6B63;&#x786E;&#x7684;&#x53D6;&#x6D88;&#x7EBF;&#x7A0B;&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x56E0;&#x4E3A;&#x4E00;&#x65E6;PrimeGenerator&#x7EBF;&#x7A0B;&#x4E2D;&#x5305;&#x542B;BolckingQueue.put()&#x7B49;&#x963B;&#x585E;&#x65B9;&#x6CD5;&#xFF0C;&#x90A3;&#x4E48;&#x5C06;&#x53EF;&#x80FD;&#x6C38;&#x8FDC;&#x4E0D;&#x4F1A;&#x53BB;&#x68C0;&#x67E5;cancelled&#x6807;&#x8BC6;&#xFF0C;&#x5BFC;&#x81F4;&#x7EBF;&#x7A0B;&#x6C38;&#x8FDC;&#x4E0D;&#x4F1A;&#x9000;&#x51FA;&#x3002;&#x6B63;&#x786E;&#x7684;&#x65B9;&#x6CD5;&#x53C2;&#x89C1;&#x53E6;&#x5916;&#x4E00;&#x7BC7;&#x5173;&#x4E8E;&#x5982;&#x4F55;&#x6B63;&#x786E;&#x7EC8;&#x6B62;&#x7EBF;&#x7A0B;&#x7684;&#x65B9;&#x6CD5;&#x3002;</strong></p>
+<h4 id="&#x63D0;&#x4F9B;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;"><a href="#&#x63D0;&#x4F9B;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;" class="headerlink" title="&#x63D0;&#x4F9B;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;"></a>&#x63D0;&#x4F9B;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;</h4><p>volatile&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#x7684;&#x539F;&#x7406;&#x662F;<strong>&#x5728;&#x6BCF;&#x6B21;&#x8BBF;&#x95EE;&#x53D8;&#x91CF;&#x65F6;&#x90FD;&#x4F1A;&#x8FDB;&#x884C;&#x4E00;&#x6B21;&#x5237;&#x65B0;&#xFF0C;&#x56E0;&#x6B64;&#x6BCF;&#x6B21;&#x8BBF;&#x95EE;&#x90FD;&#x662F;&#x4E3B;&#x5185;&#x5B58;&#x4E2D;&#x6700;&#x65B0;&#x7684;&#x7248;&#x672C;</strong>&#x3002;&#x6240;&#x4EE5;volatile&#x5173;&#x952E;&#x5B57;&#x7684;&#x4F5C;&#x7528;&#x4E4B;&#x4E00;&#x5C31;&#x662F;<strong>&#x4FDD;&#x8BC1;&#x53D8;&#x91CF;&#x4FEE;&#x6539;&#x7684;&#x5B9E;&#x65F6;&#x53EF;&#x89C1;&#x6027;</strong>&#x3002;</p>
+<p><strong>&#x9488;&#x5BF9;&#x4E0A;&#x9762;&#x7684;&#x4F8B;&#x5B50;1&#xFF1A;</strong><br>&#x8981;&#x6C42;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5BF9;open&#x7684;&#x6539;&#x53D8;&#xFF0C;&#x5176;&#x4ED6;&#x7684;&#x7EBF;&#x7A0B;&#x80FD;&#x591F;&#x7ACB;&#x5373;&#x53EF;&#x89C1;&#xFF0C;Java&#x4E3A;&#x6B64;&#x63D0;&#x4F9B;&#x4E86;volatile&#x5173;&#x952E;&#x5B57;&#xFF0C;&#x5728;&#x58F0;&#x660E;open&#x53D8;&#x91CF;&#x7684;&#x65F6;&#x5019;&#x52A0;&#x5165;volatile&#x5173;&#x952E;&#x5B57;&#x5C31;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;open&#x7684;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#xFF0C;&#x5373;open&#x7684;&#x6539;&#x53D8;&#x5BF9;&#x6240;&#x6709;&#x7684;&#x7EBF;&#x7A0B;&#x90FD;&#x662F;&#x7ACB;&#x5373;&#x53EF;&#x89C1;&#x7684;&#x3002;</p>
+<p><strong>&#x9488;&#x5BF9;&#x4E0A;&#x9762;&#x7684;&#x4F8B;&#x5B50;2&#xFF1A;</strong><br>&#x5C06;cancelled&#x6807;&#x5FD7;&#x8BBE;&#x7F6E;&#x7684;volatile&#x4FDD;&#x8BC1;&#x4E3B;&#x7EBF;&#x7A0B;&#x9488;&#x5BF9;cancelled&#x6807;&#x8BC6;&#x7684;&#x4FEE;&#x6539;&#x80FD;&#x591F;&#x8BA9;PrimeGenerator&#x7EBF;&#x7A0B;&#x7ACB;&#x9A6C;&#x770B;&#x5230;&#x3002;</p>
+<h3 id="&#x6307;&#x4EE4;&#x91CD;&#x6392;"><a href="#&#x6307;&#x4EE4;&#x91CD;&#x6392;" class="headerlink" title="&#x6307;&#x4EE4;&#x91CD;&#x6392;"></a>&#x6307;&#x4EE4;&#x91CD;&#x6392;</h3><h4 id="1-&#x6982;&#x5FF5;"><a href="#1-&#x6982;&#x5FF5;" class="headerlink" title="1 &#x6982;&#x5FF5;"></a>1 &#x6982;&#x5FF5;</h4><p>&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#x662F;JVM&#x4E3A;&#x4E86;&#x4F18;&#x5316;&#x6307;&#x4EE4;&#xFF0C;&#x63D0;&#x9AD8;&#x7A0B;&#x5E8F;&#x8FD0;&#x884C;&#x6548;&#x7387;&#xFF0C;&#x5728;&#x4E0D;&#x5F71;&#x54CD;&#x5355;&#x7EBF;&#x7A0B;&#x7A0B;&#x5E8F;&#x6267;&#x884C;&#x7ED3;&#x679C;&#x7684;&#x524D;&#x63D0;&#x4E0B;&#xFF0C;&#x5C3D;&#x53EF;&#x80FD;&#x5730;&#x63D0;&#x9AD8;&#x5E76;&#x884C;&#x5EA6;&#x3002;&#x7F16;&#x8BD1;&#x5668;&#x3001;&#x5904;&#x7406;&#x5668;&#x4E5F;&#x9075;&#x5FAA;&#x8FD9;&#x6837;&#x4E00;&#x4E2A;&#x76EE;&#x6807;&#x3002;&#x6CE8;&#x610F;&#x662F;&#x5355;&#x7EBF;&#x7A0B;&#x3002;&#x591A;&#x7EBF;&#x7A0B;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#x5C31;&#x4F1A;&#x7ED9;&#x7A0B;&#x5E8F;&#x5458;&#x5E26;&#x6765;&#x95EE;&#x9898;&#x3002;</p>
+<p>&#x4E0D;&#x540C;&#x7684;&#x6307;&#x4EE4;&#x95F4;&#x53EF;&#x80FD;&#x5B58;&#x5728;&#x6570;&#x636E;&#x4F9D;&#x8D56;&#x3002;&#x6BD4;&#x5982;&#x4E0B;&#x9762;&#x8BA1;&#x7B97;&#x5706;&#x7684;&#x9762;&#x79EF;&#x7684;&#x8BED;&#x53E5;&#xFF1A;</p>
+<p>double r = 2.3d;//(1)</p>
+<p>double pi =3.1415926; //(2)</p>
+<p>double area = pi* r * r; //(3)</p>
+<p>area&#x7684;&#x8BA1;&#x7B97;&#x4F9D;&#x8D56;&#x4E8E;r&#x4E0E;pi&#x4E24;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x8D4B;&#x503C;&#x6307;&#x4EE4;&#x3002;&#x800C;r&#x4E0E;pi&#x65E0;&#x4F9D;&#x8D56;&#x5173;&#x7CFB;&#x3002;</p>
+<p><strong>as-if-serial</strong> &#x8BED;&#x4E49;&#x662F;&#x6307;&#xFF1A;&#x4E0D;&#x7BA1;&#x5982;&#x4F55;&#x91CD;&#x6392;&#x5E8F;&#xFF08;&#x7F16;&#x8BD1;&#x5668;&#x4E0E;&#x5904;&#x7406;&#x5668;&#x4E3A;&#x4E86;&#x63D0;&#x9AD8;&#x5E76;&#x884C;&#x5EA6;&#xFF09;&#xFF0C;&#xFF08;&#x5355;&#x7EBF;&#x7A0B;&#xFF09;&#x7A0B;&#x5E8F;&#x7684;&#x7ED3;&#x679C;&#x4E0D;&#x80FD;&#x88AB;&#x6539;&#x53D8;&#x3002;&#x8FD9;&#x662F;&#x7F16;&#x8BD1;&#x5668;&#x3001;Runtime&#x3001;&#x5904;&#x7406;&#x5668;&#x5FC5;&#x987B;&#x9075;&#x5B88;&#x7684;&#x8BED;&#x4E49;&#x3002;</p>
+<p>&#x867D;&#x7136;&#xFF0C;&#xFF08;1&#xFF09; - happensbefore -&gt; &#xFF08;2&#xFF09;,&#xFF08;2&#xFF09; - happens before -&gt; &#xFF08;3&#xFF09;&#xFF0C;&#x4F46;&#x662F;&#x8BA1;&#x7B97;&#x987A;&#x5E8F;(1)(2)(3)&#x4E0E;(2)(1)(3) &#x5BF9;&#x4E8E;r&#x3001;pi&#x3001;area&#x53D8;&#x91CF;&#x7684;&#x7ED3;&#x679C;&#x5E76;&#x65E0;&#x533A;&#x522B;&#x3002;&#x7F16;&#x8BD1;&#x5668;&#x3001;Runtime&#x5728;&#x4F18;&#x5316;&#x65F6;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x60C5;&#x51B5;&#x91CD;&#x6392;&#x5E8F;&#xFF08;1&#xFF09;&#x4E0E;&#xFF08;2&#xFF09;&#xFF0C;&#x800C;&#x4E1D;&#x6BEB;&#x4E0D;&#x5F71;&#x54CD;&#x7A0B;&#x5E8F;&#x7684;&#x7ED3;&#x679C;&#x3002;</p>
+<p>&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#x5305;&#x62EC;&#x7F16;&#x8BD1;&#x5668;&#x91CD;&#x6392;&#x5E8F;&#x548C;&#x8FD0;&#x884C;&#x65F6;&#x91CD;&#x6392;&#x5E8F;&#x3002;</p>
+<h4 id="2-&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;"><a href="#2-&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;" class="headerlink" title="2 &#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;"></a>2 &#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E26;&#x6765;&#x7684;&#x95EE;&#x9898;</h4><p>&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x64CD;&#x4F5C;&#x4E0D;&#x662F;&#x539F;&#x5B50;&#x7684;&#xFF0C;&#x5C31;&#x4F1A;&#x7ED9;JVM&#x7559;&#x4E0B;&#x91CD;&#x6392;&#x7684;&#x673A;&#x4F1A;&#x3002;&#x4E0B;&#x9762;&#x770B;&#x51E0;&#x4E2A;&#x4F8B;&#x5B50;&#xFF1A;</p>
+<p>&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x64CD;&#x4F5C;&#x4E0D;&#x662F;&#x539F;&#x5B50;&#x7684;&#xFF0C;&#x5C31;&#x4F1A;&#x7ED9;JVM&#x7559;&#x4E0B;&#x91CD;&#x6392;&#x7684;&#x673A;&#x4F1A;&#x3002;&#x4E0B;&#x9762;&#x770B;&#x51E0;&#x4E2A;&#x4F8B;&#x5B50;&#xFF1A;</p>
+<p><strong>&#x4F8B;&#x5B50;1&#xFF1A;A&#x7EBF;&#x7A0B;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5BFC;&#x81F4;B&#x7EBF;&#x7A0B;&#x51FA;&#x9519;</strong><br>&#x5BF9;&#x4E8E;&#x5728;&#x540C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5185;&#xFF0C;&#x8FD9;&#x6837;&#x7684;&#x6539;&#x53D8;&#x662F;&#x4E0D;&#x4F1A;&#x5BF9;&#x903B;&#x8F91;&#x4EA7;&#x751F;&#x5F71;&#x54CD;&#x7684;&#xFF0C;&#x4F46;&#x662F;&#x5728;&#x591A;&#x7EBF;&#x7A0B;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#x4F1A;&#x5E26;&#x6765;&#x95EE;&#x9898;&#x3002;&#x770B;&#x4E0B;&#x9762;&#x8FD9;&#x4E2A;&#x60C5;&#x666F;:</p>
+<p><strong>&#x5728;&#x7EBF;&#x7A0B;A&#x4E2D;:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">context = loadContext();</span><br><span class="line"></span><br><span class="line">inited = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<p>&#xA0;</p>
+<p><strong>&#x5728;&#x7EBF;&#x7A0B;B&#x4E2D;:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(!inited ){ <span class="comment">//&#x6839;&#x636E;&#x7EBF;&#x7A0B;A&#x4E2D;&#x5BF9;inited&#x53D8;&#x91CF;&#x7684;&#x4FEE;&#x6539;&#x51B3;&#x5B9A;&#x662F;&#x5426;&#x4F7F;&#x7528;context&#x53D8;&#x91CF;</span></span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;sleep(<span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">doSomethingwithconfig(context);</span><br></pre></td></tr></table></figure>
+<p>&#xA0;</p>
+<p><strong>&#x5047;&#x8BBE;&#x7EBF;&#x7A0B;A&#x4E2D;&#x53D1;&#x751F;&#x4E86;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inited = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">context = loadContext();</span><br></pre></td></tr></table></figure>
+<p>&#x90A3;&#x4E48;B&#x4E2D;&#x5F88;&#x53EF;&#x80FD;&#x5C31;&#x4F1A;&#x62FF;&#x5230;&#x4E00;&#x4E2A;&#x5C1A;&#x672A;&#x521D;&#x59CB;&#x5316;&#x6216;&#x5C1A;&#x672A;&#x521D;&#x59CB;&#x5316;&#x5B8C;&#x6210;&#x7684;context,&#x4ECE;&#x800C;&#x5F15;&#x53D1;&#x7A0B;&#x5E8F;&#x9519;&#x8BEF;&#x3002;</p>
+<p><strong>&#x4F8B;&#x5B50;2&#xFF1A;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5BFC;&#x81F4;&#x5355;&#x4F8B;&#x6A21;&#x5F0F;&#x5931;&#x6548;</strong><br>&#x6211;&#x4EEC;&#x90FD;&#x77E5;&#x9053;&#x4E00;&#x4E2A;&#x7ECF;&#x5178;&#x7684;&#x61D2;&#x52A0;&#x8F7D;&#x65B9;&#x5F0F;&#x7684;&#x53CC;&#x91CD;&#x5224;&#x65AD;&#x5355;&#x4F8B;&#x6A21;&#x5F0F;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Singleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;<span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> { }</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;<span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title function_">getInstance</span><span class="params">()</span> {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<span class="keyword">if</span>(instance == <span class="literal">null</span>) {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;synchronzied(Singleton.class) {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<span class="keyword">if</span>(instance == <span class="literal">null</span>) {</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0; instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();&#xA0; <span class="comment">//&#x975E;&#x539F;&#x5B50;&#x64CD;&#x4F5C;</span></span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;}</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;}</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;}</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;<span class="keyword">return</span> instance;</span><br><span class="line"></span><br><span class="line">&#xA0;&#xA0; }</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x770B;&#x4F3C;&#x7B80;&#x5355;&#x7684;&#x4E00;&#x6BB5;&#x8D4B;&#x503C;&#x8BED;&#x53E5;&#xFF1A;instance= new Singleton()&#xFF0C;&#x4F46;&#x662F;&#x5F88;&#x4E0D;&#x5E78;&#x5B83;&#x5E76;&#x4E0D;&#x662F;&#x4E00;&#x4E2A;&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#xFF0C;&#x5176;&#x5B9E;&#x9645;&#x4E0A;&#x53EF;&#x4EE5;&#x62BD;&#x8C61;&#x4E3A;&#x4E0B;&#x9762;&#x51E0;&#x6761;JVM&#x6307;&#x4EE4;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">memory =allocate();&#xA0;&#xA0;&#xA0; //1&#xFF1A;&#x5206;&#x914D;&#x5BF9;&#x8C61;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xA0;</span><br><span class="line"></span><br><span class="line">ctorInstance(memory);&#xA0; //2&#xFF1A;&#x521D;&#x59CB;&#x5316;&#x5BF9;&#x8C61;&#xA0;</span><br><span class="line"></span><br><span class="line">instance =memory;&#xA0;&#xA0;&#xA0;&#xA0; //3&#xFF1A;&#x8BBE;&#x7F6E;instance&#x6307;&#x5411;&#x521A;&#x5206;&#x914D;&#x7684;&#x5185;&#x5B58;&#x5730;&#x5740;&#xA0;</span><br></pre></td></tr></table></figure>
+<p>&#xA0;</p>
+<p>&#x4E0A;&#x9762;&#x64CD;&#x4F5C;2&#x4F9D;&#x8D56;&#x4E8E;&#x64CD;&#x4F5C;1&#xFF0C;&#x4F46;&#x662F;&#x64CD;&#x4F5C;3&#x5E76;&#x4E0D;&#x4F9D;&#x8D56;&#x4E8E;&#x64CD;&#x4F5C;2&#xFF0C;&#x6240;&#x4EE5;JVM&#x662F;&#x53EF;&#x4EE5;&#x9488;&#x5BF9;&#x5B83;&#x4EEC;&#x8FDB;&#x884C;&#x6307;&#x4EE4;&#x7684;&#x4F18;&#x5316;&#x91CD;&#x6392;&#x5E8F;&#x7684;&#xFF0C;&#x7ECF;&#x8FC7;&#x91CD;&#x6392;&#x5E8F;&#x540E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">memory =allocate();&#xA0;&#xA0;&#xA0; //1&#xFF1A;&#x5206;&#x914D;&#x5BF9;&#x8C61;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xA0;</span><br><span class="line"></span><br><span class="line">instance =memory;&#xA0;&#xA0;&#xA0;&#xA0; //3&#xFF1A;instance&#x6307;&#x5411;&#x521A;&#x5206;&#x914D;&#x7684;&#x5185;&#x5B58;&#x5730;&#x5740;&#xFF0C;&#x6B64;&#x65F6;&#x5BF9;&#x8C61;&#x8FD8;&#x672A;&#x521D;&#x59CB;&#x5316;</span><br><span class="line"></span><br><span class="line">ctorInstance(memory);&#xA0; //2&#xFF1A;&#x521D;&#x59CB;&#x5316;&#x5BF9;&#x8C61;</span><br></pre></td></tr></table></figure>
+<p>&#xA0;</p>
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x4E4B;&#x540E;&#xFF0C;instance&#x6307;&#x5411;&#x5206;&#x914D;&#x597D;&#x7684;&#x5185;&#x5B58;&#x653E;&#x5728;&#x4E86;&#x524D;&#x9762;&#xFF0C;&#x800C;&#x8FD9;&#x6BB5;&#x5185;&#x5B58;&#x7684;&#x521D;&#x59CB;&#x5316;&#x88AB;&#x6392;&#x5728;&#x4E86;&#x540E;&#x9762;&#x3002;</p>
+<p>&#x5728;&#x7EBF;&#x7A0B;A&#x6267;&#x884C;&#x8FD9;&#x6BB5;&#x8D4B;&#x503C;&#x8BED;&#x53E5;&#xFF0C;&#x5728;&#x521D;&#x59CB;&#x5316;&#x5206;&#x914D;&#x5BF9;&#x8C61;&#x4E4B;&#x524D;&#x5C31;&#x5DF2;&#x7ECF;&#x5C06;&#x5176;&#x8D4B;&#x503C;&#x7ED9;instance&#x5F15;&#x7528;&#xFF0C;&#x6070;&#x597D;&#x53E6;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x8FDB;&#x5165;&#x65B9;&#x6CD5;&#x5224;&#x65AD;instance&#x5F15;&#x7528;&#x4E0D;&#x4E3A;null&#xFF0C;&#x7136;&#x540E;&#x5C31;&#x5C06;&#x5176;&#x8FD4;&#x56DE;&#x4F7F;&#x7528;&#xFF0C;&#x5BFC;&#x81F4;&#x51FA;&#x9519;&#x3002;</p>
+<h4 id="3-&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;"><a href="#3-&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;" class="headerlink" title="3 &#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;"></a>3 &#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;</h4><p>&#x9664;&#x4E86;&#x524D;&#x9762;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x4E2D;&#x8BB2;&#x5230;&#x7684;<strong>volatile&#x5173;&#x952E;&#x5B57;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x53D8;&#x91CF;&#x4FEE;&#x6539;&#x7684;&#x53EF;&#x89C1;&#x6027;&#x4E4B;&#x5916;</strong>&#xFF0C;&#x8FD8;&#x6709;&#x53E6;&#x4E00;&#x4E2A;&#x91CD;&#x8981;&#x7684;&#x4F5C;&#x7528;&#xFF1A;&#x5728;JDK1.5&#x4E4B;&#x540E;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;<strong>volatile&#x53D8;&#x91CF;&#x7981;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;</strong>&#x3002;</p>
+<p><em>&#x89E3;&#x51B3;&#x65B9;&#x6848;</em>&#xFF1A;&#x4F8B;&#x5B50;1&#x4E2D;&#x7684;inited&#x548C;&#x4F8B;&#x5B50;2&#x4E2D;&#x7684;instance&#x4EE5;&#x5173;&#x952E;&#x5B57;volatile&#x4FEE;&#x9970;&#x4E4B;&#x540E;&#xFF0C;&#x5C31;&#x4F1A;&#x963B;&#x6B62;JVM&#x5BF9;&#x5176;&#x76F8;&#x5173;&#x4EE3;&#x7801;&#x8FDB;&#x884C;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x80FD;&#x591F;&#x6309;&#x7167;&#x65E2;&#x5B9A;&#x7684;&#x987A;&#x5E8F;&#x6307;&#x6267;&#x884C;&#x3002;</p>
+<p>volatile&#x5173;&#x952E;&#x5B57;&#x901A;&#x8FC7;&#x63D0;&#x4F9B;&#x201C;<strong>&#x5185;&#x5B58;&#x5C4F;&#x969C;</strong>&#x201D;&#x7684;&#x65B9;&#x5F0F;&#x6765;&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x88AB;&#x91CD;&#x6392;&#x5E8F;&#xFF0C;&#x4E3A;&#x4E86;&#x5B9E;&#x73B0;volatile&#x7684;&#x5185;&#x5B58;&#x8BED;&#x4E49;&#xFF0C;&#x7F16;&#x8BD1;&#x5668;&#x5728;&#x751F;&#x6210;&#x5B57;&#x8282;&#x7801;&#x65F6;&#xFF0C;&#x4F1A;&#x5728;&#x6307;&#x4EE4;&#x5E8F;&#x5217;&#x4E2D;&#x63D2;&#x5165;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x6765;&#x7981;&#x6B62;&#x7279;&#x5B9A;&#x7C7B;&#x578B;&#x7684;&#x5904;&#x7406;&#x5668;&#x91CD;&#x6392;&#x5E8F;&#x3002;</p>
+<p>&#x5927;&#x591A;&#x6570;&#x7684;&#x5904;&#x7406;&#x5668;&#x90FD;&#x652F;&#x6301;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x7684;&#x6307;&#x4EE4;&#x3002;</p>
+<p>&#x5BF9;&#x4E8E;&#x7F16;&#x8BD1;&#x5668;&#x6765;&#x8BF4;&#xFF0C;&#x53D1;&#x73B0;&#x4E00;&#x4E2A;&#x6700;&#x4F18;&#x5E03;&#x7F6E;&#x6765;&#x6700;&#x5C0F;&#x5316;&#x63D2;&#x5165;&#x5C4F;&#x969C;&#x7684;&#x603B;&#x6570;&#x51E0;&#x4E4E;&#x4E0D;&#x53EF;&#x80FD;&#xFF0C;&#x4E3A;&#x6B64;&#xFF0C;Java&#x5185;&#x5B58;&#x6A21;&#x578B;&#x91C7;&#x53D6;&#x4FDD;&#x5B88;&#x7B56;&#x7565;&#x3002;&#x4E0B;&#x9762;&#x662F;&#x57FA;&#x4E8E;&#x4FDD;&#x5B88;&#x7B56;&#x7565;&#x7684;JMM&#x5185;&#x5B58;&#x5C4F;&#x969C;&#x63D2;&#x5165;&#x7B56;&#x7565;&#xFF1A;</p>
+<p>&#x5728;&#x6BCF;&#x4E2A;volatile&#x5199;&#x64CD;&#x4F5C;&#x7684;&#x524D;&#x9762;&#x63D2;&#x5165;&#x4E00;&#x4E2A;StoreStore&#x5C4F;&#x969C;&#x3002;</p>
+<p>&#x5728;&#x6BCF;&#x4E2A;volatile&#x5199;&#x64CD;&#x4F5C;&#x7684;&#x540E;&#x9762;&#x63D2;&#x5165;&#x4E00;&#x4E2A;StoreLoad&#x5C4F;&#x969C;&#x3002;</p>
+<p>&#x5728;&#x6BCF;&#x4E2A;volatile&#x8BFB;&#x64CD;&#x4F5C;&#x7684;&#x540E;&#x9762;&#x63D2;&#x5165;&#x4E00;&#x4E2A;LoadLoad&#x5C4F;&#x969C;&#x3002;</p>
+<p>&#x5728;&#x6BCF;&#x4E2A;volatile&#x8BFB;&#x64CD;&#x4F5C;&#x7684;&#x540E;&#x9762;&#x63D2;&#x5165;&#x4E00;&#x4E2A;LoadStore&#x5C4F;&#x969C;&#x3002;</p>
+<h3 id="volatile&#x548C;synchronized&#x533A;&#x522B;"><a href="#volatile&#x548C;synchronized&#x533A;&#x522B;" class="headerlink" title="volatile&#x548C;synchronized&#x533A;&#x522B;"></a>volatile&#x548C;synchronized&#x533A;&#x522B;</h3><p><strong>1&#x3001;volatile&#x4E0D;&#x4F1A;&#x8FDB;&#x884C;&#x52A0;&#x9501;&#x64CD;&#x4F5C;&#xFF1A;</strong><br><strong>2&#x3001;volatile&#x53D8;&#x91CF;&#x4F5C;&#x7528;&#x7C7B;&#x4F3C;&#x4E8E;&#x540C;&#x6B65;&#x53D8;&#x91CF;&#x8BFB;&#x5199;&#x64CD;&#x4F5C;&#xFF1A;</strong><br><strong>3&#x3001;volatile&#x4E0D;&#x5982;synchronized&#x5B89;&#x5168;&#xFF1A;</strong><br><strong>4&#x3001;volatile&#x65E0;&#x6CD5;&#x540C;&#x65F6;&#x4FDD;&#x8BC1;&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x539F;&#x5B50;&#x6027;&#xFF1A;</strong></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/volatile/" rel="tag">volatile</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/20/5A.006.%E5%B9%B6%E5%8F%91-JAVA%E5%90%84%E7%A7%8D%E9%94%81-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81,%E5%8F%AF%E4%B8%AD%E6%96%AD%E9%94%81%EF%BC%8C%E5%85%AC%E5%B9%B3%E9%94%81%EF%BC%8C%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%8C%E8%87%AA%E6%97%8B%E9%94%81/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            并发-JAVA各种锁-可重入锁,可中断锁，公平锁，读写锁，自旋锁
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/20/5A.102.%E5%B9%B6%E5%8F%91-JMM8%E4%B8%AA%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">并发-JMM8个原子操作</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

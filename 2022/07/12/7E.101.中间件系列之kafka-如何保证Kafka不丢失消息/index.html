@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之kafka-如何保证Kafka不丢失消息 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7E.101.中间件系列之kafka-如何保证Kafka不丢失消息"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之kafka-如何保证Kafka不丢失消息
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7E.101.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81Kafka%E4%B8%8D%E4%B8%A2%E5%A4%B1%E6%B6%88%E6%81%AF/" class="article-date">
+  <time datetime="2022-07-12T07:47:21.543Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x9762;&#x8BD5;&#x9898;&#xFF1A;&#x8BF4;&#x8BF4;&#x4F60;&#x5982;&#x4F55;&#x4FDD;&#x8BC1;Kafka&#x4E0D;&#x4E22;&#x5931;&#x6D88;&#x606F;: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/113902567">https://zhuanlan.zhihu.com/p/113902567</a></p>
+</blockquote>
+<span id="more"></span>
+<h3 id="&#x751F;&#x4EA7;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;"><a href="#&#x751F;&#x4EA7;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;" class="headerlink" title="&#x751F;&#x4EA7;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;"></a>&#x751F;&#x4EA7;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;</h3><p>&#x751F;&#x4EA7;&#x8005;(Producer) &#x8C03;&#x7528;send&#x65B9;&#x6CD5;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#xFF0C;&#x6D88;&#x606F;&#x53EF;&#x80FD;&#x56E0;&#x4E3A;&#x7F51;&#x7EDC;&#x95EE;&#x9898;&#x5E76;&#x6CA1;&#x6709;&#x53D1;&#x9001;&#x8FC7;&#x53BB;&#x3002;<br>&#x6240;&#x4EE5;&#xFF0C;&#x6211;&#x4EEC;&#x4E0D;&#x80FD;&#x9ED8;&#x8BA4;&#x5728;&#x8C03;&#x7528;send&#x65B9;&#x6CD5;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#x6D88;&#x606F;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x4E86;&#x3002;&#x4E3A;&#x4E86;&#x786E;&#x5B9A;&#x6D88;&#x606F;&#x662F;&#x53D1;&#x9001;&#x6210;&#x529F;&#xFF0C;&#x6211;&#x4EEC;&#x8981;&#x5224;&#x65AD;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x7684;&#x7ED3;&#x679C;&#x3002;&#x4F46;&#x662F;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F; Kafka &#x751F;&#x4EA7;&#x8005;(Producer) &#x4F7F;&#x7528; send &#x65B9;&#x6CD5;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5B9E;&#x9645;&#x4E0A;&#x662F;&#x5F02;&#x6B65;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; get()&#x65B9;&#x6CD5;&#x83B7;&#x53D6;&#x8C03;&#x7528;&#x7ED3;&#x679C;&#xFF0C;&#x4F46;&#x662F;&#x8FD9;&#x6837;&#x4E5F;&#x8BA9;&#x5B83;&#x53D8;&#x4E3A;&#x4E86;&#x540C;&#x6B65;&#x64CD;&#x4F5C;&#xFF0C;&#x793A;&#x4F8B;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SendResult&lt;String, Object&gt; sendResult = kafkaTemplate.send(topic, o).get();</span><br><span class="line"><span class="keyword">if</span> (sendResult.getRecordMetadata() != <span class="literal">null</span>) {</span><br><span class="line">  logger.info(<span class="string">&quot;&#x751F;&#x4EA7;&#x8005;&#x6210;&#x529F;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;&quot;</span> + sendResult.getProducerRecord().topic() + <span class="string">&quot;-&gt; &quot;</span> + sendRe</span><br><span class="line">              sult.getProducerRecord().value().toString());</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<p>&#x4F46;&#x662F;&#x4E00;&#x822C;&#x4E0D;&#x63A8;&#x8350;&#x8FD9;&#x4E48;&#x505A;&#xFF01;&#x53EF;&#x4EE5;&#x91C7;&#x7528;&#x4E3A;&#x5176;&#x6DFB;&#x52A0;&#x56DE;&#x8C03;&#x51FD;&#x6570;&#x7684;&#x5F62;&#x5F0F;&#xFF0C;&#x793A;&#x4F8B;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ListenableFuture&lt;SendResult&lt;String, Object&gt;&gt; future = kafkaTemplate.send(topic, o);</span><br><span class="line">       future.addCallback(result -&gt; logger.info(<span class="string">&quot;&#x751F;&#x4EA7;&#x8005;&#x6210;&#x529F;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;topic:{} partition:{}&#x7684;&#x6D88;&#x606F;&quot;</span>, result.getRecordMetadata().topic(), result.getRecordMetadata().partition()),</span><br><span class="line">               ex -&gt; logger.error(<span class="string">&quot;&#x751F;&#x4EA7;&#x8005;&#x53D1;&#x9001;&#x6D88;&#x5931;&#x8D25;&#xFF0C;&#x539F;&#x56E0;&#xFF1A;{}&quot;</span>, ex.getMessage()));</span><br></pre></td></tr></table></figure>
+
+<p>&#x5982;&#x679C;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x5931;&#x8D25;&#x7684;&#x8BDD;&#xFF0C;&#x6211;&#x4EEC;&#x68C0;&#x67E5;&#x5931;&#x8D25;&#x7684;&#x539F;&#x56E0;&#x4E4B;&#x540E;&#x91CD;&#x65B0;&#x53D1;&#x9001;&#x5373;&#x53EF;&#xFF01;</p>
+<p>&#x53E6;&#x5916;&#x8FD9;&#x91CC;&#x63A8;&#x8350;&#x4E3A; Producer &#x7684;retries &#xFF08;&#x91CD;&#x8BD5;&#x6B21;&#x6570;&#xFF09;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x6BD4;&#x8F83;&#x5408;&#x7406;&#x7684;&#x503C;&#xFF0C;&#x4E00;&#x822C;&#x662F; 3 &#xFF0C;&#x4F46;&#x662F;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x6D88;&#x606F;&#x4E0D;&#x4E22;&#x5931;&#x7684;&#x8BDD;&#x4E00;&#x822C;&#x4F1A;&#x8BBE;&#x7F6E;&#x6BD4;&#x8F83;&#x5927;&#x4E00;&#x70B9;&#x3002;&#x8BBE;&#x7F6E;&#x5B8C;&#x6210;&#x4E4B;&#x540E;&#xFF0C;&#x5F53;&#x51FA;&#x73B0;&#x7F51;&#x7EDC;&#x95EE;&#x9898;&#x4E4B;&#x540E;&#x80FD;&#x591F;&#x81EA;&#x52A8;&#x91CD;&#x8BD5;&#x6D88;&#x606F;&#x53D1;&#x9001;&#xFF0C;&#x907F;&#x514D;&#x6D88;&#x606F;&#x4E22;&#x5931;&#x3002;&#x53E6;&#x5916;&#xFF0C;&#x5EFA;&#x8BAE;&#x8FD8;&#x8981;&#x8BBE;&#x7F6E;&#x91CD;&#x8BD5;&#x95F4;&#x9694;&#xFF0C;&#x56E0;&#x4E3A;&#x95F4;&#x9694;&#x592A;&#x5C0F;&#x7684;&#x8BDD;&#x91CD;&#x8BD5;&#x7684;&#x6548;&#x679C;&#x5C31;&#x4E0D;&#x660E;&#x663E;&#x4E86;&#xFF0C;&#x7F51;&#x7EDC;&#x6CE2;&#x52A8;&#x4E00;&#x6B21;&#x4F60;3&#x6B21;&#x4E00;&#x4E0B;&#x5B50;&#x5C31;&#x91CD;&#x8BD5;&#x5B8C;&#x4E86;</p>
+<h3 id="&#x6D88;&#x8D39;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;"><a href="#&#x6D88;&#x8D39;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;" class="headerlink" title="&#x6D88;&#x8D39;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;"></a>&#x6D88;&#x8D39;&#x8005;&#x4E22;&#x5931;&#x6D88;&#x606F;&#x7684;&#x60C5;&#x51B5;</h3><p>&#x6211;&#x4EEC;&#x77E5;&#x9053;&#x6D88;&#x606F;&#x5728;&#x88AB;&#x8FFD;&#x52A0;&#x5230; Partition(&#x5206;&#x533A;)&#x7684;&#x65F6;&#x5019;&#x90FD;&#x4F1A;&#x5206;&#x914D;&#x4E00;&#x4E2A;&#x7279;&#x5B9A;&#x7684;&#x504F;&#x79FB;&#x91CF;&#xFF08;offset&#xFF09;&#x3002;&#x504F;&#x79FB;&#x91CF;&#xFF08;offset)&#x8868;&#x793A; Consumer &#x5F53;&#x524D;&#x6D88;&#x8D39;&#x5230;&#x7684; Partition(&#x5206;&#x533A;)&#x7684;&#x6240;&#x5728;&#x7684;&#x4F4D;&#x7F6E;&#x3002;Kafka &#x901A;&#x8FC7;&#x504F;&#x79FB;&#x91CF;&#xFF08;offset&#xFF09;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x6D88;&#x606F;&#x5728;&#x5206;&#x533A;&#x5185;&#x7684;&#x987A;&#x5E8F;&#x6027;&#x3002;</p>
+<p>&#x5F53;&#x6D88;&#x8D39;&#x8005;&#x62C9;&#x53D6;&#x5230;&#x4E86;&#x5206;&#x533A;&#x7684;&#x67D0;&#x4E2A;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#xFF0C;&#x6D88;&#x8D39;&#x8005;&#x4F1A;&#x81EA;&#x52A8;&#x63D0;&#x4EA4;&#x4E86; offset&#x3002;&#x81EA;&#x52A8;&#x63D0;&#x4EA4;&#x7684;&#x8BDD;&#x4F1A;&#x6709;&#x4E00;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x8BD5;&#x60F3;&#x4E00;&#x4E0B;&#xFF0C;&#x5F53;&#x6D88;&#x8D39;&#x8005;&#x521A;&#x62FF;&#x5230;&#x8FD9;&#x4E2A;&#x6D88;&#x606F;&#x51C6;&#x5907;&#x8FDB;&#x884C;&#x771F;&#x6B63;&#x6D88;&#x8D39;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x7A81;&#x7136;&#x6302;&#x6389;&#x4E86;&#xFF0C;&#x6D88;&#x606F;&#x5B9E;&#x9645;&#x4E0A;&#x5E76;&#x6CA1;&#x6709;&#x88AB;&#x6D88;&#x8D39;&#xFF0C;&#x4F46;&#x662F; offset &#x5374;&#x88AB;&#x81EA;&#x52A8;&#x63D0;&#x4EA4;&#x4E86;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#x4E5F;&#x6BD4;&#x8F83;&#x7C97;&#x66B4;&#xFF0C;&#x6211;&#x4EEC;&#x624B;&#x52A8;&#x5173;&#x95ED;&#x95ED;&#x81EA;&#x52A8;&#x63D0;&#x4EA4; offset&#xFF0C;&#x6BCF;&#x6B21;&#x5728;&#x771F;&#x6B63;&#x6D88;&#x8D39;&#x5B8C;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#x4E4B;&#x540E;&#x518D;&#x81EA;&#x5DF1;&#x624B;&#x52A8;&#x63D0;&#x4EA4; offset &#x3002; &#x4F46;&#x662F;&#xFF0C;&#x7EC6;&#x5FC3;&#x7684;&#x670B;&#x53CB;&#x4E00;&#x5B9A;&#x4F1A;&#x53D1;&#x73B0;&#xFF0C;&#x8FD9;&#x6837;&#x4F1A;&#x5E26;&#x6765;&#x6D88;&#x606F;&#x88AB;&#x91CD;&#x65B0;&#x6D88;&#x8D39;&#x7684;&#x95EE;&#x9898;&#x3002;&#x6BD4;&#x5982;&#x4F60;&#x521A;&#x521A;&#x6D88;&#x8D39;&#x5B8C;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#xFF0C;&#x8FD8;&#x6CA1;&#x63D0;&#x4EA4; offset&#xFF0C;&#x7ED3;&#x679C;&#x81EA;&#x5DF1;&#x6302;&#x6389;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x6D88;&#x606F;&#x7406;&#x8BBA;&#x4E0A;&#x5C31;&#x4F1A;&#x88AB;&#x6D88;&#x8D39;&#x4E24;&#x6B21;&#x3002;</p>
+<h3 id="Kafka-&#x5F04;&#x4E22;&#x4E86;&#x6D88;&#x606F;"><a href="#Kafka-&#x5F04;&#x4E22;&#x4E86;&#x6D88;&#x606F;" class="headerlink" title="Kafka &#x5F04;&#x4E22;&#x4E86;&#x6D88;&#x606F;"></a>Kafka &#x5F04;&#x4E22;&#x4E86;&#x6D88;&#x606F;</h3><p>&#x6211;&#x4EEC;&#x77E5;&#x9053; Kafka &#x4E3A;&#x5206;&#x533A;&#xFF08;Partition&#xFF09;&#x5F15;&#x5165;&#x4E86;&#x591A;&#x526F;&#x672C;&#xFF08;Replica&#xFF09;&#x673A;&#x5236;&#x3002;&#x5206;&#x533A;&#xFF08;Partition&#xFF09;&#x4E2D;&#x7684;&#x591A;&#x4E2A;&#x526F;&#x672C;&#x4E4B;&#x95F4;&#x4F1A;&#x6709;&#x4E00;&#x4E2A;&#x53EB;&#x505A; leader &#x7684;&#x5BB6;&#x4F19;&#xFF0C;&#x5176;&#x4ED6;&#x526F;&#x672C;&#x79F0;&#x4E3A; follower&#x3002;&#x6211;&#x4EEC;&#x53D1;&#x9001;&#x7684;&#x6D88;&#x606F;&#x4F1A;&#x88AB;&#x53D1;&#x9001;&#x5230; leader &#x526F;&#x672C;&#xFF0C;&#x7136;&#x540E; follower &#x526F;&#x672C;&#x624D;&#x80FD;&#x4ECE; leader &#x526F;&#x672C;&#x4E2D;&#x62C9;&#x53D6;&#x6D88;&#x606F;&#x8FDB;&#x884C;&#x540C;&#x6B65;&#x3002;&#x751F;&#x4EA7;&#x8005;&#x548C;&#x6D88;&#x8D39;&#x8005;&#x53EA;&#x4E0E; leader &#x526F;&#x672C;&#x4EA4;&#x4E92;&#x3002;&#x4F60;&#x53EF;&#x4EE5;&#x7406;&#x89E3;&#x4E3A;&#x5176;&#x4ED6;&#x526F;&#x672C;&#x53EA;&#x662F; leader &#x526F;&#x672C;&#x7684;&#x62F7;&#x8D1D;&#xFF0C;&#x5B83;&#x4EEC;&#x7684;&#x5B58;&#x5728;&#x53EA;&#x662F;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x6D88;&#x606F;&#x5B58;&#x50A8;&#x7684;&#x5B89;&#x5168;&#x6027;&#x3002;<br>&#x8BD5;&#x60F3;&#x4E00;&#x79CD;&#x60C5;&#x51B5;&#xFF1A;&#x5047;&#x5982; leader &#x526F;&#x672C;&#x6240;&#x5728;&#x7684; broker &#x7A81;&#x7136;&#x6302;&#x6389;&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x8981;&#x4ECE; follower &#x526F;&#x672C;&#x91CD;&#x65B0;&#x9009;&#x51FA;&#x4E00;&#x4E2A; leader &#xFF0C;&#x4F46;&#x662F; leader &#x7684;&#x6570;&#x636E;&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x6CA1;&#x6709;&#x88AB; follower &#x526F;&#x672C;&#x7684;&#x540C;&#x6B65;&#x7684;&#x8BDD;&#xFF0C;&#x5C31;&#x4F1A;&#x9020;&#x6210;&#x6D88;&#x606F;&#x4E22;&#x5931;&#x3002;</p>
+<p>&#x8BBE;&#x7F6E; acks = all</p>
+<p>&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#x5C31;&#x662F;&#x6211;&#x4EEC;&#x8BBE;&#x7F6E; acks = all&#x3002;acks &#x662F; Kafka &#x751F;&#x4EA7;&#x8005;(Producer) &#x5F88;&#x91CD;&#x8981;&#x7684;&#x4E00;&#x4E2A;&#x53C2;&#x6570;&#x3002;<br>acks &#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x5373;&#x4E3A;1&#xFF0C;&#x4EE3;&#x8868;&#x6211;&#x4EEC;&#x7684;&#x6D88;&#x606F;&#x88AB;leader&#x526F;&#x672C;&#x63A5;&#x6536;&#x4E4B;&#x540E;&#x5C31;&#x7B97;&#x88AB;&#x6210;&#x529F;&#x53D1;&#x9001;&#x3002;&#x5F53;&#x6211;&#x4EEC;&#x914D;&#x7F6E; acks = all &#x4EE3;&#x8868;&#x5219;&#x6240;&#x6709;&#x526F;&#x672C;&#x90FD;&#x8981;&#x63A5;&#x6536;&#x5230;&#x8BE5;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#x8BE5;&#x6D88;&#x606F;&#x624D;&#x7B97;&#x771F;&#x6B63;&#x6210;&#x529F;&#x88AB;&#x53D1;&#x9001;&#x3002;</p>
+<p>&#x8BBE;&#x7F6E; replication.factor &gt;= 3</p>
+<p>&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1; leader &#x526F;&#x672C;&#x80FD;&#x6709; follower &#x526F;&#x672C;&#x80FD;&#x540C;&#x6B65;&#x6D88;&#x606F;&#xFF0C;&#x6211;&#x4EEC;&#x4E00;&#x822C;&#x4F1A;&#x4E3A; topic &#x8BBE;&#x7F6E; replication.factor &gt;= 3&#x3002;&#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x6BCF;&#x4E2A; &#x5206;&#x533A;(partition) &#x81F3;&#x5C11;&#x6709; 3 &#x4E2A;&#x526F;&#x672C;&#x3002;&#x867D;&#x7136;&#x9020;&#x6210;&#x4E86;&#x6570;&#x636E;&#x5197;&#x4F59;&#xFF0C;&#x4F46;&#x662F;&#x5E26;&#x6765;&#x4E86;&#x6570;&#x636E;&#x7684;&#x5B89;&#x5168;&#x6027;&#x3002;</p>
+<p>&#x8BBE;&#x7F6E; min.insync.replicas &gt; 1</p>
+<p>&#x4E00;&#x822C;&#x60C5;&#x51B5;&#x4E0B;&#x6211;&#x4EEC;&#x8FD8;&#x9700;&#x8981;&#x8BBE;&#x7F6E; min.insync.replicas&gt; 1 &#xFF0C;&#x8FD9;&#x6837;&#x914D;&#x7F6E;&#x4EE3;&#x8868;&#x6D88;&#x606F;&#x81F3;&#x5C11;&#x8981;&#x88AB;&#x5199;&#x5165;&#x5230; 2 &#x4E2A;&#x526F;&#x672C;&#x624D;&#x7B97;&#x662F;&#x88AB;&#x6210;&#x529F;&#x53D1;&#x9001;&#x3002;min.insync.replicas &#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; 1 &#xFF0C;&#x5728;&#x5B9E;&#x9645;&#x751F;&#x4EA7;&#x4E2D;&#x5E94;&#x5C3D;&#x91CF;&#x907F;&#x514D;&#x9ED8;&#x8BA4;&#x503C; 1&#x3002;</p>
+<p>&#x4F46;&#x662F;&#xFF0C;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x6574;&#x4E2A; Kafka &#x670D;&#x52A1;&#x7684;&#x9AD8;&#x53EF;&#x7528;&#x6027;&#xFF0C;&#x4F60;&#x9700;&#x8981;&#x786E;&#x4FDD; replication.factor &gt; min.insync.replicas &#x3002;&#x4E3A;&#x4EC0;&#x4E48;&#x5462;&#xFF1F;&#x8BBE;&#x60F3;&#x4E00;&#x4E0B;&#x52A0;&#x5165;&#x4E24;&#x8005;&#x76F8;&#x7B49;&#x7684;&#x8BDD;&#xFF0C;&#x53EA;&#x8981;&#x662F;&#x6709;&#x4E00;&#x4E2A;&#x526F;&#x672C;&#x6302;&#x6389;&#xFF0C;&#x6574;&#x4E2A;&#x5206;&#x533A;&#x5C31;&#x65E0;&#x6CD5;&#x6B63;&#x5E38;&#x5DE5;&#x4F5C;&#x4E86;&#x3002;&#x8FD9;&#x660E;&#x663E;&#x8FDD;&#x53CD;&#x9AD8;&#x53EF;&#x7528;&#x6027;&#xFF01;&#x4E00;&#x822C;&#x63A8;&#x8350;&#x8BBE;&#x7F6E;&#x6210; replication.factor = min.insync.replicas + 1&#x3002;</p>
+<p>&#x8BBE;&#x7F6E; unclean.leader.election.enable = false</p>
+<p>Kafka 0.11.0.0&#x7248;&#x672C;&#x5F00;&#x59CB; unclean.leader.election.enable &#x53C2;&#x6570;&#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x7531;&#x539F;&#x6765;&#x7684;true &#x6539;&#x4E3A;false</p>
+<p>&#x6211;&#x4EEC;&#x6700;&#x5F00;&#x59CB;&#x4E5F;&#x8BF4;&#x4E86;&#x6211;&#x4EEC;&#x53D1;&#x9001;&#x7684;&#x6D88;&#x606F;&#x4F1A;&#x88AB;&#x53D1;&#x9001;&#x5230; leader &#x526F;&#x672C;&#xFF0C;&#x7136;&#x540E; follower &#x526F;&#x672C;&#x624D;&#x80FD;&#x4ECE; leader &#x526F;&#x672C;&#x4E2D;&#x62C9;&#x53D6;&#x6D88;&#x606F;&#x8FDB;&#x884C;&#x540C;&#x6B65;&#x3002;&#x591A;&#x4E2A; follower &#x526F;&#x672C;&#x4E4B;&#x95F4;&#x7684;&#x6D88;&#x606F;&#x540C;&#x6B65;&#x60C5;&#x51B5;&#x4E0D;&#x4E00;&#x6837;&#xFF0C;&#x5F53;&#x6211;&#x4EEC;&#x914D;&#x7F6E;&#x4E86; unclean.leader.election.enable = false &#x7684;&#x8BDD;&#xFF0C;&#x5F53; leader &#x526F;&#x672C;&#x53D1;&#x751F;&#x6545;&#x969C;&#x65F6;&#x5C31;&#x4E0D;&#x4F1A;&#x4ECE; follower &#x526F;&#x672C;&#x4E2D;&#x548C; leader &#x540C;&#x6B65;&#x7A0B;&#x5EA6;&#x8FBE;&#x4E0D;&#x5230;&#x8981;&#x6C42;&#x7684;&#x526F;&#x672C;&#x4E2D;&#x9009;&#x62E9;&#x51FA; leader &#xFF0C;&#x8FD9;&#x6837;&#x964D;&#x4F4E;&#x4E86;&#x6D88;&#x606F;&#x4E22;&#x5931;&#x7684;&#x53EF;&#x80FD;&#x6027;&#x3002;</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/7E.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之kafka-Kafka高可用架构设计
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/07/12/7E.102.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之kafka-Kafka如何保证高可用</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

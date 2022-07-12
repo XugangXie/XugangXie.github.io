@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>DevOps系列-centos7.8安装docker和docker-compose |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.006 DevOps系列-centos7.8安装docker和docker-compose"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  DevOps系列-centos7.8安装docker和docker-compose
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/10/07/18.006%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85docker%E5%92%8Cdocker-compose/" class="article-date">
+  <time datetime="2021-10-06T16:00:00.000Z" itemprop="datePublished">2021-10-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DevOps/">DevOps</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">582</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">3 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;centos7.8&#x4E0A;&#x5982;&#x4F55;&#x5FEB;&#x901F;&#x5B89;&#x88C5;docker&#x548C;docker-compose&#x547D;&#x4EE4;</p>
+</blockquote>
+<span id="more"></span>
+<h3 id="&#x73AF;&#x5883;&#xFF1A;"><a href="#&#x73AF;&#x5883;&#xFF1A;" class="headerlink" title="&#x73AF;&#x5883;&#xFF1A;"></a>&#x73AF;&#x5883;&#xFF1A;</h3><ol>
+<li><code>&#x963F;&#x91CC;&#x4E91;ECS</code>:2Core4G Centos7.8</li>
+<li>&#x4F7F;&#x7528; root &#x6743;&#x9650;&#x767B;&#x5F55; Centos7.8</li>
+</ol>
+<blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7d9ff93bc89e">https://www.jianshu.com/p/7d9ff93bc89e</a><br><a target="_blank" rel="noopener" href="https://docs.docker.com/compose/install/#install-compose">https://docs.docker.com/compose/install/#install-compose</a></p>
+</blockquote>
+<h3 id="&#x5B89;&#x88C5;docker"><a href="#&#x5B89;&#x88C5;docker" class="headerlink" title="&#x5B89;&#x88C5;docker"></a>&#x5B89;&#x88C5;docker</h3><ol>
+<li><p>Docker &#x8981;&#x6C42; CentOS &#x7CFB;&#x7EDF;&#x7684;&#x5185;&#x6838;&#x7248;&#x672C;&#x9AD8;&#x4E8E; 3.10<br>&#x901A;&#x8FC7; <code>uname -r</code> &#x547D;&#x4EE4;&#x67E5;&#x770B;&#x4F60;&#x5F53;&#x524D;&#x7684;&#x5185;&#x6838;&#x7248;&#x672C;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ bin]# uname -r</span><br><span class="line">3.10.0-1127.19.1.el7.x86_64</span><br></pre></td></tr></table></figure></li>
+<li><p>&#x786E;&#x4FDD; yum &#x5305;&#x66F4;&#x65B0;&#x5230;&#x6700;&#x65B0;&#x3002;<br><code>yum -y update</code></p>
+</li>
+<li><p>&#x5378;&#x8F7D;&#x65E7;&#x7248;&#x672C;(&#x5982;&#x679C;&#x5B89;&#x88C5;&#x8FC7;&#x65E7;&#x7248;&#x672C;&#x7684;&#x8BDD;)<br><code>yum remove docker  docker-common docker-selinux docker-engine</code></p>
+</li>
+<li><p>&#x5B89;&#x88C5;&#x9700;&#x8981;&#x7684;&#x8F6F;&#x4EF6;&#x5305;<br><code> yum install -y yum-utils device-mapper-persistent-data lvm2</code></p>
+</li>
+<li><p>&#x8BBE;&#x7F6E;yum&#x6E90;<br><code>yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</code></p>
+</li>
+<li><p>&#x67E5;&#x770B;&#x6240;&#x6709;&#x4ED3;&#x5E93;&#x4E2D;&#x6240;&#x6709;docker&#x7248;&#x672C;&#xFF0C;&#x5E76;&#x9009;&#x62E9;&#x7279;&#x5B9A;&#x7248;&#x672C;&#x5B89;&#x88C5;<br><code>yum list docker-ce --showduplicates | sort -r</code></p>
+</li>
+<li><p>&#x5B89;&#x88C5;docker<br>&#x6211;&#x6267;&#x884C;&#x7684;&#x662F;&#xFF1A; <code>yum install docker-ce-18.03.1.ce</code></p>
+</li>
+<li><p>&#x542F;&#x52A8;&#x5E76;&#x52A0;&#x5165;&#x5F00;&#x673A;&#x542F;&#x52A8;<br><code>systemctl start docker</code><br><code>systemctl enable docker</code></p>
+</li>
+<li><p>&#x67E5;&#x770B;&#x542F;&#x52A8;&#x72B6;&#x6001;&#xFF1A;<br><code>systemctl status docker</code></p>
+</li>
+</ol>
+<p>&#x6216;&#x8005;&#x4F7F;&#x7528;service&#x547D;&#x4EE4;&#x542F;&#x52A8;&#xFF1A;<br><code>service docker start</code><br>&#x67E5;&#x770B;&#x72B6;&#x6001;&#xFF1A;<br><code>service docker status</code></p>
+<ol start="10">
+<li><p>&#x9A8C;&#x8BC1;&#x5B89;&#x88C5;&#x662F;&#x5426;&#x6210;&#x529F;(&#x6709;client&#x548C;service&#x4E24;&#x90E8;&#x5206;&#x8868;&#x793A;docker&#x5B89;&#x88C5;&#x542F;&#x52A8;&#x90FD;&#x6210;&#x529F;&#x4E86;)<br><code>docker version</code><br>&#x8F93;&#x51FA;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ bin]# docker version</span><br><span class="line">Client:</span><br><span class="line"> Version:      18.03.1-ce</span><br><span class="line"> API version:  1.37</span><br><span class="line"> Go version:   go1.9.5</span><br><span class="line"> Git commit:   9ee9f40</span><br><span class="line"> Built:        Thu Apr 26 07:20:16 2018</span><br><span class="line"> OS/Arch:      linux/amd64</span><br><span class="line"> Experimental: false</span><br><span class="line"> Orchestrator: swarm</span><br><span class="line"></span><br><span class="line">Server:</span><br><span class="line"> Engine:</span><br><span class="line">  Version:      18.03.1-ce</span><br><span class="line">  API version:  1.37 (minimum version 1.12)</span><br><span class="line">  Go version:   go1.9.5</span><br><span class="line">  Git commit:   9ee9f40</span><br><span class="line">  Built:        Thu Apr 26 07:23:58 2018</span><br><span class="line">  OS/Arch:      linux/amd64</span><br><span class="line">  Experimental: false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x914D;&#x7F6E;&#x955C;&#x50CF;mirror</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/docker</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>&#x67E5;&#x770B;&#x6709;&#x6CA1;&#x6709; daemon.json&#x3002;&#x8FD9;&#x662F;docker&#x9ED8;&#x8BA4;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x3002;<br>&#x5982;&#x679C;&#x6CA1;&#x6709;&#x65B0;&#x5EFA;&#xFF0C;&#x5982;&#x679C;&#x6709;&#xFF0C;&#x5219;&#x4FEE;&#x6539;&#x3002;<br>daemon.json&#x91CC;&#x7684;&#x5185;&#x5BB9;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">  &quot;registry-mirrors&quot;: [</span><br><span class="line">     &quot;http://141e5461.m.daocloud.io&quot;,</span><br><span class="line">     &quot;http://4e70ba5d.m.daocloud.io&quot;</span><br><span class="line">  ]</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<p>&#x4FDD;&#x5B58;&#x9000;&#x51FA;&#x3002;<br>&#x91CD;&#x542F;docker&#x670D;&#x52A1;<br>service docker restart<br>&#x6216;<br>systemctl restart docker</p>
+<ol start="12">
+<li>&#x5378;&#x8F7D;docker<br><code>yum -y remove docker-engine</code></li>
+</ol>
+<h3 id="&#x5B89;&#x88C5;docker-compose"><a href="#&#x5B89;&#x88C5;docker-compose" class="headerlink" title="&#x5B89;&#x88C5;docker-compose"></a>&#x5B89;&#x88C5;docker-compose</h3><h4 id="&#x65B9;&#x5F0F;1&#xFF1A;"><a href="#&#x65B9;&#x5F0F;1&#xFF1A;" class="headerlink" title="&#x65B9;&#x5F0F;1&#xFF1A;"></a>&#x65B9;&#x5F0F;1&#xFF1A;</h4><ol>
+<li><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo curl -L &quot;https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)&quot; -o /usr/local/bin/docker-compose</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>chmod +x /usr/local/bin/docker-compose</code></p>
+</li>
+<li><p><code>ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose</code></p>
+</li>
+<li><p><code>docker-compose --version</code><br> &#x8F93;&#x51FA;&#xFF1A;</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ bin]# docker-compose --version</span><br><span class="line">docker-compose version 1.27.4, build 40524192</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="&#x65B9;&#x5F0F;2&#xFF1A;"><a href="#&#x65B9;&#x5F0F;2&#xFF1A;" class="headerlink" title="&#x65B9;&#x5F0F;2&#xFF1A;"></a>&#x65B9;&#x5F0F;2&#xFF1A;</h4><ol>
+<li><p>&#x5B89;&#x88C5;python-pip<br><code>yum -y install epel-release</code><br><code>yum -y install python-pip</code></p>
+</li>
+<li><p>&#x5B89;&#x88C5;docker-compose<br><code>pip install docker-compose</code></p>
+</li>
+<li><p>&#x5F85;&#x5B89;&#x88C5;&#x5B8C;&#x6210;&#x540E;&#xFF0C;&#x6267;&#x884C;&#x67E5;&#x8BE2;&#x7248;&#x672C;&#x7684;&#x547D;&#x4EE4;<br><code>docker-compose version</code></p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker-compose/" rel="tag">docker-compose</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/10/07/18.005%20DevOps%E7%B3%BB%E5%88%97-docker%E5%91%BD%E4%BB%A4%E8%AE%B0%E5%BD%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            DevOps系列-docker命令记录
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/10/07/18.008%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85Hexo/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">DevOps系列-centos7.8安装Hexo</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

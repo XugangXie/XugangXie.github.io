@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>架构-如何做好一个后端项目 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-10.001.架构-如何做好一个后端项目"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  架构-如何做好一个后端项目
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/01/10.001.%E6%9E%B6%E6%9E%84-%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E4%B8%80%E4%B8%AA%E5%90%8E%E7%AB%AF%E9%A1%B9%E7%9B%AE/" class="article-date">
+  <time datetime="2022-04-30T16:00:00.000Z" itemprop="datePublished">2022-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%9E%B6%E6%9E%84/">架构</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x5982;&#x4F55;&#x505A;&#x597D;&#x4E00;&#x4E2A;&#x540E;&#x7AEF;&#x9879;&#x76EE;:<br><a target="_blank" rel="noopener" href="https://github.com/1991wangliang/springboot-ddd-demo">https://github.com/1991wangliang/springboot-ddd-demo</a></p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="&#x9886;&#x57DF;&#x6A21;&#x578B;&#x3001;&#x8D2B;&#x8840;&#x6A21;&#x578B;&#x3001;&#x5145;&#x8840;&#x6A21;&#x578B;&#x6982;&#x5FF5;&#x603B;&#x7ED3;"><a href="#&#x9886;&#x57DF;&#x6A21;&#x578B;&#x3001;&#x8D2B;&#x8840;&#x6A21;&#x578B;&#x3001;&#x5145;&#x8840;&#x6A21;&#x578B;&#x6982;&#x5FF5;&#x603B;&#x7ED3;" class="headerlink" title="&#x9886;&#x57DF;&#x6A21;&#x578B;&#x3001;&#x8D2B;&#x8840;&#x6A21;&#x578B;&#x3001;&#x5145;&#x8840;&#x6A21;&#x578B;&#x6982;&#x5FF5;&#x603B;&#x7ED3;"></a>&#x9886;&#x57DF;&#x6A21;&#x578B;&#x3001;&#x8D2B;&#x8840;&#x6A21;&#x578B;&#x3001;&#x5145;&#x8840;&#x6A21;&#x578B;&#x6982;&#x5FF5;&#x603B;&#x7ED3;</h2><p>&#x9886;&#x57DF;&#x6A21;&#x578B;&#x662F;&#x5BF9;&#x9886;&#x57DF;&#x5185;&#x7684;&#x6982;&#x5FF5;&#x7C7B;&#x6216;&#x73B0;&#x5B9E;&#x4E16;&#x754C;&#x4E2D;&#x5BF9;&#x8C61;&#x7684;&#x53EF;&#x89C6;&#x5316;&#x8868;&#x793A;&#x3002;&#x53C8;&#x79F0;&#x6982;&#x5FF5;&#x6A21;&#x578B;&#x3001;&#x9886;&#x57DF;&#x5BF9;&#x8C61;&#x6A21;&#x578B;&#x3001;&#x5206;&#x6790;&#x5BF9;&#x8C61;&#x6A21;&#x578B;&#x3002;&#x5B83;&#x4E13;&#x6CE8;&#x4E8E;&#x5206;&#x6790;&#x95EE;&#x9898;&#x9886;&#x57DF;&#x672C;&#x8EAB;&#xFF0C;&#x53D1;&#x6398;&#x91CD;&#x8981;&#x7684;&#x4E1A;&#x52A1;&#x9886;&#x57DF;&#x6982;&#x5FF5;&#xFF0C;&#x5E76;&#x5EFA;&#x7ACB;&#x4E1A;&#x52A1;&#x9886;&#x57DF;&#x6982;&#x5FF5;&#x4E4B;&#x95F4;&#x7684;&#x5173;&#x7CFB;&#x3002;<br>&#x4E1A;&#x52A1;&#x5BF9;&#x8C61;&#x6A21;&#x578B;&#xFF08;&#x4E5F;&#x53EB;&#x9886;&#x57DF;&#x6A21;&#x578B;domain model&#xFF09;&#x662F;&#x63CF;&#x8FF0;&#x4E1A;&#x52A1;&#x7528;&#x4F8B;&#x5B9E;&#x73B0;&#x7684;&#x5BF9;&#x8C61;&#x6A21;&#x578B;&#x3002;&#x5B83;&#x662F;&#x5BF9;&#x4E1A;&#x52A1;&#x89D2;&#x8272;&#x548C;&#x4E1A;&#x52A1;&#x5B9E;&#x4F53;&#x4E4B;&#x95F4;&#x5E94;&#x8BE5;&#x5982;&#x4F55;&#x8054;&#x7CFB;&#x548C;&#x534F;&#x4F5C;&#x4EE5;&#x6267;&#x884C;&#x4E1A;&#x52A1;&#x7684;&#x4E00;&#x79CD;&#x62BD;&#x8C61;&#x3002;&#x4E1A;&#x52A1;&#x5BF9;&#x8C61;&#x6A21;&#x578B;&#x4ECE;&#x4E1A;&#x52A1;&#x89D2;&#x8272;&#x5185;&#x90E8;&#x7684;&#x89C2;&#x70B9;&#x5B9A;&#x4E49;&#x4E86;&#x4E1A;&#x52A1;&#x7528;&#x4F8B;&#x3002;&#x8BE5;&#x6A21;&#x578B;&#x4E3A;&#x4EA7;&#x751F;&#x9884;&#x671F;&#x6548;&#x679C;&#x786E;&#x5B9A;&#x4E86;&#x4E1A;&#x52A1;&#x4EBA;&#x5458;&#x4EE5;&#x53CA;&#x4ED6;&#x4EEC;&#x5904;&#x7406;&#x548C;&#x4F7F;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#xFF08;&#x201C;&#x4E1A;&#x52A1;&#x7C7B;&#x548C;&#x5BF9;&#x8C61;&#x201D;&#xFF09;&#x4E4B;&#x95F4;&#x5E94;&#x8BE5;&#x5177;&#x6709;&#x7684;&#x9759;&#x6001;&#x548C;&#x52A8;&#x6001;&#x5173;&#x7CFB;&#x3002;&#x5B83;&#x6CE8;&#x91CD;&#x4E1A;&#x52A1;&#x4E2D;&#x627F;&#x62C5;&#x7684;&#x89D2;&#x8272;&#x53CA;&#x5176;&#x5F53;&#x524D;&#x804C;&#x8D23;&#x3002;&#x8FD9;&#x4E9B;&#x6A21;&#x578B;&#x7C7B;&#x7684;&#x5BF9;&#x8C61;&#x7EC4;&#x5408;&#x5728;&#x4E00;&#x8D77;&#x53EF;&#x4EE5;&#x6267;&#x884C;&#x6240;&#x6709;&#x7684;&#x4E1A;&#x52A1;&#x7528;&#x4F8B;&#x3002;</p>
+<h2 id="&#x5173;&#x4E8E;&#x654F;&#x6377;&#x5F00;&#x53D1;"><a href="#&#x5173;&#x4E8E;&#x654F;&#x6377;&#x5F00;&#x53D1;" class="headerlink" title="&#x5173;&#x4E8E;&#x654F;&#x6377;&#x5F00;&#x53D1;"></a>&#x5173;&#x4E8E;&#x654F;&#x6377;&#x5F00;&#x53D1;</h2><p>&#x654F;&#x6377;&#x5F00;&#x53D1;&#x7684;&#x5173;&#x952E;&#x662F;&#xFF1A;&#x9636;&#x6BB5;&#x6027;&#x53D1;&#x5E03;&#x53EF;&#x7528;&#x529F;&#x80FD;&#x7248;&#x672C;&#xFF0C;&#x957F;&#x671F;&#x6301;&#x7EED;&#x7684;&#x63A8;&#x8FDB;&#x9879;&#x76EE;&#x8FDB;&#x5EA6;&#x3002;&#x5176;&#x5B9E;&#x662F;&#x6BD4;&#x8F83;&#x597D;&#x7406;&#x89E3;&#x7684;&#xFF0C;&#x4F46;&#x662F;&#x5982;&#x4F55;&#x624D;&#x80FD;&#x786E;&#x4FDD;&#x505A;&#x597D;&#x5462;&#xFF1F;&#x5B9E;&#x9645;&#x4E0A;&#x5F88;&#x591A;&#x9879;&#x76EE;&#x7684;&#x7814;&#x53D1;&#x8FC7;&#x7A0B;&#x5C31;&#x50CF;&#x662F;&#x5728;&#x5792;&#x6251;&#x514B;&#x724C;&#xFF0C;&#x4E00;&#x5BF9;&#x4E00;&#x5BF9;&#x7684;&#x5792;&#xFF0C;&#x8D8A;&#x5792;&#x8D8A;&#x9AD8;&#xFF0C;&#x5728;&#x5792;&#x5230;&#x8DB3;&#x591F;&#x9AD8;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x53BB;&#x8C03;&#x6574;&#x4E00;&#x4E2A;&#x5C0F;&#x529F;&#x80FD;&#x65F6;&#x5374;&#x5BFC;&#x81F4;&#x4E86;&#x6574;&#x76D8;&#x7684;&#x5012;&#x584C;&#xFF0C;&#x654F;&#x6377;&#x5E76;&#x4E0D;&#x662F;&#x628A;&#x63A7;&#x597D;&#x9879;&#x76EE;&#x7684;&#x6839;&#x672C;&#xFF0C;&#x654F;&#x6377;&#x63A8;&#x8FDB;&#x9879;&#x76EE;&#x7684;&#x4E00;&#x79CD;&#x65B9;&#x5F0F;&#x3002;</p>
+<h2 id="&#x4E00;&#x4E2A;&#x597D;&#x7684;&#x540E;&#x7AEF;&#x9879;&#x76EE;&#x6307;&#x6807;"><a href="#&#x4E00;&#x4E2A;&#x597D;&#x7684;&#x540E;&#x7AEF;&#x9879;&#x76EE;&#x6307;&#x6807;" class="headerlink" title="&#x4E00;&#x4E2A;&#x597D;&#x7684;&#x540E;&#x7AEF;&#x9879;&#x76EE;&#x6307;&#x6807;"></a>&#x4E00;&#x4E2A;&#x597D;&#x7684;&#x540E;&#x7AEF;&#x9879;&#x76EE;&#x6307;&#x6807;</h2><ul>
+<li>&#x6709;&#x826F;&#x597D;&#x7684;&#x4EE3;&#x7801;&#x89C4;&#x8303;<ul>
+<li>&#x826F;&#x597D;&#x7684;&#x4EE3;&#x7801;&#x98CE;&#x683C;</li>
+<li>&#x826F;&#x597D;&#x7684;&#x6CE8;&#x91CA;&#x89C4;&#x8303;</li>
+</ul>
+</li>
+<li>&#x6709;&#x5B8C;&#x5584;&#x7684;&#x8D44;&#x6599;&#x4E0E;&#x6587;&#x6863;<ul>
+<li>&#x4E1A;&#x52A1;&#x6D41;&#x7A0B;&#x6587;&#x6863;</li>
+<li>&#x67B6;&#x6784;&#x8BBE;&#x8BA1;&#x6587;&#x6863;</li>
+<li>&#x5B9E;&#x73B0;&#x6D41;&#x7A0B;&#x6587;&#x6863;</li>
+</ul>
+</li>
+<li>&#x9879;&#x76EE;&#x529F;&#x80FD;&#x4E0E;&#x4E1A;&#x52A1;&#x76F8;&#x5339;&#x914D;<ul>
+<li>&#x6D4B;&#x8BD5;&#x7528;&#x4F8B;&#x4E0E;&#x529F;&#x80FD;&#x76F8;&#x7B26;</li>
+<li>&#x5355;&#x5143;&#x6D4B;&#x8BD5;&#x4E0E;&#x4E1A;&#x52A1;&#x76F8;&#x7B26;</li>
+<li>&#x53EF;&#x901A;&#x8FC7;&#x5355;&#x5143;&#x6D4B;&#x8BD5;&#x4E0E;&#x529F;&#x80FD;&#x6D4B;&#x8BD5;</li>
+</ul>
+</li>
+<li>&#x8FBE;&#x5230;&#x7CFB;&#x7EDF;&#x6027;&#x80FD;&#x8981;&#x6C42;<ul>
+<li>&#x8BC4;&#x4F30;&#x6EE1;&#x8DB3;&#x7528;&#x6237;&#x7684;&#x6027;&#x80FD;&#x8981;&#x6C42;</li>
+<li>&#x538B;&#x6D4B;&#x53EF;&#x6EE1;&#x8DB3;&#x9884;&#x4F30;&#x7684;&#x6027;&#x80FD;&#x8981;&#x6C42;</li>
+<li>&#x7CFB;&#x7EDF;&#x6027;&#x80FD;&#x53EF;&#x901A;&#x8FC7;&#x8D1F;&#x8F7D;&#x63D0;&#x5347;</li>
+</ul>
+</li>
+<li>&#x91C7;&#x7528;&#x6210;&#x719F;&#x5B8C;&#x5584;&#x7684;&#x6280;&#x672F;&#x4E0E;&#x6846;&#x67B6;<ul>
+<li>&#x6210;&#x719F;&#x5B8C;&#x5584;&#x53CA;&#x4F7F;&#x7528;&#x8005;&#x591A;&#x6587;&#x6863;&#x5168;&#x9762;</li>
+<li>&#x6709;&#x826F;&#x597D;&#x7684;&#x670D;&#x52A1;,&#x51FA;&#x73B0;&#x95EE;&#x9898;&#x53EF;&#x89E3;&#x51B3;</li>
+</ul>
+</li>
+<li>&#x62E5;&#x6709;&#x8FBE;&#x6807;&#x8986;&#x76D6;&#x7387;&#x7684;&#x5355;&#x5143;&#x6D4B;&#x8BD5;<ul>
+<li>&#x786E;&#x4FDD;&#x4E1A;&#x52A1;&#x4EE3;&#x7801;&#x53EF;&#x6B63;&#x5E38;&#x6267;&#x884C;</li>
+<li>&#x4E0D;&#x4F9D;&#x8D56;&#x5176;&#x4ED6;&#x6A21;&#x5757;&#x6216;&#x6570;&#x636E;&#x53EF;&#x72EC;&#x7ACB;&#x8FD0;&#x884C;</li>
+<li>&#x6267;&#x884C;&#x5B8C;&#x6210;&#x4EE5;&#x540E;&#x4E0D;&#x4EA7;&#x751F;&#x810F;&#x6570;&#x636E;</li>
+<li>&#x5B8C;&#x6210;&#x5355;&#x5143;&#x6D4B;&#x8BD5;&#x8981;&#x5BF9;&#x4E1A;&#x52A1;&#x4EA7;&#x751F;&#x7684;&#x5F71;&#x54CD;&#x505A;&#x68C0;&#x67E5;</li>
+<li>&#x5355;&#x5143;&#x6D4B;&#x8BD5;&#x53EF;&#x5C3D;&#x91CF;&#x8986;&#x76D6;&#x6240;&#x6709;&#x7684;&#x4E1A;&#x52A1;</li>
+</ul>
+</li>
+<li>&#x4ED6;&#x4EBA;&#x53EF;&#x8F7B;&#x6613;&#x7684;&#x6269;&#x5C55;&#x7EF4;&#x62A4;<ul>
+<li>&#x6709;&#x826F;&#x597D;&#x7684;&#x4EE3;&#x7801;&#x98CE;&#x683C;&#x4E0E;&#x6CE8;&#x91CA;</li>
+<li>&#x6709;&#x76F8;&#x5BF9;&#x5B8C;&#x5584;&#x7684;&#x8D44;&#x6599;&#x6587;&#x6863;</li>
+<li>&#x6709;&#x76F8;&#x5BF9;&#x5168;&#x9762;&#x7684;&#x5355;&#x5143;&#x6D4B;&#x8BD5;</li>
+<li>&#x6709;&#x826F;&#x597D;&#x7684;&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;&#xFF0C;&#x53EF;&#x652F;&#x6301;&#x6DFB;&#x52A0;&#x529F;&#x80FD;&#x65F6;&#x5C3D;&#x91CF;&#x589E;&#x52A0;&#x800C;&#x4E0D;&#x4FEE;&#x6539;</li>
+</ul>
+</li>
+</ul>
+<h2 id="&#x6211;&#x7684;&#x843D;&#x5730;&#x65B9;&#x5F0F;"><a href="#&#x6211;&#x7684;&#x843D;&#x5730;&#x65B9;&#x5F0F;" class="headerlink" title="&#x6211;&#x7684;&#x843D;&#x5730;&#x65B9;&#x5F0F;"></a>&#x6211;&#x7684;&#x843D;&#x5730;&#x65B9;&#x5F0F;</h2><p>&#x6211;&#x5BF9;&#x9886;&#x57DF;&#x7684;&#x7406;&#x89E3;&#x4ECE;&#x521A;&#x5F00;&#x59CB;&#x7684;&#x63A2;&#x7D22;&#xFF0C;&#x5230;&#x6162;&#x6162;&#x5728;&#x5B9E;&#x9645;&#x9879;&#x76EE;&#x4E2D;&#x4F7F;&#x7528;&#x6709;&#x7ECF;&#x5386;&#x4E86;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#x3002;COLA&#x6846;&#x67B6;&#x5B9E;&#x9645;&#x4E0A;&#x878D;&#x5408;&#x4E86;&#x5F88;&#x591A;&#x4E1C;&#x897F;&#xFF0C;&#x843D;&#x5730;&#x9879;&#x76EE;&#x9700;&#x8981;&#x4ECE;&#x8FD9;&#x51E0;&#x6B65;&#x5F00;&#x59CB;&#x3002;</p>
+<ul>
+<li><p>&#x4E1A;&#x52A1;&#x529F;&#x80FD;&#x9700;&#x6C42;&#x68B3;&#x7406;<br>&#x6839;&#x636E;&#x4E1A;&#x52A1;&#x529F;&#x80FD;&#x9700;&#x6C42;&#xFF0C;&#x5206;&#x6790;&#x7CFB;&#x7EDF;&#x4E2D;&#x7684;&#x7528;&#x4F8B;&#xFF0C;&#x5E76;&#x753B;&#x51FA;&#x5404;&#x4E2A;&#x7528;&#x4F8B;&#x7684;&#x4E1A;&#x52A1;&#x5173;&#x952E;&#x6D41;&#x7A0B;&#x56FE;&#xFF0C;&#x6D41;&#x7A0B;&#x56FE;&#x4E2D;&#x53EA;&#x5173;&#x5FC3;&#x5F71;&#x54CD;&#x4E1A;&#x52A1;&#x8D70;&#x5411;&#x7684;&#x52A8;&#x4F5C;&#x3002;</p>
+</li>
+<li><p>&#x4E1A;&#x52A1;&#x5EFA;&#x6A21;&#x4E0E;&#x5212;&#x5206;<br>&#x5212;&#x5206;&#x4E1A;&#x52A1;&#x9886;&#x57DF;&#x4EE5;&#x53CA;&#x4E1A;&#x52A1;&#x5EFA;&#x6A21;&#xFF0C;&#x4E1A;&#x52A1;&#x5EFA;&#x6A21;&#x6211;&#x4EEC;&#x91C7;&#x7528;&#x7684;&#x662F;&#x56DB;&#x8272;&#x5EFA;&#x6A21;&#x6CD5;</p>
+</li>
+<li><p>&#x63A5;&#x53E3;&#x4E0E;&#x6570;&#x636E;&#x5E93;&#x8BBE;&#x8BA1;<br>&#x6839;&#x636E;&#x754C;&#x9762;&#x8BBE;&#x8BA1;&#x5B9A;&#x4E49;&#x51FA;&#x6765;&#x63A5;&#x53E3;&#xFF0C;&#x5E76;&#x5B8C;&#x6210;&#x6570;&#x636E;&#x5E93;&#x8BBE;&#x8BA1;&#x3002;</p>
+</li>
+<li><p>&#x4E1A;&#x52A1;&#x529F;&#x80FD;&#x7F16;&#x5199;<br>&#x7F16;&#x5199;&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x4EE3;&#x7801;.</p>
+</li>
+<li><p>&#x9886;&#x57DF;&#x5355;&#x5143;&#x6D4B;&#x8BD5;<br>&#x7F16;&#x5199;&#x9886;&#x57DF;&#x903B;&#x8F91;&#x7684;&#x5355;&#x5143;&#x6D4B;&#x8BD5;,&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x4EE3;&#x7801;&#x662F;&#x9700;&#x8981;&#x4ECE;controller&#x7684;&#x53C2;&#x6570;&#x63A5;&#x53D7;&#x4E00;&#x76F4;&#x5230;&#x6570;&#x636E;&#x7684;&#x8FD4;&#x56DE;&#xFF0C;&#x4F46;&#x662F;&#x5BB9;&#x6613;&#x51FA;&#x73B0;&#x95EE;&#x9898;&#x7684;&#x5730;&#x65B9;&#xFF0C;&#x6070;&#x6070;&#x4E0D;&#x662F;&#x6570;&#x636E;&#x8BF7;&#x6C42;&#x7684;&#x4F20;&#x9012;&#x4E0E;&#x6570;&#x636E;&#x7684;&#x843D;&#x5E93;&#x64CD;&#x4F5C;&#xFF0C;&#x800C;&#x662F;&#x63A7;&#x5236;&#x6570;&#x636E;&#x7684;&#x903B;&#x8F91;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;domain&#x5C42;&#x7684;&#x4EE3;&#x7801;&#x4E86;&#x3002;</p>
+</li>
+</ul>
+<h2 id="&#x9075;&#x5B88;&#x7684;&#x539F;&#x5219;"><a href="#&#x9075;&#x5B88;&#x7684;&#x539F;&#x5219;" class="headerlink" title="&#x9075;&#x5B88;&#x7684;&#x539F;&#x5219;"></a>&#x9075;&#x5B88;&#x7684;&#x539F;&#x5219;</h2><p>&#x8FD9;&#x91CC;&#x5199;&#x7684;&#x662F;7&#x5927;&#x539F;&#x5219;&#xFF0C;&#x6709;&#x4E9B;&#x4EBA;&#x5B9A;&#x4E49;&#x4E3A;6&#x5927;&#x539F;&#x5219;&#xFF0C;&#x6216;&#x5B9A;&#x4E49;&#x4E3A;SOLID&#x539F;&#x5219;&#xFF0C;&#x6211;&#x8BA4;&#x4E3A;&#x90FD;&#x662F;&#x53EF;&#x4EE5;&#x7684;&#x3002;</p>
+<h3 id="&#x5F00;&#x95ED;&#x539F;&#x5219;"><a href="#&#x5F00;&#x95ED;&#x539F;&#x5219;" class="headerlink" title="&#x5F00;&#x95ED;&#x539F;&#x5219;"></a>&#x5F00;&#x95ED;&#x539F;&#x5219;</h3><h3 id="&#x91CC;&#x6C0F;&#x66FF;&#x6362;&#x539F;&#x5219;"><a href="#&#x91CC;&#x6C0F;&#x66FF;&#x6362;&#x539F;&#x5219;" class="headerlink" title="&#x91CC;&#x6C0F;&#x66FF;&#x6362;&#x539F;&#x5219;"></a>&#x91CC;&#x6C0F;&#x66FF;&#x6362;&#x539F;&#x5219;</h3><h3 id="&#x4F9D;&#x8D56;&#x5012;&#x7F6E;&#x539F;&#x5219;"><a href="#&#x4F9D;&#x8D56;&#x5012;&#x7F6E;&#x539F;&#x5219;" class="headerlink" title="&#x4F9D;&#x8D56;&#x5012;&#x7F6E;&#x539F;&#x5219;"></a>&#x4F9D;&#x8D56;&#x5012;&#x7F6E;&#x539F;&#x5219;</h3><h3 id="&#x5355;&#x4E00;&#x804C;&#x8D23;&#x539F;&#x5219;"><a href="#&#x5355;&#x4E00;&#x804C;&#x8D23;&#x539F;&#x5219;" class="headerlink" title="&#x5355;&#x4E00;&#x804C;&#x8D23;&#x539F;&#x5219;"></a>&#x5355;&#x4E00;&#x804C;&#x8D23;&#x539F;&#x5219;</h3><h3 id="&#x63A5;&#x53E3;&#x9694;&#x79BB;&#x539F;&#x5219;"><a href="#&#x63A5;&#x53E3;&#x9694;&#x79BB;&#x539F;&#x5219;" class="headerlink" title="&#x63A5;&#x53E3;&#x9694;&#x79BB;&#x539F;&#x5219;"></a>&#x63A5;&#x53E3;&#x9694;&#x79BB;&#x539F;&#x5219;</h3><h3 id="&#x8FEA;&#x7C73;&#x7279;&#x6CD5;&#x5219;"><a href="#&#x8FEA;&#x7C73;&#x7279;&#x6CD5;&#x5219;" class="headerlink" title="&#x8FEA;&#x7C73;&#x7279;&#x6CD5;&#x5219;"></a>&#x8FEA;&#x7C73;&#x7279;&#x6CD5;&#x5219;</h3><h3 id="&#x5408;&#x6210;&#x590D;&#x7528;&#x539F;&#x5219;"><a href="#&#x5408;&#x6210;&#x590D;&#x7528;&#x539F;&#x5219;" class="headerlink" title="&#x5408;&#x6210;&#x590D;&#x7528;&#x539F;&#x5219;"></a>&#x5408;&#x6210;&#x590D;&#x7528;&#x539F;&#x5219;</h3> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag">架构</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/05/8A114.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-%E5%A4%A7%E9%87%8F%E7%9A%84TIME_WAIT%E7%8A%B6%E6%80%81TCP%E8%BF%9E%E6%8E%A5%EF%BC%8C%E5%AF%B9%E4%B8%9A%E5%8A%A1%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%B1%E5%93%8D%EF%BC%9F%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            操作系统与网络-大量的TIME_WAIT状态TCP连接，对业务有什么影响？怎么处理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/01/10.003.%E6%9E%B6%E6%9E%84-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">架构-微服务架构</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

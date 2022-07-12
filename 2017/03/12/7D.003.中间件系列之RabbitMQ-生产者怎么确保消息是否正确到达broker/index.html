@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之RabbitMQ发送方确认机制 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7D.003.中间件系列之RabbitMQ-生产者怎么确保消息是否正确到达broker"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之RabbitMQ发送方确认机制
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/03/12/7D.003.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8BRabbitMQ-%E7%94%9F%E4%BA%A7%E8%80%85%E6%80%8E%E4%B9%88%E7%A1%AE%E4%BF%9D%E6%B6%88%E6%81%AF%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE%E5%88%B0%E8%BE%BEbroker/" class="article-date">
+  <time datetime="2017-03-11T16:00:00.000Z" itemprop="datePublished">2017-03-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">22 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x751F;&#x4EA7;&#x8005;&#x600E;&#x4E48;&#x786E;&#x4FDD;&#x6D88;&#x606F;&#x662F;&#x5426;&#x6B63;&#x786E;&#x5230;&#x8FBE;broker</p>
+</blockquote>
+<h3 id="&#x751F;&#x4EA7;&#x65B9;"><a href="#&#x751F;&#x4EA7;&#x65B9;" class="headerlink" title="&#x751F;&#x4EA7;&#x65B9;"></a>&#x751F;&#x4EA7;&#x65B9;</h3><ol>
+<li>&#x5982;&#x679C;&#x5E0C;&#x671B;RabbitMQ&#x91CD;&#x542F;&#x4E4B;&#x540E;&#x6D88;&#x606F;&#x4E0D;&#x4E22;&#x5931;&#xFF0C;&#x90A3;&#x4E48;&#x9700;&#x8981;&#x5BF9;&#x4EE5;&#x4E0B;3&#x79CD;&#x5B9E;&#x4F53;&#x5747;&#x914D;&#x7F6E;&#x6301;&#x4E45;&#x5316;&#xFF1A;</li>
+</ol>
+<ul>
+<li>exchange</li>
+<li>queue</li>
+<li>message</li>
+</ul>
+<span id="more"></span>
+<ul>
+<li>&#x58F0;&#x660E;exchange&#x65F6;&#x8BBE;&#x7F6E;&#x6301;&#x4E45;&#x5316;&#xFF08;durable = true&#xFF09;&#x5E76;&#x4E14;&#x4E0D;&#x81EA;&#x52A8;&#x5220;&#x9664;(autoDelete = false)&#xFF1A;</li>
+<li>&#x58F0;&#x660E;queue&#x65F6;&#x8BBE;&#x7F6E;&#x6301;&#x4E45;&#x5316;&#xFF08;durable = true&#xFF09;&#x5E76;&#x4E14;&#x4E0D;&#x81EA;&#x52A8;&#x5220;&#x9664;(autoDelete = false)&#xFF1A;</li>
+<li>&#x53D1;&#x9001;&#x6D88;&#x606F;&#x65F6;&#x901A;&#x8FC7;&#x8BBE;&#x7F6E;deliveryMode=2&#x6301;&#x4E45;&#x5316;&#x6D88;&#x606F;&#xFF1A;</li>
+</ul>
+<ol start="2">
+<li>&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x6211;&#x4EEC;&#x7684;&#x751F;&#x4EA7;&#x8005;&#x662F;&#x4E0D;&#x77E5;&#x9053;&#x6D88;&#x606F;&#x6709;&#x6CA1;&#x6709;&#x6B63;&#x786E;&#x5230;&#x8FBE;broker&#x7684;&#xFF0C;&#x5982;&#x679C;&#x5728;&#x6D88;&#x606F;&#x5230;&#x8FBE;broker&#x4E4B;&#x524D;&#x5DF2;&#x7ECF;&#x4E22;&#x5931;&#x7684;&#x8BDD;&#xFF0C;&#x6301;&#x4E45;&#x5316;&#x64CD;&#x4F5C;&#x4E5F;&#x89E3;&#x51B3;&#x4E0D;&#x4E86;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x56E0;&#x4E3A;&#x6D88;&#x606F;&#x6839;&#x672C;&#x5C31;&#x6CA1;&#x5230;&#x8FBE;&#x4EE3;&#x7406;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x4F60;&#x600E;&#x4E48;&#x8FDB;&#x884C;&#x6301;&#x4E45;&#x5316;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#x8BE5;&#x600E;&#x4E48;&#x89E3;&#x51B3;&#x5462;&#xFF1F;</li>
+</ol>
+<p>RabbitMQ&#x4E3A;&#x6211;&#x4EEC;&#x63D0;&#x4F9B;&#x4E86;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;&#xFF1A;</p>
+<p>&#x65B9;&#x5F0F;&#x4E00;&#xFF1A;&#x901A;&#x8FC7;AMQP&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x5B9E;&#x73B0;&#xFF0C;&#x8FD9;&#x4E5F;&#x662F;&#x4ECE;AMQP&#x534F;&#x8BAE;&#x5C42;&#x9762;&#x63D0;&#x4F9B;&#x7684;&#x89E3;&#x51B3;&#x65B9;&#x6848;&#xFF1B;<br>&#x65B9;&#x5F0F;&#x4E8C;&#xFF1A;&#x901A;&#x8FC7;&#x5C06;channel&#x8BBE;&#x7F6E;&#x6210;confirm&#x6A21;&#x5F0F;&#x6765;&#x5B9E;&#x73B0;(<code>&#x53D1;&#x9001;&#x786E;&#x8BA4;</code>)&#xFF1B;</p>
+<p>&#x65B9;&#x5F0F;&#x4E8C;&#xFF1A;<code>&#x53D1;&#x9001;&#x786E;&#x8BA4;</code><br>&#x5728;channel&#x4E0A;&#x8BBE;&#x7F6E;ConfirmListener:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">channel.addConfirmListener(<span class="keyword">new</span> <span class="title class_">ConfirmListener</span>() {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleAck</span><span class="params">(<span class="type">long</span> seqNo, <span class="type">boolean</span> multiple)</span> {</span><br><span class="line">        <span class="keyword">if</span> (multiple) {</span><br><span class="line">            logger.info(seqNo + <span class="string">&quot;&#x53F7;&#x53CA;&#x5176;&#x4EE5;&#x524D;&#x7684;&#x6240;&#x6709;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#xFF0C;&#x5F53;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x540E;&#x6267;&#x884C;&#x76F8;&#x5E94;&#x903B;&#x8F91;&#xFF0C;&#x6BD4;&#x5982;&#x6807;&#x8BB0;&#x4E8B;&#x4EF6;&#x4E3A;&#x5DF2;&#x53D1;&#x9001;&#x6216;&#x8005;&#x5220;&#x9664;&#x539F;&#x6765;&#x4E8B;&#x4EF6;&quot;</span>);</span><br><span class="line">        } <span class="keyword">else</span> {</span><br><span class="line">            logger.info(seqNo + <span class="string">&quot;&#x53F7;&#x53D1;&#x9001;&#x6210;&#x529F;&#xFF0C;&#x5F53;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x540E;&#x6267;&#x884C;&#x76F8;&#x5E94;&#x903B;&#x8F91;&#xFF0C;&#x6BD4;&#x5982;&#x6807;&#x8BB0;&#x4E8B;&#x4EF6;&#x4E3A;&#x5DF2;&#x53D1;&#x9001;&#x6216;&#x8005;&#x5220;&#x9664;&#x539F;&#x6765;&#x4E8B;&#x4EF6;&quot;</span>);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleNack</span><span class="params">(<span class="type">long</span> seqNo, <span class="type">boolean</span> multiple)</span> {</span><br><span class="line">        <span class="keyword">if</span> (multiple) {</span><br><span class="line">            logger.info(seqNo + <span class="string">&quot;&#x53F7;&#x53CA;&#x5176;&#x4EE5;&#x524D;&#x7684;&#x6240;&#x6709;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x5931;&#x8D25;&#xFF0C;&#x5F53;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x5931;&#x8D25;&#x540E;&#x6267;&#x884C;&#x76F8;&#x5E94;&#x903B;&#x8F91;&#xFF0C;&#x6BD4;&#x5982;&#x91CD;&#x8BD5;&#x6216;&#x8005;&#x6807;&#x8BB0;&#x4E8B;&#x4EF6;&#x53D1;&#x9001;&#x5931;&#x8D25;&quot;</span>);</span><br><span class="line">        } <span class="keyword">else</span> {</span><br><span class="line">            logger.info(seqNo + <span class="string">&quot;&#x53F7;&#x53D1;&#x9001;&#x5931;&#x8D25;&#xFF0C;&#x5F53;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x5931;&#x8D25;&#x540E;&#x6267;&#x884C;&#x76F8;&#x5E94;&#x903B;&#x8F91;&#xFF0C;&#x6BD4;&#x5982;&#x91CD;&#x8BD5;&#x6216;&#x8005;&#x6807;&#x8BB0;&#x4E8B;&#x4EF6;&#x53D1;&#x9001;&#x5931;&#x8D25;&quot;</span>);</span><br><span class="line"></span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">});</span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x4E4B;&#x524D;&#x9700;&#x8981;&#x5F00;&#x542F;&#x53D1;&#x9001;&#x786E;&#x8BA4;&#x6A21;&#x5F0F;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//&#x5F00;&#x542F;&#x53D1;&#x9001;&#x8005;&#x786E;&#x8BA4;</span></span><br><span class="line">channel.confirmSelect();</span><br></pre></td></tr></table></figure>
+
+<p>&#x7EFC;&#x5408;&#x8D77;&#x6765;&#xFF0C;&#x8981;&#x5B8C;&#x6210;&#x53D1;&#x9001;&#x65B9;&#x786E;&#x8BA4;&#xFF0C;&#x9700;&#x8981;&#x505A;&#x4EE5;&#x4E0B;&#x51E0;&#x4E2A;&#x70B9;&#xFF1A;</p>
+<p>&#x8BBE;&#x7F6E;ConfirmListener<br>&#x901A;&#x8FC7;confirmSelect()&#x5F00;&#x542F;<br>&#x4E3A;exchange&#x8BBE;&#x7F6E;alternate-exchange&#x5230;DLX<br>&#x53D1;&#x9001;&#x65F6;&#x6CA1;&#x6709;&#x5FC5;&#x8981;&#x8BBE;&#x7F6E;mandotory<br>&#x53D1;&#x9001;&#x65B9;&#x5C06;&#x6D88;&#x606F;&#x8BB0;&#x5F55;&#x5728;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#xFF0C;&#x6536;&#x5230;ack&#x65F6;&#x5728;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#x6807;&#x8BB0;&#x6D88;&#x606F;&#x4E3A;&#x5DF2;&#x53D1;&#x9001;&#x72B6;&#x6001;<br>&#x5982;&#x679C;&#x6536;&#x5230;reject&#x6216;&#x8005;&#x7531;&#x4E8E;&#x7F51;&#x7EDC;&#x539F;&#x56E0;&#x6CA1;&#x6709;&#x6536;&#x5230;ack&#xFF0C;&#x90A3;&#x4E48;&#x6D88;&#x606F;&#x72B6;&#x6001;&#x4E0D;&#x4F1A;&#x6539;&#x53D8;&#xFF0C;&#x4E0B;&#x6B21;&#x53D1;&#x9001;&#x65F6;&#x518D;&#x6B21;&#x53D1;&#x9001;&#xFF0C;&#x6B64;&#x65F6;&#x53EF;&#x80FD;&#x5BFC;&#x81F4;&#x6D88;&#x606F;&#x91CD;&#x590D;&#xFF0C;&#x89E3;&#x51B3;&#x91CD;&#x590D;&#x95EE;&#x9898;&#x8BF7;&#x53C2;&#x8003;&#x201C;&#x4FDD;&#x8BC1;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;&#xFF0C;&#x5E76;&#x4E14;&#x6D88;&#x8D39;&#x7AEF;&#x5E42;&#x201D;&#x5C0F;&#x8282;&#x3002;</p>
+<hr>
+<h3 id="&#x6D88;&#x8D39;&#x65B9;"><a href="#&#x6D88;&#x8D39;&#x65B9;" class="headerlink" title="&#x6D88;&#x8D39;&#x65B9;"></a>&#x6D88;&#x8D39;&#x65B9;</h3><p>&#x6709;&#x65F6;&#xFF0C;&#x6D88;&#x606F;&#x88AB;&#x6B63;&#x786E;&#x6295;&#x9012;&#x5230;&#x6D88;&#x8D39;&#x65B9;&#xFF0C;&#x4F46;&#x662F;&#x6D88;&#x8D39;&#x65B9;&#x5904;&#x7406;&#x5931;&#x8D25;&#xFF0C;&#x90A3;&#x4E48;&#x4FBF;&#x4F1A;&#x51FA;&#x73B0;&#x6D88;&#x8D39;&#x65B9;&#x7684;&#x4E0D;&#x4E00;&#x81F4;&#x95EE;&#x9898;&#x3002;<br>&#x8981;&#x89E3;&#x51B3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x9700;&#x8981;&#x5F15;&#x5165;&#x6D88;&#x8D39;&#x65B9;&#x786E;&#x8BA4;&#xFF0C;&#x5373;&#x53EA;&#x6709;&#x6D88;&#x606F;&#x88AB;&#x6210;&#x529F;&#x5904;&#x7406;&#x4E4B;&#x540E;&#x624D;&#x544A;&#x77E5;rabbitmq&#x4EE5;ack&#xFF0C;&#x5426;&#x5219;&#x544A;&#x77E5;rabbitmq&#x4EE5;nack&#xFF0C;&#x6B64;&#x65F6;&#x7684;&#x5904;&#x7406;&#x6D41;&#x7A0B;&#x5982;&#x4E0B;&#xFF1A;</p>
+<ol>
+<li>&#x63A5;&#x6536;&#x6D88;&#x606F;&#xFF0C;&#x4E0D;&#x4F5C;ack&#xFF0C;&#x5904;&#x7406;&#x6D88;&#x606F;&#x6210;&#x529F;&#x5219;ack&#xFF0C;&#x4E0D;&#x6210;&#x529F;nack</li>
+<li>&#x5BF9;&#x4E8E;nack&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x53EF;&#x4EE5;&#x914D;&#x7F6E;rabbitmq&#x8981;&#x4E48;&#x91CD;&#x65B0;&#x6295;&#x9012;&#xFF0C;&#x8981;&#x4E48;&#x76F4;&#x63A5;&#x6254;&#x6389;&#xFF0C;&#x8981;&#x4E48;&#x4F20;&#x5230;&#x6B7B;&#x4FE1;&#x4EA4;&#x6362;&#xFF08;DLX&#xFF09;</li>
+<li>&#x5982;&#x679C;&#x5904;&#x7406;&#x6210;&#x529F;&#xFF0C;&#x4F46;&#x662F;&#x7531;&#x4E8E;&#x7F51;&#x7EDC;&#x7B49;&#x95EE;&#x9898;&#x5BFC;&#x81F4;&#x786E;&#x8BA4;&#xFF08;&#x65E0;&#x8BBA;&#x662F;ack&#x8FD8;&#x662F;nack&#xFF09;&#x4E0D;&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;rabbitmq&#x4F1A;&#x91CD;&#x65B0;&#x6295;&#x9012;&#x6D88;&#x606F;&#xFF0C;&#x4F46;&#x662F;&#x6B64;&#x65F6;&#x7531;&#x4E8E;&#x6D88;&#x606F;&#x5DF2;&#x7ECF;&#x6210;&#x529F;&#xFF0C;&#x91CD;&#x65B0;&#x6295;&#x9012;&#x4FBF;&#x5BFC;&#x81F4;&#x4E86;&#x6D88;&#x8D39;&#x91CD;&#x590D;&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x6B64;&#x65F6;&#x8BF7;&#x53C2;&#x8003;&#x201C;<code>&#x4FDD;&#x8BC1;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;&#xFF0C;&#x5E76;&#x4E14;&#x6D88;&#x8D39;&#x7AEF;&#x5E42;</code>&#x201D;&#x5C0F;&#x8282;&#x3002;</li>
+</ol>
+<p>  &#x5728;rabbitmq&#x4E2D;&#xFF0C;&#x6D88;&#x606F;&#x9ED8;&#x8BA4;&#x662F;&#x5B57;&#x6BB5;ack&#x7684;&#xFF0C;&#x5373;&#x6D88;&#x606F;&#x5230;&#x8FBE;&#x6D88;&#x8D39;&#x65B9;&#x7ACB;&#x5373;ack&#xFF0C;&#x800C;&#x4E0D;&#x7BA1;&#x6D88;&#x8D39;&#x65B9;&#x4E1A;&#x52A1;&#x5904;&#x7406;&#x662F;&#x5426;&#x6210;&#x529F;&#xFF0C;&#x4E3A;&#x6B64;&#x53EF;&#x4EE5;&#x5F00;&#x542F;&#x624B;&#x52A8;&#x786E;&#x8BA4;&#x6A21;&#x5F0F;&#xFF0C;&#x5373;&#x6709;&#x6D88;&#x8D39;&#x65B9;&#x81EA;&#x884C;&#x51B3;&#x5B9A;&#x4F55;&#x65F6;&#x5E94;&#x8BE5;ack&#xFF0C;&#x901A;&#x8FC7;&#x8BBE;&#x7F6E;autoAck=false&#x5F00;&#x542F;&#x624B;&#x52A8;&#x786E;&#x8BA4;&#x6A21;&#x5F0F;</p>
+<p><strong>&#x4FDD;&#x8BC1;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;&#xFF0C;&#x5E76;&#x4E14;&#x6D88;&#x8D39;&#x7AEF;&#x5E42;&#x7B49;</strong><br>&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#x62C6;&#x89E3;&#x5F00;&#x6765;&#xFF0C;&#x5176;&#x5B9E;&#x662F;2&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x4E00;&#x4E2A;&#x662F;&#x600E;&#x4E48;<code>&#x786E;&#x4FDD;&#x53D1;&#x9001;&#x65B9;&#x6D88;&#x606F;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;</code>&#xFF1B;&#x4E00;&#x4E2A;&#x662F;<code>&#x5982;&#x4F55;&#x89E3;&#x51B3;&#x6D88;&#x606F;&#x8005;&#x91CD;&#x590D;&#x6D88;&#x8D39;</code></p>
+<p><strong>&#x786E;&#x4FDD;&#x53D1;&#x9001;&#x65B9;&#x6D88;&#x606F;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;</strong><br>&#x901A;&#x5E38;&#x6765;&#x8BF4;&#xFF0C;&#x7A0B;&#x5E8F;&#x4E2D;&#x4F1A;&#x5148;&#x5B8C;&#x6210;&#x5199;&#x6570;&#x636E;&#x5E93;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#xFF0C;&#x6B64;&#x65F6;&#x4E00;&#x4E2A;&#x91CD;&#x8981;&#x7684;&#x70B9;&#x662F;&#x4FDD;&#x8BC1;&#x8FD9;&#x4E24;&#x8005;&#x7684;&#x4E00;&#x81F4;&#x6027;&#xFF0C;&#x5373;&#x4E00;&#x65E6;&#x6570;&#x636E;&#x5E93;&#x4FDD;&#x5B58;&#x6210;&#x529F;&#x6D88;&#x606F;&#x5FC5;&#x987B;&#x4E5F;&#x80FD;&#x591F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x3002;&#x8981;&#x4FDD;&#x8BC1;&#x53D1;&#x9001;&#x53D1;&#x4E00;&#x81F4;&#x6027;&#xFF0C;&#x4E00;&#x79CD;&#x505A;&#x6CD5;&#x662F;&#x4F7F;&#x7528;&#x5168;&#x5C40;&#x4E8B;&#x52A1;&#xFF0C;&#x5373;&#x5C06;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x548C;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x653E;&#x5230;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x4E2D;&#xFF0C;&#x6BD4;&#x5982;JTA&#xFF0C;&#x4F46;&#x662F;&#x5168;&#x5C40;&#x4E8B;&#x52A1;&#x662F;&#x5F88;&#x91CD;&#x7684;&#xFF0C;&#x5E76;&#x4E14;rabbitmq&#x76EE;&#x524D;&#x5E76;&#x4E0D;&#x652F;&#x6301;&#x5168;&#x5C40;&#x4E8B;&#x52A1;&#x3002;</p>
+<p>&#x8981;&#x89E3;&#x51B3;<code>&#x4FDD;&#x8BC1;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;</code>&#x95EE;&#x9898;&#xFF0C;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x5C06;&#x6D88;&#x606F;&#x4FDD;&#x5B58;&#x5230;&#x6570;&#x636E;&#x5E93;&#x7684;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#xFF0C;&#x6B64;&#x65F6;&#x4E1A;&#x52A1;&#x5904;&#x7406;&#x7684;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x548C;&#x4FDD;&#x5B58;&#x6D88;&#x606F;&#x5230;&#x6570;&#x636E;&#x5E93;&#x5C5E;&#x4E8E;&#x540C;&#x4E00;&#x4E2A;&#x672C;&#x5730;&#x6570;&#x636E;&#x5E93;&#x4E8B;&#x52A1;&#xFF0C;&#x90A3;&#x4E48;&#x5230;&#x6B64;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x4E1A;&#x52A1;&#x5904;&#x7406;&#x548C;&#x6D88;&#x606F;&#x4EA7;&#x751F;&#x7684;&#x539F;&#x5B50;&#x6027;&#xFF0C;&#x7136;&#x540E;&#x6709;&#x4E00;&#x4E2A;&#x5F02;&#x6B65;&#x7684;&#x540E;&#x53F0;&#x4EFB;&#x52A1;&#x4ECE;&#x6570;&#x636E;&#x5E93;&#x7684;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#x4E00;&#x6B21;&#x8BFB;&#x53D6;&#x672A;&#x53D1;&#x9001;&#x7684;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x81F3;rabbitmq&#xFF0C;&#x53D1;&#x9001;&#x6210;&#x529F;&#x540E;&#x66F4;&#x65B0;&#x6D88;&#x606F;&#x7684;&#x72B6;&#x6001;&#x4E3A;&#x5DF2;&#x53D1;&#x5E03;&#x3002;<br>&#x6D88;&#x8D39;&#x65B9;&#x4FDD;&#x8BC1;&#x81F3;&#x5C11;&#x4E00;&#x6B21;&#x6295;&#x9012;&#xFF1A;</p>
+<ul>
+<li>1.&#x5C06;&#x6D88;&#x606F;&#x4FDD;&#x5B58;&#x5230;&#x6570;&#x636E;&#x5E93;&#x7684;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#xFF0C;&#x72B6;&#x6001;&#x662F; <code>&#x672A;&#x53D1;&#x9001;</code></li>
+<li>2.&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x5904;&#x7406;</li>
+<li>3.&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;broker</li>
+<li>4.&#x66F4;&#x65B0;&#x6D88;&#x606F;&#x4E8B;&#x4EF6;&#x8868;&#x79CD;&#x7684;&#x72B6;&#x6001;&#x662F; <code>&#x5DF2;&#x53D1;&#x9001;</code></li>
+</ul>
+<p>&#x7136;&#x800C;&#xFF0C;&#x6B64;&#x65F6;&#x6211;&#x4EEC;&#x4F9D;&#x7136;&#x65E0;&#x6CD5;&#x4FDD;&#x8BC1;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x548C;&#x66F4;&#x65B0;&#x6D88;&#x606F;&#x72B6;&#x6001;&#x4E4B;&#x95F4;&#x7684;&#x539F;&#x5B50;&#x6027;&#xFF0C;&#x56E0;&#x4E3A;&#x53EF;&#x80FD;&#x53D1;&#x751F;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x4F46;&#x662F;&#x6570;&#x636E;&#x5E93;&#x72B6;&#x6001;&#x66F4;&#x65B0;&#x4E0D;&#x6210;&#x529F;&#x7684;&#x60C5;&#x51B5;&#xFF0C;&#x4E3A;&#x4E86;&#x89E3;&#x51B3;&#x8FD9;&#x79CD;&#x6781;&#x7AEF;&#x60C5;&#x51B5;&#xFF0C;&#x53EF;&#x4EE5;&#x591A;&#x6B21;&#x91CD;&#x8BD5;&#x6D88;&#x606F;&#x53D1;&#x9001;&#xFF0C;&#x6B65;&#x9AA4;&#x5982;&#x4E0B;&#xFF1A;<br>&#x4F7F;&#x7528; &#x5F02;&#x6B65;&#x7684;&#x540E;&#x53F0;&#x4EFB;&#x52A1;&#xFF1A;</p>
+<ul>
+<li>1.&#x8BFB;&#x53D6;&#x6D88;&#x606F;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#x672A;&#x53D1;&#x9001;&#x6D88;&#x606F;&#xFF0C;&#x53D1;&#x9001;&#x5230;rabbitmq</li>
+<li>2.&#x5982;&#x679C;&#x53D1;&#x9001;&#x6210;&#x529F;&#xFF0C;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#x6D88;&#x606F;&#x72B6;&#x6001;&#x4E5F;&#x66F4;&#x65B0;&#x6210;&#x529F;&#xFF0C;&#x7686;&#x5927;&#x6B22;&#x559C;</li>
+<li>3.&#x5982;&#x679C;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x4E0D;&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;&#x6D88;&#x606F;&#x72B6;&#x6001;&#x4E5F;&#x4E0D;&#x4F5C;&#x6539;&#x53D8;&#xFF0C;&#x4E0B;&#x6B21;&#x91CD;&#x8BD5;</li>
+<li>4.&#x5982;&#x679C;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x6210;&#x529F;&#x800C;&#x72B6;&#x6001;&#x66F4;&#x65B0;&#x4E0D;&#x6210;&#x529F;&#xFF0C;&#x4E0B;&#x6B21;&#x91CD;&#x8BD5;</li>
+</ul>
+<p>&#x4E0D;&#x65AD;&#x91CD;&#x8BD5;&#xFF0C;&#x603B;&#x6709;&#x4E00;&#x4E2A;&#x80FD;&#x591F;&#x8FBE;&#x5230;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x548C;&#x72B6;&#x6001;&#x66F4;&#x65B0;&#x7684;&#x539F;&#x5B50;&#x6027;&#x3002;</p>
+<p>&#x90A3;&#x4E48;&#x95EE;&#x9898;&#x4E5F;&#x6765;&#x4E86;&#xFF1A;rabbitmq&#x4E2D;&#x53EF;&#x80FD;&#x51FA;&#x73B0;&#x591A;&#x6761;&#x91CD;&#x590D;&#x6D88;&#x606F;&#xFF0C;&#x6B64;&#x65F6;&#x6D88;&#x8D39;&#x7AEF;&#x5C31;&#x61F5;&#x4E86;&#x3002;</p>
+<p><strong>&#x5982;&#x4F55;&#x89E3;&#x51B3;&#x6D88;&#x606F;&#x8005;&#x91CD;&#x590D;&#x6D88;&#x8D39;</strong></p>
+<ul>
+<li>1.&#x6D88;&#x8D39;&#x8005;&#x76D1;&#x542C;&#x5230;&#x6D88;&#x606F;&#xFF0C;&#x67E5;&#x8BE2;&#x6D88;&#x606F;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#x8BE5;&#x6D88;&#x606F;ID&#x662F;&#x5426;&#x5B58;&#x5728;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x4E0D;&#x5B58;&#x5728;&#xFF0C;&#x63D2;&#x5165;&#xFF1B;&#x5982;&#x679C;&#x5B58;&#x5728;&#xFF0C;&#x5224;&#x65AD;&#x72B6;&#x6001;&#xFF1B;</li>
+<li>2.&#x5982;&#x679C;&#x6D88;&#x606F;&#x5B58;&#x5728;&#x5E76;&#x4E14;&#x72B6;&#x6001;&#x662F; &#x5DF2;&#x6D88;&#x8D39;  &#xFF0C;&#x8868;&#x793A;&#x662F;&#x91CD;&#x590D;&#x6D88;&#x606F;&#x91CD;&#x590D;&#x6D88;&#x8D39;&#xFF0C;&#x624B;&#x52A8;&#x8C03;&#x7528;ack&#x63A5;&#x53E3;&#xFF0C;&#x8FDB;&#x884C;&#x6D88;&#x606F;&#x786E;&#x8BA4;&#xFF1B;</li>
+<li>3.&#x5982;&#x679C;&#x6D88;&#x606F;<code>&#x4E0D;&#x5B58;&#x5728; </code>&#x6216; &#x6D88;&#x606F;&#x72B6;&#x6001;&#x4E0D;&#x662F; <code>&#x5DF2;&#x6D88;&#x8D39;</code>&#xFF0C;&#x90A3;&#x4E48;&#x6267;&#x884C;&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#xFF1B;</li>
+<li>4.&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x6267;&#x884C;&#x5B8C;&#x6BD5;&#x540E;&#xFF0C;&#x624B;&#x52A8;&#x8C03;&#x7528;ack&#x63A5;&#x53E3;&#xFF0C;&#x8FDB;&#x884C;&#x6D88;&#x606F;&#x786E;&#x8BA4;</li>
+<li>5.&#x6700;&#x540E;&#x66F4;&#x65B0;&#x6D88;&#x606F;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#x7684;&#x72B6;&#x6001;&#x4E3A; <code>&#x5DF2;&#x6D88;&#x8D39;</code>&#x3002;</li>
+</ul>
+<p>&#x5176;&#x4E2D;&#x4E0A;&#x9762;&#x6B65;&#x9AA4;3&#xFF0C;&#x6267;&#x884C;&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x4E2D;&#xFF0C;&#x9700;&#x8981;&#x8BBE;&#x8BA1;&#x6210;&#x5E42;&#x7B49;&#x7684;&#x3002;&#x56E0;&#x4E3A;&#x6D88;&#x8D39;&#x8005;&#x6709;&#x53EF;&#x80FD;&#x56DE;&#x91CD;&#x590D;&#x76D1;&#x542C;&#x5230;&#x6D88;&#x606F;&#x8FDB;&#x884C;&#x6D88;&#x8D39;&#xFF1B;<br>&#x5982;&#x679C;&#x6B65;&#x9AA4;3&#x6210;&#x529F;&#xFF0C;&#x6B65;&#x9AA4;4&#x5931;&#x8D25;&#xFF0C;&#x6CA1;&#x6709;&#x8FDB;&#x884C;ack&#xFF0C;broker&#x4F1A;&#x4E0B;&#x6B21;&#x91CD;&#x53D1;&#x6D88;&#x606F;&#xFF1B;<br>&#x5982;&#x679C;&#x6B65;&#x9AA4;4&#x6210;&#x529F;&#xFF0C;&#x6B65;&#x9AA4;5&#x5931;&#x8D25;&#xFF0C;&#x90A3;&#x4E48;&#x4F7F;&#x7528;&#x540E;&#x53F0;&#x5F02;&#x6B65;&#x4EFB;&#x52A1;&#xFF0C;&#x8BFB;&#x53D6;&#x8FD9;&#x4E2A;&#x6D88;&#x606F;&#x4E8B;&#x4EF6;&#x8868;&#x4E2D;&#xFF0C;&#x72B6;&#x6001;&#x662F; &#x672A;&#x6D88;&#x8D39;&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x91CD;&#x65B0;&#x6267;&#x884C;&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#xFF0C;&#x6700;&#x540E;&#x66F4;&#x65B0;&#x72B6;&#x6001;&#x3002;&#x8FD9;&#x6B65;&#x662F;&#x515C;&#x5E95;&#x8865;&#x507F;&#x65B9;&#x6848;&#x3002;</p>
+<hr>
+<hr>
+<blockquote>
+<p>&#x751F;&#x4EA7;&#x8005;&#x600E;&#x4E48;&#x786E;&#x4FDD;&#x6D88;&#x606F;&#x662F;&#x5426;&#x6B63;&#x786E;&#x5230;&#x8FBE;broker&#xFF0C;&#x7B54;&#x6848;&#x5C31;&#x662F;&#xFF1A;RabbitMQ&#x53D1;&#x9001;&#x65B9;&#x786E;&#x8BA4;&#x673A;&#x5236;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34579060/article/details/95453258">https://blog.csdn.net/qq_34579060/article/details/95453258</a></p>
+</blockquote>
+<p>&#x53D1;&#x9001;&#x65B9;&#x65E0;&#x6CD5;&#x786E;&#x8BA4;&#x6D88;&#x606F;&#x662F;&#x5426;&#x51C6;&#x786E;&#x5230;&#x8FBE;RabbitMQ,&#x968F;&#x540E;&#x6211;&#x4EEC;&#x4E86;&#x89E3;&#x5230;&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x53EF;&#x4EE5;&#x89E3;&#x51B3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x4F46;&#x662F;&#x91C7;&#x7528;&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x4F1A;&#x4E25;&#x91CD;&#x964D;&#x4F4E;RabbitMQ&#x7684;&#x6D88;&#x606F;&#x541E;&#x5410;&#x91CF;&#xFF0C;&#x8FD9;&#x91CC;&#x5F15;&#x5165;&#x4E00;&#x79CD;&#x66F4;&#x8F7B;&#x91CF;&#x7EA7;&#x7684;&#x65B9;&#x5F0F;&#x2014;&#x53D1;&#x884C;&#x65B9;&#x786E;&#x8BA4;(publisher confirm)&#x673A;&#x5236;</p>
+<p> &#x751F;&#x4EA7;&#x8005;&#x5C06;&#x4FE1;&#x9053;&#x8BBE;&#x7F6E;&#x6210;confirm(&#x786E;&#x8BA4;)&#x6A21;&#x5F0F;&#xFF0C;&#x4E00;&#x65E6;&#x4FE1;&#x9053;&#x8FDB;&#x5165;confirm&#x6A21;&#x5F0F;&#xFF0C;&#x6240;&#x6709;&#x5728;&#x6539;&#x4FE1;&#x9053;&#x4E0A;&#x53D1;&#x5E03;&#x7684;&#x6D88;&#x606F;&#x90FD;&#x4F1A;&#x88AB;&#x6307;&#x6D3E;&#x4E00;&#x4E2A;&#x552F;&#x4E00;&#x7684;ID(&#x4ECE;1&#x5F00;&#x59CB;)&#xFF0C;&#x4E00;&#x65E6;&#x6D88;&#x606F;&#x88AB;&#x6295;&#x9012;&#x5230;&#x6240;&#x5339;&#x914D;&#x7684;&#x961F;&#x5217;&#x4E4B;&#x540E;&#xFF0C;RabbitMQ&#x5C31;&#x4F1A;&#x53D1;&#x9001;&#x4E00;&#x4E2A;&#x786E;&#x8BA4;(Basic.Ack)&#x7ED9;&#x751F;&#x4EA7;&#x8005;&#xFF08;&#x5305;&#x542B;&#x6D88;&#x606F;&#x7684;&#x552F;&#x4E00;ID&#xFF09; &#x8FD9;&#x5C31;&#x4F7F;&#x5F97;&#x751F;&#x4EA7;&#x8005;&#x77E5;&#x6653;&#x6D88;&#x606F;&#x5DF2;&#x7ECF;&#x6B63;&#x786E;&#x5730;&#x5230;&#x8FBE;&#x76EE;&#x7684;&#x5730;&#x4E86;&#x3002;</p>
+<p> &#x5982;&#x679C;&#x6D88;&#x606F;&#x548C;&#x961F;&#x5217;&#x662F;&#x6301;&#x4E45;&#x5316;&#x7684;&#xFF0C;&#x90A3;&#x4E48;&#x786E;&#x8BA4;&#x4F1A;&#x5728;&#x6D88;&#x606F;&#x5199;&#x5165;&#x78C1;&#x76D8;&#x4E4B;&#x540E;&#x53D1;&#x51FA;&#x3002;RabbitMQ&#x56DE;&#x4F20;&#x7ED9;&#x751F;&#x4EA7;&#x8005;&#x7684;&#x786E;&#x8BA4;&#x6D88;&#x606F;&#x4E2D;&#x7684;deliveryTag&#x5305;&#x542B;&#x4E86;&#x786E;&#x8BA4;&#x6D88;&#x606F;&#x7684; &#x5E8F;&#x53F7;&#xFF0C;&#x6B64;&#x5916;RabbitMQ&#x4E5F;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;channel.basicAck&#x65B9;&#x6CD5;&#x7684;multiple&#x53C2;&#x6570;&#xFF0C;&#x8868;&#x793A;&#x5230;&#x8FD9;&#x4E2A;&#x5E8F;&#x53F7;&#x4E4B;&#x524D;&#x7684;&#x6240;&#x6709;&#x6D88;&#x606F;&#x90FD;&#x5DF2;&#x7ECF;&#x5F97;&#x5230;&#x4E86;&#x5904;&#x7406;&#x3002;</p>
+<blockquote>
+<p>&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x5728;&#x4E00;&#x6761;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x4E4B;&#x540E;&#x4F1A;&#x4F7F;&#x5F97;&#x53D1;&#x9001;&#x7AEF;&#x963B;&#x585E;&#xFF0C;&#x4EE5;&#x7B49;&#x5F85;RabbitMQ&#x7684;&#x56DE;&#x5E94;&#xFF0C;&#x4E4B;&#x540E;&#x624D;&#x80FD;&#x7EE7;&#x7EED;&#x53D1;&#x9001;&#x4E0B;&#x4E00;&#x6761;&#x6D88;&#x606F;&#xFF0C;&#x76F8;&#x6BD4;&#x4E4B;&#x4E0B;&#xFF0C;&#x53D1;&#x9001;&#x65B9;&#x786E;&#x8BA4;&#x673A;&#x5236;&#x6700;&#x5927;&#x7684;&#x597D;&#x5904;&#x5728;&#x4E8E;&#x5B83;&#x662F;&#x5F02;&#x6B65;&#x7684;&#xFF0C;&#x4E00;&#x65E6;&#x53D1;&#x5E03;&#x4E00;&#x6761;&#x6D88;&#x606F;&#x751F;&#x4EA7;&#x8005;&#x7A0B;&#x5E8F;&#x53EF;&#x4EE5;&#x5728;&#x7B49;&#x5F85;&#x4FE1;&#x9053;&#x8FD4;&#x56DE;&#x786E;&#x8BA4;&#x7684;&#x540C;&#x65F6;&#x7EE7;&#x7EED;&#x53D1;&#x5E03;&#x4E0B;&#x4E00;&#x6761;&#x6D88;&#x606F;&#xFF0C;&#x5F53;&#x6D88;&#x606F;&#x5F97;&#x5230;&#x6700;&#x7EC8;&#x786E;&#x8BA4;&#x4E4B;&#x540E;&#xFF0C;&#x751F;&#x4EA7;&#x8005;&#x7A0B;&#x5E8F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x56DE;&#x8C03; &#x65B9;&#x6CD5;&#x6765;&#x5904;&#x7406;&#x8BE5;&#x786E;&#x8BA4;&#x6D88;&#x606F;&#xFF0C;</p>
+<p>&#x5982;&#x679C;RabbitMQ&#x56E0;&#x81EA;&#x8EAB;&#x539F;&#x56E0;&#x5BFC;&#x81F4;&#x6D88;&#x606F;&#x4E22;&#x5931;&#xFF0C;&#x5C31;&#x4F1A;&#x53D1;&#x9001;&#x4E00;&#x6761;nack&#x547D;&#x4EE4;&#x3002; &#x751F;&#x4EA7;&#x8005;&#x901A;&#x8FC7;channel.confirmSelect()&#x8BBE;&#x7F6E;confirm&#x6A21;&#x5F0F;&#xFF0C;&#x6240;&#x6709;&#x88AB;&#x53D1;&#x9001;&#x7684;&#x540E;&#x7EED;&#x6D88;&#x606F;&#x90FD;&#x4F1A;&#x88AB;ack&#x6216;&#x8005;nack&#x4E00;&#x6B21;&#xFF0C;&#x4E0D;&#x4F1A;&#x51FA;&#x73B0;&#x6D88;&#x606F;&#x5373;&#x88AB;ack&#x53C8;&#x88AB;nack&#x7684;&#x60C5;&#x51B5;&#x3002;</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.song.songvue.config.message;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.rabbitmq.client.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeoutException;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x751F;&#x4EA7;&#x8005;&#x5BA2;&#x6237;&#x7AEF;&#x4EE3;&#x7801;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RabbitProducer</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">IP_ADDRESS</span> <span class="operator">=</span> <span class="string">&quot;172.16.200.239&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">PORT</span> <span class="operator">=</span> <span class="number">5672</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, TimeoutException {</span><br><span class="line"></span><br><span class="line">        <span class="type">ConnectionFactory</span> <span class="variable">factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConnectionFactory</span>();</span><br><span class="line">        factory.setHost(IP_ADDRESS);</span><br><span class="line">        factory.setPort(PORT);</span><br><span class="line">        factory.setUsername(<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        factory.setPassword(<span class="string">&quot;123456&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x521B;&#x5EFA;&#x8FDE;&#x63A5;</span></span><br><span class="line">        <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> factory.newConnection();</span><br><span class="line">        <span class="comment">// &#x521B;&#x5EFA;&#x4FE1;&#x9053;</span></span><br><span class="line">        <span class="type">Channel</span> <span class="variable">channel</span> <span class="operator">=</span> connection.createChannel();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x58F0;&#x660E;&#x4EA4;&#x6362;&#x5668;&#x540C;&#x65F6;&#x6307;&#x5B9A;&#x4E86;&#x5907;&#x4EFD;&#x4EA4;&#x6362;&#x5668;</span></span><br><span class="line">        Map&lt;String, Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        params.put(<span class="string">&quot;alternate-exchange&quot;</span>, <span class="string">&quot;myAe&quot;</span>);</span><br><span class="line">        channel.exchangeDeclare(<span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;direct&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, params);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x5907;&#x4EFD;&#x4EA4;&#x6362;&#x5668;</span></span><br><span class="line">        channel.exchangeDeclare(<span class="string">&quot;myAe&quot;</span>, <span class="string">&quot;fanout&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="comment">// &#x5907;&#x4EFD;&#x961F;&#x5217;</span></span><br><span class="line">        channel.queueDeclare(<span class="string">&quot;back_queue&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        channel.queueBind(<span class="string">&quot;back_queue&quot;</span>, <span class="string">&quot;myAe&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x961F;&#x5217;</span></span><br><span class="line">        channel.queueDeclare(<span class="string">&quot;song&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="comment">// &#x7ED1;&#x5B9A;&#x961F;&#x5217;</span></span><br><span class="line">        channel.queueBind(<span class="string">&quot;song&quot;</span>, <span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;songKey&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="comment">// &#x5C06;&#x4FE1;&#x9053;&#x8BBE;&#x7F6E;&#x6210; publisher confirm&#x6A21;&#x5F0F;</span></span><br><span class="line">            channel.confirmSelect();</span><br><span class="line">            <span class="comment">// &#x53D1;&#x5E03;&#x6D88;&#x606F;</span></span><br><span class="line">            channel.basicPublish(<span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;songKey&quot;</span>, MessageProperties.PERSISTENT_TEXT_PLAIN,</span><br><span class="line">                    <span class="string">&quot;publisher confirm test message&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!channel.waitForConfirms()) {</span><br><span class="line">                System.out.println(<span class="string">&quot;send message failed&quot;</span>);</span><br><span class="line">            }</span><br><span class="line"></span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">                &#x5982;&#x679C;&#x8981;&#x53D1;&#x9001;&#x591A;&#x6761;&#x6D88;&#x606F;&#x53EA;&#x9700;&#x8981;&#x5C06;channel.basicPublish&#x548C;channel.waitForConfirms()&#x5305;&#x88F9;&#x5728;&#x5FAA;&#x73AF;&#x5185;,</span></span><br><span class="line"><span class="comment">            &#x4E0D;&#x9700;&#x8981;&#x5C06;confirmSelect&#x653E;&#x5728;&#x5FAA;&#x73AF;&#x5185;&#x3002;</span></span><br><span class="line"><span class="comment">               &#x5982;&#x679C;&#x6CA1;&#x6709;&#x5F00;&#x542F;publisher confirm&#x6A21;&#x5F0F;, &#x8C03;&#x7528;&#x4EFB;&#x4F55;waitForConfirms&#x65B9;&#x6CD5;&#x90FD;&#x4F1A;&#x62A5;java.lang.IllegalStateException</span></span><br><span class="line"><span class="comment">           */</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// &#x53D1;&#x5E03;&#x4E00;&#x4E2A;&#x65E0;&#x6CD5;&#x8DEF;&#x7531;&#x5339;&#x914D;&#x7684;&#x6D88;&#x606F;, &#x4F1A;&#x88AB;&#x5B58;&#x50A8;&#x5230;&#x5907;&#x4EFD;&#x961F;&#x5217;&#x4E2D;</span></span><br><span class="line">            channel.basicPublish(<span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;backKey&quot;</span>, MessageProperties.PERSISTENT_TEXT_PLAIN,</span><br><span class="line">                    <span class="string">&quot; test back-queue message&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        } <span class="keyword">catch</span> (Exception e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x5173;&#x95ED;&#x8D44;&#x6E90;</span></span><br><span class="line">        channel.close();</span><br><span class="line">        connection.close();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<p>&#x6CE8;&#x610F;&#x70B9;:</p>
+<blockquote>
+<p>&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x548C;publisher confirm&#x673A;&#x5236;&#x4E24;&#x8005;&#x662F;&#x4E92;&#x65A5;&#x7684;&#xFF0C;&#x4E0D;&#x80FD;&#x5171;&#x5B58;&#x3002;&#x5982;&#x679C;&#x4F01;&#x56FE;&#x5C06;&#x5DF2;&#x5F00;&#x542F;&#x7684;&#x4E8B;&#x52A1;&#x6A21;&#x5F0F;&#x518D;&#x8BBE;&#x7F6E;&#x4E3A;publisher confirm RabbitMQ&#x4F1A;&#x62A5;&#x9519;&#x3002;&#x4E8B;&#x52A1;&#x673A;&#x5236;&#x548C;publisher confirm&#x673A;&#x5236;&#x786E;&#x4FDD;&#x7684;&#x6D88;&#x606F;&#x80FD;&#x591F;&#x6B63;&#x786E;&#x7684;&#x5230;&#x8FBE;RabbitMQ, &#x8FD9;&#x91CC;&#x7684;&#x53D1;&#x9001;&#x81F3;RabbitMQ&#x662F;&#x6307;&#x6D88;&#x606F;&#x88AB;&#x6B63;&#x786E;&#x5730;&#x53D1;&#x9001;&#x81F3;RabbitMQ&#x7684;&#x4EA4;&#x6362;&#x5668;&#xFF0C;&#x5982;&#x679C;&#x4EA4;&#x6362;&#x5668;&#x6CA1;&#x6709;&#x5339;&#x914D;&#x7684;&#x961F;&#x5217;&#xFF0C;&#x6D88;&#x606F;&#x4E5F;&#x4F1A;&#x88AB;&#x4E22;&#x5931;. &#x6240;&#x4EE5;&#x5728;&#x4F7F;&#x7528;&#x8FD9;&#x4E24;&#x79CD;&#x673A;&#x5236;&#x65F6;&#x8981;&#x914D;&#x5408;mandatory&#x6216;&#x8005;&#x5907;&#x4EFD;&#x4EA4;&#x6362;&#x5668; &#x4E00;&#x8D77;&#x4F7F;&#x7528;&#x6765;&#x63D0;&#x9AD8;&#x6D88;&#x606F;&#x4F20;&#x8F93;&#x7684;&#x53EF;&#x9760;&#x6027;&#x3002;</p>
+</blockquote>
+<p><strong>publisher confirm&#x7684;&#x4F18;&#x52BF;&#x4E0D;&#x5728;&#x4E8E;&#x9700;&#x8981;&#x540C;&#x6B65;&#x786E;&#x8BA4;&#x3002;</strong></p>
+<p>&#x6279;&#x91CF;confirm&#x65B9;&#x6CD5;:<br>     &#x6BCF;&#x53D1;&#x9001;&#x4E00;&#x6279;&#x6D88;&#x606F;&#x540E;&#xFF0C;&#x8C03;&#x7528;channel.waitForConfirms(),&#x7B49;&#x5F85;&#x670D;&#x52A1;&#x5668;&#x7684;&#x786E;&#x8BA4;&#x8FD4;&#x56DE;&#x3002;<br>&#x5F02;&#x6B65;confirm&#x65B9;&#x6CD5;&#xFF1A;<br>     &#x63D0;&#x4F9B;&#x4E00;&#x4E2A;&#x56DE;&#x8C03;&#x65B9;&#x6CD5;&#xFF0C;&#x670D;&#x52A1;&#x7AEF;&#x786E;&#x8BA4;&#x4E86;&#x4E00;&#x6761;&#x6216;&#x8005;&#x591A;&#x6761;&#x6D88;&#x606F;&#x4E4B;&#x540E;&#x5BA2;&#x6237;&#x7AEF;&#x4F1A;&#x56DE;&#x8C03;&#x8FD9;&#x4E2A;&#x5904;&#x7406;&#x65B9;&#x6CD5;&#x3002;</p>
+<pre><code> &#x6279;&#x91CF;confirm&#x65B9;&#x6CD5;&#xFF0C;&#x5BA2;&#x6237;&#x7AEF;&#x7A0B;&#x5E8F;&#x9700;&#x8981;&#x5B9A;&#x671F;&#x6216;&#x8005;&#x5B9A;&#x91CF;&#xFF0C; &#x6765;&#x8C03;&#x7528;channel.waitForConfirms()&#xFF0C;&#x5982;&#x679C;&#x5728;&#x8FD4;&#x56DE;&#x65F6;&#x51FA;&#x73B0;&#x4E86;Basic.Nack&#x6216;&#x8005;&#x8D85;&#x65F6;&#x60C5;&#x51B5;&#x5BA2;&#x6237;&#x7AEF;&#x9700;&#x8981;&#x5C06;&#x8FD9;&#x4E00;&#x6279;&#x6D88;&#x606F;&#x5168;&#x90E8;&#x91CD;&#x53D1;&#xFF0C;&#x8FD9;&#x4F1A;&#x5E26;&#x6765;&#x660E;&#x663E;&#x7684;&#x91CD;&#x590D;&#x6D88;&#x606F;&#x6570;&#x91CF;&#x3002;
+</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.song.songvue.config.message;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.rabbitmq.client.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.UnsupportedEncodingException;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ArrayBlockingQueue;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.BlockingQueue;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeoutException;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x751F;&#x4EA7;&#x8005;&#x5BA2;&#x6237;&#x7AEF;&#x4EE3;&#x7801;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RabbitProducer</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">IP_ADDRESS</span> <span class="operator">=</span> <span class="string">&quot;172.16.200.239&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">PORT</span> <span class="operator">=</span> <span class="number">5672</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">BATCH_COUNT</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Connection connection;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Channel channel;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, TimeoutException {</span><br><span class="line"></span><br><span class="line">        <span class="type">ConnectionFactory</span> <span class="variable">factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConnectionFactory</span>();</span><br><span class="line">        factory.setHost(IP_ADDRESS);</span><br><span class="line">        factory.setPort(PORT);</span><br><span class="line">        factory.setUsername(<span class="string">&quot;root&quot;</span>);</span><br><span class="line">        factory.setPassword(<span class="string">&quot;123456&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x521B;&#x5EFA;&#x8FDE;&#x63A5;</span></span><br><span class="line">        connection = factory.newConnection();</span><br><span class="line">        <span class="comment">// &#x521B;&#x5EFA;&#x4FE1;&#x9053;</span></span><br><span class="line">        channel = connection.createChannel();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x58F0;&#x660E;&#x4EA4;&#x6362;&#x5668;&#x540C;&#x65F6;&#x6307;&#x5B9A;&#x4E86;&#x5907;&#x4EFD;&#x4EA4;&#x6362;&#x5668;</span></span><br><span class="line">        Map&lt;String, Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        params.put(<span class="string">&quot;alternate-exchange&quot;</span>, <span class="string">&quot;myAe&quot;</span>);</span><br><span class="line">        channel.exchangeDeclare(<span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;direct&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, params);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x5907;&#x4EFD;&#x4EA4;&#x6362;&#x5668;</span></span><br><span class="line">        channel.exchangeDeclare(<span class="string">&quot;myAe&quot;</span>, <span class="string">&quot;fanout&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="comment">// &#x5907;&#x4EFD;&#x961F;&#x5217;</span></span><br><span class="line">        channel.queueDeclare(<span class="string">&quot;back_queue&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        channel.queueBind(<span class="string">&quot;back_queue&quot;</span>, <span class="string">&quot;myAe&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x961F;&#x5217;</span></span><br><span class="line">        channel.queueDeclare(<span class="string">&quot;song&quot;</span>, <span class="literal">true</span>, <span class="literal">false</span>, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="comment">// &#x7ED1;&#x5B9A;&#x961F;&#x5217;</span></span><br><span class="line">        channel.queueBind(<span class="string">&quot;song&quot;</span>, <span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;songKey&quot;</span>);</span><br><span class="line"></span><br><span class="line">        channel.queuePurge(<span class="string">&quot;song&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line"></span><br><span class="line">            channel.confirmSelect();</span><br><span class="line">            batchSendMessage();</span><br><span class="line">        } <span class="keyword">catch</span> (Exception e) {</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// &#x5173;&#x95ED;&#x8D44;&#x6E90;</span></span><br><span class="line">        channel.close();</span><br><span class="line">        connection.close();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">batchSendMessage</span><span class="params">()</span> <span class="keyword">throws</span> IOException {</span><br><span class="line">        <span class="type">int</span> <span class="variable">msgCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        BlockingQueue&lt;String&gt; blockingQueue = <span class="keyword">new</span> <span class="title class_">ArrayBlockingQueue</span>&lt;&gt;(BATCH_COUNT);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) {</span><br><span class="line"></span><br><span class="line">            <span class="type">String</span> <span class="variable">message</span> <span class="operator">=</span> <span class="string">&quot;batch message test&quot;</span>;</span><br><span class="line">            channel.basicPublish(<span class="string">&quot;song_exchange&quot;</span>, <span class="string">&quot;songKey&quot;</span>, MessageProperties.PERSISTENT_TEXT_PLAIN,</span><br><span class="line">                    message.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// &#x5C06;&#x53D1;&#x9001;&#x7684;&#x6D88;&#x606F;&#x5B58;&#x50A8;</span></span><br><span class="line">            blockingQueue.offer(message);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (++msgCount &gt;= BATCH_COUNT) {</span><br><span class="line">                msgCount = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">try</span> {</span><br><span class="line">                    <span class="keyword">if</span> (channel.waitForConfirms()) {</span><br><span class="line">                        <span class="comment">// &#x5C06;&#x7F13;&#x5B58;&#x6D88;&#x606F;&#x6E05;&#x7A7A;</span></span><br><span class="line">                        blockingQueue.clear();</span><br><span class="line">                    }</span><br><span class="line">                    <span class="comment">// &#x91CD;&#x65B0;&#x53D1;&#x9001;&#x7F13;&#x5B58;&#x6D88;&#x606F;</span></span><br><span class="line">                } <span class="keyword">catch</span> (Exception e) {</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                    <span class="comment">// &#x91CD;&#x65B0;&#x53D1;&#x9001;&#x7F13;&#x5B58;&#x6D88;&#x606F;</span></span><br><span class="line">                }</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/03/12/7D.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8BRabbitMQ-%E4%BB%8E%E5%BA%94%E7%94%A8%E8%A7%92%E5%BA%A6-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之RabbitMQ-从整体架构角度-如何保证消息不丢失
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/03/12/7D.004.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8BRabbitMQ%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1-%E4%B8%80/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之RabbitMQ如何保证消息不丢失-一</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

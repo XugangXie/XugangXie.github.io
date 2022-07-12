@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>线程中断-线程中断%20interrupt和%20LockSupport |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-1C006.线程中断-线程中断 interrupt和 LockSupport"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  线程中断-线程中断%20interrupt和%20LockSupport
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">18 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x672C;&#x6587;&#x7AE0;&#x5C06;&#x8981;&#x4ECB;&#x7ECD;&#x7684;&#x5185;&#x5BB9;&#x6709;&#x4EE5;&#x4E0B;&#x51E0;&#x70B9;&#xFF0C;&#x8BFB;&#x8005;&#x670B;&#x53CB;&#x4E5F;&#x53EF;&#x5148;&#x81EA;&#x884C;&#x601D;&#x8003;&#x4E00;&#x4E0B;&#x76F8;&#x5173;&#x95EE;&#x9898;&#xFF1A;</p>
+<ol>
+<li>&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD; interrupt &#x65B9;&#x6CD5;&#x600E;&#x4E48;&#x7406;&#x89E3;&#xFF0C;&#x610F;&#x601D;&#x5C31;&#x662F;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x4E86;&#x5417;&#xFF1F;&#x90A3;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x8FD8;&#x80FD;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x5417;&#xFF1F;</li>
+<li>&#x5224;&#x65AD;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x4E2D;&#x65AD;&#x7684;&#x65B9;&#x6CD5;&#x6709;&#x51E0;&#x4E2A;&#xFF0C;&#x5B83;&#x4EEC;&#x4E4B;&#x95F4;&#x6709;&#x4EC0;&#x4E48;&#x533A;&#x522B;&#xFF1F;</li>
+<li>LockSupport&#x7684; park/unpark &#x548C; wait/notify &#x6709;&#x4EC0;&#x4E48;&#x533A;&#x522B;&#xFF1F;</li>
+<li>sleep &#x65B9;&#x6CD5;&#x662F;&#x600E;&#x4E48;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x7684;&#xFF1F;</li>
+<li>park &#x65B9;&#x6CD5;&#x53C8;&#x662F;&#x600E;&#x4E48;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x7684;&#xFF1F;<span id="more"></span></li>
+</ol>
+<h3 id="&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x76F8;&#x5173;&#x65B9;&#x6CD5;"><a href="#&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x76F8;&#x5173;&#x65B9;&#x6CD5;" class="headerlink" title="&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x76F8;&#x5173;&#x65B9;&#x6CD5;"></a>&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x76F8;&#x5173;&#x65B9;&#x6CD5;</h3><p>&#x7EBF;&#x7A0B;&#x4E2D;&#x548C;&#x4E2D;&#x65AD;&#x76F8;&#x5173;&#x7684;&#x65B9;&#x6CD5;&#x6709;&#x4E09;&#x4E2A;&#xFF0C;&#x5206;&#x522B;&#x4ECB;&#x7ECD;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>1&#xFF09; interrupt</p>
+<p>&#x6211;&#x4EEC;&#x4E00;&#x822C;&#x90FD;&#x8BF4;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x662F;&#x7528;&#x6765;&#x4E2D;&#x65AD;&#x7EBF;&#x7A0B;&#x7684;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x4E2D;&#x65AD;&#x5E94;&#x8BE5;&#x600E;&#x4E48;&#x7406;&#x89E3;&#x5462;&#xFF1F; &#x5C31;&#x662F;&#x8BF4;&#x628A;&#x5F53;&#x524D;&#x6B63;&#x5728;&#x6267;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6389;&#xFF0C;&#x4E0D;&#x8BA9;&#x5B83;&#x7EE7;&#x7EED;&#x5F80;&#x4E0B;&#x6267;&#x884C;&#x5417;&#xFF1F;</p>
+<p>&#x5176;&#x5B9E;&#xFF0C;&#x4E0D;&#x7136;&#x3002; &#x6B64;&#x5904;&#xFF0C;&#x8BF4;&#x7684;&#x4E2D;&#x65AD;&#x4EC5;&#x4EC5;&#x662F;&#x7ED9;&#x7EBF;&#x7A0B;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x4E2D;&#x65AD;&#x7684;&#x6807;&#x8BC6;&#xFF08;&#x8BBE;&#x7F6E;&#x4E3A;true&#xFF09;&#xFF0C;&#x7EBF;&#x7A0B;&#x8FD8;&#x662F;&#x4F1A;&#x7EE7;&#x7EED;&#x5F80;&#x4E0B;&#x6267;&#x884C;&#x7684;&#x3002;&#x800C;&#x7EBF;&#x7A0B;&#x600E;&#x4E48;&#x505C;&#x6B62;&#xFF0C;&#x5219;&#x9700;&#x8981;&#x7531;&#x6211;&#x4EEC;&#x81EA;&#x5DF1;&#x53BB;&#x5904;&#x7406;&#x3002; &#x4E00;&#x4F1A;&#x513F;&#x4F1A;&#x7528;&#x4EE3;&#x7801;&#x6765;&#x8BF4;&#x660E;&#x8FD9;&#x4E2A;&#x3002;</p>
+<p>2&#xFF09; isInterrupted</p>
+<p>&#x5224;&#x65AD;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#xFF0C;&#x5373;&#x5224;&#x65AD;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x6807;&#x8BC6;&#x662F;true&#x8FD8;&#x662F;false&#x3002; &#x6CE8;&#x610F;&#xFF0C;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x4E0D;&#x4F1A;&#x5BF9;&#x7EBF;&#x7A0B;&#x539F;&#x672C;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x4EA7;&#x751F;&#x4EFB;&#x4F55;&#x5F71;&#x54CD;&#x3002;</p>
+<p>3&#xFF09; interrupted</p>
+<p>&#x4E5F;&#x662F;&#x5224;&#x65AD;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x7684;&#x3002;&#x4F46;&#x662F;&#xFF0C;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x548C; isInterrupted &#x6709;&#x5F88;&#x5927;&#x7684;&#x4E0D;&#x540C;&#x3002;&#x6211;&#x4EEC;&#x770B;&#x4E0B;&#x5B83;&#x4EEC;&#x7684;&#x6E90;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isInterrupted</span><span class="params">()</span> {  </span><br><span class="line">    <span class="keyword">return</span> isInterrupted(<span class="literal">false</span>);  </span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">interrupted</span><span class="params">()</span> {  </span><br><span class="line">    <span class="keyword">return</span> currentThread().isInterrupted(<span class="literal">true</span>);  </span><br><span class="line">}</span><br><span class="line"><span class="comment">//&#x8C03;&#x7528;&#x540C;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#xFF0C;&#x53EA;&#x662F;&#x4F20;&#x53C2;&#x4E0D;&#x540C;</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">native</span> <span class="type">boolean</span> <span class="title function_">isInterrupted</span><span class="params">(<span class="type">boolean</span> ClearInterrupted)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>&#x9996;&#x5148; isInterrupted &#x65B9;&#x6CD5;&#x662F;&#x7EBF;&#x7A0B;&#x5BF9;&#x8C61;&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x800C; interrupted &#x662F;Thread&#x7C7B;&#x7684;&#x9759;&#x6001;&#x65B9;&#x6CD5;&#x3002;</p>
+<p><img src="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/1.png"></p>
+<p>&#x5176;&#x6B21;&#xFF0C;&#x5B83;&#x4EEC;&#x90FD;&#x8C03;&#x7528;&#x4E86;&#x540C;&#x4E00;&#x4E2A;&#x672C;&#x5730;&#x65B9;&#x6CD5; isInterrupted&#xFF0C;&#x4E0D;&#x540C;&#x7684;&#x53EA;&#x662F;&#x4F20;&#x53C2;&#x7684;&#x503C;&#xFF0C;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x4EE3;&#x8868;&#x7684;&#x662F;&#xFF0C;&#x662F;&#x5426;&#x8981;&#x628A;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x6E05;&#x9664;&#xFF08;&#x6E05;&#x9664;&#x5373;&#x4E0D;&#x8BBA;&#x4E4B;&#x524D;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x662F;&#x4EC0;&#x4E48;&#x503C;&#xFF0C;&#x6700;&#x7EC8;&#x90FD;&#x4F1A;&#x8BBE;&#x7F6E;&#x4E3A;false&#xFF09;&#x3002;</p>
+<p>&#x56E0;&#x6B64;&#xFF0C;interrupted &#x9759;&#x6001;&#x65B9;&#x6CD5;&#x4F1A;&#x628A;&#x539F;&#x672C;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x6E05;&#x9664;&#xFF0C;&#x800C; isInterrupted &#x5219;&#x4E0D;&#x4F1A;&#x3002;&#x6240;&#x4EE5;&#xFF0C;&#x5982;&#x679C;&#x4F60;&#x8C03;&#x7528;&#x4E24;&#x6B21; interrupted &#x65B9;&#x6CD5;&#xFF0C;&#x7B2C;&#x4E8C;&#x6B21;&#x5C31;&#x4E00;&#x5B9A;&#x4F1A;&#x8FD4;&#x56DE;false&#xFF0C;&#x9664;&#x975E;&#x4E2D;&#x95F4;&#x53C8;&#x88AB;&#x4E2D;&#x65AD;&#x4E86;&#x4E00;&#x6B21;&#x3002;</p>
+<p>&#x4E0B;&#x9762;&#x8BC1;&#x660E;&#x4E00;&#x4E0B; interrupt &#x65B9;&#x6CD5;&#x53EA;&#x662F;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x4F7F;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x8FD0;&#x884C;:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestFlag</span> {</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="type">boolean</span> <span class="variable">flag</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>(){</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">                System.out.println(<span class="string">&quot;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;:&quot;</span>+Thread.currentThread().isInterrupted());</span><br><span class="line">                <span class="keyword">while</span> (flag){</span><br><span class="line"></span><br><span class="line">                }</span><br><span class="line">                System.out.println(<span class="string">&quot;&#x6807;&#x5FD7;flag&#x4E3A;:&quot;</span> + flag);</span><br><span class="line">                System.out.println(<span class="string">&quot;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;:&quot;</span>+Thread.currentThread().isInterrupted());</span><br><span class="line">                System.out.println(<span class="string">&quot;&#x6211;&#x8FD8;&#x5728;&#x7EE7;&#x7EED;&#x6267;&#x884C;&quot;</span>);</span><br><span class="line">            }</span><br><span class="line">        });</span><br><span class="line"></span><br><span class="line">        t.start();</span><br><span class="line">        Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        flag = <span class="literal">false</span>;</span><br><span class="line">        t.interrupt();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD0;&#x884C;&#x7ED3;&#x679C;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;:false</span><br><span class="line">&#x6807;&#x5FD7;flag&#x4E3A;:false</span><br><span class="line">&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;:true</span><br><span class="line">&#x6211;&#x8FD8;&#x5728;&#x7EE7;&#x7EED;&#x6267;&#x884C;</span><br></pre></td></tr></table></figure>
+<p>&#x5F53;&#x7EBF;&#x7A0B;&#x542F;&#x52A8;&#xFF0C;&#x8FD8;&#x6CA1;&#x8C03;&#x7528;&#x4E2D;&#x65AD;&#x65B9;&#x6CD5;&#x65F6;&#xFF0C;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x4E3A;false&#xFF0C;&#x7136;&#x540E;&#x8C03;&#x7528;&#x4E2D;&#x65AD;&#x65B9;&#x6CD5;&#xFF0C;&#x5E76;&#x628A;flag&#x8BBE;&#x7F6E;&#x4E3A;false&#x3002;&#x6B64;&#x65F6;&#xFF0C;run&#x65B9;&#x6CD5;&#x8DF3;&#x51FA;while&#x6B7B;&#x5FAA;&#x73AF;&#x3002;&#x6211;&#x4EEC;&#x4F1A;&#x53D1;&#x73B0;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x4E3A;true&#xFF0C;&#x4F46;&#x662F;&#x7EBF;&#x7A0B;&#x8FD8;&#x662F;&#x4F1A;&#x7EE7;&#x7EED;&#x5F80;&#x4E0B;&#x6267;&#x884C;&#xFF0C;&#x76F4;&#x5230;&#x6267;&#x884C;&#x7ED3;&#x675F;&#x3002;</p>
+<h3 id="sleep-&#x54CD;&#x5E94;&#x4E2D;&#x65AD;"><a href="#sleep-&#x54CD;&#x5E94;&#x4E2D;&#x65AD;" class="headerlink" title="sleep &#x54CD;&#x5E94;&#x4E2D;&#x65AD;"></a>sleep &#x54CD;&#x5E94;&#x4E2D;&#x65AD;</h3><p>&#x7EBF;&#x7A0B;&#x4E2D;&#x5E38;&#x7528;&#x7684;&#x963B;&#x585E;&#x65B9;&#x6CD5;&#xFF0C;&#x5982;sleep&#xFF0C;join&#x548C;wait &#x90FD;&#x4F1A;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#xFF0C;&#x7136;&#x540E;&#x629B;&#x51FA;&#x4E00;&#x4E2A;&#x4E2D;&#x65AD;&#x5F02;&#x5E38; InterruptedException&#x3002;&#x4F46;&#x662F;&#xFF0C;&#x6CE8;&#x610F;&#x6B64;&#x65F6;&#xFF0C;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x4F1A;&#x88AB;&#x6E05;&#x9664;&#x3002;&#x6240;&#x4EE5;&#xFF0C;&#x5F53;&#x6211;&#x4EEC;&#x6355;&#x83B7;&#x5230;&#x4E2D;&#x65AD;&#x5F02;&#x5E38;&#x4E4B;&#x540E;&#xFF0C;&#x5E94;&#x8BE5;&#x4FDD;&#x7559;&#x4E2D;&#x65AD;&#x4FE1;&#x606F;&#xFF0C;&#x4EE5;&#x4FBF;&#x8BA9;&#x4E0A;&#x5C42;&#x4EE3;&#x7801;&#x77E5;&#x9053;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x4E86;&#x3002;&#x901A;&#x5E38;&#x6709;&#x4E24;&#x79CD;&#x65B9;&#x6CD5;&#x53EF;&#x4EE5;&#x505A;&#x5230;&#x3002;</p>
+<p>&#x4E00;&#x79CD;&#x662F;&#xFF0C;&#x6355;&#x83B7;&#x5F02;&#x5E38;&#x4E4B;&#x540E;&#xFF0C;&#x518D;&#x91CD;&#x65B0;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#xFF0C;&#x8BA9;&#x4E0A;&#x5C42;&#x4EE3;&#x7801;&#x77E5;&#x9053;&#x3002;&#x53E6;&#x4E00;&#x79CD;&#x662F;&#xFF0C;&#x5728;&#x6355;&#x83B7;&#x5F02;&#x5E38;&#x65F6;&#xFF0C;&#x901A;&#x8FC7; interrupt &#x65B9;&#x6CD5;&#x628A;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x91CD;&#x65B0;&#x8BBE;&#x7F6E;&#x4E3A;true&#x3002;</p>
+<p>&#x4E0B;&#x9762;&#xFF0C;&#x5C31;&#x4EE5;sleep&#x65B9;&#x6CD5;&#x4E3A;&#x4F8B;&#xFF0C;&#x6355;&#x83B7;&#x4E2D;&#x65AD;&#x5F02;&#x5E38;&#xFF0C;&#x7136;&#x540E;&#x91CD;&#x65B0;&#x8BBE;&#x7F6E;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestInterrupt</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() {</span><br><span class="line">            <span class="keyword">private</span> <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">                <span class="keyword">try</span> {</span><br><span class="line">                    count = <span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(<span class="number">1000</span>);</span><br><span class="line">                    count = count * count;</span><br><span class="line">                    System.out.println(<span class="string">&quot;count:&quot;</span>+count);</span><br><span class="line">                    Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">                } <span class="keyword">catch</span> (Exception e) {</span><br><span class="line">                    <span class="comment">// &#x629B;&#x51FA;&#x4E00;&#x4E2A;&#x4E2D;&#x65AD;&#x5F02;&#x5E38; InterruptedException&#x3002;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x4F1A;&#x88AB;&#x6E05;&#x9664;&#x3002;</span></span><br><span class="line">                    System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x7EBF;&#x7A0B;&#x7B2C;&#x4E00;&#x6B21;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#xFF1A;&quot;</span>+Thread.currentThread().isInterrupted());</span><br><span class="line">                    <span class="comment">//&#x91CD;&#x65B0;&#x628A;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x8BBE;&#x7F6E;&#x4E3A;true&#xFF0C;&#x4EE5;&#x4FBF;&#x4E0A;&#x5C42;&#x4EE3;&#x7801;&#x5224;&#x65AD;</span></span><br><span class="line">                    Thread.currentThread().interrupt();</span><br><span class="line">                    System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x7EBF;&#x7A0B;&#x7B2C;&#x4E8C;&#x6B21;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#xFF1A;&quot;</span>+Thread.currentThread().isInterrupted());</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        });</span><br><span class="line"></span><br><span class="line">        t.start();</span><br><span class="line"></span><br><span class="line">        Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        t.interrupt();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x7ED3;&#x679C;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">count:208849</span><br><span class="line">Thread-0&#x7EBF;&#x7A0B;&#x7B2C;&#x4E00;&#x6B21;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#xFF1A;false</span><br><span class="line">Thread-0&#x7EBF;&#x7A0B;&#x7B2C;&#x4E8C;&#x6B21;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#xFF1A;true</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="LockSupport&#x65B9;&#x6CD5;&#x4ECB;&#x7ECD;"><a href="#LockSupport&#x65B9;&#x6CD5;&#x4ECB;&#x7ECD;" class="headerlink" title="LockSupport&#x65B9;&#x6CD5;&#x4ECB;&#x7ECD;"></a>LockSupport&#x65B9;&#x6CD5;&#x4ECB;&#x7ECD;</h3><p>LockSupport &#x65B9;&#x6CD5;&#x4E2D;&#x91CD;&#x8981;&#x7684;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;&#x5C31;&#x662F;park &#x548C; unpark &#x3002;</p>
+<h4 id="park&#x548C;interrupt&#x4E2D;&#x65AD;"><a href="#park&#x548C;interrupt&#x4E2D;&#x65AD;" class="headerlink" title="park&#x548C;interrupt&#x4E2D;&#x65AD;"></a>park&#x548C;interrupt&#x4E2D;&#x65AD;</h4><p>park&#x65B9;&#x6CD5;&#x53EF;&#x4EE5;&#x963B;&#x585E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#xFF0C;&#x5982;&#x679C;&#x8C03;&#x7528;unpark&#x65B9;&#x6CD5;&#x6216;&#x8005;&#x4E2D;&#x65AD;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#xFF0C;&#x5219;&#x4F1A;&#x4ECE;park&#x65B9;&#x6CD5;&#x4E2D;&#x8FD4;&#x56DE;&#x3002;</p>
+<p>park&#x65B9;&#x6CD5;&#x5BF9;&#x4E2D;&#x65AD;&#x65B9;&#x6CD5;&#x7684;&#x54CD;&#x5E94;&#x548C; sleep &#x6709;&#x4E00;&#x4E9B;&#x4E0D;&#x592A;&#x4E00;&#x6837;&#x3002;&#x5B83;&#x4E0D;&#x4F1A;&#x629B;&#x51FA;&#x4E2D;&#x65AD;&#x5F02;&#x5E38;&#xFF0C;&#x800C;&#x662F;&#x4ECE;park&#x65B9;&#x6CD5;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#xFF0C;&#x4E0D;&#x5F71;&#x54CD;&#x7EBF;&#x7A0B;&#x7684;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x3002;&#x6211;&#x4EEC;&#x770B;&#x4E0B;&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LockSupportTest</span> {</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">ParkThread</span>());</span><br><span class="line">        t.start();</span><br><span class="line">        Thread.sleep(<span class="number">100</span>); <span class="comment">//&#x2460;</span></span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x5F00;&#x59CB;&#x5524;&#x9192;&#x963B;&#x585E;&#x7EBF;&#x7A0B;&quot;</span>);</span><br><span class="line">        t.interrupt();</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x7ED3;&#x675F;&#x5524;&#x9192;&quot;</span>);</span><br><span class="line"></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ParkThread</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span>{</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x5F00;&#x59CB;&#x963B;&#x585E;&quot;</span>);</span><br><span class="line">        LockSupport.park();</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">&quot;&#x7B2C;&#x4E00;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;&quot;</span>);</span><br><span class="line">        LockSupport.park();</span><br><span class="line">        System.out.println(<span class="string">&quot;&#x7B2C;&#x4E8C;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;&quot;</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6253;&#x5370;&#x7ED3;&#x679C;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Thread-0&#x5F00;&#x59CB;&#x963B;&#x585E;</span><br><span class="line">main&#x5F00;&#x59CB;&#x5524;&#x9192;&#x963B;&#x585E;&#x7EBF;&#x7A0B;</span><br><span class="line">main&#x7ED3;&#x675F;&#x5524;&#x9192;</span><br><span class="line">Thread-0&#x7B2C;&#x4E00;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;</span><br><span class="line">&#x7B2C;&#x4E8C;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;</span><br></pre></td></tr></table></figure>
+<p>&#x5F53;&#x8C03;&#x7528;interrupt&#x65B9;&#x6CD5;&#x65F6;&#xFF0C;&#x4F1A;&#x628A;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x8BBE;&#x7F6E;&#x4E3A;true&#xFF0C;&#x7136;&#x540E;park&#x65B9;&#x6CD5;&#x4F1A;&#x53BB;&#x5224;&#x65AD;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#xFF0C;&#x5982;&#x679C;&#x4E3A;true&#xFF0C;&#x5C31;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#xFF0C;&#x7136;&#x540E;&#x5F80;&#x4E0B;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#xFF0C;&#x5E76;&#x4E0D;&#x4F1A;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#x3002;&#x6CE8;&#x610F;&#xFF0C;&#x8FD9;&#x91CC;&#x5E76;&#x4E0D;&#x4F1A;&#x6E05;&#x9664;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x3002;</p>
+<h4 id="unpark"><a href="#unpark" class="headerlink" title="unpark"></a>unpark</h4><p>unpark&#x4F1A;&#x5524;&#x9192;&#x88AB;park&#x7684;&#x6307;&#x5B9A;&#x7EBF;&#x7A0B;&#x3002;&#x4F46;&#x662F;&#xFF0C;&#x8FD9;&#x91CC;&#x8981;&#x8BF4;&#x660E;&#x7684;&#x662F;&#xFF0C;unpark &#x5E76;&#x4E0D;&#x662F;&#x7B80;&#x5355;&#x7684;&#x76F4;&#x63A5;&#x53BB;&#x5524;&#x9192;&#x88AB;park&#x7684;&#x7EBF;&#x7A0B;&#x3002;&#x770B;&#x4E0B;JDK&#x7684;&#x89E3;&#x91CA;&#xFF1A;<br><img src="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/2.png"></p>
+<p>unpark&#x53EA;&#x662F;&#x7ED9;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x8BB8;&#x53EF;&#x8BC1;&#x3002;&#x5982;&#x679C;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x88AB;&#x963B;&#x585E;&#x4E86;&#xFF08;&#x5373;&#x8C03;&#x7528;&#x4E86;park&#xFF09;&#xFF0C;&#x5219;&#x4F1A;&#x8F6C;&#x4E3A;&#x4E0D;&#x963B;&#x585E;&#x7684;&#x72B6;&#x6001;&#x3002;&#x5982;&#x82E5;&#x4E0D;&#x7136;&#xFF0C;&#x4E0B;&#x6B21;&#x8C03;&#x7528;park&#x65B9;&#x6CD5;&#x7684;&#x65F6;&#x5019;&#x4E5F;&#x4F1A;&#x4FDD;&#x8BC1;&#x4E0D;&#x963B;&#x585E;&#x3002;&#x8FD9;&#x53E5;&#x8BDD;&#x7684;&#x610F;&#x601D;&#xFF0C;&#x5176;&#x5B9E;&#x662F;&#x6307;&#xFF0C;park&#x548C;unpark&#x7684;&#x8C03;&#x7528;&#x987A;&#x5E8F;&#x65E0;&#x6240;&#x8C13;&#xFF0C;&#x53EA;&#x8981;unpark&#x8BBE;&#x7F6E;&#x4E86;&#x8FD9;&#x4E2A;&#x8BB8;&#x53EF;&#x8BC1;&#xFF0C;park&#x65B9;&#x6CD5;&#x5C31;&#x53EF;&#x4EE5;&#x5728;&#x4EFB;&#x610F;&#x65F6;&#x523B;&#x6D88;&#x8D39;&#x8BB8;&#x53EF;&#x8BC1;&#xFF0C;&#x4ECE;&#x800C;&#x4E0D;&#x4F1A;&#x963B;&#x585E;&#x65B9;&#x6CD5;&#x3002;</p>
+<p>&#x8FD8;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x8BB8;&#x53EF;&#x8BC1;&#x6700;&#x591A;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;&#x5C31;&#x7B97;unpark&#x65B9;&#x6CD5;&#x8C03;&#x7528;&#x591A;&#x6B21;&#xFF0C;&#x4E5F;&#x4E0D;&#x4F1A;&#x589E;&#x52A0;&#x8BB8;&#x53EF;&#x8BC1;&#x3002; &#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4EE3;&#x7801;&#x9A8C;&#x8BC1;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x628A;&#x4E0A;&#x8FB9;&#x4EE3;&#x7801;&#x4FEE;&#x6539;&#x4E00;&#x884C;&#x5373;&#x53EF;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//LockSupportTest&#x7C7B;</span></span><br><span class="line"><span class="comment">//&#x539F;&#x4EE3;&#x7801;</span></span><br><span class="line">t.interrupt();</span><br><span class="line"><span class="comment">//&#x4FEE;&#x6539;&#x4E3A;</span></span><br><span class="line">LockSupport.unpark(t);</span><br><span class="line">LockSupport.unpark(t);</span><br></pre></td></tr></table></figure>
+
+<p>&#x5C31;&#x4F1A;&#x53D1;&#x73B0;&#xFF0C;&#x53EA;&#x6709;&#x7B2C;&#x4E00;&#x6B21;&#x963B;&#x585E;&#x4F1A;&#x88AB;&#x5524;&#x9192;&#xFF0C;&#x4F46;&#x662F;&#x7B2C;&#x4E8C;&#x6B21;&#x4F9D;&#x7136;&#x4F1A;&#x7EE7;&#x7EED;&#x963B;&#x585E;&#x3002;&#x7ED3;&#x679C;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Thread-<span class="number">0</span>&#x5F00;&#x59CB;&#x963B;&#x585E;</span><br><span class="line">main&#x5F00;&#x59CB;&#x5524;&#x9192;&#x963B;&#x585E;&#x7EBF;&#x7A0B;</span><br><span class="line">main&#x7ED3;&#x675F;&#x5524;&#x9192;</span><br><span class="line">Thread-<span class="number">0</span>&#x7B2C;&#x4E00;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;</span><br></pre></td></tr></table></figure>
+
+<p>&#x53E6;&#x5916;&#xFF0C;&#x5728;&#x6B64;&#x57FA;&#x7840;&#x4E0A;&#xFF0C;&#x628A;&#x4E3B;&#x7EBF;&#x7A0B;&#x7684;sleep&#x65B9;&#x6CD5;&#x53BB;&#x6389;&#xFF08;&#x4EE3;&#x7801;&#x4E2D;&#x2460;&#x5904;&#xFF09;&#xFF0C;&#x8BA9;&#x4E3B;&#x7EBF;&#x7A0B;&#x5148;&#x8FD0;&#x884C;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x6709;&#x53EF;&#x80FD;&#x5148;&#x8C03;&#x7528;unpark&#x65B9;&#x6CD5;&#xFF0C;&#x7136;&#x540E;&#x5B50;&#x7EBF;&#x7A0B;&#x624D;&#x5F00;&#x59CB;&#x8C03;&#x7528;park&#x65B9;&#x6CD5;&#x963B;&#x585E;&#x3002;&#x6211;&#x4EEC;&#x4F1A;&#x53D1;&#x73B0;&#xFF0C;&#x51FA;&#x73B0;&#x4EE5;&#x4E0B;&#x7ED3;&#x679C;&#xFF0C;&#x8BC1;&#x660E;&#x4E86;&#x4E0A;&#x8FB9;&#x6211;&#x8BF4;&#x7684;park&#x65B9;&#x6CD5;&#x548C;unpark&#x4E0D;&#x5206;&#x5148;&#x540E;&#x987A;&#x5E8F;&#xFF0C;park&#x65B9;&#x6CD5;&#x53EF;&#x4EE5;&#x968F;&#x65F6;&#x6D88;&#x8D39;&#x8BB8;&#x53EF;&#x8BC1;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">main&#x5F00;&#x59CB;&#x5524;&#x9192;&#x963B;&#x585E;&#x7EBF;&#x7A0B;</span><br><span class="line">main&#x7ED3;&#x675F;&#x5524;&#x9192;</span><br><span class="line">Thread-0&#x5F00;&#x59CB;&#x963B;&#x585E;</span><br><span class="line">Thread-0&#x7B2C;&#x4E00;&#x6B21;&#x7ED3;&#x675F;&#x963B;&#x585E;</span><br></pre></td></tr></table></figure>
+
+<h3 id="park-x2F-unpark&#x548C;-wait-x2F-notify&#x533A;&#x522B;"><a href="#park-x2F-unpark&#x548C;-wait-x2F-notify&#x533A;&#x522B;" class="headerlink" title="park/unpark&#x548C; wait/notify&#x533A;&#x522B;"></a>park/unpark&#x548C; wait/notify&#x533A;&#x522B;</h3><p>&#x4E86;&#x89E3;&#x4E86; park/unpark&#x7684;&#x7528;&#x6CD5;&#x4E4B;&#x540E;&#xFF0C;&#x60F3;&#x5FC5;&#x4F60;&#x4E5F;&#x80FD;&#x5206;&#x6790;&#x51FA;&#x6765;&#x5B83;&#x4EEC;&#x548C; wait&#x3001;notify&#x6709;&#x4EC0;&#x4E48;&#x4E0D;&#x540C;&#x4E4B;&#x5904;&#x4E86;&#x3002;</p>
+<ol>
+<li><p>wait&#x548C;notify&#x65B9;&#x6CD5;&#x5FC5;&#x987B;&#x548C;&#x540C;&#x6B65;&#x9501; synchronized&#x4E00;&#x5757;&#x513F;&#x4F7F;&#x7528;&#x3002;&#x800C;park/unpark&#x4F7F;&#x7528;&#x5C31;&#x6BD4;&#x8F83;&#x7075;&#x6D3B;&#x4E86;&#xFF0C;&#x6CA1;&#x6709;&#x8FD9;&#x4E2A;&#x9650;&#x5236;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x4EFB;&#x4F55;&#x5730;&#x65B9;&#x4F7F;&#x7528;&#x3002;</p>
+</li>
+<li><p>park/unpark &#x4F7F;&#x7528;&#x65F6;&#x6CA1;&#x6709;&#x5148;&#x540E;&#x987A;&#x5E8F;&#xFF0C;&#x90FD;&#x53EF;&#x4EE5;&#x4F7F;&#x7EBF;&#x7A0B;&#x4E0D;&#x963B;&#x585E;&#xFF08;&#x524D;&#x9762;&#x4EE3;&#x7801;&#x5DF2;&#x9A8C;&#x8BC1;&#xFF09;&#x3002;&#x800C;wait&#x5FC5;&#x987B;&#x5728;notify&#x524D;&#x5148;&#x4F7F;&#x7528;&#xFF0C;&#x5982;&#x679C;&#x5148;notify&#xFF0C;&#x518D;wait&#xFF0C;&#x5219;&#x7EBF;&#x7A0B;&#x4F1A;&#x4E00;&#x76F4;&#x7B49;&#x5F85;&#x3002;</p>
+</li>
+<li><p>notify&#x53EA;&#x80FD;&#x968F;&#x673A;&#x91CA;&#x653E;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#xFF0C;&#x5E76;&#x4E0D;&#x80FD;&#x6307;&#x5B9A;&#x67D0;&#x4E2A;&#x7279;&#x5B9A;&#x7EBF;&#x7A0B;&#xFF0C;notifyAll&#x662F;&#x91CA;&#x653E;&#x9501;&#x5BF9;&#x8C61;&#x4E2D;&#x7684;&#x6240;&#x6709;&#x7EBF;&#x7A0B;&#x3002;&#x800C;unpark&#x65B9;&#x6CD5;&#x53EF;&#x4EE5;&#x5524;&#x9192;&#x6307;&#x5B9A;&#x7684;&#x7EBF;&#x7A0B;&#x3002;</p>
+</li>
+<li><p>&#x8C03;&#x7528;wait&#x65B9;&#x6CD5;&#x4F1A;&#x4F7F;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x91CA;&#x653E;&#x9501;&#x8D44;&#x6E90;&#xFF0C;&#x4F46;&#x4F7F;&#x7528;&#x7684;&#x524D;&#x63D0;&#x662F;&#x5FC5;&#x987B;&#x5DF2;&#x7ECF;&#x83B7;&#x5F97;&#x4E86;&#x9501;&#x3002; &#x800C;park&#x4E0D;&#x4F1A;&#x91CA;&#x653E;&#x9501;&#x8D44;&#x6E90;&#x3002;&#xFF08;&#x4EE5;&#x4E0B;&#x4EE3;&#x7801;&#x9A8C;&#x8BC1;&#xFF09;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LockSyncTest</span> {</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">    <span class="comment">//&#x4FDD;&#x5B58;&#x8C03;&#x7528;park&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x4EE5;&#x4FBF;&#x540E;&#x7EED;&#x5524;&#x9192;</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Thread parkedThread;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;{</span><br><span class="line">             <span class="keyword">synchronized</span> (lock){</span><br><span class="line">                 System.out.println(<span class="string">&quot;unpark&#x524D;&quot;</span>);</span><br><span class="line">                 LockSupport.unpark(parkedThread);</span><br><span class="line">                 System.out.println(<span class="string">&quot;unpark&#x540E;&quot;</span>);</span><br><span class="line">             }</span><br><span class="line">        });</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() {</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">                <span class="comment">//&#x548C;t1&#x7EBF;&#x7A0B;&#x7528;&#x540C;&#x4E00;&#x628A;&#x9501;&#x65F6;&#xFF0C;park&#x4E0D;&#x4F1A;&#x91CA;&#x653E;&#x9501;&#x8D44;&#x6E90;&#xFF0C;&#x82E5;&#x6362;&#x6210;this&#x9501;&#xFF0C;&#x5219;&#x4F1A;&#x91CA;&#x653E;&#x9501;</span></span><br><span class="line">                <span class="keyword">synchronized</span> (lock){</span><br><span class="line">                    System.out.println(<span class="string">&quot;park&#x524D;&quot;</span>);</span><br><span class="line">                    parkedThread = Thread.currentThread();</span><br><span class="line">                    LockSupport.park();</span><br><span class="line">                    <span class="keyword">try</span> {</span><br><span class="line">                        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                    } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    }</span><br><span class="line">                    System.out.println(<span class="string">&quot;park&#x540E;&quot;</span>);</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line">        });</span><br><span class="line"></span><br><span class="line">        t2.start();</span><br><span class="line">        Thread.sleep(<span class="number">100</span>);</span><br><span class="line">        t1.start();</span><br><span class="line"></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="comment">//&#x6253;&#x5370;&#x7ED3;&#x679C;</span></span><br><span class="line"><span class="comment">//park&#x524D;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>&#x4EE5;&#x4E0A;&#x4EE3;&#x7801;&#xFF0C;&#x4F1A;&#x4E00;&#x76F4;&#x5361;&#x5728;t2&#x7EBF;&#x7A0B;&#xFF0C;&#x56E0;&#x4E3A;park&#x4E0D;&#x4F1A;&#x91CA;&#x653E;&#x9501;&#xFF0C;&#x56E0;&#x6B64;t1&#x4E5F;&#x65E0;&#x6CD5;&#x6267;&#x884C;&#x3002;</p>
+<p>&#x5982;&#x679C;&#x628A;t2&#x7684;&#x9501;&#x6362;&#x6210;this&#x9501;&#xFF0C;&#x5373;&#x53EA;&#x8981;&#x548C;t1&#x4E0D;&#x662F;&#x540C;&#x4E00;&#x628A;&#x9501;&#xFF0C;&#x5219;t1&#x5C31;&#x4F1A;&#x6B63;&#x5E38;&#x6267;&#x884C;&#xFF0C;&#x7136;&#x540E;&#x628A;t2&#x7EBF;&#x7A0B;&#x5524;&#x9192;&#x3002;&#x6253;&#x5370;&#x7ED3;&#x679C;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">park&#x524D;</span><br><span class="line">unpark&#x524D;</span><br><span class="line">unpark&#x540E;</span><br><span class="line">park&#x540E;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<hr>
+<p>&#x521A;&#x8FDB;&#x5165;&#x8F6F;&#x4EF6;&#x884C;&#x4E1A;&#x7684;&#x65B0;&#x624B;&#xFF0C;&#x8BA4;&#x4E3A;Java&#x8BBE;&#x7F6E;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x5C31;&#x662F;&#x8868;&#x793A;&#x7EBF;&#x7A0B;&#x505C;&#x6B62;&#x4E86;&#xFF0C;&#x4E0D;&#x5F80;&#x524D;&#x6267;&#x884C;&#x4E86;&#xFF0C;</p>
+<p>Thread.currentThread().interrupt()</p>
+<p> &#x5176;&#x5B9E;&#x4E0D;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF0C;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x53EA;&#x662F;&#x4E00;&#x4E2A;&#x72B6;&#x6001;&#x800C;&#x5DF2;&#xFF0C;true&#x8868;&#x793A;&#x5DF2;&#x4E2D;&#x65AD;&#xFF0C;false&#x8868;&#x793A;&#x672A;&#x4E2D;&#x65AD;</p>
+<p>//&#x83B7;&#x53D6;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#xFF0C;&#x5982;&#x679C;&#x4E2D;&#x65AD;&#x4E86;&#x8FD4;&#x56DE;true,&#x5426;&#x5219;&#x8FD4;&#x56DE;false<br>Thread.currentThread().isInterrupted()<br>&#x8BBE;&#x7F6E;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x4E0D;&#x5F71;&#x54CD;&#x7EBF;&#x7A0B;&#x7684;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#xFF0C;&#x4F46;&#x662F;&#x7EBF;&#x7A0B;&#x8BBE;&#x7F6E;&#x4E2D;&#x65AD;&#x540E;&#xFF0C;&#x7EBF;&#x7A0B;&#x5185;&#x8C03;&#x7528;&#x4E86;wait&#x3001;jion&#x3001;sleep&#x65B9;&#x6CD5;&#x4E2D;&#x7684;&#x4E00;&#x79CD;&#xFF0C; &#x7ACB;&#x9A6C;&#x629B;&#x51FA;&#x4E00;&#x4E2A; InterruptedException&#xFF0C;&#x4E14;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x88AB;&#x6E05;&#x9664;&#xFF0C;&#x91CD;&#x65B0;&#x8BBE;&#x7F6E;&#x4E3A;false&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Thread2</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span>{</span><br><span class="line">	    <span class="meta">@Override</span></span><br><span class="line">	    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">	        <span class="keyword">try</span> {</span><br><span class="line">	            System.out.println();</span><br><span class="line">	            System.out.println(hread.currentThread().isInterrupted());<span class="comment">//&#x8F93;&#x51FA;false</span></span><br><span class="line">	            Thread.currentThread().interrupt();<span class="comment">//&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;</span></span><br><span class="line">	            System.out.println(<span class="string">&quot;Thread.currentThread().isInterrupted());//&#x8F93;&#x51FA;true</span></span><br><span class="line"><span class="string">	            Thread.sleep(3000);//&#x4E2D;&#x65AD;&#x540E;&#x6267;&#x884C;sleep&#x4F1A;&#x629B;&#x51FA;&#x5F02;&#x5E38;</span></span><br><span class="line"><span class="string">	        } catch (InterruptedException e) {</span></span><br><span class="line"><span class="string">	            e.printStackTrace();</span></span><br><span class="line"><span class="string">	            System.out.println(&quot;</span>Thread.currentThread().isInterrupted());<span class="comment">//&#x8F93;&#x51FA;false</span></span><br><span class="line">	        }</span><br><span class="line"></span><br><span class="line">	    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>&#x8BE5;&#x5982;&#x4F55;&#x8BA9;&#x7EBF;&#x7A0B;&#x771F;&#x6B63;&#x505C;&#x6B62;&#x4E0D;&#x5F80;&#x524D;&#x6267;&#x884C;&#x5462;:<br>&#x771F;&#x6B63;&#x8BA9;&#x7EBF;&#x7A0B;&#x505C;&#x6B62;&#x4E0B;&#x6765;(&#x963B;&#x585E;)&#xFF0C;Java&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x4E2A;&#x8F83;&#x4E3A;&#x5E95;&#x5C42;&#x7684;&#x5E76;&#x53D1;&#x5DE5;&#x5177;&#x7C7B;:LockSupport&#xFF0C;&#x8BE5;&#x7C7B;&#x5E38;&#x7528;&#x7684;&#x65B9;&#x6CD5;&#x6709;&#x4E24;&#x4E2A;,<br>1 park(Object blocker) &#x8868;&#x793A;&#x963B;&#x585E;&#x6307;&#x5B9A;&#x7EBF;&#x7A0B;&#xFF0C;&#x53C2;&#x6570;blocker&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5BF9;&#x8C61;<br>2 unpark(Thread thread) &#x5524;&#x9192;&#x6307;&#x5B9A;&#x7EBF;&#x7A0B;&#xFF0C;&#x53C2;&#x6570;thread&#x6307;&#x5B9A;&#x7EBF;&#x7A0B;&#x5BF9;&#x8C61;<br>&#x793A;&#x4F8B;:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test_LockSupport</span><span class="params">()</span>{</span><br><span class="line">		 Thread thread=<span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Thread_park</span>());</span><br><span class="line">		 thread.start();<span class="comment">//&#x963B;&#x585E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;</span></span><br><span class="line">		 Thread thread2=<span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Thread_unpark</span>(thread));</span><br><span class="line">		 thread2.start();<span class="comment">//&#x5524;&#x9192;&#x88AB;&#x963B;&#x585E;&#x7684;&#x7EBF;&#x7A0B;</span></span><br><span class="line"> }</span><br><span class="line"></span><br><span class="line"> <span class="keyword">class</span> <span class="title class_">Thread_park</span> <span class="keyword">implements</span>  <span class="title class_">Runnable</span>{</span><br><span class="line">	 <span class="meta">@Override</span></span><br><span class="line">	 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">			 System.out.println(<span class="string">&quot;Thread_park&#x5F00;&#x59CB;&quot;</span>);</span><br><span class="line">			 LockSupport.park(<span class="built_in">this</span>);<span class="comment">//&#x963B;&#x585E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;</span></span><br><span class="line">			 System.out.println(<span class="string">&quot;Thread_park&#x7ED3;&#x675F;&quot;</span>);</span><br><span class="line">		}</span><br><span class="line"> }</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Thread_unpark</span> <span class="keyword">implements</span>  <span class="title class_">Runnable</span>{</span><br><span class="line">	 <span class="keyword">private</span> Thread thread;</span><br><span class="line"></span><br><span class="line">	 <span class="keyword">public</span> <span class="title function_">Thread_unpark</span><span class="params">(Thread thread)</span> {</span><br><span class="line">			 <span class="built_in">this</span>.thread = thread;</span><br><span class="line">	 }</span><br><span class="line"></span><br><span class="line">	 <span class="meta">@Override</span></span><br><span class="line">	 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> {</span><br><span class="line">			 System.out.println(<span class="string">&quot;Thread_unpark&#x5F00;&#x59CB;&quot;</span>);</span><br><span class="line">			 <span class="keyword">try</span> {</span><br><span class="line">					 Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">			 } <span class="keyword">catch</span> (InterruptedException e) {</span><br><span class="line">					 e.printStackTrace();</span><br><span class="line">			 }</span><br><span class="line">			 LockSupport.unpark(thread);<span class="comment">//&#x5524;&#x9192;&#x88AB;&#x963B;&#x585E;&#x7684;&#x7EBF;&#x7A0B;</span></span><br><span class="line">			 System.out.println(<span class="string">&quot;Thread_unpark&#x7ED3;&#x675F;&quot;</span>);</span><br><span class="line">	 }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h3><ul>
+<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021884397">&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD; interrupt&#x548C; LockSupport&#x4ECB;&#x7ECD;</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000016402662">Java &#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;(interrupt)&#x4E0E;&#x963B;&#x585E; (park)&#x7684;&#x533A;&#x522B;</a></p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/03/07/1C005.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E5%A6%82%E4%BD%95%E4%B8%AD%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E7%BA%BF%E7%A8%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            线程中断-如何中断一个正在运行的线程
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/10/10B100.%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E5%88%97-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%9D%A2%E4%B8%B4%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">分布式系列-分布式系统设计面临的常见问题</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

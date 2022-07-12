@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>ThreadLocal原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-1A007.ThreadLocal原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  ThreadLocal原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/07/16/1A007.ThreadLocal%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2018-07-16T02:00:00.000Z" itemprop="datePublished">2018-07-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x672C;&#x7BC7;&#x5C06;&#x4ECE;ThreadLocal&#x7684;&#x7528;&#x9014;&#x8BF4;&#x660E;&#x3001;&#x51E0;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;&#x3001;&#x6E90;&#x7801;&#x5206;&#x6790;&#x3001;&#x4F7F;&#x7528;&#x4E2D;&#x51FA;&#x73B0;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x8FD9;&#x56DB;&#x70B9;&#x5C55;&#x5F00;&#x8BE6;&#x7EC6;&#x8BF4;&#x660E;&#x3002;<span id="more"></span></li>
+</ul>
+<h2 id="&#x7528;&#x9014;&#x8BF4;&#x660E;"><a href="#&#x7528;&#x9014;&#x8BF4;&#x660E;" class="headerlink" title="&#x7528;&#x9014;&#x8BF4;&#x660E;"></a>&#x7528;&#x9014;&#x8BF4;&#x660E;</h2><p>&#x611F;&#x89C9;&#x81EA;&#x5DF1;&#x8BF4;&#x7684;&#xFF0C;&#x4E0D;&#x5982;&#x7F51;&#x7EDC;&#x4E0A;&#x8BF4;&#x7684;&#x7CBE;&#x5999;&#xFF0C;&#x76F4;&#x63A5;&#x6458;&#x81EA;&#x7F51;&#x7EDC;&#xFF1A;</p>
+<blockquote>
+<p>ThreadLocal&#x4E0E;&#x7EBF;&#x7A0B;&#x540C;&#x6B65;&#x673A;&#x5236;&#x4E0D;&#x540C;&#xFF0C;&#x7EBF;&#x7A0B;&#x540C;&#x6B65;&#x673A;&#x5236;&#x662F;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x5171;&#x4EAB;&#x540C;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#xFF0C;&#x800C;ThreadLocal&#x662F;&#x4E3A;&#x6BCF;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x5355;&#x72EC;&#x7684;&#x53D8;&#x91CF;&#x526F;&#x672C;&#xFF0C;&#x6545;&#x800C;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x90FD;&#x53EF;&#x4EE5;&#x72EC;&#x7ACB;&#x5730;&#x6539;&#x53D8;&#x81EA;&#x5DF1;&#x6240;&#x62E5;&#x6709;&#x7684;&#x53D8;&#x91CF;&#x526F;&#x672C;&#xFF0C;&#x800C;&#x4E0D;&#x4F1A;&#x5F71;&#x54CD;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x6240;&#x5BF9;&#x5E94;&#x7684;&#x526F;&#x672C;&#x3002;&#x53EF;&#x4EE5;&#x8BF4;ThreadLocal&#x4E3A;&#x591A;&#x7EBF;&#x7A0B;&#x73AF;&#x5883;&#x4E0B;&#x53D8;&#x91CF;&#x95EE;&#x9898;&#x63D0;&#x4F9B;&#x4E86;&#x53E6;&#x5916;&#x4E00;&#x79CD;&#x89E3;&#x51B3;&#x601D;&#x8DEF;&#x3002;</p>
+</blockquote>
+<h2 id="&#x51E0;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;"><a href="#&#x51E0;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;" class="headerlink" title="&#x51E0;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;"></a>&#x51E0;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;</h2><p>ThreadLocal&#x5B9A;&#x4E49;&#x4E86;&#x56DB;&#x4E2A;&#x65B9;&#x6CD5;&#xFF1A;</p>
+<ul>
+<li>initialValue(): &#x8FD4;&#x56DE;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E2D;&#xFF0C;<code>threadLocalMap</code>&#x4E2D;&#x7684;&#x521D;&#x59CB;&#x503C;</li>
+<li>set(T value): &#x4E3A;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E2D;&#x7684;<code>threadLocalMap</code>&#x8BBE;&#x5B9A;value</li>
+<li>get(): &#x4ECE;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x7684;<code>threadLocalMap</code>&#x4E2D;&#xFF0C;&#x6839;&#x636E;&#x7684;<code>ThreadLocal</code>&#x5B9E;&#x4F8B;&#xFF0C;&#x83B7;&#x53D6;value</li>
+<li>remove(): &#x4ECE;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;<code>threadLocalMap</code>&#x4E2D;&#xFF0C;&#x627E;&#x5230;<code>ThreadLocal</code>&#x5B9E;&#x4F8B;&#x5BF9;&#x5E94;&#x7684;value&#xFF0C;&#x5220;&#x9664;&#x8FD9;&#x4E00;&#x952E;&#x503C;&#x5BF9;</li>
+</ul>
+<h2 id="&#x6E90;&#x7801;&#x5206;&#x6790;"><a href="#&#x6E90;&#x7801;&#x5206;&#x6790;" class="headerlink" title="&#x6E90;&#x7801;&#x5206;&#x6790;"></a>&#x6E90;&#x7801;&#x5206;&#x6790;</h2><ul>
+<li>&#x4ECE;&#x4EE5;&#x4E0A;&#x56DB;&#x4E2A;&#x63A5;&#x53E3;&#x8BF4;&#x660E;&#x53EF;&#x4EE5;&#x770B;&#x51FA;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x63A5;&#x53E3;&#x64CD;&#x4F5C;&#xFF0C;&#x90FD;&#x662F;&#x5BF9;<code>ThreadLocalMap</code>&#x7684;&#x64CD;&#x4F5C;&#x3002;<code>ThreadLocalMap</code>&#x662F;<code>ThreadLocal</code>&#x7684;&#x4E00;&#x4E2A;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#xFF0C;&#x8BE5;&#x7C7B;&#x662F;&#x5B9E;&#x73B0;&#x7EBF;&#x7A0B;&#x9694;&#x79BB;&#x673A;&#x5236;&#x7684;&#x5173;&#x952E;&#x3002;<code>get()</code>&#x3001;<code>set()</code>&#x3001;<code>remove()</code>&#x90FD;&#x662F;&#x57FA;&#x4E8E;&#x8BE5;&#x7C7B;&#x64CD;&#x4F5C;</li>
+<li><code>ThreadLocal</code>&#x662F;&#x4E00;&#x79CD;&#x63D0;&#x4F9B;&#x7528;&#x952E;&#x503C;&#x5BF9;&#x65B9;&#x5F0F;&#x5B58;&#x50A8;&#x6BCF;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x7684;&#x5BF9;&#x5E94;&#x53D8;&#x91CF;&#x526F;&#x672C;&#x7684;&#x65B9;&#x6CD5;&#x3002;key&#x4E3A;&#x5F53;&#x524D;<code>ThreadLocal</code>&#x5BF9;&#x8C61;&#x5B9E;&#x4F8B;&#xFF0C;value&#x5219;&#x662F;&#x5BF9;&#x5E94;&#x7EBF;&#x7A0B;&#x7684;&#x53D8;&#x91CF;</li>
+<li>&#x6BCF;&#x4E2A;<code>Thread</code>&#x7C7B;&#xFF0C;&#x5185;&#x90E8;&#x6709;&#x4E2A;<code>ThreadLocalMap</code>&#x7684;&#x79C1;&#x6709;&#x5C5E;&#x6027;/&#x5B9E;&#x4F8B;&#xFF0C;&#x8FD9;&#x4E5F;&#x5C31;&#x662F;&#x4E3A;&#x4EC0;&#x4E48;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x5B9E;&#x4F8B;&#xFF0C;&#x80FD;&#x591F;&#x5404;&#x81EA;&#x7EF4;&#x62A4;/&#x9694;&#x79BB;&#x516C;&#x5171;&#x53D8;&#x91CF;&#x7684;&#x5173;&#x952E;&#x6240;&#x5728;</li>
+<li><code>Thread</code> <code>ThreadLocal</code> <code>ThradLocalMap</code> &#x7684;&#x5173;&#x7CFB;&#x662F;&#xFF1A; <code>Thread</code>&#x5185;&#x90E8;&#x6709;&#x4E2A;<code>ThreadLocalMap</code>&#x7684;&#x79C1;&#x6709;&#x5C5E;&#x6027;/&#x5B9E;&#x4F8B;&#xFF0C;<code>ThreadLocal</code>&#x5185;&#x90E8;&#x6709;&#x4E2A;&#x9759;&#x6001;&#x7C7B;ThreadLocalMap</li>
+</ul>
+<h2 id="&#x4F7F;&#x7528;&#x4E2D;&#x51FA;&#x73B0;&#x7684;&#x95EE;&#x9898;"><a href="#&#x4F7F;&#x7528;&#x4E2D;&#x51FA;&#x73B0;&#x7684;&#x95EE;&#x9898;" class="headerlink" title="&#x4F7F;&#x7528;&#x4E2D;&#x51FA;&#x73B0;&#x7684;&#x95EE;&#x9898;"></a>&#x4F7F;&#x7528;&#x4E2D;&#x51FA;&#x73B0;&#x7684;&#x95EE;&#x9898;</h2><p>TODO</p>
+<hr>
+<p><code>ThreadLocalMap</code> &#x662F; <code>ThreadLocal</code> &#x91CC;&#x7684;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#xFF0C;<code>Entry</code> &#x662F; <code>ThreadLocalMap</code> &#x7684;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;&#xFF0C;<br><code>Entry</code> &#x7EE7;&#x627F;&#x81EA; <code>WeakReference&lt;ThreadLocal&lt;?&gt;&gt;</code> &#xFF0C; <code>ThreadLocalMap</code>&#x5185;&#x90E8;&#x6709;<code>Entry</code>&#x6570;&#x7EC4;&#x3002;</p>
+<h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><ol>
+<li>ThreadLocalMap &#x91CC;&#x7684;&#x6876;&#x4F4D;&#x7F6E;&#xFF0C;&#x5982;&#x679C;&#x5B9A;&#x4F4D;&#x5230;&#xFF1F;</li>
+</ol>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html">https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html</a><blockquote>
+<p>&#x8C03;&#x7528;ThreadLocalMap&#x7684;set&#x6216;get&#x65B9;&#x6CD5;&#x65F6;&#xFF0C;&#x90FD;&#x9700;&#x8981;&#x8BA1;&#x7B97;&#x6876;&#x7684;&#x4E0B;&#x6807;&#x4F4D;&#x7F6E;&#xFF0C;&#x8BA1;&#x7B97;&#x65B9;&#x5F0F;&#x4E3A;&#xFF1A;<br>&#x56E0;&#x4E3A;&#x6BCF;&#x4E2A;ThreadLocal&#x5185;&#x90E8;&#x90FD;&#x6709;2&#x4E2A;&#x5168;&#x5C40;&#x53D8;&#x91CF;&#xFF1A;&#x4E00;&#x4E2A;AtomicInteger&#x7C7B;&#x578B;&#x7684;&#x8BA1;&#x6570;&#x5668;&#xFF0C;&#x521D;&#x59CB;&#x5316;&#x65F6;&#x662F;0&#xFF1B;&#x53E6;&#x4E00;&#x4E2A;&#x662F;int&#x578B;&#x7684;&#x5E38;&#x91CF;&#x503C;&#xFF08;&#x54C8;&#x5E0C;&#x589E;&#x91CF;&#xFF09;&#x3002;<br>&#x6BCF;&#x6B21;&#x8BA1;&#x7B97;&#x6876;&#x4E0B;&#x6807;&#x4F4D;&#x7F6E;&#x65F6;&#xFF0C;&#x5C06;&#x5168;&#x5C40;&#x7684;&#x8BA1;&#x6570;&#x5668;&#x52A0;&#x4E0A;&#x54C8;&#x5E0C;&#x589E;&#x91CF;&#x5E38;&#x503C;&#xFF0C;&#x7136;&#x540E;<code>&#x6309;&#x4F4D;&#x4E0E;</code> &#x4E0A;&#x957F;&#x5EA6;-1&#xFF0C;&#x4E5F;&#x5C31;&#x662F;15&#xFF0C;&#x6700;&#x540E;&#x5F97;&#x5230;&#x6876;&#x4E0B;&#x6807;&#x4F4D;&#x7F6E;&#xFF1B;<br>&#x6838;&#x5FC3;&#x4EE3;&#x7801;&#xFF1A;<code>int i = key.threadLocalHashCode &amp; (len-1);</code></p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>ThreadLocalMap&#x91CC;&#x7684;&#x54C8;&#x5E0C;&#x51B2;&#x7A81;&#xFF0C;&#x5982;&#x4F55;&#x89E3;&#x51B3;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html">https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html</a><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private Entry getEntryAfterMiss(ThreadLocal&lt;?&gt; key, int i, Entry e) {</span><br><span class="line">  //...</span><br><span class="line">  //&#x6CE8;&#x610F;&#x8FD9;&#x91CC;&#xFF1A;&#x5F53;&#x53D1;&#x73B0;key=null&#x65F6;&#xFF0C;&#x8BF4;&#x660E;&#x5176;&#x5BF9;&#x5E94;&#x7684;ThreadLocal&#x5BF9;&#x8C61;&#x5DF2;&#x88AB;GC&#x56DE;&#x6536;&#xFF0C;</span><br><span class="line">  //&#x6B64;&#x65F6;&#x4F1A;&#x901A;&#x8FC7;expungeStaleEntry&#x5C06;&#x4E00;&#x90E8;&#x5206;key&#x4E3A;null&#x7684;&#x6876;&#x6E05;&#x7A7A;</span><br><span class="line">  if (k == null)</span><br><span class="line">      expungeStaleEntry(i);</span><br><span class="line">  //&#x8D70;&#x5230;&#x8FD9;&#x91CC;&#x8BF4;&#x660E;&#x5B58;&#x5728;hash&#x51B2;&#x7A81;&#xFF0C;&#x5F53;&#x524D;&#x6876;&#x88AB;&#x5176;&#x4ED6;&#x5143;&#x7D20;&#x5360;&#x4E86;&#xFF0C;&#x4F7F;&#x7528;nextIndex&#x5411;&#x540E;&#x627E;&#x4E00;&#x4E2A;&#x4F4D;&#x7F6E;</span><br><span class="line">  else</span><br><span class="line">      i = nextIndex(i, len);</span><br><span class="line">}</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xdcat/p/13051561.html">https://www.cnblogs.com/xdcat/p/13051561.html</a><blockquote>
+<p>ThreadLocalMap&#x4F7F;&#x7528;&#x4E86;<strong>&#x7EBF;&#x6027;&#x63A2;&#x6D4B;&#x6CD5;</strong>&#x6765;&#x89E3;&#x51B3;&#x51B2;&#x7A81;&#x3002;&#x7EBF;&#x6027;&#x63A2;&#x6D4B;&#x6CD5;&#x63A2;&#x6D4B;&#x4E0B;&#x4E00;&#x4E2A;&#x5730;&#x5740;&#xFF0C;&#x627E;&#x5230;&#x7A7A;&#x7684;&#x5730;&#x5740;&#x5219;&#x63D2;&#x5165;&#xFF0C;&#x82E5;&#x6574;&#x4E2A;&#x7A7A;&#x95F4;&#x90FD;&#x6CA1;&#x6709;&#x7A7A;&#x4F59;&#x5730;&#x5740;&#xFF0C;&#x5219;&#x4EA7;&#x751F;&#x6EA2;&#x51FA;&#x3002;&#x4F8B;&#x5982;&#xFF1A;&#x957F;&#x5EA6;&#x4E3A;8&#x7684;&#x6570;&#x7EC4;&#x4E2D;&#xFF0C;&#x5F53;&#x524D;key&#x7684;hash&#x503C;&#x662F;6&#xFF0C;6&#x7684;&#x4F4D;&#x7F6E;&#x5DF2;&#x7ECF;&#x88AB;&#x5360;&#x7528;&#x4E86;&#xFF0C;&#x5219;hash&#x503C;&#x52A0;&#x4E00;&#xFF0C;&#x5BFB;&#x627E;7&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;7&#x7684;&#x4F4D;&#x7F6E;&#x4E5F;&#x88AB;&#x5360;&#x7528;&#x4E86;&#xFF0C;&#x56DE;&#x5230;0&#x7684;&#x4F4D;&#x7F6E;&#x3002;&#x76F4;&#x5230;&#x53EF;&#x4EE5;&#x63D2;&#x5165;&#x4E3A;&#x6B62;&#xFF0C;&#x53EF;&#x4EE5;&#x5C06;&#x8FD9;&#x4E2A;&#x6570;&#x7EC4;&#x770B;&#x6210;&#x4E00;&#x4E2A;&#x73AF;&#x5F62;&#x6570;&#x7EC4;&#x3002;</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>ThreadLocalMap&#x91CC;&#x7684;Entry&#x7684;key&#xFF0C;&#x4E3A;&#x4EC0;&#x4E48;&#x88AB;&#x8BBE;&#x8BA1;&#x6210;&#x5F31;&#x5F15;&#x7528;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xdcat/p/13051561.html">https://www.cnblogs.com/xdcat/p/13051561.html</a><blockquote>
+<p>&#x5982;&#x679C;&#x5728;ThreadLocalMap&#x7684;key&#x4F7F;&#x7528;&#x5F3A;&#x5F15;&#x7528;&#x8FD8;&#x662F;&#x65E0;&#x6CD5;&#x5B8C;&#x5168;&#x907F;&#x514D;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#xFF0C;ThreadLocal&#x4F7F;&#x7528;&#x5B8C;&#x540E;&#xFF0C;ThreadLocal Reference&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x4F46;&#x662F;Map&#x7684;Entry&#x5F3A;&#x5F15;&#x7528;&#x4E86;ThreadLocal&#xFF0C;ThreadLocal&#x5C31;&#x65E0;&#x6CD5;&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x56E0;&#x4E3A;&#x5F3A;&#x5F15;&#x7528;&#x94FE;&#x7684;&#x5B58;&#x5728;&#xFF0C;Entry&#x65E0;&#x6CD5;&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x6700;&#x540E;&#x4F1A;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x3002;</p>
+<p>&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;&#x4F7F;&#x7528;&#x5B8C;ThreadLocal&#x540E;&#xFF0C;&#x7EBF;&#x7A0B;&#x4ECD;&#x7136;&#x8FD0;&#x884C;&#xFF0C;&#x5982;&#x679C;&#x5FD8;&#x8BB0;&#x8C03;&#x7528;remove&#x65B9;&#x6CD5;&#xFF0C;&#x5F31;&#x5F15;&#x7528;&#x6BD4;&#x5F3A;&#x5F15;&#x7528;&#x53EF;&#x4EE5;&#x591A;&#x4E00;&#x5C42;&#x4FDD;&#x969C;&#xFF0C;&#x5F31;&#x5F15;&#x7528;&#x7684;ThreadLocal&#x4F1A;&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;value&#x4F1A;&#x5728;&#x4E0B;&#x4E00;&#x6B21;ThreadLocalMap&#x8C03;&#x7528;get&#x3001;set&#x3001;remove&#x65B9;&#x6CD5;&#x7684;&#x65F6;&#x5019;&#x88AB;&#x6E05;&#x9664;&#xFF0C;&#x4ECE;&#x800C;&#x907F;&#x514D;&#x4E86;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x3002;</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>ThreadLocal&#x4EC0;&#x4E48;&#x60C5;&#x51B5;&#x4E0B;&#x4F1A;&#x51FA;&#x73B0;&#x5185;&#x5B58;&#x6CC4;&#x9732;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xdcat/p/13051561.html">https://www.cnblogs.com/xdcat/p/13051561.html</a><blockquote>
+<p><strong>&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x7684;&#x6839;&#x6E90;&#x662F;ThreadLocalMap&#x548C;Thread&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;&#x662F;&#x4E00;&#x6837;&#x957F;&#x7684;&#x3002;</strong></p>
+<p>&#x5728;&#x5B9E;&#x9645;&#x60C5;&#x51B5;&#x4E2D;&#xFF0C;ThreadLocalMap&#x4E2D;&#x4F7F;&#x7528;&#x7684;key&#x4E3A;ThreadLocal&#x7684;&#x5F31;&#x5F15;&#x7528;&#xFF0C;value&#x662F;&#x5F3A;&#x5F15;&#x7528;&#x3002;&#x5982;&#x679C;ThreadLocal&#x6CA1;&#x6709;&#x88AB;&#x5916;&#x90E8;&#x5F3A;&#x5F15;&#x7528;&#x7684;&#x8BDD;&#xFF0C;&#x5728;&#x5783;&#x573E;&#x56DE;&#x6536;&#x7684;&#x65F6;&#x5019;&#xFF0C;key&#x4F1A;&#x88AB;&#x6E05;&#x7406;&#xFF0C;value&#x4E0D;&#x4F1A;&#x3002;&#x8FD9;&#x6837;ThreadLocalMap&#x5C31;&#x51FA;&#x73B0;&#x4E86;&#x4E3A;null&#x7684;Entry&#x3002;&#x5982;&#x679C;&#x4E0D;&#x505A;&#x4EFB;&#x4F55;&#x63AA;&#x65BD;&#xFF0C;value&#x6C38;&#x8FDC;&#x4E0D;&#x4F1A;&#x88AB;GC&#x56DE;&#x6536;&#xFF0C;&#x5C31;&#x4F1A;&#x4EA7;&#x751F;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x3002;</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>Jdk8&#x540E;&#x7684;ThreadLocal&#x80FD;&#x5426;&#x907F;&#x514D;&#x5185;&#x5B58;&#x6CC4;&#x9732;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html">https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html</a><blockquote>
+<p>&#x4E0D;&#x80FD;</p>
+<p>ThreadLocal&#x7684;&#x5E95;&#x5C42;Entry&#x6570;&#x7EC4;&#x7684;key&#x662F;&#x5F31;&#x5F15;&#x7528;&#xFF0C;&#x610F;&#x5473;&#x7740;&#x5F53;ThreadLocal&#x5BF9;&#x8C61;&#x7684;&#x6240;&#x6709;&#x5F3A;&#x5F15;&#x7528;&#x90FD;&#x88AB;&#x53BB;&#x9664;&#x540E;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;ThreadLocal&#x5BF9;&#x8C61;&#x4F1A;&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x6B64;&#x65F6;Entry&#x7684;key=null&#xFF0C;&#x4F46;&#x662F;value&#x8FD8;&#x7EF4;&#x6301;&#x7740;&#x5806;&#x4E0A;&#x6570;&#x636E;&#x7684;&#x5F3A;&#x5F15;&#x7528;&#xFF0C;&#x53EA;&#x8981;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E0D;&#x9000;&#x51FA;&#xFF0C;&#x8FD9;&#x4E2A;&#x5F3A;&#x5F15;&#x7528;&#x4F1A;&#x4E00;&#x76F4;&#x5B58;&#x5728;&#x3002;&#x4E3A;&#x4E86;&#x5C3D;&#x53EF;&#x80FD;&#x7F13;&#x89E3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;ThreadLocal&#x7684;get&#x3001;set&#x3001;remove&#x65B9;&#x6CD5;&#x90FD;&#x4F1A;&#x6E05;&#x9664;&#x4E00;&#x6279;&#x8FC7;&#x671F;&#x6570;&#x636E;&#xFF0C;&#x4F46;&#x662F;&#x4ECE;&#x672C;&#x6587;&#x7684;&#x5206;&#x6790;&#x53EF;&#x4EE5;&#x770B;&#x51FA;&#xFF0C;&#x8FD9;&#x79CD;&#x6E05;&#x7406;&#x53EA;&#x662F;&#x90E8;&#x5206;&#x6E05;&#x7406;&#xFF0C;&#x4ECD;&#x7136;&#x53EF;&#x80FD;&#x9057;&#x6F0F;&#x6389;&#x90E8;&#x5206;&#x6570;&#x636E;&#x3002;&#x56E0;&#x6B64;&#x8FD9;&#x4E09;&#x4E2A;&#x65B9;&#x6CD5;&#x53EA;&#x80FD;&#x5728;&#x4E00;&#x5B9A;&#x7A0B;&#x5EA6;&#x4E0A;&#x7F13;&#x89E3;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x5E76;&#x4E0D;&#x80FD;&#x907F;&#x514D;&#x3002;</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>ThreadLocal&#x4E3A;&#x4EC0;&#x4E48;&#x4F1A;&#x51FA;&#x73B0;&#x5185;&#x5B58;&#x6CC4;&#x9732;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html">https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html</a><blockquote>
+<p><code>ThreadLocal</code>&#x7684;&#x5E95;&#x5C42; <code>Entry&#x6570;&#x7EC4;</code>&#x7684;key&#x662F;&#x5F31;&#x5F15;&#x7528;&#xFF0C;&#x610F;&#x5473;&#x7740;&#x5F53;ThreadLocal&#x5BF9;&#x8C61;&#x7684;&#x6240;&#x6709;&#x5F3A;&#x5F15;&#x7528;&#x90FD;&#x88AB;&#x53BB;&#x9664;&#x540E;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;ThreadLocal&#x5BF9;&#x8C61;&#x4F1A;&#x88AB;&#x56DE;&#x6536;&#xFF0C;&#x6B64;&#x65F6;Entry&#x7684;key=null&#xFF0C;&#x4F46;&#x662F;value&#x8FD8;&#x7EF4;&#x6301;&#x7740;&#x5806;&#x4E0A;&#x6570;&#x636E;&#x7684;&#x5F3A;&#x5F15;&#x7528;&#xFF08;&#x56E0;&#x4E3A;&#x53EA;&#x8981;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E0D;&#x9000;&#x51FA;&#xFF0C;&#x8FD9;&#x4E2A;&#x5F3A;&#x5F15;&#x7528;&#x4F1A;&#x4E00;&#x76F4;&#x5B58;&#x5728;)&#x3002;&#x4E3A;&#x4E86;&#x5C3D;&#x53EF;&#x80FD;&#x7F13;&#x89E3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;ThreadLocal&#x7684;get&#x3001;set&#x3001;remove&#x65B9;&#x6CD5;&#x90FD;&#x4F1A;&#x6E05;&#x9664;&#x4E00;&#x6279;&#x8FC7;&#x671F;&#x6570;&#x636E;&#xFF0C;&#x4F46;&#x662F;&#x4ECE;&#x672C;&#x6587;&#x7684;&#x5206;&#x6790;&#x53EF;&#x4EE5;&#x770B;&#x51FA;&#xFF0C;&#x8FD9;&#x79CD;&#x6E05;&#x7406;&#x53EA;&#x662F;&#x90E8;&#x5206;&#x6E05;&#x7406;&#xFF0C;&#x4ECD;&#x7136;&#x53EF;&#x80FD;&#x9057;&#x6F0F;&#x6389;&#x90E8;&#x5206;&#x6570;&#x636E;&#x3002;&#x56E0;&#x6B64;&#x8FD9;&#x4E09;&#x4E2A;&#x65B9;&#x6CD5;&#x53EA;&#x80FD;&#x5728;&#x4E00;&#x5B9A;&#x7A0B;&#x5EA6;&#x4E0A;&#x7F13;&#x89E3;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x5E76;&#x4E0D;&#x80FD;&#x907F;&#x514D;&#x3002;&#x53E6;&#x5916;&#xFF0C;&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x5728;&#x8F83;&#x957F;&#x65F6;&#x95F4;&#x5185;&#x90FD;&#x6CA1;&#x6709;&#x6267;&#x884C;&#x4E0A;&#x8FF0;&#x65B9;&#x6CD5;&#xFF0C;&#x90A3;&#x8FC7;&#x671F;&#x7684;&#x6570;&#x636E;&#x53EA;&#x4F1A;&#x66F4;&#x591A;&#x3002;&#x90A3;&#x4E9B;&#x5728;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#x5185;&#x90FD;&#x6CA1;&#x88AB;&#x6E05;&#x7406;&#x7684;&#x8FC7;&#x671F;value&#x5BF9;&#x8C61;&#x4ECD;&#x4F1A;&#x7EE7;&#x7EED;&#x5360;&#x7528;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#xFF0C;&#x8FD9;&#x4E9B;&#x672A;&#x88AB;&#x6E05;&#x7406;&#x7684;&#x5BF9;&#x8C61;&#x5C31;&#x662F;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x7684;&#x6E90;&#x5934;&#x3002;&#x5F53;&#x7136;&#xFF0C;&#x8FC7;&#x671F;&#x7684;&#x6570;&#x636E;&#x4F1A;&#x5728;&#x7EBF;&#x7A0B;&#x9000;&#x51FA;&#x540E;&#x5168;&#x90E8;&#x9500;&#x6BC1;&#xFF0C;&#x4F46;&#x662F;&#x5F53;&#x4F7F;&#x7528;&#x4E86;&#x7EBF;&#x7A0B;&#x6C60;&#x4E4B;&#x540E;&#xFF0C;&#x7EBF;&#x7A0B;&#x7528;&#x5B8C;&#x4F1A;&#x91CD;&#x590D;&#x5229;&#x7528;&#xFF0C;&#x5E76;&#x4E0D;&#x4F1A;&#x88AB;&#x9500;&#x6BC1;&#xFF0C;&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x4E0B;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x95EE;&#x9898;&#x5C31;&#x4E0D;&#x5F97;&#x4E0D;&#x8003;&#x8651;&#x4E86;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x597D;&#x4E60;&#x60EF;&#x662F;&#x5728;ThreadLocal&#x5BF9;&#x8C61;&#x7528;&#x5B8C;&#x4E4B;&#x540E;&#x53CA;&#x65F6;&#x4F7F;&#x7528;remove&#x65B9;&#x6CD5;&#x8FDB;&#x884C;&#x5220;&#x9664;&#xFF0C;&#x4ECE;&#x800C;&#x907F;&#x514D;&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x95EE;&#x9898;&#x3002;</p>
+<p><strong>&#x5185;&#x5B58;&#x6CC4;&#x6F0F;&#x7684;&#x6839;&#x6E90;&#x662F;ThreadLocalMap&#x548C;Thread&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;&#x662F;&#x4E00;&#x6837;&#x957F;&#x7684;&#x3002;</strong></p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<p>remove&#x65B9;&#x6CD5;&#x4E00;&#x5B9A;&#x4F1A;&#x6E05;&#x7406;&#x6389;Entry&#x6570;&#x7EC4;&#x4E2D;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x5417;</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html">https://www.cnblogs.com/NaLanZiYi-LinEr/p/12430457.html</a><blockquote>
+<p>remove&#x65B9;&#x6CD5;&#x4E2D;&#x6709;&#x4E2A;for&#x5FAA;&#x73AF;&#xFF0C;&#x91CC;&#x9762;&#x6709;&#x4E2A;&#x903B;&#x8F91;&#xFF1A;<br>for&#x5FAA;&#x73AF;&#x9047;&#x5230;&#x7A7A;&#x6876;&#x4F9D;&#x7136;&#x4F1A;&#x7ED3;&#x675F;&#xFF0C;&#x56E0;&#x6B64;&#x5982;&#x679C;&#x9700;&#x8981;&#x6E05;&#x7406;&#x7684;ThreadLocal&#x5BF9;&#x5E94;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x5728;&#x7A7A;&#x6876;&#x4E4B;&#x540E;&#xFF0C;&#x5C31;&#x6CA1;&#x6CD5;&#x5220;&#x9664;<br>&#x5982;&#x679C;&#x627E;&#x5230;key&#xFF0C;&#x5219;&#x8C03;&#x7528;Reference&#x7C7B;&#x7684;clear&#x65B9;&#x6CD5;&#xFF0C;&#x5C06;referent&#x7F6E;&#x4E3A;null&#xFF0C;&#x7136;&#x540E;&#x4ECE;&#x8BE5;&#x4F4D;&#x7F6E;&#x5F00;&#x59CB;&#x5411;&#x540E;&#x6E05;&#x7406;&#x4E00;&#x90E8;&#x5206;&#x8FC7;&#x671F;&#x952E;&#x503C;&#x5BF9;<br>&#x7ED3;&#x8BBA;&#xFF1A;for&#x5FAA;&#x73AF;&#x9047;&#x5230;&#x7A7A;&#x6876;&#x5C31;&#x7ED3;&#x675F;&#x4E86;&#xFF0C;&#x6709;&#x53EF;&#x80FD;&#x6E05;&#x7406;&#x4E0D;&#x6389;&#x5BF9;&#x5E94;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x3002;</p>
+</blockquote>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreadLocal/" rel="tag">ThreadLocal</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/03/15/6.017.java%E9%9B%86%E5%90%88%E7%B3%BB%E5%88%97--List%E4%B9%8BLinkedList%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            java集合系列--List之LinkedList原理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/07/16/9B.003.%E6%A1%86%E6%9E%B6-%5Bspringmvc%5D-spring-framework%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95%E7%B3%BB%E5%88%97%C2%B7spring-webmvc/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">框架-[springmvc]-spring-framework源码调试系列·spring-webmvc</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

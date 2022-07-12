@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>DevOps系列-自定义镜像-docker推送镜像[jdk1.8]到docker hub |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.A003 DevOps系列-自定义镜像-docker推送镜像[jdk1.8]到docker hub"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  DevOps系列-自定义镜像-docker推送镜像[jdk1.8]到docker hub
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/11/20/18.A003%20DevOps%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F%5Bjdk1.8%5D%E5%88%B0docker%20hub/" class="article-date">
+  <time datetime="2021-11-19T16:00:00.000Z" itemprop="datePublished">2021-11-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DevOps/">DevOps</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">6</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">1 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="d189518d8b142fec1545d14e1f946349b99ad42fccd34e71196866e6c863498b">98dc575d4762315fd63cb6817a521761d4f61c9ab8f26b8f305a418cf7ae5a74b2d471ef16e120eb61aa1f6a4b4d975c7cbc105b48f038457b40ee578ea9d91f0016bcd94910933e976cc32d5e088bd6c9dd9628282d77711383acb261e66fdf6738b0e5a16fc7fa2b6244593e75f042347e1c577fab4d733e6c706a8e7a6805dfa25596b92ecfd520ef3ce3c48cef06923201a3c1dd26f7996676ecc5c1423d52c5e8bdf4371b2427880c169990db39f9f2e419576aedd69d9fdd9432ded6badae547614a8760257ee50707b6a3dbc2d3c3457bbca8c0f17ca5d8f1e1a9439cc519c543ea925b6bb48c2740e555bb56e713a713c406e829125b70b7d3e08ebdbef30599c27a2de86b7541a929bef261c142b4fb431e1eecd901e961ee8e8328072619c18bda81c519085a5b245991f2f23f5ec8b1de4faa1af547cf453c07b975762dcb064c023061ff0c87ce76a42ba0a6129e4b5691f40768a01ea221ff00d0f14f2e321ebb7bdbab5d0c123d43a72ea8f4a81e643a352d20d5fb682ae5efdb7968a5fbea6cdb9118f16e6f7b7832fcf8630347f475e266926b28e42c76303b079b2d682c78f662751ef7f905f2daa7ff16c184f87bd55bda35b596a0ed075dc41ee2f2d1c59238ae6eebe5ee3b5c3f14e537fdf7874129236dd04387385f7a5c463d1c9e40211840adcfa0f45d03acbb326126c2d33f7bc644b66f98805714997b439d22c5d7f100d7a148289f9cacb21fe0801d5ee70766cea639c181ef8ea1904eefea11ea0471824446f3a8a751d15366e11827826896063864066069389f9de4a55adb83c435bd0551baaf8be3c5d2028fc46fab16c1725835d770597f32586df61303582b4f2ecc16d6c9d9f1d5c9ebe8a538c5a34a484c56756d2b4c493b978c44579047967cbd93afcc3de05f0af61a352472de61a6dd37c4ab0209bab3e06299962af7b18453bfc180e6fdf82d8afdd682281580640dda57abfad89fcf9aed64e656722a57517bd3ecb207dd05870c6ff567ff5cc91429163c7aa2465dc4a93793c899e69c36be8d5a58e96659e93724abf720f2a88b1a22610bda9e81bc8c53182303bec3db4e4ccda6da3245ccbdd493e06f53319102e7a6a1701e130496c21916ef778dbbc848d8d06c0d02eac519c5381d735c2546eb8c99fd8906f5193285e29a6fa3324d65a71f3ef10598483b6a1a6c74f40dd5660c55f2eca1d6ae77f144568b2c64727d13236ac951c1688fb84d808637ae6b1809515ea96e757e332d5fc884ad66f018f68a37c0fa85df9a5360dab99889a9cd381ef3db7477201c213d078ff8dee5af7ca6936604e287f6f9922fe4738bd73a72855ce720bd5aa33e0f24b76da0e1a333223d040c8e0a18d36844f381fbade48f2ea0621bafddc46a7195b963606568b2e5223f20ff961c8f3ce1af010c59bea4bb997ca2873efb300e2ff4e5e2719dd98d8070ce31726ae8a8d2c3d7c1670c9f96c3c132f3a73bad37b014cd084dd19cd15c934c90eb0d77b95e6f454cea9b4a6354904e1b29a2f50a2253f40a392c9d964b406aa208d340966d528482a8d8aaab8900fe262bcad823a7b89edbd22cfa1a5c1fc163b1ff7fb3f3357259d333db5c03eb411cdf92f823ab87cb8c69ffdea059f4dd98cbc0d8350dbfb67352dde0e1f7b8c179158d6e74e54a320a8e5c31cc451daba5d8f15d349211e06a4a46307192025fc2f330d9ef77428ba145468ec154e2f164f19a2614bba3ef1247fdb259ce0e07799290efcf61ddb593337c8319460efbd43d1d94485ef9fe0b1ed53a5d911dc24a9fbb27a0e7bb06aa73f8a03f022aa09c1a9e4ffcc7771f83bbb76c38add9ebcc0b94e5d1b3cb7a13d1e8267161dad5f4a71e57dc4022ceeb8c77143f8b1125b88272d3b60cf61f9d008f6967da1514ae4f6e72270e1fad8e140a879ba11387b1b6ff9b3e703cb5dc4f592b8c08dd38cf71ecea58725b17780bb95971ce342178cca20bc87760c3eca99e3ab10cab4dbf2097d384188b7e8fbdc312d3d52867f8696175c356605e7bc7e51e9bf8f70a049f6f5172891604b58509e54b70dd056a33a45a3023db6e77cd4c8506177918b041ac3991aeccab831fee9ea9d40b0aeafbda0681b749adc9cf7b2ffda531bc96de9e8a8fbae3c54f2ef367b212c4a08b1cffb5c1308694ef86facf4c6bc4a55e00944ac3acc52d00e108a660818fb0d094fff922395bc6e56917a2d11ef4ef5bcc66cec72ec155b902104b9bf558962e305cc3788003d3b9a17039135da85aa46059069f447ef1e7e0e6547f79ec84ec8ae3930b70c6586b9a20e9d01189fe0695862e5a3737c4dea33af0f45102ab7e969e0c2d8356c5d64655826c9f8e8e719bbb00aa2e8e0db038d35a0f550bf83bc78c2bca91e60697c2953eb91d87834274a7e303e2c6e3bd416b0deea71c52eca982d2a858efa824389b453a067d1a0c7c929918c33f1510dcd5fd79e0e458a2a4306c2b41809b70caae7d598c70eb453b753b70a59902f8cfb5812c830caa390590200945bc346e2a9efd7cf83cfed8b136a9a276e127bc560b6f0850d8334479d16d64db2583756f3f791ef7af2ef001daaf2be68209866ff6e4d918e34d7b2d4e41b55a0e82f3c1bc94b0d72e4a899aff9165763ca8e8f00d488ae4dae854e3b6c91bfe397fb07832e5f7b3608b96d52801557b87b68630556b722966fd5d873b071542cc35348f731f8a3d76601bff4d2e370231873d67be3e87b18fd3ea05d4cc00d8777e64649e0457faa0d2c8d954682f2640f9c8dec3474f1705ac1a459f043728038c3d73a5ba1c032e5092f3752d2cd10901d60c4d7ce6776fb8ef62a593d461a06f812a4b5b5cba50d727a1bee8ecc35de953e4bd65bc1259016988341a3bc0588178424fdc9cd77384cb24785d66f5f0becd688de701452ff79c283cd48ec66d7643b022ecf6dd056a13f22d770aea840a0c7a39e9927c32ae22cc443f690e9420c2047c58dd1c20bd2f6dbbe3d937ebb42ab29a1e6b2fcfa0a44865312d71aed37e4bf4dac235e991d8568fcd3248c9de8b9fa17a757dfb5dabdbe5881acd53a3b9c318f2a387da2ce6881e62f80389edb393e7762772430dcbc8d0c8dd08608ced93e51306f4b0953558a130077c3593cd3733667e8eea1464e3861386363a903caaa89b617ccc3e088c5bc781d7c15c0d714a9a1b522cfced78b31541d1a0c80e592c0114d75f423af1298eddf379c4676446d1d56b9e06aecdbb2ae5eac4547a91bfeac00ea5324a0c7f874f9aad61384bf3c5223bfdc27e0c1566a1a391d8918ff290ce40114fab6575201b6ae5b7fdfa94aa21c74cd7e4b3f4b1bad16f5103b660b62db882761065d30cb4d4d8f5b9e49a06866046acba7454a02c6f82043a19501ef3af6e06a46830f1e05772096c2df2725c248df9628000123b5af0f1d9d6eb5831e6d586cd6935ad9be6251294b1cc03cabdb6033f0db1e3edf6829d375281693747fc1a0dd589eed9acd4169dbec3cd390120548f8a6599e065d3e849aef917b20bd9968204cff12e4c26da5d41aa2eb674cc9f5c9f3dddda430e4937ead2ec33699887e0fa3ab93cbd8cdfd2cea5267f73f90d1686cfcd82265569b194a040a83f138be396977448dd2ac6ac62380c7c838a7bb5e380e7251926919ec4dd2efb8d227da64647322e82c8a8f7c146c5d0b81453ef79fe2d67ae503fee929ed077d130e06d381225e1c0b8adf6536c273fc1319ad01ee57c5904382a8f569fbe3b2075c24be5157c610b3334747c5e3c37b4639a09caa548ccf130f95385219a7e32eeb6ddbdfca1870b05a9c38f2ce7f6f8d077481a81a8a2cd30bb10729b89f152ba762de93e8c02d8cbcf5d521b0eae5ebb69a537cd2fb008d39c3df6fcb18a6244fe293381e196c047fb278db0b6a8230932bf8e9c7f5f9fda5c2aa671f7d6b271f1c055398174bd595811a5e82054c604187487bbea71e2ffd7861e6967986f643436b1041b99f6ec2c7d1aefe26150f2d479e2ffa511396d62a6102fd1f18642199e955d6393c9fd45afa40d3132288b52457ee96861ba0ee327d540a720565e836f4818322af021698666f3456a21c1512d4e38dac90928f2ea2a658b334ab600986275c62c3895c0895f094999db4e0ae4b091651a8041ffeef04eba5debe0631caff943f2d2f2bd1205e3df2d2998c15c48036f548d232e01a82f84a69b75091b4fcfeae91b7695526861e726b3d2aabfc09edc2cfc5798c657c41228002f15f76715bbb27472ac36adcf5aad3908d3936b5488ca58b61434387bf89b9a0f0fd2b02d3b54313ab906cb517ada53b1196394ac4df73e9d1ee67107247a56fd0924b79d9b88cea082db27c0b787e103360636ec1b812a0051d87b07e3a659631266c87ccfff21e65fe389769f0fe9f2375bb880a0fa900b65bbeb7d6f68f9d9d583d3cb2550cd47b1898ca2a7db9509d8bf2a35f7707632a3f9041b965b21e8147943516ebca582715482dab94563295ca1f260dc4536bc9635bce4cd675e2ba4d99578eaa019a14bdeb41de177731925a4e30f5c36fcf3fb6aed7c9de33103b7d805b2126a8f131e6d773da55e24112b3b7a87c646b2c38304657131d8355bedeabd84e98e210a177729746180f86cae42b4bbe152566eb5fb1a6b7fe345949b6b8ed89dac3b5aa3afebc6d6f2b5a4924109e3e89de4a4e509c7ad28038e2c99392bbb92f0bf6ab5616f23f793dc63d89505318c58e3fc96a8e5e2a1afdfae36c998b652b7ce4a411ad48191abc036aa6013335b081a1e10022b044ca48eba15a013ac9dbc485941cdef6de29c468fd8753afd7efad3a32fc94f160e4928e14d75aa6b70ce8bd26db2dcd02f53bc5a4a8fc03ec94633cb98a872e1ef60e610ec1224dd355d9e473e4036f769ac080f6cf50f0a92d36b8a64cdaab4e5f6170c77b1665f8fc3ffb4af7e271ce9f0fd8cbc5b7eddf7810a6ce406c235c4c4b2ce112561ec8e28efd2eb7a35ec5c9f9da82d9e210397a7a23e8181f297418eb713fef2d388452ff6d370540058976d79e4b05de0cf2dfd8b64b9b728a7278fb8db085791d13db442926d68ed24f313f4de14275de017b949a12bc8941b86d69a6a43980c48427d7410c76cb4827a77265ff063cddaa23f82d048d9227164dfa210569c0e90f59270335be2c50fbd57d2c0a86e20ec0290e99ac8337eb67bf098416d8584e480a1625e56a613509be5817897ca14744fa6b7eb21ba2a99892acf4618aaf50b8c47804da092bb97f54d5156f33738091606a28e190e689fe5b5930d9a18cfec7063e0dd0ea903c50100c9ded15fde2db55d310fbad8434c77fcdc44f337b1bd7ce9f4a22df4628b8ac508a355092acf69d1c8726c631d916647ada12ad3b36ea34b8b6288fdeb3e96cee0191292f2363259eb7e02b64a3749d753ff7cc5a127fb4d822a96f68d0b618090252f51d3131bd20c5f148a923444dba92ec3246e28b9e0b5b6335025f3a6d85551f24bb3cef6e23db4f79fd784df800cc08daa77e0e373567233ec10b071172c88e821e346308ac34a55eb30e10d1736cddb1b464eadd1100b7c53a51c0b217302d6bd9171f051e103e23698d8e8feff561144468cd4a4bd0ea4a657a0cc68f996eea7c6a0109233a2ccae050f9a51549f4be88683362b289f9092afd8eaa5040baa65bbdafb16587d61eee414a5dafbf299ea5bf790557cf0a36c77e7c4ee2b0f507715329811aa95f1f11f4523b64c29bc55632258ec55104693f69889d31e319d8d49d200e1e326db33d5edcaa16f9005e595dfa29a624aafc6b8facce6189083abb5ac16dc2d6de0a7fefca79f706da5f889034432a8a6680c6d62b2005fa6f85635c1ee1dff4662bf7a84b6400391340a5d55cab48fa2cc9dd05bae0c66990c3ee812ec8dc58915801a5ab1f0cf335f6ad0fd862e8203044020ec5ef02ad00a17faefbeb58a0355bb52e053c2471acada433e1a656386ce589099ea7b99c44fab0e2637032eb43e0bd7c098550ba8eac64186cd9f73bc1f01b6e33d8c70c27532ae64deaf19b755a4a2f71fa312a66445450611f820657022cda36304f66ce3129338127d65fa17901471175f90e67426cc24609c1ebfb88c24c5c5b2030255b2c046a2d71313cee49f4cb839132ee61c8941115cc14fc9d4930c43e6f02c44f16b3778751506aa486b295b3481da7c803922f53d279fd0a0e1fe23a3d177ae365b65326afb16c5f6273c4c2daf569bb73fb2eeffd9bb607959f79b3e3898ff9f1660ad3c094386e7a484cb089a6153899b9ad813aeb3195ca3d4e652104872682810dee026074ec13653815397dda8ccff6e7e6ec6c6181cbed03616ef7a8b1bc25ddb06cee915dc4211483f0e489b71dbac8bff6a9e4c654136ae21c4b4d25d3810dee49a541bd1c3f95499fb53253f2d9b1588828827790a54ceb65492cf0264ddf69f233463a3c3764d356ee4b959a029b6f099915d8011031fbb461cc78ba521219bc3344b66bdaeae6c73b309512c94c4fe59e66eefa2797dd5ab6d9fea0bcd5db62efbda27fd6ebfddaada2560557fb685952086a33bf1147632580312bbf674065dcae9fbb6ed14b4c8a6678b16902fa7e26ffc46b828e7731d7bcf6d5e0f16ec8ec6e43b27e52f9a6c2d926ad72c0f46e095b11de7c30ce07833597db9775b606ec3308ce6f5ec2080ca9b31e1ab1817e842de68acf963063e476441a857f2ff68072e6ebb6cda9c9981767c9a103b92216533c3e15fd9c2a75d39e9f7b69b85eb174edc07d63086bb99ad8a2ce67614a4d3af0be87f255b9e6b1f1710148c239c907c04ace145fbc01e3b14900787e7436162e95d3be5a98370c6ff46ab97d9390060c52b2d378e656d6728ce10a1e988acf8cecccce089</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css"> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F/" rel="tag">docker推送镜像</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F/" rel="tag">自定义镜像</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/11/20/18.A002%20DevOps%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81nginx%E9%95%9C%E5%83%8F%E5%88%B0docker%20hub/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            DevOps系列-自定义镜像-docker推送nginx镜像到docker hub
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/11/20/18.A004%20DevOps%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F%5Bgroovy2.5.15%E5%92%8Cjdk1.8%5D%E5%88%B0docker%20hub/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">DevOps系列-自定义镜像-docker推送镜像[groovy2.5.15和jdk1.8]到docker hub</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

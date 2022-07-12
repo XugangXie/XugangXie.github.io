@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>GC-G1收集器原理原理一 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-4.101.GC-G1收集器原理一"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  GC-G1收集器原理原理一
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/" class="article-date">
+  <time datetime="2022-05-11T16:00:00.000Z" itemprop="datePublished">2022-05-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">8.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">54 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x8BE6;&#x7EC6;&#x8BBA;&#x8FF0;4.101.GC-G1&#x6536;&#x96C6;&#x5668;&#x539F;&#x7406;&#x539F;&#x7406;&#x4E00;&#x7684;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Benjious/p/10304799.html">https://www.cnblogs.com/Benjious/p/10304799.html</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Courage129/p/14385571.html">https://www.cnblogs.com/Courage129/p/14385571.html</a></p>
+</blockquote>
+<span id="more"></span>
+<h3 id="G1&#x5C3D;&#x53EF;&#x80FD;&#x6982;&#x8FF0;"><a href="#G1&#x5C3D;&#x53EF;&#x80FD;&#x6982;&#x8FF0;" class="headerlink" title="G1&#x5C3D;&#x53EF;&#x80FD;&#x6982;&#x8FF0;"></a>G1&#x5C3D;&#x53EF;&#x80FD;&#x6982;&#x8FF0;</h3><ol>
+<li>&#x4E4B;&#x524D;&#x7684;&#x51E0;&#x7EC4;GC&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x90FD;&#x6709;&#x51E0;&#x4E2A;&#x5171;&#x540C;&#x70B9;&#xFF1A;</li>
+</ol>
+<ul>
+<li>&#x5E74;&#x8F7B;&#x4EE3;&#x3001;&#x8001;&#x5E74;&#x4EE3;&#x662F;&#x72EC;&#x7ACB;&#x4E14;&#x8FDE;&#x7EED;&#x7684;&#x5185;&#x5B58;&#x5757;&#xFF1B;</li>
+<li>&#x5E74;&#x8F7B;&#x4EE3;&#x6536;&#x96C6;&#x4F7F;&#x7528;&#x5355;eden&#x3001;&#x53CC;survivor&#x8FDB;&#x884C;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF1B;</li>
+<li>&#x8001;&#x5E74;&#x4EE3;&#x6536;&#x96C6;&#x5FC5;&#x987B;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x8001;&#x5E74;&#x4EE3;&#x533A;&#x57DF;&#xFF1B;</li>
+<li>&#x90FD;&#x662F;&#x4EE5;&#x5C3D;&#x53EF;&#x80FD;&#x5C11;&#x800C;&#x5757;&#x5730;&#x6267;&#x884C;GC&#x4E3A;&#x8BBE;&#x8BA1;&#x539F;&#x5219;&#x3002;</li>
+</ul>
+<ol start="2">
+<li><p>G1&#x7684;&#x8BBE;&#x8BA1;&#x539F;&#x5219;&#x662F;&#x201D;&#x9996;&#x5148;&#x6536;&#x96C6;&#x5C3D;&#x53EF;&#x80FD;&#x591A;&#x7684;&#x5783;&#x573E;(Garbage First)&#x201D;&#x3002;&#x540C;&#x65F6;G1&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x7528;&#x6237;&#x8BBE;&#x7F6E;&#x7684;&#x6682;&#x505C;&#x65F6;&#x95F4;&#x76EE;&#x6807;&#x81EA;&#x52A8;&#x8C03;&#x6574;&#x5E74;&#x8F7B;&#x4EE3;&#x548C;&#x603B;&#x5806;&#x5927;&#x5C0F;&#xFF0C;&#x6682;&#x505C;&#x76EE;&#x6807;&#x8D8A;&#x77ED;&#x5E74;&#x8F7B;&#x4EE3;&#x7A7A;&#x95F4;&#x8D8A;&#x5C0F;&#x3001;&#x603B;&#x7A7A;&#x95F4;&#x5C31;&#x8D8A;&#x5927;&#xFF1B;</p>
+</li>
+<li><p>G1&#x91C7;&#x7528;&#x5185;&#x5B58;&#x5206;&#x533A;(Region)&#x7684;&#x601D;&#x8DEF;&#xFF0C;&#x5C06;&#x5185;&#x5B58;&#x5212;&#x5206;&#x4E3A;&#x4E00;&#x4E2A;&#x4E2A;&#x76F8;&#x7B49;&#x5927;&#x5C0F;&#x7684;&#x5185;&#x5B58;&#x5206;&#x533A;&#xFF0C;&#x56DE;&#x6536;&#x65F6;&#x5219;&#x4EE5;&#x5206;&#x533A;&#x4E3A;&#x5355;&#x4F4D;&#x8FDB;&#x884C;&#x56DE;&#x6536;&#xFF0C;&#x5B58;&#x6D3B;&#x7684;&#x5BF9;&#x8C61;&#x590D;&#x5236;&#x5230;&#x53E6;&#x4E00;&#x4E2A;&#x7A7A;&#x95F2;&#x5206;&#x533A;&#x4E2D;&#x3002;</p>
+</li>
+<li><p>G1(Garbage First)<strong>&#x7269;&#x7406;&#x5185;&#x5B58;&#x4E0D;&#x518D;&#x5206;&#x4EE3;&#xFF0C;&#x800C;&#x662F;&#x7531;&#x4E00;&#x5757;&#x4E00;&#x5757;&#x7684;Region&#x7EC4;&#x6210;,&#x4F46;&#x662F;&#x903B;&#x8F91;&#x5206;&#x4EE3;&#x4ECD;&#x7136;&#x5B58;&#x5728;</strong>&#x3002;G1&#x4E0D;&#x518D;&#x575A;&#x6301;&#x56FA;&#x5B9A;&#x5927;&#x5C0F;&#x4EE5;&#x53CA;&#x56FA;&#x5B9A;&#x6570;&#x91CF;&#x7684;&#x5206;&#x4EE3;&#x533A;&#x57DF;&#x5212;&#x5206;&#xFF0C;&#x800C;&#x662F;&#x628A;&#x8FDE;&#x7EED;&#x7684; <strong>Java&#x5806;&#x5212;&#x5206;&#x4E3A;&#x591A;&#x4E2A;&#x5927;&#x5C0F;&#x76F8;&#x7B49;&#x7684;&#x72EC;&#x7ACB;&#x533A;&#x57DF;&#xFF08;Region&#xFF09;</strong> &#xFF0C;&#x6BCF;&#x4E00;&#x4E2A;Region&#x90FD;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x9700;&#x8981;&#xFF0C;&#x626E;&#x6F14;&#x65B0;&#x751F;&#x4EE3;&#x7684;<strong>Eden&#x7A7A;&#x95F4;</strong>&#x3001;<strong>Survivor&#x7A7A;&#x95F4;</strong>&#xFF0C;&#x6216;&#x8005;<strong>&#x8001;&#x5E74;&#x4EE3;&#x7A7A;&#x95F4;</strong>&#x3002;&#x6536;&#x96C6;&#x5668;&#x80FD;&#x591F;&#x5BF9;&#x626E;&#x6F14;&#x4E0D;&#x540C;&#x89D2;&#x8272;&#x7684;Region&#x91C7;&#x7528;&#x4E0D;&#x540C;&#x7684;&#x7B56;&#x7565;&#x53BB;&#x5904;&#x7406;&#x3002;</p>
+</li>
+<li><p>CSet(Collection Set)&#xFF1A;&#x5B83;&#x8BB0;&#x5F55;&#x4E86;GC&#x8981;&#x6536;&#x96C6;&#x7684;Region&#x96C6;&#x5408;&#xFF0C;&#x96C6;&#x5408;&#x91CC;&#x7684;Region&#x53EF;&#x4EE5;&#x662F;&#x4EFB;&#x610F;&#x5E74;&#x4EE3;&#x7684;&#x3002;</p>
+</li>
+<li><p>RSet(Remembered Set)&#xFF1A;&#x662F;&#x8F85;&#x52A9;GC&#x8FC7;&#x7A0B;&#x7684;&#x4E00;&#x79CD;&#x7ED3;&#x6784;&#xFF0C;&#x5178;&#x578B;&#x7684;&#x7A7A;&#x95F4;&#x6362;&#x65F6;&#x95F4;&#x5DE5;&#x5177;&#xFF0C;&#x548C;Card Table&#x6709;&#x4E9B;&#x7C7B;&#x4F3C;&#x3002;</p>
+</li>
+</ol>
+<ul>
+<li>&#x5728;GC&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5BF9;&#x4E8E;old-&gt;young&#x548C;old-&gt;old&#x7684;&#x8DE8;&#x4EE3;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#xFF0C;&#x53EA;&#x8981;&#x626B;&#x63CF;&#x5BF9;&#x5E94;&#x7684;CSet&#x4E2D;&#x7684;RSet&#x5373;&#x53EF;&#x3002; &#x903B;&#x8F91;&#x4E0A;&#x8BF4;&#x6BCF;&#x4E2A;Region&#x90FD;&#x6709;&#x4E00;&#x4E2A;RSet&#xFF0C;RSet&#x8BB0;&#x5F55;&#x4E86;&#x5176;&#x4ED6;Region&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x672C;Region&#x4E2D;&#x5BF9;&#x8C61;&#x7684;&#x5173;&#x7CFB;&#xFF0C;&#x5C5E;&#x4E8E;points-into&#x7ED3;&#x6784;&#xFF08;&#x54EA;&#x4E2A;Region&#x5F15;&#x7528;&#x4E86;&#x6211;&#xFF09;&#x3002;<br>&#x800C;Card Table&#x5219;&#x662F;&#x4E00;&#x79CD;points-out&#xFF08;&#x6211;&#x5F15;&#x7528;&#x4E86;&#x54EA;&#x4E2A;Region&#xFF09;&#x7684;&#x7ED3;&#x6784;&#x3002;</li>
+<li><strong>RSet&#x5176;&#x5B9E;&#x662F;&#x4E00;&#x4E2A;Hash Table&#xFF0C;Key&#x662F;&#x522B;&#x7684;Region&#x7684;&#x8D77;&#x59CB;&#x5730;&#x5740;&#xFF0C;Value&#x662F;&#x4E00;&#x4E2A;&#x96C6;&#x5408;&#xFF0C;&#x91CC;&#x9762;&#x7684;&#x5143;&#x7D20;&#x662F;Card Table&#x7684;Index&#x3002;&#x6BCF;&#x4E2A;Region&#x4E2D;&#x90FD;&#x6709;&#x4E00;&#x4E2A;RSet&#xFF0C;&#x8BB0;&#x5F55;&#x5176;&#x4ED6;Region&#x5230;&#x672C;Region&#x7684;&#x5F15;&#x7528;&#x4FE1;&#x606F;&#xFF1B;&#x4F7F;&#x5F97;&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;&#x4E0D;&#x9700;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x5806;&#x627E;&#x5230;&#x8C01;&#x5F15;&#x7528;&#x5F53;&#x524D;&#x5206;&#x533A;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x626B;&#x63CF;RSet&#x5373;&#x53EF;&#x3002;</strong></li>
+</ul>
+<ol start="7">
+<li>Card Table&#xFF08;&#x591A;&#x79CD;&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;&#x5747;&#x5177;&#x5907;&#xFF09;:</li>
+</ol>
+<ul>
+<li>&#x7531;&#x4E8E;&#x5728;&#x8FDB;&#x884C;YoungGC&#x65F6;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x8FDB;&#x884C;&#x5BF9;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x662F;&#x5426;&#x88AB;&#x5F15;&#x7528;&#x7684;&#x8FC7;&#x7A0B;&#xFF0C;&#x9700;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;Old&#x533A;&#xFF0C;&#x6240;&#x4EE5;JVM&#x8BBE;&#x8BA1;&#x4E86;CardTable&#xFF0C;&#x5C06;Old&#x533A;&#x5206;&#x4E3A;&#x4E00;&#x4E2A;&#x4E00;&#x4E2A;Card&#xFF0C;&#x4E00;&#x4E2A;Card&#x6709;&#x591A;&#x4E2A;&#x5BF9;&#x8C61;&#xFF1B;&#x5982;&#x679C;&#x4E00;&#x4E2A;Card&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x6709;&#x5F15;&#x7528;&#x6307;&#x5411;Young&#x533A;&#xFF0C;&#x5219;&#x5C06;&#x5176;&#x6807;&#x8BB0;&#x4E3A;Dirty Card&#xFF0C;&#x4E0B;&#x6B21;&#x9700;&#x8981;&#x8FDB;&#x884C;YoungGC&#x65F6;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x53BB;&#x626B;&#x63CF;Dirty Card&#x5373;&#x53EF;&#x3002;</li>
+<li>Card Table &#x5728;&#x5E95;&#x5C42;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x4EE5; Bit Map&#x5B9E;&#x73B0;&#x3002;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a2.png"></li>
+</ul>
+<h3 id="G1&#x7684;&#x4E09;&#x79CD;&#x6536;&#x96C6;&#x6A21;&#x5F0F;"><a href="#G1&#x7684;&#x4E09;&#x79CD;&#x6536;&#x96C6;&#x6A21;&#x5F0F;" class="headerlink" title="G1&#x7684;&#x4E09;&#x79CD;&#x6536;&#x96C6;&#x6A21;&#x5F0F;"></a>G1&#x7684;&#x4E09;&#x79CD;&#x6536;&#x96C6;&#x6A21;&#x5F0F;</h3><p>1&#x3001;young GC&#xFF08;&#x6216;&#x8005;&#x53EB;minor GC&#xFF09;&#xFF1A;&#x53EA;&#x6536;&#x96C6;young gen&#x91CC;&#x7684;&#x6240;&#x6709;region&#xFF0C;&#x4E5F;&#x5C31;&#x662F;eden&#x548C;survivor&#x3002;&#x63A7;&#x5236;young GC&#x5F00;&#x9500;&#x7684;&#x624B;&#x6BB5;&#x662F;&#x52A8;&#x6001;&#x6539;&#x53D8;young region&#x7684;&#x4E2A;&#x6570;&#xFF1B;</p>
+<p>2&#x3001;mixed GC&#xFF1A;&#x6536;&#x96C6;young gen&#x91CC;&#x7684;&#x6240;&#x6709;region&#xFF0C;&#x5916;&#x52A0;&#x82E5;&#x5E72;&#x9009;&#x5B9A;&#x7684;old gen region&#x3002;&#x63A7;&#x5236;mixed GC&#x5F00;&#x9500;&#x7684;&#x624B;&#x6BB5;&#x662F;&#x9009;&#x591A;&#x5C11;&#x4E2A;&#x3001;&#x54EA;&#x51E0;&#x4E2A;old gen region&#x3002;</p>
+<p>3&#x3001;&#x5176;&#x5B9E;&#x6CA1;&#x6709;3&#x4E86;&#x3002;G1 GC&#x7684;&#x63A7;&#x5236;&#x8303;&#x56F4;&#x5185;&#x6CA1;&#x6709;full GC&#x3002;&#x5982;&#x679C;mixed GC&#x65E0;&#x6CD5;&#x8DDF;&#x4E0A;mutator&#x5206;&#x914D;&#x7684;&#x901F;&#x5EA6;&#xFF0C;&#x5BFC;&#x81F4;&#x6CA1;&#x6709;&#x8DB3;&#x591F;&#x7684;&#x7A7A;region&#x6765;&#x5B8C;&#x6210;mixed GC&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x4F1A;&#x4F7F;&#x7528;serial old GC&#xFF08; mark-compact&#xFF09;&#x6765;&#x5BF9;&#x6574;&#x5806;&#x6536;&#x96C6;&#x4E00;&#x6B21;&#x3002;</p>
+<h3 id="Remember-Set&#x4E0E;Card-Table&#x7684;&#x5173;&#x7CFB;"><a href="#Remember-Set&#x4E0E;Card-Table&#x7684;&#x5173;&#x7CFB;" class="headerlink" title="Remember Set&#x4E0E;Card Table&#x7684;&#x5173;&#x7CFB;"></a>Remember Set&#x4E0E;Card Table&#x7684;&#x5173;&#x7CFB;</h3><p>&#x903B;&#x8F91;&#x4E0A;&#x8BF4;&#xFF0C;G1 GC&#x7684;remembered set&#xFF08;&#x4E0B;&#x9762;&#x7B80;&#x79F0;RSet&#xFF09;&#x662F;&#x6BCF;&#x4E2A;region&#x6709;&#x4E00;&#x4EFD;&#x3002;&#x8FD9;&#x4E2A;RSet&#x8BB0;&#x5F55;&#x7684;&#x662F;&#x4ECE;&#x522B;&#x7684;region&#x6307;&#x5411;&#x8BE5;region&#x7684;card(&#x54EA;&#x4E2A;Region&#x5F15;&#x7528;&#x4E86;&#x6211;)&#x3002;&#x6240;&#x4EE5;&#x8FD9;&#x662F;&#x4E00;&#x79CD;&#x201C;points-into&#x201D;&#x7684;remembered set&#x3002;</p>
+<p>&#x7528;card table&#x5B9E;&#x73B0;&#x7684;remembered set&#x901A;&#x5E38;&#x662F;points-out&#x7684;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;card table&#x8981;&#x8BB0;&#x5F55;&#x7684;&#x662F;&#x4ECE;&#x5B83;&#x8986;&#x76D6;&#x7684;&#x8303;&#x56F4;&#x51FA;&#x53D1;&#x6307;&#x5411;&#x522B;&#x7684;&#x8303;&#x56F4;&#x7684;&#x6307;&#x9488;&#x3002;</p>
+<p><strong>&#x8FD9;&#x4E2A;RSet&#x5176;&#x5B9E;&#x662F;&#x4E00;&#x4E2A;hash table&#xFF0C;key&#x662F;&#x522B;&#x7684;region&#x7684;&#x8D77;&#x59CB;&#x5730;&#x5740;&#xFF0C;value&#x662F;&#x4E00;&#x4E2A;&#x96C6;&#x5408;&#xFF0C;&#x91CC;&#x9762;&#x7684;&#x5143;&#x7D20;&#x662F;card table&#x7684;index&#x3002;<br>&#x4E3E;&#x4F8B;&#x6765;&#x8BF4;&#xFF0C;&#x5982;&#x679C;region A&#x7684;RSet&#x91CC;&#x6709;&#x4E00;&#x9879;&#x7684;key&#x662F;region B&#xFF0C;value&#x91CC;&#x6709;index&#x4E3A;1234&#x7684;card&#xFF0C;&#x5B83;&#x7684;&#x610F;&#x601D;&#x5C31;&#x662F;region B&#x7684;&#x4E00;&#x4E2A;card&#x91CC;&#x6709;&#x5F15;&#x7528;&#x6307;&#x5411;region A&#x3002;&#x6240;&#x4EE5;&#x5BF9;region A&#x6765;&#x8BF4;&#xFF0C;&#x8BE5;RSet&#x8BB0;&#x5F55;&#x7684;&#x662F;points-into&#x7684;&#x5173;&#x7CFB;&#xFF1B;&#x800C;card table&#x4ECD;&#x7136;&#x8BB0;&#x5F55;&#x4E86;points-out&#x7684;&#x5173;&#x7CFB;&#x3002;</strong><br>&#x8FD9;&#x4E2A;&#x4F8B;&#x5B50;&#x7684;&#x56FE;&#x793A;&#xFF1A;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a4.jpg"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011069294/article/details/108368800">https://blog.csdn.net/u011069294/article/details/108368800</a></p>
+</blockquote>
+<h3 id="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x6709;&#x8BB0;&#x5FC6;&#x96C6;-Remember-Set"><a href="#&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x6709;&#x8BB0;&#x5FC6;&#x96C6;-Remember-Set" class="headerlink" title="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x6709;&#x8BB0;&#x5FC6;&#x96C6;(Remember Set)?"></a>&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x6709;&#x8BB0;&#x5FC6;&#x96C6;(Remember Set)?</h3><p>G1&#x5C06;&#x5806;&#x533A;&#x5212;&#x5206;&#x6210;&#x591A;&#x4E2A;<code>region</code>&#xFF0C;&#x4E00;&#x4E2A;<code>region</code>&#x4E2D;&#x6709;N&#x4E2A;&#x5BF9;&#x8C61;&#xFF0C;&#x6BCF;&#x4E2A;<code>region</code>&#x4E0D;&#x53EF;&#x80FD;&#x662F;&#x72EC;&#x7ACB;&#x7684;&#x3002;<br>&#x5B83;&#x5176;&#x4E2D;&#x5B58;&#x50A8;&#x7684;&#x5BF9;&#x8C61;&#x53EF;&#x80FD;&#x88AB;&#x5176;&#x4ED6;&#x4EFB;&#x610F;<code>region</code>&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x6240;&#x5F15;&#x7528;&#xFF0C;(&#x8FD9;&#x4E9B;region&#x53EF;&#x80FD;Old&#x533A;&#x6216;&#x8005;Eden&#x533A;)&#x3002;&#x6240;&#x4EE5;&#xFF0C;<strong>&#x5728;&#x8FDB;&#x884C;<code>YGC</code>&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5224;&#x65AD;<code>Eden&#x533A;</code>&#x4E2D;&#x7684;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x662F;&#x5426;&#x5B58;&#x6D3B;&#x65F6;&#xFF0C;&#x9700;&#x8981;&#x53BB;&#x626B;&#x63CF;&#x6240;&#x6709;&#x7684;<code>region</code>(&#x5305;&#x62EC;<code>Old&#x533A;</code>&#xFF0C;<code>Eden&#x533A;</code>&#x7B49;&#xFF09;&#xFF0C;&#x5BFC;&#x81F4;&#x4E86;&#x5728;<code>&#x56DE;&#x6536;&#x5E74;&#x8F7B;&#x4EE3;</code>&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8FD8;&#x9700;&#x8981;<code>&#x626B;&#x63CF;&#x8001;&#x5E74;&#x4EE3;</code>&#xFF0C;&#x540C;&#x65F6;&#x626B;&#x63CF;&#x8868;&#x793A;&#x6240;&#x6709;<code>Eden&#x533A;</code>&#x548C;<code>Old&#x533A;</code>&#x7684;<code>region</code>&#xFF0C;&#x76F8;&#x5F53;&#x4E8E;&#x505A;&#x4E86;&#x4E00;&#x4E2A;&#x5168;&#x5806;&#x626B;&#x63CF;&#xFF0C;&#x8FD9;&#x4F1A;&#x5927;&#x5927;&#x964D;&#x4F4E;<code>YGC</code>&#x7684;&#x6548;&#x7387;&#x3002;</strong><br>&#x4E3A;&#x4E86;&#x89E3;&#x51B3;&#x4E0A;&#x9762;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x63D0;&#x51FA;&#x4E86;<code>Remember Set</code>&#x7684;&#x6982;&#x5FF5;&#x3002;</p>
+<h3 id="&#x5199;&#x5C4F;&#x969C;-write-barrier"><a href="#&#x5199;&#x5C4F;&#x969C;-write-barrier" class="headerlink" title="&#x5199;&#x5C4F;&#x969C;(write barrier)"></a>&#x5199;&#x5C4F;&#x969C;(write barrier)</h3><p>&#x5199;&#x5C4F;&#x969C;&#x7684;&#x6982;&#x5FF5;&#x6BD4;&#x8F83;&#x7B80;&#x5355;&#xFF0C;&#x5C31;&#x662F;&#x5BF9;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x8FDB;&#x884C;&#x5199;&#x64CD;&#x4F5C;&#xFF08;&#x5373;&#x5F15;&#x7528;&#x8D4B;&#x503C;&#xFF09;&#x4E4B;&#x524D;&#x6216;&#x4E4B;&#x540E;&#x9644;&#x52A0;&#x6267;&#x884C;&#x7684;&#x903B;&#x8F91;&#x3002;<br>&#x53EF;&#x4EE5;&#x5C06;&#x5199;&#x5C4F;&#x969C;&#x7406;&#x89E3;&#x4E3A; JVM &#x5BF9;&#x5F15;&#x7528;&#x4FEE;&#x6539;&#x64CD;&#x4F5C;&#x7684;&#x4E00;&#x5C42; AOP&#x3002;</p>
+<h3 id="&#x5199;&#x5C4F;&#x969C;&#x4E0E;&#x8BB0;&#x5FC6;&#x96C6;&#xFF1A;"><a href="#&#x5199;&#x5C4F;&#x969C;&#x4E0E;&#x8BB0;&#x5FC6;&#x96C6;&#xFF1A;" class="headerlink" title="&#x5199;&#x5C4F;&#x969C;&#x4E0E;&#x8BB0;&#x5FC6;&#x96C6;&#xFF1A;"></a>&#x5199;&#x5C4F;&#x969C;&#x4E0E;&#x8BB0;&#x5FC6;&#x96C6;&#xFF1A;</h3><p>&#x6BCF;&#x6B21;&#x5728;&#x5BF9;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x8FDB;&#x884C;&#x8D4B;&#x503C;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F1A;&#x4EA7;&#x751F;&#x4E00;&#x4E2A;&#x5199;&#x5C4F;&#x969C;&#x4E2D;&#x65AD;&#x64CD;&#x4F5C;&#xFF0C;&#x7136;&#x540E;&#x68C0;&#x67E5;&#x5C06;&#x8981;<code>&#x5199;&#x5165;&#x7684;&#x5F15;&#x7528;&#x6307;&#x5411;&#x7684;&#x5BF9;&#x8C61;</code>&#x662F;&#x5426;&#x548C;<code>&#x8BE5;&#x5F15;&#x7528;&#x5F53;&#x524D;&#x6307;&#x5411;&#x7684;&#x5BF9;&#x8C61;</code>&#x5904;&#x5728;&#x4E0D;&#x540C;&#x7684;region&#x4E2D;&#xFF1B;&#x5982;&#x679C;&#x4E0D;&#x540C;&#xFF0C;&#x901A;&#x8FC7;CardTable&#x5C06;&#x76F8;&#x5173;&#x7684;&#x5F15;&#x7528;&#x4FE1;&#x606F;&#x8BB0;&#x5F55;&#x5230;Remembered set&#x4E2D;&#x3002;</p>
+<h3 id="&#x8BB0;&#x5FC6;&#x96C6;-Remember-Set"><a href="#&#x8BB0;&#x5FC6;&#x96C6;-Remember-Set" class="headerlink" title="&#x8BB0;&#x5FC6;&#x96C6;(Remember Set)"></a>&#x8BB0;&#x5FC6;&#x96C6;(Remember Set)</h3><p>&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;&#xFF0C;&#x6BCF;&#x4E2A;region&#x90FD;&#x6709;&#x4E00;&#x4E2A;&#x8BB0;&#x5FC6;&#x96C6;(Rset)&#xFF0C;&#x8BB0;&#x5FC6;&#x96C6;&#x4F1A;&#x8BB0;&#x5F55;&#x4E0B;&#x5F53;&#x524D;&#x8FD9;&#x4E2A;region&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x88AB;&#x54EA;&#x4E9B;&#x5BF9;&#x8C61;&#x6240;&#x5F15;&#x7528;&#x3002;&#x4F8B;&#x5982;&#xFF0C;region2&#x4E2D;&#x7684;&#x4E24;&#x4E2A;&#x5BF9;&#x8C61;&#x5206;&#x522B;&#x88AB;region1&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x548C;region3&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x6240;&#x5F15;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#xFF0C;region2&#x7684;&#x8BB0;&#x5FC6;&#x96C6;&#x8BB0;&#x5F55;&#x7684;&#x5C31;&#x662F;region1&#x548C;region3&#x4E2D;&#x7684;&#x5F15;&#x7528;region2&#x7684;&#x5BF9;&#x8C61;&#x7684;&#x5F15;&#x7528;&#x3002;<br>&#x8FD9;&#x6837;&#x4E00;&#x6765;&#x5728;&#x56DE;&#x6536;region2&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5C31;&#x4E0D;&#x7528;&#x626B;&#x63CF;&#x5168;&#x90E8;&#x7684;region&#x4E86;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x8BBF;&#x95EE;&#x8BB0;&#x5FC6;&#x96C6;&#xFF0C;&#x5C31;&#x77E5;&#x9053;&#x5F53;&#x524D;region2&#x91CC;&#x9762;&#x7684;&#x5BF9;&#x8C61;&#x88AB;&#x54EA;&#x4E9B;&#x5BF9;&#x8C61;&#x6240;&#x5F15;&#x7528;&#xFF0C;&#x5224;&#x65AD;&#x5176;&#x662F;&#x4E0D;&#x662F;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x3002;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a1.png"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5116a7acb866">https://www.jianshu.com/p/5116a7acb866</a></p>
+</blockquote>
+<h3 id="G1&#x5185;&#x5B58;&#x6A21;&#x578B;"><a href="#G1&#x5185;&#x5B58;&#x6A21;&#x578B;" class="headerlink" title="G1&#x5185;&#x5B58;&#x6A21;&#x578B;"></a>G1&#x5185;&#x5B58;&#x6A21;&#x578B;</h3><p>G1&#x76F8;&#x8F83;&#x4E4B;&#x524D;&#x5176;&#x5B83;&#x7684;&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;&#xFF0C;&#x5BF9;&#x6A21;&#x578B;&#x8FDB;&#x884C;&#x4E86;&#x6539;&#x53D8;&#xFF0C;&#x4E0D;&#x518D;&#x8FDB;&#x884C;&#x7269;&#x7406;&#x5206;&#x4EE3;&#xFF0C;&#x91C7;&#x7528;&#x903B;&#x8F91;&#x5206;&#x4EE3;&#x3002;</p>
+<p>&#x5B83;&#x4E0D;&#x518D;&#x5C06;&#x8FDE;&#x7EED;&#x5185;&#x5B58;&#x5206;&#x4E3A;Eden&#x533A;&#x548C;Old&#x533A;&#xFF0C;&#x800C;&#x662F;&#x5C06;&#x5185;&#x5B58;&#x5206;&#x4E3A;&#x4E00;&#x4E2A;&#x4E2A;&#x7684;Region&#x3002;&#x4E00;&#x5757;Region(&#x5206;&#x533A;)&#x5728;&#x903B;&#x8F91;&#x4E0A;&#x4F9D;&#x7136;&#x5206;&#x4EE3;&#xFF0C;&#x5206;&#x4E3A;&#x56DB;&#x79CD;&#xFF1A;Eden&#xFF0C;Old&#xFF0C;Survivor&#xFF0C;Humongous&#xFF08;&#x5927;&#x5BF9;&#x8C61;&#xFF0C;&#x8DE8;&#x591A;&#x4E2A;&#x8FDE;&#x7EED;&#x7684;Region&#xFF09;&#x3002;</p>
+<p>&#x5B83;&#x7684;&#x6BCF;&#x4E2A;&#x5206;&#x533A;&#x90FD;&#x53EF;&#x80FD;&#x662F;&#x5E74;&#x8F7B;&#x4EE3;&#x4E5F;&#x53EF;&#x80FD;&#x662F;&#x8001;&#x5E74;&#x4EE3;&#xFF0C;&#x4F46;&#x662F;&#x5728;&#x540C;&#x4E00;&#x65F6;&#x523B;&#x53EA;&#x80FD;&#x5C5E;&#x4E8E;&#x67D0;&#x4E2A;&#x4EE3;&#x3002;</p>
+<p>G1&#x8FD8;&#x662F;&#x4E00;&#x79CD;&#x5E26;&#x538B;&#x7F29;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5728;&#x56DE;&#x6536;&#x8001;&#x5E74;&#x4EE3;&#x7684;&#x5206;&#x533A;&#x65F6;&#xFF0C;&#x662F;&#x5C06;&#x5B58;&#x6D3B;&#x7684;&#x5BF9;&#x8C61;&#x4ECE;&#x4E00;&#x4E2A;&#x5206;&#x533A;&#x62F7;&#x8D1D;&#x5230;&#x53E6;&#x4E00;&#x4E2A;&#x53EF;&#x7528;&#x5206;&#x533A;&#xFF0C;&#x8FD9;&#x4E2A;&#x62F7;&#x8D1D;&#x7684;&#x8FC7;&#x7A0B;&#x5C31;&#x5B9E;&#x73B0;&#x4E86;&#x5C40;&#x90E8;&#x7684;&#x538B;&#x7F29;&#x3002;&#x6BCF;&#x4E2A;&#x5206;&#x533A;&#x7684;&#x5927;&#x5C0F;&#x4ECE;1M&#x5230;32M&#x4E0D;&#x7B49;&#xFF0C;&#x4F46;&#x90FD;&#x662F;2&#x7684;&#x5E42;&#x6B21;&#x65B9;&#x3002;</p>
+<h3 id="CSet-x3D-Collection-set"><a href="#CSet-x3D-Collection-set" class="headerlink" title="CSet = Collection set"></a>CSet = Collection set</h3><p>&#x4E00;&#x7EC4;&#x53EF;&#x88AB;&#x56DE;&#x6536;&#x7684;&#x5206;&#x533A;&#x7684;&#x96C6;&#x5408;&#x3002;</p>
+<h3 id="Card-Table"><a href="#Card-Table" class="headerlink" title="Card Table"></a>Card Table</h3><p>&#x4E3B;&#x8981;&#x7528;&#x4E8E;&#x5206;&#x4EE3;&#x6A21;&#x578B;&#x4E2D;&#x5E2E;&#x52A9;&#x5783;&#x573E;&#x56DE;&#x6536;&#x3002;<br><strong>&#x4E3A;&#x4EC0;&#x4E48;&#x9700;&#x8981; card table &#xFF1F;</strong><br>&#x5BFB;&#x627E;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x5E76;&#x4E0D;&#x662F;&#x4E00;&#x4EF6;&#x5BB9;&#x6613;&#x7684;&#x4E8B;&#x3002;&#x4ECE;&#x4E00;&#x4E2A;GC root&#x5BF9;&#x8C61;&#x5BFB;&#x627E;&#xFF0C;&#x53EF;&#x80FD;&#x88AB;Old&#x533A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#xFF0C;&#x8FD9;&#x4E2A;Old&#x533A;&#x5BF9;&#x8C61;&#x53C8;&#x88AB;Eden&#x533A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x5224;&#x65AD;Eden&#x533A;&#x5BF9;&#x8C61;&#x662F;&#x5426;&#x5B58;&#x6D3B;&#x5C31;&#x9700;&#x8981;&#x904D;&#x5386;&#x6574;&#x4E2A;Old&#x533A;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x770B;&#x662F;&#x5426;&#x88AB;Old&#x533A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x3002;&#x8FD9;&#x6837;&#x7684;&#x8BDD;&#x6BCF;&#x8FDB;&#x884C;&#x4E00;&#x6B21;YGC&#x5C31;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;Old&#x533A;&#x3002;</p>
+<p>&#x6240;&#x4EE5;JVM&#x5185;&#x90E8;&#xFF0C;&#x5C06;&#x5185;&#x5B58;&#x533A;&#x57DF;&#x5206;&#x4E3A;&#x4E00;&#x4E2A;&#x4E2A;&#x7684;card&#xFF0C;&#x5BF9;&#x8C61;&#x5B58;&#x5728;&#x4E00;&#x4E2A;&#x4E2A;&#x7684;card&#x91CC;&#x3002;&#x5F53;&#x8001;&#x5E74;&#x4EE3;&#x67D0;&#x4E2A;card&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x6307;&#x5411;&#x4E86;&#x5E74;&#x8F7B;&#x4EE3;&#xFF0C;&#x5C31;&#x4F1A;&#x5C06;&#x8FD9;&#x4E2A;card&#x6807;&#x8BB0;&#x4E3A; Dirty &#x3002;&#x8FD9;&#x4E48;&#x591A;card&#x5177;&#x4F53;&#x54EA;&#x4E2A;&#x662F; Dirty&#x7684;&#xFF0C;&#x7528;&#x4F4D;&#x56FE;BitMap&#x6765;&#x4EE3;&#x8868;&#xFF08;&#x5982;0110010010&#xFF0C;1&#x8868;&#x793A;Dirty&#xFF09;&#xFF0C;&#x8FD9;&#x5C31;&#x662F;Card Table&#x3002;</p>
+<p>Card Table &#xFF1A;&#x7531;&#x4E8E;&#x505A;YGC&#x65F6;&#xFF0C;&#x9700;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;Old&#x533A;&#xFF0C;&#x6548;&#x7387;&#x975E;&#x5E38;&#x4F4E;&#xFF0C;&#x6240;&#x4EE5;JVM&#x8BBE;&#x8BA1;&#x4E86;Card Table&#xFF0C; &#x5982;&#x679C;&#x4E00;&#x4E2A;Old&#x533A;Card Table&#x4E2D;&#x6709;&#x5BF9;&#x8C61;&#x6307;&#x5411;Y&#x533A;&#xFF0C;&#x5C31;&#x5C06;&#x5B83;&#x8BBE;&#x4E3A;Dirty&#xFF0C;&#x4E0B;&#x6B21;&#x626B;&#x63CF;&#x65F6;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x626B;&#x63CF;Dirty Card&#x3002; &#x5728;&#x7ED3;&#x6784;&#x4E0A;&#xFF0C;Card Table&#x7528;BitMap&#x6765;&#x5B9E;&#x73B0;&#x3002;</p>
+<h3 id="RSet-x3D-Remembered-Set"><a href="#RSet-x3D-Remembered-Set" class="headerlink" title="RSet = Remembered Set"></a>RSet = Remembered Set</h3><p>&#x8BB0;&#x5F55;&#x4E86;&#x5176;&#x4ED6;Region&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x5230;&#x672C;Region&#x7684;&#x5F15;&#x7528;<br>RSet&#x7684;&#x4EF7;&#x503C;&#x5728;&#x4E8E;&#xFF1A;&#x4F7F;&#x5F97;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#x4E0D;&#x9700;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x5806;&#xFF0C;&#x627E;&#x5230;&#x8C01;&#x5F15;&#x7528;&#x4E86;&#x5F53;&#x524D;&#x5206;&#x533A;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x626B;&#x63CF;RSet&#x5373;&#x53EF;&#x3002;<br>RSet&#x4F1A;&#x5360;&#x7528;&#x4E00;&#x5B9A;&#x7684;&#x7A7A;&#x95F4;&#xFF0C;&#x6240;&#x4EE5;ZGC&#x53C8;&#x505A;&#x4E86;&#x6539;&#x8FDB;&#xFF0C;&#x4E0D;&#x4F7F;&#x7528;RSet&#xFF0C;&#x7528;&#x989C;&#x8272;&#x6307;&#x9488;&#x6765;&#x6807;&#x8BB0;&#x3002;</p>
+<p>&#x7531;&#x4E8E;RSet&#x7684;&#x5B58;&#x5728;&#xFF0C;&#x90A3;&#x4E48;&#x6BCF;&#x6B21;&#x7ED9;&#x5BF9;&#x8C61;&#x8D4B;&#x5F15;&#x7528;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5C31;&#x8981;&#x505A;&#x4E00;&#x4E9B;&#x989D;&#x5916;&#x7684;&#x64CD;&#x4F5C;<br>&#x989D;&#x5916;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x6307;&#x7684;&#x662F;&#x5728;RSet&#x4E2D;&#x505A;&#x4E00;&#x4E9B;&#x989D;&#x5916;&#x7684;&#x8BB0;&#x5F55;&#xFF08;&#x5728;GC&#x4E2D;&#x88AB;&#x79F0;&#x4E3A;&#x5199;&#x5C4F;&#x969C;&#xFF09;<br>&#x8FD9;&#x4E2A;&#x5199;&#x5C4F;&#x969C; &#x4E0D;&#x662F; &#x5185;&#x5B58;&#x5C4F;&#x969C;&#x3002;</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021394215">https://segmentfault.com/a/1190000021394215</a></p>
+</blockquote>
+<h3 id="Card-Table-amp-Remembered-Set"><a href="#Card-Table-amp-Remembered-Set" class="headerlink" title="Card Table&amp;Remembered Set"></a>Card Table&amp;Remembered Set</h3><p>&#x5E74;&#x8001;&#x4EE3;&#x5728;&#x5806;&#x4E2D;&#x7684;&#x6BD4;&#x4F8B;&#x8FDC;&#x5927;&#x4E8E;&#x5E74;&#x8F7B;&#x4EE3;&#xFF0C;&#x5E74;&#x8F7B;&#x4EE3;&#x6BD4;&#x8F83;&#x5C0F;&#x5373;&#x4F7F;&#x5168;&#x5806;&#x626B;&#x63CF;&#x4E5F;&#x6210;&#x672C;&#x4E0D;&#x9AD8;&#xFF0C;&#x4F46;&#x5982;&#x679C;&#x6BCF;&#x6B21;YGC&#x6216;Mixed GC&#x90FD;&#x8981;&#x626B;&#x63CF;&#x4E00;&#x6B21;&#x5E74;&#x8001;&#x4EE3;&#x5168;&#x5806;&#x7684;&#x8BDD;&#xFF0C;&#x80AF;&#x5B9A;&#x4F1A;&#x975E;&#x5E38;&#x8017;&#x65F6;&#xFF0C;&#x90A3;&#x4E48;&#x6709;&#x4EC0;&#x4E48;&#x597D;&#x7684;&#x89E3;&#x51B3;&#x65B9;&#x6848;&#x5462;&#xFF1F;</p>
+<p>JVM G1&#x56DE;&#x6536;&#x5668;&#x4F7F;&#x7528;&#x4E86;card table&#x548C;remember set&#x4E24;&#x4E2A;&#x7ED3;&#x6784;&#x5904;&#x7406;&#x5E74;&#x8001;&#x4EE3;&#x5168;&#x5806;&#x626B;&#x63CF;&#x7684;&#x95EE;&#x9898;&#x3002;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a5.png"></p>
+<h3 id="Card-Table&#x6DF1;&#x5165;"><a href="#Card-Table&#x6DF1;&#x5165;" class="headerlink" title="Card Table&#x6DF1;&#x5165;"></a>Card Table&#x6DF1;&#x5165;</h3><p>&#x57FA;&#x4E8E;&#x5361;&#x8868;(Card Table)&#x7684;&#x8BBE;&#x8BA1;&#xFF0C;&#x901A;&#x5E38;&#x5C06;&#x5806;&#x7A7A;&#x95F4;&#x5212;&#x5206;&#x4E3A;&#x4E00;&#x7CFB;&#x5217;2&#x6B21;&#x5E42;&#x5927;&#x5C0F;&#x7684;&#x5361;&#x9875;(Card Page)&#xFF0C;HotSpot JVM&#x7684;&#x5361;&#x9875;&#x5927;&#x5C0F;&#x4E3A;512&#x5B57;&#x8282;&#x3002;</p>
+<p>&#x5361;&#x8868;&#x7EF4;&#x62A4;&#x7740;&#x6240;&#x6709;&#x7684;Card Page&#x3002;<strong>Card Table&#x7684;&#x7ED3;&#x6784;&#x662F;&#x4E00;&#x4E2A;&#x5B57;&#x8282;&#x6570;&#x7EC4;</strong>&#xFF0C;&#x6BCF;&#x4E2A;&#x5361;&#x8868;&#x9879;&#x6620;&#x5C04;&#x7740;&#x4E00;&#x4E2A;Card Page&#xFF0C;&#x4E3A;1&#x4E2A;&#x5B57;&#x8282;&#xFF0C;&#x7528;&#x4E8E;&#x6807;&#x8BB0;&#x5361;&#x9875;&#x7684;&#x72B6;&#x6001;&#x3002;</p>
+<p><strong>Card Page&#x4E2D;&#x5BF9;&#x8C61;&#x7684;&#x5F15;&#x7528;&#x53D1;&#x751F;&#x6539;&#x53D8;&#x65F6;&#xFF0C;&#x5199;&#x5C4F;&#x969C;&#x903B;&#x8F91;&#x5C06;&#x4F1A;&#x628A;Card Page&#x5728;Card Table&#x6570;&#x7EC4;&#x4E2D;&#x5BF9;&#x5E94;&#x7684;&#x503C;&#x6807;&#x8BB0;&#x4E3A;dirty&#xFF0C;&#x5C31;&#x79F0;&#x8FD9;&#x4E2A;Card Page&#x88AB;&#x810F;&#x5316;&#x4E86;&#x3002;</strong></p>
+<p><strong>&#x6240;&#x4EE5;Card Table&#x5176;&#x5B9E;&#x5C31;&#x662F;&#x6620;&#x5C04;&#x7740;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x5728;&#x8FDB;&#x884C;Young GC&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4FBF;&#x53EF;&#x4EE5;&#x4E0D;&#x7528;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x8001;&#x5E74;&#x4EE3;&#x3002;&#x800C;&#x662F;&#x5728;&#x5361;&#x8868;&#x4E2D;&#x5BFB;&#x627E;&#x810F;&#x5361;&#xFF0C;&#x5E76;&#x5C06;&#x810F;&#x5361;&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#x52A0;&#x5165;&#x5230;Minor GC&#x7684;GC Roots&#x91CC;&#x3002;&#x5F53;&#x5B8C;&#x6210;&#x6240;&#x6709;&#x810F;&#x5361;&#x7684;&#x626B;&#x63CF;&#x4E4B;&#x540E;&#xFF0C;&#x6240;&#x6709;&#x810F;&#x5361;&#x7684;&#x6807;&#x8BC6;&#x4F4D;&#x6E05;&#x96F6;&#x3002;</strong></p>
+<h3 id="Remembered-Set"><a href="#Remembered-Set" class="headerlink" title="Remembered Set"></a>Remembered Set</h3><p>&#x6BCF;&#x4E00;&#x4E2A;Region&#x90FD;&#x6709;&#x81EA;&#x5DF1;&#x7684;RSet&#x3002;</p>
+<p>&#x865A;&#x62DF;&#x673A;&#x53D1;&#x73B0;&#x7A0B;&#x5E8F;&#x5728;&#x5BF9;Reference&#x7C7B;&#x578B;&#x7684;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x5199;&#x64CD;&#x4F5C;&#x65F6;&#xFF0C;&#x4F1A;&#x4EA7;&#x751F;&#x4E00;&#x4E2A;Write Barrier&#x6682;&#x65F6;&#x4E2D;&#x65AD;&#x5199;&#x64CD;&#x4F5C;&#xFF0C;&#x68C0;&#x67E5;Reference&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#x662F;&#x5426;&#x5904;&#x4E8E;&#x4E0D;&#x540C;&#x7684;Region&#x4E4B;&#x4E2D;&#x3002;&#x5982;&#x679C;&#x662F;&#xFF0C;&#x4FBF;&#x901A;&#x8FC7;Card Table&#x628A;&#x76F8;&#x5173;&#x5F15;&#x7528;&#x4FE1;&#x606F;&#x8BB0;&#x5F55;&#x5230;&#x88AB;&#x5F15;&#x7528;&#x5BF9;&#x8C61;&#x6240;&#x5C5E;&#x7684;Region&#x7684;Remembered Set&#x4E4B;&#x4E2D;&#x3002;</p>
+<p>RSet&#x91CC;&#x9762;&#x8BB0;&#x5F55;&#x4E86;&#x5F15;&#x7528;&#x2013;&#x5C31;&#x662F;&#x5176;&#x4ED6;Region&#x4E2D;&#x6307;&#x5411;&#x672C;Region&#x4E2D;&#x6240;&#x6709;&#x5BF9;&#x8C61;&#x7684;&#x6240;&#x6709;&#x5F15;&#x7528;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8C01;&#x5F15;&#x7528;&#x4E86;&#x6211;&#x7684;&#x5BF9;&#x8C61;&#x3002;</p>
+<p>RSet&#x5176;&#x5B9E;&#x662F;&#x4E00;&#x4E2A;Hash Table&#xFF0C;Key&#x662F;&#x5176;&#x4ED6;&#x7684;Region&#x7684;&#x8D77;&#x59CB;&#x5730;&#x5740;&#xFF0C;Value&#x662F;&#x4E00;&#x4E2A;&#x96C6;&#x5408;&#xFF0C;&#x91CC;&#x9762;&#x7684;&#x5143;&#x7D20;&#x662F;Card Table &#x6570;&#x7EC4;&#x4E2D;&#x7684;index&#xFF0C;&#x65E2;Card&#x5BF9;&#x5E94;&#x7684;Index&#xFF0C;&#x6620;&#x5C04;&#x5230;&#x5BF9;&#x8C61;&#x7684;Card&#x5730;&#x5740;&#x3002;</p>
+<p>&#x6BD4;&#x5982;A&#x5BF9;&#x8C61;&#x5728;regionA&#xFF0C;B&#x5BF9;&#x8C61;&#x5728;regionB&#xFF0C;&#x4E14;B.f = A&#xFF0C;&#x5219;&#x5728;regionA&#x7684;RSet&#x4E2D;&#x9700;&#x8981;&#x8BB0;&#x5F55;&#x4E00;&#x5BF9;&#x952E;&#x503C;&#x5BF9;&#xFF0C;key&#x662F;regionB&#x7684;&#x8D77;&#x59CB;&#x5730;&#x5740;&#xFF0C;Value&#x7684;&#x503C;&#x80FD;&#x6620;&#x5C04;&#x5230;B&#x6240;&#x5728;&#x7684;Card&#x7684;&#x5730;&#x5740;&#xFF0C;&#x6240;&#x4EE5;&#x8981;&#x67E5;&#x627E;B&#x5BF9;&#x8C61;&#xFF0C;&#x5C31;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;RSet&#x4E2D;&#x8BB0;&#x5F55;&#x7684;&#x5361;&#x7247;&#x6765;&#x67E5;&#x627E;&#x8BE5;&#x5BF9;&#x8C61;&#x3002;</p>
+<p>&#x672C;&#x5206;&#x533A;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x672C;&#x5206;&#x533A;&#x81EA;&#x5DF1;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x8FD9;&#x79CD;&#x5F15;&#x7528;&#x4E0D;&#x7528;&#x843D;&#x5165;RSet&#x4E2D;&#xFF1B;&#x540C;&#x65F6;&#xFF0C;G1 GC&#x6BCF;&#x6B21;&#x90FD;&#x4F1A;&#x5BF9;&#x5E74;&#x8F7B;&#x4EE3;&#x8FDB;&#x884C;&#x6574;&#x4F53;&#x6536;&#x96C6;&#x3002;</p>
+<p><strong>&#x56E0;&#x6B64;young-&gt;old&#x548C;young-&gt;young&#x4E5F;&#x4E0D;&#x9700;&#x8981;&#x5728;RSet&#x4E2D;&#x8BB0;&#x5F55;&#x3002;&#x800C;&#x5BF9;&#x4E8E;old-&gt;young&#x548C;old-&gt;old&#x7684;&#x8DE8;&#x4EE3;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#xFF0C;&#x9700;&#x8981;&#x62E5;&#x6709;RSet&#x3002;</strong></p>
+<p>&#x5BF9;&#x4E8E;G1&#x8FDB;&#x884C;YGC&#x65F6;&#x7684;&#x8DE8;&#x4EE3;&#x5F15;&#x7528;&#xFF0C;&#x4EE5;&#x53CA;&#x8FDB;&#x884C;Mixed GC&#x65F6;&#x7684;old &#x95F4;&#x8DE8;region&#x5F15;&#x7528;&#xFF0C;&#x53EA;&#x8981;&#x5230;&#x672C;Region RSet&#x6240;&#x8BB0;&#x5F55;&#x7684;region&#x4E2D;&#x626B;&#x63CF;&#x5F15;&#x7528;&#x4E86;&#x810F;card&#x533A;&#x57DF;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x518D;&#x5982;&#x6CD5;&#x6EAF;&#x6E90;&#xFF0C;&#x5224;&#x65AD;&#x5176;&#x662F;&#x5426;&#x5B58;&#x6D3B;&#x5B58;&#x6D3B;&#xFF0C;&#x8FDB;&#x800C;&#x786E;&#x5B9A;&#x672C;&#x5206;&#x533A;&#x5185;&#x7684;&#x5BF9;&#x8C61;&#x5B58;&#x6D3B;&#x60C5;&#x51B5;&#x3002;&#x800C;&#x4E0D;&#x9700;&#x8981;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x5806;&#x4E86;&#x3002;</p>
+<h3 id="Collection-Sets"><a href="#Collection-Sets" class="headerlink" title="Collection Sets"></a>Collection Sets</h3><p>&#x5BF9;&#x4E8E;&#x5E74;&#x8F7B;&#x4EE3;&#x6536;&#x96C6;&#xFF1A;CSet&#x53EA;&#x5BB9;&#x7EB3;Eden Regions&#x3001;Survivor Region&#xFF1B;<br>&#x5BF9;&#x4E8E;&#x6DF7;&#x5408;&#x6536;&#x96C6;&#xFF1A;CSet&#x8FD8;&#x4F1A;&#x5BB9;&#x7EB3;1/8&#x7684;&#x8001;&#x5E74;&#x4EE3;Region&#x3002;</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011069294/article/details/108280100">https://blog.csdn.net/u011069294/article/details/108280100</a></p>
+</blockquote>
+<ol>
+<li>4.101.GC-G1&#x6536;&#x96C6;&#x5668;&#x539F;&#x7406;&#x539F;&#x7406;&#x4E00;&#x5C06;&#x5806;&#x5185;&#x5B58;&#x5212;&#x5206;&#x4E3A;&#x5F88;&#x591A;&#x4E0D;&#x60F3;&#x5173;&#x7684;&#x533A;&#x57DF;(Region)(&#x7269;&#x7406;&#x4E0A;&#x53EF;&#x4EE5;&#x662F;&#x4E0D;&#x8FDE;&#x7EED;&#x7684;&#x7A7A;&#x95F4;)&#xFF0C;&#x4F7F;&#x7528;&#x4E0D;&#x540C;&#x7684;Region&#x6765;&#x8868;&#x793A;Eden&#xFF0C;S0&#x533A;&#xFF0C;S1&#x533A;&#xFF0C;&#x8001;&#x5E74;&#x4EE3;&#x7B49;&#x7B49;&#x3002;</li>
+</ol>
+<p>G1&#x5728;<code>JDK7</code>&#x4E2D;&#x6B63;&#x5F0F;&#x542F;&#x7528;&#xFF0C;&#x4F46;&#x4E0D;&#x662F;&#x9ED8;&#x8BA4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5728;<code>JDK9</code>&#x4E2D;&#x6210;&#x4E3A;&#x4E86;&#x9ED8;&#x8BA4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x53D6;&#x4EE3;&#x4E86;<code>CMS</code>&#x4EE5;&#x53CA;<code>Parallel + Parallel Old</code>&#x7EC4;&#x5408;&#x3002;&#x5728;<code>JDK7</code>&#x4EE5;&#x53CA;<code>JDK8</code>&#x4E2D;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;<code>-XX:+UseG1GC</code>&#x6765;&#x542F;&#x7528;&#x3002;</p>
+<blockquote>
+<p>G1&#x51E0;&#x4E2A;&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x8BE6;&#x7EC6;: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/yuexiaoyun/articles/14003061.html">https://www.cnblogs.com/yuexiaoyun/articles/14003061.html</a></p>
+</blockquote>
+<h3 id="1-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E00;-Young-GC"><a href="#1-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E00;-Young-GC" class="headerlink" title="1.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E00;(Young GC)"></a>1.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E00;(Young GC)</h3><p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a6.png"></p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a7.png"></p>
+<h3 id="2-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E8C;-&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;"><a href="#2-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E8C;-&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;" class="headerlink" title="2.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E8C;(&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;)"></a>2.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E8C;(&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;)</h3><p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a8.png"></p>
+<h3 id="3-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E09;-&#x6DF7;&#x5408;&#x56DE;&#x6536;"><a href="#3-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E09;-&#x6DF7;&#x5408;&#x56DE;&#x6536;" class="headerlink" title="3.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E09;(&#x6DF7;&#x5408;&#x56DE;&#x6536;)"></a>3.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x4E09;(&#x6DF7;&#x5408;&#x56DE;&#x6536;)</h3><p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a9.png"></p>
+<h3 id="4-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x56DB;-Full-GC-&#x975E;&#x5FC5;&#x987B;"><a href="#4-G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x56DB;-Full-GC-&#x975E;&#x5FC5;&#x987B;" class="headerlink" title="4.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x56DB;(Full GC) - &#x975E;&#x5FC5;&#x987B;"></a>4.G1&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x56DB;(Full GC) - &#x975E;&#x5FC5;&#x987B;</h3><p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/a10.png"></p>
+<hr>
+<h3 id="&#x95EE;&#x9898;"><a href="#&#x95EE;&#x9898;" class="headerlink" title="&#x95EE;&#x9898;"></a>&#x95EE;&#x9898;</h3><ol>
+<li>&#x6D6E;&#x52A8;&#x5783;&#x573E;&#x662F;&#x5982;&#x4F55;&#x4EA7;&#x751F;&#x7684;&#xFF1F;</li>
+<li>young GC , Mixed GC &#xFF0C;Full GC &#x662F;&#x5982;&#x4F55;&#x4EA7;&#x751F;&#x7684;&#xFF1F;</li>
+<li>Rset STAB &#x662F;&#x4EC0;&#x4E48;&#xFF1F;&#x6709;&#x4EC0;&#x4E48;&#x4F5C;&#x7528; &#xFF1F;</li>
+<li>Pre/post-write barrier&#x8DDF;SATB&#x6709;&#x5565;&#x5173;&#x7CFB;&#x5462;&#xFF1F;</li>
+<li>refinement threads&#x7EBF;&#x7A0B;&#x7684;&#x4F5C;&#x7528;&#x662F;&#x4EC0;&#x4E48;&#xFF1F;<br>&#x63D0;&#x51FA;&#x51E0;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x5728;&#x9605;&#x8BFB;&#x4E2D;&#x627E;&#x5230;&#x7B54;&#x6848;&#x3002;</li>
+</ol>
+<h3 id="&#x591A;&#x4E2A;Region"><a href="#&#x591A;&#x4E2A;Region" class="headerlink" title="&#x591A;&#x4E2A;Region"></a>&#x591A;&#x4E2A;Region</h3><p>G1 &#x5148;&#x662F;&#x5C06;Heap&#x5206;&#x6210;&#x5E73;&#x7B49;&#x7684;&#x591A;&#x4E2A; Region . &#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A; &#xFF1A;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/1.gif"></p>
+<p>&#x7136;&#x540E;&#x6BCF;&#x4E2A; Region &#x518D;&#x7EC6;&#x5206;&#x4E3A;&#x591A;&#x4E2A;&#x5927;&#x5C0F;&#x4E3A;512&#x5B57;&#x8282;&#x7684; card &#x5E76;&#x4E14;&#x6BCF;&#x4E2A;card &#x90FD;&#x88AB;&#x7EAA;&#x5F55;&#x5230;&#x4E00;&#x4E2A;&#x53EB; Remembered Set&#xFF08;RS&#xFF09; &#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x3002;&#x6211;&#x4EEC;&#x4ECE;&#x4E0A;&#x4E00;&#x7BC7;&#x6587;&#x7AE0;&#x77E5;&#x9053;&#xFF0C;&#x6536;&#x96C6;&#x5668;&#x4E0D;&#x7528;&#x5168;&#x5C40;&#x53BB;&#x626B;&#x63CF;&#x8282;&#x70B9;&#x7684;&#x539F;&#x56E0;&#x5C31;&#x5728;&#x4E8E; RS &#x53D1;&#x6325;&#x4E86;&#x4F5C;&#x7528;&#x3002;&#x4E0B;&#x56FE;&#x4E3A;Refion &#x5206;&#x4E3A;&#x591A;&#x4E2A;cards&#xFF0C;&#x5E76;&#x5BF9;&#x5E94;&#x4E8E; RS&#x4E0A;&#x3002;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/2.gif"></p>
+<h3 id="Remembered-set"><a href="#Remembered-set" class="headerlink" title="Remembered set"></a>Remembered set</h3><p>&#x4E0B;&#x9762;&#x5F15;&#x7528;&#x4E86;&#x4E00;&#x4E0B; R&#x5927; &#x5BF9; Rst&#x7684;&#x63CF;&#x8FF0;&#x3002;</p>
+<blockquote>
+<p>Remembered Set&#x662F;&#x4E00;&#x79CD;&#x62BD;&#x8C61;&#x6982;&#x5FF5;&#xFF0C;&#x800C;card table&#x53EF;&#x4EE5;&#x662F;remembered set&#x7684;&#x4E00;&#x79CD;&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;&#x3002;<br>Remembered Set&#x662F;&#x5728;&#x5B9E;&#x73B0;&#x90E8;&#x5206;&#x5783;&#x573E;&#x6536;&#x96C6;&#xFF08;partial GC&#xFF09;&#x65F6;&#x7528;&#x4E8E;&#x8BB0;&#x5F55;&#x4ECE;&#x975E;&#x6536;&#x96C6;&#x90E8;&#x5206;&#x6307;&#x5411;&#x6536;&#x96C6;&#x90E8;&#x5206;&#x7684;&#x6307;&#x9488;&#x7684;&#x96C6;&#x5408;&#x7684;&#x62BD;&#x8C61;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x3002;<br>&#x5206;&#x4EE3;&#x5F0F;GC&#x662F;&#x4E00;&#x79CD;&#x90E8;&#x5206;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7684;&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;&#x3002;&#x5F53;&#x5206;&#x4E24;&#x4EE3;&#x65F6;&#xFF0C;&#x901A;&#x5E38;&#x628A;&#x8FD9;&#x4E24;&#x4EE3;&#x53EB;&#x505A;young gen&#x548C;old gen&#xFF1B;&#x901A;&#x5E38;&#x80FD;&#x5355;&#x72EC;&#x6536;&#x96C6;&#x7684;&#x53EA;&#x662F;young gen&#x3002;&#x6B64;&#x65F6;remembered set&#x8BB0;&#x5F55;&#x7684;&#x5C31;&#x662F;&#x4ECE;old gen&#x6307;&#x5411;young gen&#x7684;&#x8DE8;&#x4EE3;&#x6307;&#x9488;&#x3002;</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>G1 GC&#x7684;heap&#x4E0E;HotSpot VM&#x7684;&#x5176;&#x5B83;GC&#x4E00;&#x6837;&#x6709;&#x4E00;&#x4E2A;&#x8986;&#x76D6;&#x6574;&#x4E2A;heap&#x7684;card table&#x3002;<br>&#x903B;&#x8F91;&#x4E0A;&#x8BF4;&#xFF0C;G1 GC&#x7684;remembered set&#xFF08;&#x4E0B;&#x9762;&#x7B80;&#x79F0;RSet&#xFF09;&#x662F;&#x6BCF;&#x4E2A;region&#x6709;&#x4E00;&#x4EFD;&#x3002;&#x8FD9;&#x4E2A;RSet&#x8BB0;&#x5F55;&#x7684;&#x662F;&#x4ECE;&#x522B;&#x7684;region&#x6307;&#x5411;&#x8BE5;region&#x7684;card&#x3002;&#x6240;&#x4EE5;&#x8FD9;&#x662F;&#x4E00;&#x79CD;&#x201C;points-into&#x201D;&#x7684;remembered set&#x3002;</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>&#x7528;card table&#x5B9E;&#x73B0;&#x7684;remembered set&#x901A;&#x5E38;&#x662F;points-out&#x7684;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;card table&#x8981;&#x8BB0;&#x5F55;&#x7684;&#x662F;&#x4ECE;&#x5B83;&#x8986;&#x76D6;&#x7684;&#x8303;&#x56F4;&#x51FA;&#x53D1;&#x6307;&#x5411;&#x522B;&#x7684;&#x8303;&#x56F4;&#x7684;&#x6307;&#x9488;&#x3002;&#x4EE5;&#x5206;&#x4EE3;&#x5F0F;GC&#x7684;card table&#x4E3A;&#x4F8B;&#xFF0C;&#x8981;&#x8BB0;&#x5F55;old -&gt; young&#x7684;&#x8DE8;&#x4EE3;&#x6307;&#x9488;&#xFF0C;&#x88AB;&#x6807;&#x8BB0;&#x7684;card&#x662F;old gen&#x8303;&#x56F4;&#x5185;&#x7684;&#x3002;<br>G1 GC&#x5219;&#x662F;&#x5728;points-out&#x7684;card table&#x4E4B;&#x4E0A;&#x518D;&#x52A0;&#x4E86;&#x4E00;&#x5C42;&#x7ED3;&#x6784;&#x6765;&#x6784;&#x6210;points-into RSet&#xFF1A;&#x6BCF;&#x4E2A;region&#x4F1A;&#x8BB0;&#x5F55;&#x4E0B;&#x5230;&#x5E95;&#x54EA;&#x4E9B;&#x522B;&#x7684;region&#x6709;&#x6307;&#x5411;&#x81EA;&#x5DF1;&#x7684;&#x6307;&#x9488;&#xFF0C;&#x800C;&#x8FD9;&#x4E9B;&#x6307;&#x9488;&#x5206;&#x522B;&#x5728;&#x54EA;&#x4E9B;card&#x7684;&#x8303;&#x56F4;&#x5185;&#x3002;</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>&#x8FD9;&#x4E2A;RSet&#x5176;&#x5B9E;&#x662F;&#x4E00;&#x4E2A;hash table&#xFF0C;key&#x662F;&#x522B;&#x7684;region&#x7684;&#x8D77;&#x59CB;&#x5730;&#x5740;&#xFF0C;value&#x662F;&#x4E00;&#x4E2A;&#x96C6;&#x5408;&#xFF0C;&#x91CC;&#x9762;&#x7684;&#x5143;&#x7D20;&#x662F;card table&#x7684;index&#x3002;<br>&#x4E3E;&#x4F8B;&#x6765;&#x8BF4;&#xFF0C;&#x5982;&#x679C;region A&#x7684;RSet&#x91CC;&#x6709;&#x4E00;&#x9879;&#x7684;key&#x662F;region B&#xFF0C;value&#x91CC;&#x6709;index&#x4E3A;1234&#x7684;card&#xFF0C;&#x5B83;&#x7684;&#x610F;&#x601D;&#x5C31;&#x662F;region B&#x7684;&#x4E00;&#x4E2A;card&#x91CC;&#x6709;&#x5F15;&#x7528;&#x6307;&#x5411;region A&#x3002;&#x6240;&#x4EE5;&#x5BF9;region A&#x6765;&#x8BF4;&#xFF0C;&#x8BE5;RSet&#x8BB0;&#x5F55;&#x7684;&#x662F;points-into&#x7684;&#x5173;&#x7CFB;&#xFF1B;&#x800C;card table&#x4ECD;&#x7136;&#x8BB0;&#x5F55;&#x4E86;points-out&#x7684;&#x5173;&#x7CFB;&#x3002;</li>
+</ul>
+</blockquote>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/3.jpg"></p>
+<p>&#x90A3;Rst &#x662F;&#x5982;&#x4F55;&#x8F85;&#x52A9;GC&#x7684;&#x5462;&#xFF1F;</p>
+<p>&#x5728;&#x505A;YGC&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x9009;&#x5B9A;young generation region&#x7684;RSet&#x4F5C;&#x4E3A;&#x6839;&#x96C6;&#xFF0C;&#x8FD9;&#x4E9B;RSet&#x8BB0;&#x5F55;&#x4E86;old-&gt;young&#x7684;&#x8DE8;&#x4EE3;&#x5F15;&#x7528;&#xFF0C;&#x907F;&#x514D;&#x4E86;&#x626B;&#x63CF;&#x6574;&#x4E2A;old generation&#x3002; &#x800C;mixed gc&#x7684;&#x65F6;&#x5019;&#xFF0C;old generation&#x4E2D;&#x8BB0;&#x5F55;&#x4E86;old-&gt;old&#x7684;RSet&#xFF0C;young-&gt;old&#x7684;&#x5F15;&#x7528;&#x7531;&#x626B;&#x63CF;&#x5168;&#x90E8;young generation region&#x5F97;&#x5230;&#xFF0C;&#x8FD9;&#x6837;&#x4E5F;&#x4E0D;&#x7528;&#x626B;&#x63CF;&#x5168;&#x90E8;old generation region&#x3002;&#x6240;&#x4EE5;RSet&#x7684;&#x5F15;&#x5165;&#x5927;&#x5927;&#x51CF;&#x5C11;&#x4E86;GC&#x7684;&#x5DE5;&#x4F5C;&#x91CF;&#x3002;Rst&#x8C8C;&#x4F3C;&#x548C;Oop&#x6709;&#x70B9;&#x76F8;&#x4F3C;&#xFF0C;&#x540E;&#x8005;&#x662F;&#x7EAA;&#x5F55;&#x6839;&#x8282;&#x70B9;&#x7684;&#x3002;&#x4E24;&#x8005;&#x7684;&#x7406;&#x89E3;&#x53EF;&#x4EE5;&#x770B;&#x8FD9;&#x7BC7;&#x6587;&#x7AE0;&#xFF0C;JVM &#x4E4B; OopMap &#x548C; RememberedSet</p>
+<p>&#x5173;&#x4E8E;Rst &#x8FD8;&#x6709;&#x5176;&#x4ED6;&#x7684;&#x4E00;&#x4E9B;&#x77E5;&#x8BC6;&#x70B9;&#xFF0C;&#x770B;&#x770B;&#x8FD9;&#x4E2A;&#x8BA8;&#x8BBA;&#x5E16; : <a target="_blank" rel="noopener" href="https://hllvm-group.iteye.com/group/topic/21468#post-272070">&#x8D44;&#x6599;:&#x540D;&#x8BCD;&#x94FE;&#x63A5;&#x5E16;</a></p>
+<h3 id="SATB"><a href="#SATB" class="headerlink" title="SATB"></a>SATB</h3><p>snapshot-at-the-beginning&#xFF0C;&#x662F;&#x7EF4;&#x6301;&#x5E76;&#x53D1;GC&#x7684;&#x6B63;&#x786E;&#x6027;&#x7684;&#x4E00;&#x4E2A;&#x624B;&#x6BB5;&#x3002;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x7684;&#x4E3B;&#x8981;&#x95EE;&#x9898;&#x662F;collector&#x5728;&#x6807;&#x8BB0;&#x5BF9;&#x8C61;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;mutator&#x53EF;&#x80FD;&#x6B63;&#x5728;&#x6539;&#x53D8;&#x5BF9;&#x8C61;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#x56FE;&#xFF0C;&#x4ECE;&#x800C;&#x9020;&#x6210;&#x6F0F;&#x6807;&#x548C;&#x9519;&#x6807;&#x3002;&#x9519;&#x6807;&#x4E0D;&#x4F1A;&#x5F71;&#x54CD;&#x7A0B;&#x5E8F;&#x7684;&#x6B63;&#x786E;&#x6027;&#xFF0C;&#x53EA;&#x662F;&#x9020;&#x6210;&#x6240;&#x8C13;&#x7684;&#x6D6E;&#x52A8;&#x5783;&#x573E;&#x3002;&#x4F46;&#x6F0F;&#x6807;&#x5219;&#x4F1A;&#x5BFC;&#x81F4;&#x53EF;&#x8FBE;&#x5BF9;&#x8C61;&#x88AB;&#x5F53;&#x505A;&#x5783;&#x573E;&#x6536;&#x96C6;&#x6389;&#xFF0C;&#x4ECE;&#x800C;&#x5F71;&#x54CD;&#x7A0B;&#x5E8F;&#x7684;&#x6B63;&#x786E;&#x6027;&#x3002;</p>
+<p>GC HandBook&#x628A;&#x5BF9;&#x8C61;&#x5206;&#x6210;&#x4E09;&#x79CD;&#x989C;&#x8272;&#xFF1A;</p>
+<ol>
+<li>&#x9ED1;&#x8272;&#xFF1A;&#x81EA;&#x8EAB;&#x4EE5;&#x53CA;&#x53EF;&#x8FBE;&#x5BF9;&#x8C61;&#x90FD;&#x5DF2;&#x7ECF;&#x88AB;&#x6807;&#x8BB0;</li>
+<li>&#x7070;&#x8272;&#xFF1A;&#x81EA;&#x8EAB;&#x88AB;&#x6807;&#x8BB0;&#xFF0C;&#x53EF;&#x8FBE;&#x5BF9;&#x8C61;&#x8FD8;&#x672A;&#x6807;&#x8BB0;</li>
+<li>&#x767D;&#x8272;&#xFF1A;&#x8FD8;&#x672A;&#x88AB;&#x6807;&#x8BB0;<br>   &#x5047;&#x5982;&#x5B58;&#x5728;&#x4EE5;&#x4E0B;&#x60C5;&#x51B5;</li>
+</ol>
+<p>&#x5728;GC&#x626B;&#x63CF;C&#x4E4B;&#x524D;&#x7684;&#x989C;&#x8272;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/4.png"></p>
+<p>&#x5728;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#xFF0C;&#x5E94;&#x7528;&#x7EBF;&#x7A0B;&#x6539;&#x53D8;&#x4E86;&#x8FD9;&#x79CD;&#x5F15;&#x7528;&#x5173;&#x7CFB;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A.c=C</span><br><span class="line">B.c=null</span><br></pre></td></tr></table></figure>
+<p>&#x5F97;&#x5230;&#x5982;&#x4E0B;&#x7ED3;&#x679C;&#x3002;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/5.png"></p>
+<p>&#x5728;&#x91CD;&#x65B0;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x626B;&#x63CF;&#x7ED3;&#x679C;&#x5982;&#x4E0B;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/6.png"></p>
+<p>&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x4E0B;C&#x4F1A;&#x88AB;&#x5F53;&#x505A;&#x5783;&#x573E;&#x8FDB;&#x884C;&#x56DE;&#x6536;&#x3002;Snapshot&#x7684;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x539F;&#x6765;&#x662F;A&#x3001;B&#x3001;C&#xFF0C;&#x73B0;&#x5728;&#x53D8;&#x6210;A&#x3001;B&#x4E86;&#xFF0C;Snapshot&#x7684;&#x5B8C;&#x6574;&#x906D;&#x5230;&#x7834;&#x574F;&#x4E86;&#xFF0C;&#x663E;&#x7136;&#x8FD9;&#x4E2A;&#x505A;&#x6CD5;&#x662F;&#x4E0D;&#x5408;&#x7406;&#x3002;</p>
+<p>&#x6240;&#x4EE5;&#xFF0C;&#x6F0F;&#x6807;&#x7684;&#x60C5;&#x51B5;&#x53EA;&#x4F1A;&#x53D1;&#x751F;&#x5728;&#x767D;&#x8272;&#x5BF9;&#x8C61;&#x4E2D;&#xFF0C;&#x4E14;&#x6EE1;&#x8DB3;&#x4EE5;&#x4E0B;&#x4EFB;&#x610F;&#x4E00;&#x4E2A;&#x6761;&#x4EF6;&#xFF1A;</p>
+<ol>
+<li>&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x65F6;&#xFF0C;&#x5E94;&#x7528;&#x7EBF;&#x7A0B;&#x7ED9;&#x4E00;&#x4E2A;&#x9ED1;&#x8272;&#x5BF9;&#x8C61;&#x7684;&#x5F15;&#x7528;&#x7C7B;&#x578B;&#x5B57;&#x6BB5;&#x8D4B;&#x503C;&#x4E86;&#x8BE5;&#x767D;&#x8272;&#x5BF9;&#x8C61;</li>
+<li>&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x65F6;&#xFF0C;&#x5E94;&#x7528;&#x7EBF;&#x7A0B;&#x5220;&#x9664;&#x6240;&#x6709;&#x7070;&#x8272;&#x5BF9;&#x8C61;&#x5230;&#x8BE5;&#x767D;&#x8272;&#x5BF9;&#x8C61;&#x7684;&#x5F15;&#x7528;</li>
+</ol>
+<p>&#x4E0A;&#x9762;&#x4E5F;&#x8BF4;&#x4E86;SATB&#x5C31;&#x662F;&#x6765;&#x89E3;&#x51B3;&#x8FD9;&#x6837;&#x7684;&#x95EE;&#x9898;&#x7684;&#xFF0C;&#x90A3;&#x4E48;&#x5982;&#x4F55;&#x5F62;&#x6210;&#x67D0;&#x4E2A;&#x65F6;&#x95F4;&#x70B9;&#x7684;&#x5FEB;&#x7167;&#x5462;&#xFF1F;&#x8BE5;&#x5982;&#x4F55;&#x5B9E;&#x73B0;&#x5462;&#xFF1F;&#x53EF;&#x4EE5;&#x770B;&#x4E0B;&#x9762;&#x8FD9;&#x5F20;&#x56FE;&#x3002;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/7.jpg"></p>
+<p>&#x6BCF;&#x4E2A;region&#x8BB0;&#x5F55;&#x7740;&#x4E24;&#x4E2A;top-at-mark-start&#xFF08;TAMS&#xFF09;&#x6307;&#x9488;&#xFF0C;&#x5206;&#x522B;&#x4E3A;prevTAMS&#x548C;nextTAMS&#x3002;</p>
+<blockquote>
+<p>G1&#x7684;concurrent marking&#x7528;&#x4E86;&#x4E24;&#x4E2A;bitmap&#xFF1A; &#x4E00;&#x4E2A;prevBitmap&#x8BB0;&#x5F55;&#x7B2C;n-1&#x8F6E;concurrent marking&#x6240;&#x5F97;&#x7684;&#x5BF9;&#x8C61;&#x5B58;&#x6D3B;&#x72B6;&#x6001;&#x3002;&#x7531;&#x4E8E;&#x7B2C;n&#xFF0D;1&#x8F6E;concurrent marking&#x5DF2;&#x7ECF;&#x5B8C;&#x6210;&#xFF0C;&#x8FD9;&#x4E2A;bitmap&#x7684;&#x4FE1;&#x606F;&#x53EF;&#x4EE5;&#x76F4;&#x63A5;&#x4F7F;&#x7528;&#x3002; &#x4E00;&#x4E2A;nextBitmap&#x8BB0;&#x5F55;&#x7B2C;n&#x8F6E;concurrent marking&#x7684;&#x7ED3;&#x679C;&#x3002;&#x8FD9;&#x4E2A;bitmap&#x662F;&#x5F53;&#x524D;&#x5C06;&#x8981;&#x6216;&#x6B63;&#x5728;&#x8FDB;&#x884C;&#x7684;concurrent marking&#x7684;&#x7ED3;&#x679C;&#xFF0C;&#x5C1A;&#x672A;&#x5B8C;&#x6210;&#xFF0C;&#x6240;&#x4EE5;&#x8FD8;&#x4E0D;&#x80FD;&#x4F7F;&#x7528;&#x3002;</p>
+<p>(1): [bottom, prevTAMS): &#x8FD9;&#x90E8;&#x5206;&#x91CC;&#x7684;&#x5BF9;&#x8C61;&#x5B58;&#x6D3B;&#x4FE1;&#x606F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;prevBitmap&#x6765;&#x5F97;&#x77E5;<br>(2): [prevTAMS, nextTAMS): &#x8FD9;&#x90E8;&#x5206;&#x91CC;&#x7684;&#x5BF9;&#x8C61;&#x5728;&#x7B2C;n-1&#x8F6E;concurrent marking&#x662F;&#x9690;&#x5F0F;&#x5B58;&#x6D3B;&#x7684;<br>(3): [nextTAMS, top): &#x8FD9;&#x90E8;&#x5206;&#x91CC;&#x7684;&#x5BF9;&#x8C61;&#x5728;&#x7B2C;n&#x8F6E;concurrent marking&#x662F;&#x9690;&#x5F0F;&#x5B58;&#x6D3B;&#x7684;</p>
+</blockquote>
+<p>&#x6709;&#x4E86;&#x8FD9;&#x6837;&#x7684;&#x8BBE;&#x8BA1;&#x5C31;&#x53EF;&#x4EE5;&#x89E3;&#x51B3;&#x4E0A;&#x9762;&#x6F0F;&#x6807;&#x548C;&#x9519;&#x6807;&#x7684;&#x95EE;&#x9898;&#x4E86;&#x3002;</p>
+<p>&#x5BF9;&#x4E8E;&#x7B2C;&#x4E00;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x5229;&#x7528;post-write barrier&#xFF0C;&#x8BB0;&#x5F55;&#x6240;&#x6709;&#x65B0;&#x589E;&#x7684;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#xFF0C;&#x7136;&#x540E;&#x6839;&#x636E;&#x8FD9;&#x4E9B;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#x4E3A;&#x6839;&#x91CD;&#x65B0;&#x626B;&#x63CF;&#x4E00;&#x904D;</p>
+<p>&#x5BF9;&#x4E8E;&#x7B2C;&#x4E8C;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x5229;&#x7528;pre-write barrier&#xFF0C;&#x5C06;&#x6240;&#x6709;&#x5373;&#x5C06;&#x88AB;&#x5220;&#x9664;&#x7684;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#x7684;&#x65E7;&#x5F15;&#x7528;&#x8BB0;&#x5F55;&#x4E0B;&#x6765;&#xFF0C;&#x6700;&#x540E;&#x4EE5;&#x8FD9;&#x4E9B;&#x65E7;&#x5F15;&#x7528;&#x4E3A;&#x6839;&#x91CD;&#x65B0;&#x626B;&#x63CF;&#x4E00;&#x904D;</p>
+<h3 id="pre-write-barrier-&#x548C;-post-write-barrier-&#x7684;&#x4ECB;&#x7ECD;&#x3002;"><a href="#pre-write-barrier-&#x548C;-post-write-barrier-&#x7684;&#x4ECB;&#x7ECD;&#x3002;" class="headerlink" title="pre-write barrier &#x548C; post-write barrier &#x7684;&#x4ECB;&#x7ECD;&#x3002;"></a>pre-write barrier &#x548C; post-write barrier &#x7684;&#x4ECB;&#x7ECD;&#x3002;</h3><p><strong>&#x5199;&#x524D;&#x6805;&#x680F; Pre-Write Barrrier</strong><br>&#x5373;&#x5C06;&#x6267;&#x884C;&#x4E00;&#x6BB5;&#x8D4B;&#x503C;&#x8BED;&#x53E5;&#x65F6;&#xFF0C;&#x7B49;&#x5F0F;&#x5DE6;&#x4FA7;&#x5BF9;&#x8C61;&#x5C06;&#x4FEE;&#x6539;&#x5F15;&#x7528;&#x5230;&#x53E6;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#xFF0C;&#x90A3;&#x4E48;&#x7B49;&#x5F0F;&#x5DE6;&#x4FA7;&#x5BF9;&#x8C61;&#x539F;&#x5148;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#x6240;&#x5728;&#x5206;&#x533A;&#x5C06;&#x56E0;&#x6B64;&#x4E27;&#x5931;&#x4E00;&#x4E2A;&#x5F15;&#x7528;&#xFF0C;&#x90A3;&#x4E48;JVM&#x5C31;&#x9700;&#x8981;&#x5728;&#x8D4B;&#x503C;&#x8BED;&#x53E5;&#x751F;&#x6548;&#x4E4B;&#x524D;&#xFF0C;&#x8BB0;&#x5F55;&#x4E27;&#x5931;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#x3002;JVM&#x5E76;&#x4E0D;&#x4F1A;&#x7ACB;&#x5373;&#x7EF4;&#x62A4;RSet&#xFF0C;&#x800C;&#x662F;&#x901A;&#x8FC7;&#x6279;&#x91CF;&#x5904;&#x7406;&#xFF0C;&#x5728;&#x5C06;&#x6765;RSet&#x66F4;&#x65B0;(&#x89C1;SATB)&#x3002;</p>
+<p><strong>&#x5199;&#x540E;&#x6805;&#x680F; Post-Write Barrrier</strong><br>&#x5F53;&#x6267;&#x884C;&#x4E00;&#x6BB5;&#x8D4B;&#x503C;&#x8BED;&#x53E5;&#x540E;&#xFF0C;&#x7B49;&#x5F0F;&#x53F3;&#x4FA7;&#x5BF9;&#x8C61;&#x83B7;&#x53D6;&#x4E86;&#x5DE6;&#x4FA7;&#x5BF9;&#x8C61;&#x7684;&#x5F15;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x7B49;&#x5F0F;&#x53F3;&#x4FA7;&#x5BF9;&#x8C61;&#x6240;&#x5728;&#x5206;&#x533A;&#x7684;RSet&#x4E5F;&#x5E94;&#x8BE5;&#x5F97;&#x5230;&#x66F4;&#x65B0;&#x3002;&#x540C;&#x6837;&#x4E3A;&#x4E86;&#x964D;&#x4F4E;&#x5F00;&#x9500;&#xFF0C;&#x5199;&#x540E;&#x6805;&#x680F;&#x53D1;&#x751F;&#x540E;&#xFF0C;RSet&#x4E5F;&#x4E0D;&#x4F1A;&#x7ACB;&#x5373;&#x66F4;&#x65B0;&#xFF0C;&#x540C;&#x6837;&#x53EA;&#x662F;&#x8BB0;&#x5F55;&#x6B64;&#x6B21;&#x66F4;&#x65B0;&#x65E5;&#x5FD7;&#xFF0C;&#x5728;&#x5C06;&#x6765;&#x6279;&#x91CF;&#x5904;&#x7406;(&#x89C1;Concurrence Refinement Threads)&#x3002;</p>
+<p><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/8.jpg"></p>
+<blockquote>
+<p>G1&#x91C7;&#x7528;&#x7684;&#x662F;pre-write barrier&#x89E3;&#x51B3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#x3002;&#x7B80;&#x5355;&#x8BF4;&#x5C31;&#x662F;&#x5728;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#xFF0C;&#x5F53;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#x53D1;&#x751F;&#x53D8;&#x5316;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x901A;&#x8FC7;pre-write barrier&#x51FD;&#x6570;&#x4F1A;&#x628A;&#x8FD9;&#x79CD;&#x8FD9;&#x79CD;&#x53D8;&#x5316;&#x8BB0;&#x5F55;&#x5E76;&#x4FDD;&#x5B58;&#x5728;&#x4E00;&#x4E2A;&#x961F;&#x5217;&#x91CC;&#xFF0C;&#x5728;JVM&#x6E90;&#x7801;&#x4E2D;&#x8FD9;&#x4E2A;&#x961F;&#x5217;&#x53EB;satb_mark_queue&#x3002;&#x5728;remark&#x9636;&#x6BB5;&#x4F1A;&#x626B;&#x63CF;&#x8FD9;&#x4E2A;&#x961F;&#x5217;&#xFF0C;&#x901A;&#x8FC7;&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#xFF0C;&#x65E7;&#x7684;&#x5F15;&#x7528;&#x6240;&#x6307;&#x5411;&#x7684;&#x5BF9;&#x8C61;&#x5C31;&#x4F1A;&#x88AB;&#x6807;&#x8BB0;&#x4E0A;&#xFF0C;&#x5176;&#x5B50;&#x5B59;&#x4E5F;&#x4F1A;&#x88AB;&#x9012;&#x5F52;&#x6807;&#x8BB0;&#x4E0A;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x4E0D;&#x4F1A;&#x6F0F;&#x6807;&#x8BB0;&#x4EFB;&#x4F55;&#x5BF9;&#x8C61;&#xFF0C;snapshot&#x7684;&#x5B8C;&#x6574;&#x6027;&#x4E5F;&#x5C31;&#x5F97;&#x5230;&#x4E86;&#x4FDD;&#x8BC1;&#x3002;</p>
+</blockquote>
+<blockquote>
+<p>SATB&#x7684;&#x65B9;&#x5F0F;&#x8BB0;&#x5F55;&#x6D3B;&#x5BF9;&#x8C61;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x90A3;&#x4E00;&#x65F6;&#x523B;&#x5BF9;&#x8C61;snapshot, &#x4F46;&#x662F;&#x5728;&#x4E4B;&#x540E;&#x8FD9;&#x91CC;&#x9762;&#x7684;&#x5BF9;&#x8C61;&#x53EF;&#x80FD;&#x4F1A;&#x53D8;&#x6210;&#x5783;&#x573E;, &#x53EB;&#x505A;&#x6D6E;&#x52A8;&#x5783;&#x573E;&#xFF08;floating garbage&#xFF09;&#xFF0C;&#x8FD9;&#x79CD;&#x5BF9;&#x8C61;&#x53EA;&#x80FD;&#x7B49;&#x5230;&#x4E0B;&#x4E00;&#x6B21;&#x6536;&#x96C6;&#x56DE;&#x6536;&#x6389;&#x3002;&#x5728;GC&#x8FC7;&#x7A0B;&#x4E2D;&#x65B0;&#x5206;&#x914D;&#x7684;&#x5BF9;&#x8C61;&#x90FD;&#x5F53;&#x505A;&#x662F;&#x6D3B;&#x7684;&#xFF0C;&#x5176;&#x4ED6;&#x4E0D;&#x53EF;&#x8FBE;&#x7684;&#x5BF9;&#x8C61;&#x5C31;&#x662F;&#x6B7B;&#x7684;&#x3002;</p>
+</blockquote>
+<p><strong>&#x6805;&#x680F;&#x7684;&#x6E90;&#x7801;&#x5206;&#x6790;</strong></p>
+<blockquote>
+<p>&#x4E0B;&#x9762;&#x5206;&#x6790;&#x6765;&#x81EA;&#x53C2;&#x8003;&#x8D44;&#x6599;</p>
+</blockquote>
+<p>&#x5728;&#x5F15;&#x7528;&#x5173;&#x7CFB;&#x88AB;&#x4FEE;&#x6539;&#x4E4B;&#x524D;&#xFF0C;&#x63D2;&#x5165;&#x4E00;&#x5C42; pre-write barrier<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/9.png"></p>
+<p>pre-write barrier&#x6700;&#x7EC8;&#x6267;&#x884C;&#x903B;&#x8F91;&#xFF1A;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/10.png"></p>
+<p>&#x901A;&#x8FC7;G1SATBCardTableModRefBS::enqueue(oop pre_val)&#x628A;&#x539F;&#x5F15;&#x7528;&#x4FDD;&#x5B58;&#x5230;satb mark queue&#x4E2D;&#xFF0C;&#x548C;RSet&#x7684;&#x5B9E;&#x73B0;&#x7C7B;&#x4F3C;&#xFF0C;&#x6BCF;&#x4E2A;&#x5E94;&#x7528;&#x7EBF;&#x7A0B;&#x90FD;&#x81EA;&#x5E26;&#x4E00;&#x4E2A;satb mark queue.&#x5728;&#x4E0B;&#x4E00;&#x6B21;&#x7684;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#xFF08;remark&#xFF09;&#x9636;&#x6BB5;&#xFF0C;&#x4F1A;&#x4F9D;&#x6B21;&#x5904;&#x7406;satb mark queue&#x4E2D;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x786E;&#x4FDD;&#x8FD9;&#x90E8;&#x5206;&#x5BF9;&#x8C61;&#x5728;&#x672C;&#x8F6E;GC&#x662F;&#x5B58;&#x6D3B;&#x7684;&#x3002;</p>
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x4E0A;&#x9762;&#x7684;&#x56FE;&#x7247;&#x4EE3;&#x7801;&#x6700;&#x540E;&#x53EA;&#x662F;&#x5165;&#x961F;&#x5217;&#xFF0C;&#x90A3;&#x4E48;&#x8C01;&#x6765;&#x5904;&#x7406;&#x961F;&#x5217;&#x91CC;&#x7684;&#x4E1C;&#x897F;&#x5462;&#xFF1F;&#x64CD;&#x4F5C;&#x961F;&#x5217;&#x91CC;&#x7684;&#x4E1C;&#x897F;&#xFF0C;&#x63CF;&#x8FF0;&#x4E3A; logging write barrier</p>
+<blockquote>
+<p>logging write barrier</p>
+<ul>
+<li>&#x4E3A;&#x4E86;&#x5C3D;&#x91CF;&#x51CF;&#x5C11;write barrier&#x5BF9;mutator&#x6027;&#x80FD;&#x7684;&#x5F71;&#x54CD;&#xFF0C;G1&#x5C06;&#x4E00;&#x90E8;&#x5206;&#x539F;&#x672C;&#x8981;&#x5728;barrier&#x91CC;&#x505A;&#x7684;&#x4E8B;&#x60C5;&#x632A;&#x5230;&#x522B;&#x7684;&#x7EBF;&#x7A0B;&#x4E0A;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x3002;&#x5B9E;&#x73B0;&#x8FD9;&#x79CD;&#x5206;&#x79BB;&#x7684;&#x65B9;&#x5F0F;&#x5C31;&#x662F;&#x901A;&#x8FC7;logging&#x5F62;&#x5F0F;&#x7684;write barrier&#xFF1A;mutator&#x53EA;&#x5728;barrier&#x91CC;&#x628A;&#x8981;&#x505A;&#x7684;&#x4E8B;&#x60C5;&#x7684;&#x4FE1;&#x606F;&#x8BB0;&#xFF08;log&#xFF09;&#x5230;&#x4E00;&#x4E2A;&#x961F;&#x5217;&#x91CC;&#xFF0C;&#x7136;&#x540E;&#x53E6;&#x5916;&#x7684;&#x7EBF;&#x7A0B;&#x4ECE;&#x961F;&#x5217;&#x91CC;&#x53D6;&#x51FA;&#x4FE1;&#x606F;&#x6279;&#x91CF;&#x5B8C;&#x6210;&#x5269;&#x4F59;&#x7684;&#x52A8;&#x4F5C;&#x3002;</li>
+<li>&#x4EE5;SATB write barrier&#x4E3A;&#x4F8B;&#xFF0C;&#x6BCF;&#x4E2A;Java&#x7EBF;&#x7A0B;&#x6709;&#x4E00;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x3001;&#x5B9A;&#x957F;&#x7684;SATBMarkQueue&#xFF0C;mutator&#x5728;barrier&#x91CC;&#x53EA;&#x628A;old_value&#x538B;&#x5165;&#x8BE5;&#x961F;&#x5217;&#x4E2D;&#x3002;&#x4E00;&#x4E2A;&#x961F;&#x5217;&#x6EE1;&#x4E86;&#x4E4B;&#x540E;&#xFF0C;&#x5B83;&#x5C31;&#x4F1A;&#x88AB;&#x52A0;&#x5230;&#x5168;&#x5C40;&#x7684;SATB&#x961F;&#x5217;&#x96C6;&#x5408;SATBMarkQueueSet&#x91CC;&#x7B49;&#x5F85;&#x5904;&#x7406;&#xFF0C;&#x7136;&#x540E;&#x7ED9;&#x5BF9;&#x5E94;&#x7684;Java&#x7EBF;&#x7A0B;&#x6362;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x3001;&#x5E72;&#x51C0;&#x7684;&#x961F;&#x5217;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x4E0B;&#x53BB;&#x3002;</li>
+<li>&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#xFF08;concurrent marker&#xFF09;&#x4F1A;&#x5B9A;&#x671F;&#x68C0;&#x67E5;&#x5168;&#x5C40;SATB&#x961F;&#x5217;&#x96C6;&#x5408;&#x7684;&#x5927;&#x5C0F;&#x3002;&#x5F53;&#x5168;&#x5C40;&#x96C6;&#x5408;&#x4E2D;&#x961F;&#x5217;&#x6570;&#x91CF;&#x8D85;&#x8FC7;&#x4E00;&#x5B9A;&#x9608;&#x503C;&#x540E;&#xFF0C;concurrent marker&#x5C31;&#x4F1A;&#x5904;&#x7406;&#x96C6;&#x5408;&#x91CC;&#x7684;&#x6240;&#x6709;&#x961F;&#x5217;&#xFF1A;&#x628A;&#x961F;&#x5217;&#x91CC;&#x8BB0;&#x5F55;&#x7684;&#x6BCF;&#x4E2A;oop&#x90FD;&#x6807;&#x8BB0;&#x4E0A;&#xFF0C;&#x5E76;&#x5C06;&#x5176;&#x5F15;&#x7528;&#x5B57;&#x6BB5;&#x538B;&#x5230;&#x6807;&#x8BB0;&#x6808;&#xFF08;marking stack&#xFF09;&#x4E0A;&#x7B49;&#x540E;&#x9762;&#x505A;&#x8FDB;&#x4E00;&#x6B65;&#x6807;&#x8BB0;&#x3002;</li>
+</ul>
+</blockquote>
+<p>&#x800C;post-write barrier&#x89C1;R&#x5927;&#x7684;&#x5206;&#x6790; &#xFF1A; <a target="_blank" rel="noopener" href="https://hllvm-group.iteye.com/group/topic/44381">https://hllvm-group.iteye.com/group/topic/44381</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">post_write_barrier</span><span class="params">(oop* field, oop new_value)</span> </span>{</span><br><span class="line">  <span class="type">uintptr_t</span> field_uint = (<span class="type">uintptr_t</span>) field;</span><br><span class="line">  <span class="type">uintptr_t</span> new_value_uint = (<span class="type">uintptr_t</span>) new_value;</span><br><span class="line">  <span class="type">uintptr_t</span> comb = (field_uint ^ new_value_uint) &gt;&gt; HeapRegion::LogOfHRGrainBytes;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (comb == <span class="number">0</span>) <span class="keyword">return</span>; <span class="comment">// field and new_value are in the same region</span></span><br><span class="line">  <span class="keyword">if</span> (new_value == null) <span class="keyword">return</span>; <span class="comment">// filter out null stores</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Otherwise, log it</span></span><br><span class="line">  <span class="keyword">volatile</span> jbyte* card_ptr = <span class="built_in">card_for</span>(field); <span class="comment">// get address of the card for this field</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// in generational G1 mode, skip dirtying cards for young gen regions,</span></span><br><span class="line">  <span class="comment">// -- young gen regions are always collected</span></span><br><span class="line">  <span class="comment">// if (*card_ptr == g1_young_gen) return;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (*card_ptr != dirty_card) {</span><br><span class="line">    <span class="comment">// dirty the card to reduce the work for multiple stores to the same card</span></span><br><span class="line">    *card_ptr = dirty_card;</span><br><span class="line">    <span class="comment">// log the card for concurrent remembered set refinement</span></span><br><span class="line">    JavaThread::<span class="built_in">current</span>()-&gt;dirty_card_queue-&gt;<span class="built_in">enqueue</span>(card_ptr);</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x662F;logging barrier&#x5728;G1 write barrier&#x4E0A;&#x7684;&#x53C8;&#x4E00;&#x6B21;&#x5E94;&#x7528;&#x3002;</p>
+<p>&#x8DDF;SATB marking queue&#x7C7B;&#x4F3C;&#xFF0C;&#x6BCF;&#x4E2A;Java&#x7EBF;&#x7A0B;&#x6709;&#x4E00;&#x4E2A;dirty card queue&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BBA;&#x6587;&#x91CC;&#x8BF4;&#x7684;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x7684;remembered set log&#xFF1B;&#x7136;&#x540E;&#x6709;&#x4E00;&#x4E2A;&#x5168;&#x5C40;&#x7684;DirtyCardQueueSet&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BBA;&#x6587;&#x91CC;&#x8BF4;&#x7684;&#x5168;&#x5C40;&#x7684;filled RS buffers&#x3002;</p>
+<p>&#x5B9E;&#x9645;&#x66F4;&#x65B0;RSet&#x7684;&#x52A8;&#x4F5C;&#x5C31;&#x4EA4;&#x7531;&#x591A;&#x4E2A;ConcurrentG1RefineThread&#x5E76;&#x53D1;&#x5B8C;&#x6210;&#x3002;&#x6BCF;&#x5F53;&#x5168;&#x5C40;&#x961F;&#x5217;&#x96C6;&#x5408;&#x8D85;&#x8FC7;&#x4E00;&#x5B9A;&#x9608;&#x503C;&#x540E;&#xFF0C;ConcurrentG1RefineThread&#x5C31;&#x4F1A;&#x53D6;&#x51FA;&#x82E5;&#x5E72;&#x4E2A;&#x961F;&#x5217;&#xFF0C;&#x904D;&#x5386;&#x6BCF;&#x4E2A;&#x961F;&#x5217;&#x8BB0;&#x5F55;&#x7684;card&#x5E76;&#x5C06;card&#x52A0;&#x5230;&#x5BF9;&#x5E94;&#x7684;region&#x7684;RSet&#x91CC;&#x53BB;&#x3002;</p>
+<h3 id="&#x5DE5;&#x4F5C;&#x539F;&#x7406;"><a href="#&#x5DE5;&#x4F5C;&#x539F;&#x7406;" class="headerlink" title="&#x5DE5;&#x4F5C;&#x539F;&#x7406;"></a>&#x5DE5;&#x4F5C;&#x539F;&#x7406;</h3><p>&#x8FD9;&#x4E00;&#x90E8;&#x5206;&#x6765;&#x81EA; R&#x5927; &#x7684;&#x603B;&#x7ED3;&#x3002;&#x51FA;&#x5904;&#x89C1;&#x53C2;&#x8003;&#x8D44;&#x6599;&#x3002;</p>
+<blockquote>
+<p>&#x4ECE;&#x6700;&#x9AD8;&#x5C42;&#x770B;&#xFF0C;G1&#x7684;collector&#x4E00;&#x4FA7;&#x5176;&#x5B9E;&#x5C31;&#x662F;&#x4E24;&#x4E2A;&#x5927;&#x90E8;&#x5206;&#xFF1A;<br><strong>1. &#x5168;&#x5C40;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#xFF08;global concurrent marking&#xFF09;</strong><br><strong>2. &#x62F7;&#x8D1D;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#xFF08;evacuation&#xFF09;</strong><br>&#x800C;&#x8FD9;&#x4E24;&#x90E8;&#x5206;&#x53EF;&#x4EE5;&#x76F8;&#x5BF9;&#x72EC;&#x7ACB;&#x7684;&#x6267;&#x884C;&#x3002;</p>
+</blockquote>
+<p>Global concurrent marking&#x57FA;&#x4E8E;SATB&#x5F62;&#x5F0F;&#x7684;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x3002;&#x5B83;&#x5177;&#x4F53;&#x5206;&#x4E3A;&#x4E0B;&#x9762;&#x51E0;&#x4E2A;&#x9636;&#x6BB5;&#xFF1A;<br><strong>1&#x3001;&#x521D;&#x59CB;&#x6807;&#x8BB0;&#xFF08;initial marking&#xFF09;&#xFF1A;&#x6682;&#x505C;&#x9636;&#x6BB5;</strong>&#x3002;&#x626B;&#x63CF;&#x6839;&#x96C6;&#x5408;&#xFF0C;&#x6807;&#x8BB0;&#x6240;&#x6709;&#x4ECE;&#x6839;&#x96C6;&#x5408;&#x53EF;&#x76F4;&#x63A5;&#x5230;&#x8FBE;&#x7684;&#x5BF9;&#x8C61;&#x5E76;&#x5C06;&#x5B83;&#x4EEC;&#x7684;&#x5B57;&#x6BB5;&#x538B;&#x5165;&#x626B;&#x63CF;&#x6808;&#xFF08;marking stack&#xFF09;&#x4E2D;&#x7B49;&#x5230;&#x540E;&#x7EED;&#x626B;&#x63CF;&#x3002;G1&#x4F7F;&#x7528;&#x5916;&#x90E8;&#x7684;bitmap&#x6765;&#x8BB0;&#x5F55;mark&#x4FE1;&#x606F;&#xFF0C;&#x800C;&#x4E0D;&#x4F7F;&#x7528;&#x5BF9;&#x8C61;&#x5934;&#x7684;mark word&#x91CC;&#x7684;mark bit&#x3002;&#x5728;&#x5206;&#x4EE3;&#x5F0F;G1&#x6A21;&#x5F0F;&#x4E2D;&#xFF0C;&#x521D;&#x59CB;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x501F;&#x7528;young GC&#x7684;&#x6682;&#x505C;&#xFF0C;&#x56E0;&#x800C;&#x6CA1;&#x6709;&#x989D;&#x5916;&#x7684;&#x3001;&#x5355;&#x72EC;&#x7684;&#x6682;&#x505C;&#x9636;&#x6BB5;&#x3002;</p>
+<p><strong>2&#x3001;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#xFF08;concurrent marking&#xFF09;&#xFF1A;&#x5E76;&#x53D1;&#x9636;&#x6BB5;</strong>&#x3002;&#x4E0D;&#x65AD;&#x4ECE;&#x626B;&#x63CF;&#x6808;&#x53D6;&#x51FA;&#x5F15;&#x7528;&#x9012;&#x5F52;&#x626B;&#x63CF;&#x6574;&#x4E2A;&#x5806;&#x91CC;&#x7684;&#x5BF9;&#x8C61;&#x56FE;&#x3002;&#x6BCF;&#x626B;&#x63CF;&#x5230;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x5C31;&#x4F1A;&#x5BF9;&#x5176;&#x6807;&#x8BB0;&#xFF0C;&#x5E76;&#x5C06;&#x5176;&#x5B57;&#x6BB5;&#x538B;&#x5165;&#x626B;&#x63CF;&#x6808;&#x3002;&#x91CD;&#x590D;&#x626B;&#x63CF;&#x8FC7;&#x7A0B;&#x76F4;&#x5230;&#x626B;&#x63CF;&#x6808;&#x6E05;&#x7A7A;&#x3002;&#x8FC7;&#x7A0B;&#x4E2D;&#x8FD8;&#x4F1A;&#x626B;&#x63CF;SATB write barrier&#x6240;&#x8BB0;&#x5F55;&#x4E0B;&#x7684;&#x5F15;&#x7528;&#x3002;</p>
+<p><strong>3&#x3001;&#x6700;&#x7EC8;&#x6807;&#x8BB0;&#xFF08;final marking&#xFF0C;&#x5728;&#x5B9E;&#x73B0;&#x4E2D;&#x4E5F;&#x53EB;remarking&#xFF09;&#xFF1A;&#x6682;&#x505C;&#x9636;&#x6BB5;</strong>&#x3002;&#x5728;&#x5B8C;&#x6210;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x540E;&#xFF0C;&#x6BCF;&#x4E2A;Java&#x7EBF;&#x7A0B;&#x8FD8;&#x4F1A;&#x6709;&#x4E00;&#x4E9B;&#x5269;&#x4E0B;&#x7684;SATB write barrier&#x8BB0;&#x5F55;&#x7684;&#x5F15;&#x7528;&#x5C1A;&#x672A;&#x5904;&#x7406;&#x3002;&#x8FD9;&#x4E2A;&#x9636;&#x6BB5;&#x5C31;&#x8D1F;&#x8D23;&#x628A;&#x5269;&#x4E0B;&#x7684;&#x5F15;&#x7528;&#x5904;&#x7406;&#x5B8C;&#x3002;&#x540C;&#x65F6;&#x8FD9;&#x4E2A;&#x9636;&#x6BB5;&#x4E5F;&#x8FDB;&#x884C;&#x5F31;&#x5F15;&#x7528;&#x5904;&#x7406;&#xFF08;reference processing&#xFF09;&#x3002;<br>&#x6CE8;&#x610F;&#x8FD9;&#x4E2A;&#x6682;&#x505C;&#x4E0E;CMS&#x7684;remark&#x6709;&#x4E00;&#x4E2A;&#x672C;&#x8D28;&#x4E0A;&#x7684;&#x533A;&#x522B;&#xFF0C;&#x90A3;&#x5C31;&#x662F;&#x8FD9;&#x4E2A;&#x6682;&#x505C;&#x53EA;&#x9700;&#x8981;&#x626B;&#x63CF;SATB buffer&#xFF0C;&#x800C;CMS&#x7684;remark&#x9700;&#x8981;&#x91CD;&#x65B0;&#x626B;&#x63CF;mod-union table&#x91CC;&#x7684;dirty card&#x5916;&#x52A0;&#x6574;&#x4E2A;&#x6839;&#x96C6;&#x5408;&#xFF0C;&#x800C;&#x6B64;&#x65F6;&#x6574;&#x4E2A;young gen&#xFF08;&#x4E0D;&#x7BA1;&#x5BF9;&#x8C61;&#x6B7B;&#x6D3B;&#xFF09;&#x90FD;&#x4F1A;&#x88AB;&#x5F53;&#x4F5C;&#x6839;&#x96C6;&#x5408;&#x7684;&#x4E00;&#x90E8;&#x5206;&#xFF0C;&#x56E0;&#x800C;CMS remark&#x6709;&#x53EF;&#x80FD;&#x4F1A;&#x975E;&#x5E38;&#x6162;&#x3002;</p>
+<p><strong>4&#x3001;&#x6E05;&#x7406;&#xFF08;cleanup&#xFF09;&#xFF1A;&#x6682;&#x505C;&#x9636;&#x6BB5;</strong>&#x3002;&#x6E05;&#x70B9;&#x548C;&#x91CD;&#x7F6E;&#x6807;&#x8BB0;&#x72B6;&#x6001;&#x3002;&#x8FD9;&#x4E2A;&#x9636;&#x6BB5;&#x6709;&#x70B9;&#x50CF;mark-sweep&#x4E2D;&#x7684;sweep&#x9636;&#x6BB5;&#xFF0C;&#x4E0D;&#x8FC7;&#x4E0D;&#x662F;&#x5728;&#x5806;&#x4E0A;sweep&#x5B9E;&#x9645;&#x5BF9;&#x8C61;&#xFF0C;&#x800C;&#x662F;&#x5728;marking bitmap&#x91CC;&#x7EDF;&#x8BA1;&#x6BCF;&#x4E2A;region&#x88AB;&#x6807;&#x8BB0;&#x4E3A;&#x6D3B;&#x7684;&#x5BF9;&#x8C61;&#x6709;&#x591A;&#x5C11;&#x3002;&#x8FD9;&#x4E2A;&#x9636;&#x6BB5;&#x5982;&#x679C;&#x53D1;&#x73B0;&#x5B8C;&#x5168;&#x6CA1;&#x6709;&#x6D3B;&#x5BF9;&#x8C61;&#x7684;region&#x5C31;&#x4F1A;&#x5C06;&#x5176;&#x6574;&#x4F53;&#x56DE;&#x6536;&#x5230;&#x53EF;&#x5206;&#x914D;region&#x5217;&#x8868;&#x4E2D;&#x3002;</p>
+<p>Evacuation&#x9636;&#x6BB5;&#x662F;&#x5168;&#x6682;&#x505C;&#x7684;&#x3002;&#x5B83;&#x8D1F;&#x8D23;&#x628A;&#x4E00;&#x90E8;&#x5206;region&#x91CC;&#x7684;&#x6D3B;&#x5BF9;&#x8C61;&#x62F7;&#x8D1D;&#x5230;&#x7A7A;region&#x91CC;&#x53BB;&#xFF0C;&#x7136;&#x540E;&#x56DE;&#x6536;&#x539F;&#x672C;&#x7684;region&#x7684;&#x7A7A;&#x95F4;&#x3002;Evacuation&#x9636;&#x6BB5;&#x53EF;&#x4EE5;&#x81EA;&#x7531;&#x9009;&#x62E9;&#x4EFB;&#x610F;&#x591A;&#x4E2A;region&#x6765;&#x72EC;&#x7ACB;&#x6536;&#x96C6;&#x6784;&#x6210;&#x6536;&#x96C6;&#x96C6;&#x5408;&#xFF08;collection set&#xFF0C;&#x7B80;&#x79F0;CSet&#xFF09;&#xFF0C;&#x9760;per-region remembered set&#xFF08;&#x7B80;&#x79F0;RSet&#xFF09;&#x5B9E;&#x73B0;&#x3002;&#x8FD9;&#x662F;regional garbage collector&#x7684;&#x7279;&#x5F81;&#x3002;</p>
+<p>&#x5728;&#x9009;&#x5B9A;CSet&#x540E;&#xFF0C;evacuation&#x5176;&#x5B9E;&#x5C31;&#x8DDF;ParallelScavenge&#x7684;young GC&#x7684;&#x7B97;&#x6CD5;&#x7C7B;&#x4F3C;&#xFF0C;&#x91C7;&#x7528;&#x5E76;&#x884C;copying&#xFF08;&#x6216;&#x8005;&#x53EB;scavenging&#xFF09;&#x7B97;&#x6CD5;&#x628A;CSet&#x91CC;&#x6BCF;&#x4E2A;region&#x91CC;&#x7684;&#x6D3B;&#x5BF9;&#x8C61;&#x62F7;&#x8D1D;&#x5230;&#x65B0;&#x7684;region&#x91CC;&#xFF0C;&#x6574;&#x4E2A;&#x8FC7;&#x7A0B;&#x5B8C;&#x5168;&#x6682;&#x505C;&#x3002;&#x4ECE;&#x8FD9;&#x4E2A;&#x610F;&#x4E49;&#x4E0A;&#x8BF4;&#xFF0C;G1&#x7684;evacuation&#x8DDF;&#x4F20;&#x7EDF;&#x7684;mark-compact&#x7B97;&#x6CD5;&#x7684;compaction&#x5B8C;&#x5168;&#x4E0D;&#x540C;&#xFF1A;&#x524D;&#x8005;&#x4F1A;&#x81EA;&#x5DF1;&#x4ECE;&#x6839;&#x96C6;&#x5408;&#x904D;&#x5386;&#x5BF9;&#x8C61;&#x56FE;&#x6765;&#x5224;&#x5B9A;&#x5BF9;&#x8C61;&#x7684;&#x751F;&#x6B7B;&#xFF0C;&#x4E0D;&#x9700;&#x8981;&#x4F9D;&#x8D56;global concurrent marking&#x7684;&#x7ED3;&#x679C;&#xFF0C;&#x6709;&#x5C31;&#x7528;&#xFF0C;&#x6CA1;&#x6709;&#x62C9;&#x5012;&#xFF1B;&#x800C;&#x540E;&#x8005;&#x5219;&#x4F9D;&#x8D56;&#x4E8E;&#x4E4B;&#x524D;&#x7684;mark&#x9636;&#x6BB5;&#x5BF9;&#x5BF9;&#x8C61;&#x751F;&#x6B7B;&#x7684;&#x5224;&#x5B9A;&#x3002;</p>
+<p>&#x8BBA;&#x6587;&#x91CC;&#x63D0;&#x5230;&#x7684;&#x7EAF;G1&#x6A21;&#x5F0F;&#x4E0B;&#xFF0C;CSet&#x7684;&#x9009;&#x5B9A;&#x5B8C;&#x5168;&#x9760;&#x7EDF;&#x8BA1;&#x6A21;&#x578B;&#x627E;&#x5904;&#x6536;&#x76CA;&#x6700;&#x9AD8;&#x3001;&#x5F00;&#x9500;&#x4E0D;&#x8D85;&#x8FC7;&#x7528;&#x6237;&#x6307;&#x5B9A;&#x7684;&#x4E0A;&#x9650;&#x7684;&#x82E5;&#x5E72;region&#x3002;&#x7531;&#x4E8E;&#x6BCF;&#x4E2A;region&#x90FD;&#x6709;RSet&#x8986;&#x76D6;&#xFF0C;&#x8981;&#x5355;&#x72EC;evacuate&#x4EFB;&#x610F;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;region&#x90FD;&#x6CA1;&#x95EE;&#x9898;&#x3002;</p>
+<p>&#x5206;&#x4EE3;&#x5F0F;G1&#x6A21;&#x5F0F;&#x4E0B;&#x6709;&#x4E24;&#x79CD;&#x9009;&#x5B9A;CSet&#x7684;&#x5B50;&#x6A21;&#x5F0F;&#xFF0C;&#x5206;&#x522B;&#x5BF9;&#x5E94;young GC&#x4E0E;mixed GC&#xFF1A;</p>
+<ul>
+<li>Young GC&#xFF1A;&#x9009;&#x5B9A;&#x6240;&#x6709;young gen&#x91CC;&#x7684;region&#x3002;&#x901A;&#x8FC7;&#x63A7;&#x5236;young gen&#x7684;region&#x4E2A;&#x6570;&#x6765;&#x63A7;&#x5236;young GC&#x7684;&#x5F00;&#x9500;&#x3002;</li>
+<li>Mixed GC&#xFF1A;&#x9009;&#x5B9A;&#x6240;&#x6709;young gen&#x91CC;&#x7684;region&#xFF0C;&#x5916;&#x52A0;&#x6839;&#x636E;global concurrent marking&#x7EDF;&#x8BA1;&#x5F97;&#x51FA;&#x6536;&#x96C6;&#x6536;&#x76CA;&#x9AD8;&#x7684;&#x82E5;&#x5E72;old gen region&#x3002;&#x5728;&#x7528;&#x6237;&#x6307;&#x5B9A;&#x7684;&#x5F00;&#x9500;&#x76EE;&#x6807;&#x8303;&#x56F4;&#x5185;&#x5C3D;&#x53EF;&#x80FD;&#x9009;&#x62E9;&#x6536;&#x76CA;&#x9AD8;&#x7684;old gen region&#x3002;&#xFF08;&#x8FD9;&#x4E2A;&#x5730;&#x65B9;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x4E00;&#x4E0B;&#xFF01;&#xFF01;&#xFF01;&#xFF09;</li>
+<li>&#x53EF;&#x4EE5;&#x770B;&#x5230;young gen region&#x603B;&#x662F;&#x5728;CSet&#x5185;&#x3002;&#x56E0;&#x6B64;&#x5206;&#x4EE3;&#x5F0F;G1&#x4E0D;&#x7EF4;&#x62A4;&#x4ECE;young gen region&#x51FA;&#x53D1;&#x7684;&#x5F15;&#x7528;&#x6D89;&#x53CA;&#x7684;RSet&#x66F4;&#x65B0;&#x3002;</li>
+</ul>
+<p>&#x5206;&#x4EE3;&#x5F0F;G1&#x7684;&#x6B63;&#x5E38;&#x5DE5;&#x4F5C;&#x6D41;&#x7A0B;&#x5C31;&#x662F;&#x5728;young GC&#x4E0E;mixed GC&#x4E4B;&#x95F4;&#x89C6;&#x60C5;&#x51B5;&#x5207;&#x6362;&#xFF0C;&#x80CC;&#x540E;&#x5B9A;&#x671F;&#x505A;&#x505A;&#x5168;&#x5C40;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x3002;Initial marking&#x9ED8;&#x8BA4;&#x642D;&#x5728;young GC&#x4E0A;&#x6267;&#x884C;&#xFF1B;&#x5F53;&#x5168;&#x5C40;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x6B63;&#x5728;&#x5DE5;&#x4F5C;&#x65F6;&#xFF0C;G1&#x4E0D;&#x4F1A;&#x9009;&#x62E9;&#x505A;mixed GC&#xFF0C;&#x53CD;&#x4E4B;&#x5982;&#x679C;&#x6709;mixed GC&#x6B63;&#x5728;&#x8FDB;&#x884C;&#x4E2D;G1&#x4E5F;&#x4E0D;&#x4F1A;&#x542F;&#x52A8;initial marking&#x3002;</p>
+<p>&#x5728;&#x6B63;&#x5E38;&#x5DE5;&#x4F5C;&#x6D41;&#x7A0B;&#x4E2D;&#x6CA1;&#x6709;full GC&#x7684;&#x6982;&#x5FF5;&#xFF0C;old gen&#x7684;&#x6536;&#x96C6;&#x5168;&#x9760;mixed GC&#x6765;&#x5B8C;&#x6210;&#x3002;<br>&#x5982;&#x679C;mixed GC&#x5B9E;&#x5728;&#x65E0;&#x6CD5;&#x8DDF;&#x4E0A;&#x7A0B;&#x5E8F;&#x5206;&#x914D;&#x5185;&#x5B58;&#x7684;&#x901F;&#x5EA6;&#xFF0C;&#x5BFC;&#x81F4;old gen&#x586B;&#x6EE1;&#x65E0;&#x6CD5;&#x7EE7;&#x7EED;&#x8FDB;&#x884C;mixed GC&#xFF0C;&#x5C31;&#x4F1A;&#x5207;&#x6362;&#x5230;G1&#x4E4B;&#x5916;&#x7684;serial old GC&#x6765;&#x6536;&#x96C6;&#x6574;&#x4E2A;GC heap&#xFF08;&#x6CE8;&#x610F;&#xFF0C;&#x5305;&#x62EC;young&#x3001;old&#x3001;perm&#xFF09;&#x3002;&#x8FD9;&#x624D;&#x662F;&#x771F;&#x6B63;&#x7684;full GC&#x3002;Full GC&#x4E4B;&#x6240;&#x4EE5;&#x53EB;full&#x5C31;&#x662F;&#x8981;&#x6536;&#x96C6;&#x6574;&#x4E2A;&#x5806;&#xFF0C;&#x53EA;&#x9009;&#x62E9;old gen&#x7684;&#x90E8;&#x5206;region&#x7B97;&#x4E0D;&#x4E0A;full GC&#x3002;&#x8FDB;&#x5165;&#x8FD9;&#x79CD;&#x72B6;&#x6001;&#x7684;G1&#x5C31;&#x8DDF;-XX:+UseSerialGC&#x7684;full GC&#x4E00;&#x6837;&#xFF08;&#x80CC;&#x540E;&#x7684;&#x6838;&#x5FC3;&#x4EE3;&#x7801;&#x662F;&#x4E24;&#x8005;&#x5171;&#x7528;&#x7684;&#xFF09;&#x3002;<br>&#x987A;&#x5E26;&#x4E00;&#x63D0;&#xFF0C;G1 GC&#x7684;System.gc()&#x9ED8;&#x8BA4;&#x8FD8;&#x662F;full GC&#xFF0C;&#x4E5F;&#x5C31;&#x662F;serial old GC&#x3002;&#x53EA;&#x6709;&#x52A0;&#x4E0A; -XX:+ExplicitGCInvokesConcurrent &#x65F6;G1&#x624D;&#x4F1A;&#x7528;&#x81EA;&#x8EAB;&#x7684;&#x5E76;&#x53D1;GC&#x6765;&#x6267;&#x884C;System.gc()&#x2014;&#x2014;&#x6B64;&#x65F6;System.gc()&#x7684;&#x4F5C;&#x7528;&#x662F;&#x5F3A;&#x884C;&#x542F;&#x52A8;&#x4E00;&#x6B21;global concurrent marking&#xFF1B;&#x4E00;&#x822C;&#x60C5;&#x51B5;&#x4E0B;&#x6682;&#x505C;&#x4E2D;&#x53EA;&#x4F1A;&#x505A;initial marking&#x7136;&#x540E;&#x5C31;&#x8FD4;&#x56DE;&#x4E86;&#xFF0C;&#x63A5;&#x4E0B;&#x6765;&#x7684;concurrent marking&#x8FD8;&#x662F;&#x7167;&#x5E38;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x3002;</p>
+<blockquote>
+<p>&#x7136;&#x540E;G1&#x5728;mutator&#x4E00;&#x4FA7;&#x9700;&#x8981;&#x4F7F;&#x7528;write barrier&#x6765;&#x5B9E;&#x73B0;&#xFF1A;</p>
+<ul>
+<li>SATB snapshot&#x7684;&#x5B8C;&#x6574;&#x6027;</li>
+<li>&#x8DE8;region&#x7684;&#x5F15;&#x7528;&#x8BB0;&#x5F55;&#x5230;RSet&#x91CC;&#x3002;</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>&#x8FD9;&#x4E24;&#x4E2A;&#x52A8;&#x4F5C;&#x90FD;&#x4F7F;&#x7528;&#x4E86;logging barrier&#xFF0C;&#x5176;&#x5904;&#x7406;&#x6709;&#x4E00;&#x90E8;&#x5206;&#x7531;collector&#x4E00;&#x4FA7;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x3002;</p>
+<p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x5728;&#x8FD9;&#x4E48;&#x591A;&#x6B65;&#x9AA4;&#x91CC;&#xFF0C;G1&#x53EA;&#x6709;&#x4E24;&#x4EF6;&#x4E8B;&#x662F;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x7684;&#xFF1A;(1) &#x5168;&#x5C40;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#xFF1B;(2) logging write barrier&#x7684;&#x90E8;&#x5206;&#x5904;&#x7406;&#x3002;&#x800C;&#x201C;&#x62F7;&#x8D1D;&#x5BF9;&#x8C61;&#x201D;&#xFF08;evacuation&#xFF09;&#x8FD9;&#x4E2A;&#x5F88;&#x8017;&#x65F6;&#x7684;&#x52A8;&#x4F5C;&#x5374;&#x4E0D;&#x662F;&#x5E76;&#x53D1;&#x800C;&#x662F;&#x5B8C;&#x5168;&#x6682;&#x505C;&#x7684;&#x3002;&#x90A3;G1&#x4E3A;&#x4F55;&#x8FD8;&#x53EF;&#x4EE5;&#x53EB;&#x505A;&#x4F4E;&#x5EF6;&#x8FDF;&#x7684;GC&#x5B9E;&#x73B0;&#x5462;&#xFF1F;</p>
+<p>&#x91CD;&#x70B9;&#x5C31;&#x5728;&#x4E8E;G1&#x867D;&#x7136;&#x4F1A;mark&#x6574;&#x4E2A;&#x5806;&#xFF0C;&#x4F46;&#x5E76;&#x4E0D;evacuate&#x6240;&#x6709;&#x6709;&#x6D3B;&#x5BF9;&#x8C61;&#x7684;region&#xFF1B;&#x901A;&#x8FC7;&#x53EA;&#x9009;&#x62E9;&#x6536;&#x76CA;&#x9AD8;&#x7684;&#x5C11;&#x91CF;region&#x6765;evacuate&#xFF0C;&#x8FD9;&#x79CD;&#x6682;&#x505C;&#x7684;&#x5F00;&#x9500;&#x5C31;&#x53EF;&#x4EE5;&#xFF08;&#x5728;&#x4E00;&#x5B9A;&#x8303;&#x56F4;&#x5185;&#xFF09;&#x53EF;&#x63A7;&#x3002;&#x6BCF;&#x6B21;evacuate&#x7684;&#x6682;&#x505C;&#x65F6;&#x95F4;&#x5E94;&#x8BE5;&#x8DDF;&#x4E00;&#x822C;GC&#x7684;young GC&#x7C7B;&#x4F3C;&#x3002;&#x6240;&#x4EE5;G1&#x628A;&#x81EA;&#x5DF1;&#x6807;&#x699C;&#x4E3A;&#x201C;&#x8F6F;&#x5B9E;&#x65F6;&#x201D;&#xFF08;soft real-time&#xFF09;&#x7684;GC&#x3002;</p>
+</blockquote>
+<p>&#x8FD9;&#x91CC;&#x4E0A;&#x4E00;&#x5F20;&#x56FE;&#x3002;<br><img src="/2022/05/12/4.101.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%B8%80/11.jpg"></p>
+<h3 id="Evacuation-Failure"><a href="#Evacuation-Failure" class="headerlink" title="Evacuation Failure"></a>Evacuation Failure</h3><p>&#x8F6C;&#x79FB;&#x5931;&#x8D25;(Evacuation Failure)&#x662F;&#x6307;&#x5F53;G1&#x65E0;&#x6CD5;&#x5728;&#x5806;&#x7A7A;&#x95F4;&#x4E2D;&#x7533;&#x8BF7;&#x65B0;&#x7684;&#x5206;&#x533A;&#x65F6;&#xFF0C;G1&#x4FBF;&#x4F1A;&#x89E6;&#x53D1;&#x62C5;&#x4FDD;&#x673A;&#x5236;&#xFF0C;&#x6267;&#x884C;&#x4E00;&#x6B21;STW&#x5F0F;&#x7684;&#x3001;&#x5355;&#x7EBF;&#x7A0B;&#x7684;Full GC&#x3002;Full GC&#x4F1A;&#x5BF9;&#x6574;&#x5806;&#x505A;&#x6807;&#x8BB0;&#x6E05;&#x9664;&#x548C;&#x538B;&#x7F29;&#xFF0C;&#x6700;&#x540E;&#x5C06;&#x53EA;&#x5305;&#x542B;&#x7EAF;&#x7CB9;&#x7684;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x3002;&#x53C2;&#x6570;-XX:G1ReservePercent(&#x9ED8;&#x8BA4;10%)&#x53EF;&#x4EE5;&#x4FDD;&#x7559;&#x7A7A;&#x95F4;&#xFF0C;&#x6765;&#x5E94;&#x5BF9;&#x664B;&#x5347;&#x6A21;&#x5F0F;&#x4E0B;&#x7684;&#x5F02;&#x5E38;&#x60C5;&#x51B5;&#xFF0C;&#x6700;&#x5927;&#x5360;&#x7528;&#x6574;&#x5806;50%&#xFF0C;&#x66F4;&#x5927;&#x4E5F;&#x65E0;&#x610F;&#x4E49;&#x3002;</p>
+<p>G1&#x5728;&#x4EE5;&#x4E0B;&#x573A;&#x666F;&#x4E2D;&#x4F1A;&#x89E6;&#x53D1;Full GC&#xFF0C;&#x540C;&#x65F6;&#x4F1A;&#x5728;&#x65E5;&#x5FD7;&#x4E2D;&#x8BB0;&#x5F55;to-space-exhausted&#x4EE5;&#x53CA;Evacuation Failure&#xFF1A;</p>
+<ol>
+<li>&#x4ECE;&#x5E74;&#x8F7B;&#x4EE3;&#x5206;&#x533A;&#x62F7;&#x8D1D;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x65F6;&#xFF0C;&#x65E0;&#x6CD5;&#x627E;&#x5230;&#x53EF;&#x7528;&#x7684;&#x7A7A;&#x95F2;&#x5206;&#x533A;</li>
+<li>&#x4ECE;&#x8001;&#x5E74;&#x4EE3;&#x5206;&#x533A;&#x8F6C;&#x79FB;&#x5B58;&#x6D3B;&#x5BF9;&#x8C61;&#x65F6;&#xFF0C;&#x65E0;&#x6CD5;&#x627E;&#x5230;&#x53EF;&#x7528;&#x7684;&#x7A7A;&#x95F2;&#x5206;&#x533A;</li>
+<li>&#x5206;&#x914D;&#x5DE8;&#x578B;&#x5BF9;&#x8C61;&#x65F6;&#x5728;&#x8001;&#x5E74;&#x4EE3;&#x65E0;&#x6CD5;&#x627E;&#x5230;&#x8DB3;&#x591F;&#x7684;&#x8FDE;&#x7EED;&#x5206;&#x533A;<br>&#x7531;&#x4E8E;G1&#x7684;&#x5E94;&#x7528;&#x573A;&#x5408;&#x5F80;&#x5F80;&#x5806;&#x5185;&#x5B58;&#x90FD;&#x6BD4;&#x8F83;&#x5927;&#xFF0C;&#x6240;&#x4EE5;Full GC&#x7684;&#x6536;&#x96C6;&#x4EE3;&#x4EF7;&#x975E;&#x5E38;&#x6602;&#x8D35;&#xFF0C;&#x5E94;&#x8BE5;&#x907F;&#x514D;Full GC&#x7684;&#x53D1;&#x751F;&#x3002;</li>
+</ol>
+<h3 id="&#x8865;&#x5145;"><a href="#&#x8865;&#x5145;" class="headerlink" title="&#x8865;&#x5145;"></a>&#x8865;&#x5145;</h3><ul>
+<li><p>&#x6709;&#x5173;&#x5206;&#x4EE3;&#x5783;&#x573E;&#x56DE;&#x6536;&#x7684;&#x6982;&#x5FF5; PDF &#x6F14;&#x793A;&#x6587;&#x7A3F;:<br><a target="_blank" rel="noopener" href="https://www.ps.uni-saarland.de/courses/gc-ws01/slides/generational_gc.pdf">https://www.ps.uni-saarland.de/courses/gc-ws01/slides/generational_gc.pdf</a></p>
+</li>
+<li><p>&#x8BE6;&#x89E3; JVM Garbage First(G1) &#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/coderlius/article/details/79272773">https://blog.csdn.net/coderlius/article/details/79272773</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a3e6a9de7a5d">https://www.jianshu.com/p/a3e6a9de7a5d</a></p>
+</li>
+<li><p>[HotSpot VM] &#x8BF7;&#x6559;G1&#x7B97;&#x6CD5;&#x7684;&#x539F;&#x7406;<br><a target="_blank" rel="noopener" href="https://hllvm-group.iteye.com/group/topic/44381">https://hllvm-group.iteye.com/group/topic/44381</a></p>
+</li>
+<li><p>G1&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#x4E4B;SATB<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9e70097807ba">https://www.jianshu.com/p/9e70097807ba</a></p>
+</li>
+<li><p>jvm&#x5404;&#x79CD;&#x56DE;&#x6536;&#x5668;&#xFF0C;&#x5404;&#x81EA;&#x4F18;&#x7F3A;&#x70B9;&#xFF0C;&#x91CD;&#x70B9;CMS&#x3001;G1<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/h2604396739/article/details/87709160">https://blog.csdn.net/h2604396739/article/details/87709160</a></p>
+</li>
+</ul>
+<h3 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Benjious/p/10304799.html">JVM(&#x56DB;) G1 &#x6536;&#x96C6;&#x5668;&#x5DE5;&#x4F5C;&#x539F;&#x7406;&#x4ECB;&#x7ECD;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/G1/" rel="tag">G1</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/12/4.009.GC-%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            GC-三色标记法
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/12/4.102.GC-G1%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">GC-G1收集器原理二</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

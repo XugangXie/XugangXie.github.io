@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-自定义异常处理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-9G5.008.框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-自定义异常处理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-自定义异常处理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.008.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="/2021/09/01/9G5.008.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/spring-cloud-logo.png"></p>
+<span id="more"></span>
+<h1 id="&#x524D;&#x63D0;"><a href="#&#x524D;&#x63D0;" class="headerlink" title="&#x524D;&#x63D0;"></a>&#x524D;&#x63D0;</h1><p>&#x6211;&#x4EEC;&#x5E73;&#x65F6;&#x5728;&#x7528;SpringMVC&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x53EA;&#x8981;&#x662F;&#x7ECF;&#x8FC7;DispatcherServlet&#x5904;&#x7406;&#x7684;&#x8BF7;&#x6C42;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;@ControllerAdvice&#x548C;@ExceptionHandler&#x81EA;&#x5B9A;&#x4E49;&#x4E0D;&#x540C;&#x7C7B;&#x578B;&#x5F02;&#x5E38;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;&#xFF0C;&#x5177;&#x4F53;&#x53EF;&#x4EE5;&#x53C2;&#x8003;ResponseEntityExceptionHandler&#x548C;DefaultHandlerExceptionResolver&#xFF0C;&#x5E95;&#x5C42;&#x539F;&#x7406;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x5C31;&#x662F;&#x53D1;&#x751F;&#x5F02;&#x5E38;&#x7684;&#x65F6;&#x5019;&#x641C;&#x7D22;&#x5BB9;&#x5668;&#x4E2D;&#x5DF2;&#x7ECF;&#x5B58;&#x5728;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x5E76;&#x4E14;&#x5339;&#x914D;&#x5BF9;&#x5E94;&#x7684;&#x5F02;&#x5E38;&#x7C7B;&#x578B;&#xFF0C;&#x5339;&#x914D;&#x6210;&#x529F;&#x4E4B;&#x540E;&#x4F7F;&#x7528;&#x8BE5;&#x6307;&#x5B9A;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x8FD4;&#x56DE;&#x7ED3;&#x679C;&#x8FDB;&#x884C;Response&#x7684;&#x6E32;&#x67D3;&#xFF0C;&#x5982;&#x679C;&#x627E;&#x4E0D;&#x5230;&#x9ED8;&#x8BA4;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x5219;&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x8FDB;&#x884C;&#x515C;&#x5E95;(&#x4E2A;&#x4EBA;&#x8BA4;&#x4E3A;&#xFF0C;Spring&#x5728;&#x5F88;&#x591A;&#x529F;&#x80FD;&#x8BBE;&#x8BA1;&#x7684;&#x65F6;&#x5019;&#x90FD;&#x6709;&#x8FD9;&#x79CD;&#x201C;&#x6709;&#x5219;&#x4F7F;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#xFF0C;&#x65E0;&#x5219;&#x4F7F;&#x7528;&#x9ED8;&#x8BA4;&#x63D0;&#x4F9B;&#x201D;&#x8FD9;&#x79CD;&#x601D;&#x60F3;&#x5341;&#x5206;&#x4F18;&#x96C5;)&#x3002;</p>
+<p>SpringMVC&#x4E2D;&#x63D0;&#x4F9B;&#x7684;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x4F53;&#x7CFB;&#x5728;Spring-WebFlux&#x4E2D;&#x5E76;&#x4E0D;&#x9002;&#x7528;&#xFF0C;&#x5176;&#x5B9E;&#x539F;&#x56E0;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x4E24;&#x8005;&#x5E95;&#x5C42;&#x7684;&#x8FD0;&#x884C;&#x5BB9;&#x5668;&#x5E76;&#x4E0D;&#x76F8;&#x540C;&#x3002;WebExceptionHandler&#x662F;Spring-WebFlux&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x9876;&#x5C42;&#x63A5;&#x53E3;&#xFF0C;&#x56E0;&#x6B64;&#x8FFD;&#x6EAF;&#x5230;&#x5B50;&#x7C7B;&#x53EF;&#x4EE5;&#x8FFD;&#x8E2A;&#x5230;DefaultErrorWebExceptionHandler&#x662F;Spring Cloud Gateway&#x7684;&#x5168;&#x5C40;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#xFF0C;&#x914D;&#x7F6E;&#x7C7B;&#x662F;ErrorWebFluxAutoConfiguration&#x3002;</p>
+<h1 id="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;"><a href="#&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;" class="headerlink" title="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;"></a>&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;</h1><p>&#x5148;&#x753B;&#x4E00;&#x4E2A;&#x5047;&#x60F3;&#x4F46;&#x662F;&#x8D34;&#x8FD1;&#x5B9E;&#x9645;&#x67B6;&#x6784;&#x56FE;&#xFF0C;&#x5B9A;&#x4F4D;&#x4E00;&#x4E0B;&#x7F51;&#x5173;&#x7684;&#x4F5C;&#x7528;&#xFF1A;<br><img src="/2021/09/01/9G5.008.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/2.png"></p>
+<p>&#x7F51;&#x5173;&#x5728;&#x6574;&#x4E2A;&#x67B6;&#x6784;&#x4E2D;&#x7684;&#x4F5C;&#x7528;&#x662F;&#xFF1A;</p>
+<ol>
+<li>&#x8DEF;&#x7531;&#x670D;&#x52A1;&#x7AEF;&#x5E94;&#x7528;&#x7684;&#x8BF7;&#x6C42;&#x5230;&#x540E;&#x7AEF;&#x5E94;&#x7528;&#x3002;</li>
+<li>(&#x805A;&#x5408;)&#x540E;&#x7AEF;&#x5E94;&#x7528;&#x7684;&#x54CD;&#x5E94;&#x8F6C;&#x53D1;&#x5230;&#x670D;&#x52A1;&#x7AEF;&#x5E94;&#x7528;&#x3002;</li>
+</ol>
+<p>&#x5047;&#x8BBE;&#x7F51;&#x5173;&#x670D;&#x52A1;&#x603B;&#x662F;&#x6B63;&#x5E38;&#x7684;&#x524D;&#x63D0;&#x4E0B;&#xFF1A;</p>
+<p>&#x5BF9;&#x4E8E;&#x7B2C;1&#x70B9;&#x6765;&#x8BF4;&#xFF0C;&#x5047;&#x8BBE;&#x540E;&#x7AEF;&#x5E94;&#x7528;&#x4E0D;&#x80FD;&#x5E73;&#x6ED1;&#x65E0;&#x635F;&#x4E0A;&#x7EBF;&#xFF0C;&#x4F1A;&#x6709;&#x4E00;&#x5B9A;&#x7684;&#x51E0;&#x7387;&#x51FA;&#x73B0;&#x7F51;&#x5173;&#x8DEF;&#x7531;&#x8BF7;&#x6C42;&#x5230;&#x4E00;&#x4E9B;&#x540E;&#x7AEF;&#x7684;&#x201C;&#x50F5;&#x5C38;&#x8282;&#x70B9;(&#x8BF7;&#x6C42;&#x8DEF;&#x7531;&#x8FC7;&#x53BB;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5E94;&#x7528;&#x66F4;&#x597D;&#x5728;&#x91CD;&#x542F;&#x6216;&#x8005;&#x521A;&#x597D;&#x505C;&#x6B62;)&#x201D;&#xFF0C;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x4F1A;&#x8DEF;&#x7531;&#x4F1A;&#x5931;&#x8D25;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#xFF0C;&#x4E00;&#x822C;&#x60C5;&#x51B5;&#x662F;Connection Refuse&#x3002;</p>
+<p>&#x5BF9;&#x4E8E;&#x7B2C;2&#x70B9;&#x6765;&#x8BF4;&#xFF0C;&#x5047;&#x8BBE;&#x540E;&#x7AEF;&#x5E94;&#x7528;&#x6CA1;&#x6709;&#x6B63;&#x786E;&#x5904;&#x7406;&#x5F02;&#x5E38;&#xFF0C;&#x90A3;&#x4E48;&#x5E94;&#x8BE5;&#x4F1A;&#x628A;&#x5F02;&#x5E38;&#x4FE1;&#x606F;&#x7ECF;&#x8FC7;&#x7F51;&#x5173;&#x8F6C;&#x53D1;&#x56DE;&#x5230;&#x670D;&#x52A1;&#x7AEF;&#x5E94;&#x7528;&#xFF0C;&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x7406;&#x8BBA;&#x4E0A;&#x4E0D;&#x4F1A;&#x51FA;&#x73B0;&#x5F02;&#x5E38;&#x3002;</p>
+<p>&#x5176;&#x5B9E;&#x8FD8;&#x6709;&#x7B2C;3&#x70B9;&#x9690;&#x85CF;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x7F51;&#x5173;&#x5982;&#x679C;&#x4E0D;&#x5355;&#x5355;&#x627F;&#x62C5;&#x8DEF;&#x7531;&#x7684;&#x529F;&#x80FD;&#xFF0C;&#x8FD8;&#x5305;&#x542B;&#x4E86;&#x9274;&#x6743;&#x3001;&#x9650;&#x6D41;&#x7B49;&#x529F;&#x80FD;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E9B;&#x529F;&#x80FD;&#x5F00;&#x53D1;&#x7684;&#x65F6;&#x5019;&#x5BF9;&#x5F02;&#x5E38;&#x6355;&#x83B7;&#x6CA1;&#x6709;&#x505A;&#x5B8C;&#x5584;&#x7684;&#x5904;&#x7406;&#x751A;&#x81F3;&#x662F;&#x903B;&#x8F91;&#x672C;&#x8EAB;&#x5B58;&#x5728;BUG&#xFF0C;&#x6709;&#x53EF;&#x80FD;&#x5BFC;&#x81F4;&#x5F02;&#x5E38;&#x6CA1;&#x6709;&#x88AB;&#x6B63;&#x5E38;&#x6355;&#x83B7;&#x5904;&#x7406;&#xFF0C;&#x8D70;&#x4E86;&#x9ED8;&#x8BA4;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;DefaultErrorWebExceptionHandler&#xFF0C;&#x9ED8;&#x8BA4;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;&#x53EF;&#x80FD;&#x5E76;&#x4E0D;&#x7B26;&#x5408;&#x6211;&#x4EEC;&#x9884;&#x671F;&#x7684;&#x7ED3;&#x679C;&#x3002;</p>
+<h1 id="&#x5982;&#x4F55;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;"><a href="#&#x5982;&#x4F55;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;" class="headerlink" title="&#x5982;&#x4F55;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;"></a>&#x5982;&#x4F55;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;</h1><p>&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5148;&#x770B;&#x9ED8;&#x8BA4;&#x7684;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x5668;&#x7684;&#x914D;&#x7F6E;&#x7C7B;ErrorWebFluxAutoConfiguration&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(WebFluxConfigurer.class)</span></span><br><span class="line"><span class="meta">@AutoConfigureBefore(WebFluxAutoConfiguration.class)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties({ ServerProperties.class, ResourceProperties.class })</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ErrorWebFluxAutoConfiguration</span> {</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> ServerProperties serverProperties;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext applicationContext;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> ResourceProperties resourceProperties;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;ViewResolver&gt; viewResolvers;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> ServerCodecConfigurer serverCodecConfigurer;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="title function_">ErrorWebFluxAutoConfiguration</span><span class="params">(ServerProperties serverProperties,</span></span><br><span class="line"><span class="params">			ResourceProperties resourceProperties,</span></span><br><span class="line"><span class="params">			ObjectProvider&lt;ViewResolver&gt; viewResolversProvider,</span></span><br><span class="line"><span class="params">			ServerCodecConfigurer serverCodecConfigurer,</span></span><br><span class="line"><span class="params">			ApplicationContext applicationContext)</span> {</span><br><span class="line">		<span class="built_in">this</span>.serverProperties = serverProperties;</span><br><span class="line">		<span class="built_in">this</span>.applicationContext = applicationContext;</span><br><span class="line">		<span class="built_in">this</span>.resourceProperties = resourceProperties;</span><br><span class="line">		<span class="built_in">this</span>.viewResolvers = viewResolversProvider.orderedStream()</span><br><span class="line">				.collect(Collectors.toList());</span><br><span class="line">		<span class="built_in">this</span>.serverCodecConfigurer = serverCodecConfigurer;</span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean(value = ErrorWebExceptionHandler.class,</span></span><br><span class="line"><span class="meta">			search = SearchStrategy.CURRENT)</span></span><br><span class="line">	<span class="meta">@Order(-1)</span></span><br><span class="line">	<span class="keyword">public</span> ErrorWebExceptionHandler <span class="title function_">errorWebExceptionHandler</span><span class="params">(</span></span><br><span class="line"><span class="params">			ErrorAttributes errorAttributes)</span> {</span><br><span class="line">		<span class="type">DefaultErrorWebExceptionHandler</span> <span class="variable">exceptionHandler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DefaultErrorWebExceptionHandler</span>(</span><br><span class="line">				errorAttributes, <span class="built_in">this</span>.resourceProperties,</span><br><span class="line">				<span class="built_in">this</span>.serverProperties.getError(), <span class="built_in">this</span>.applicationContext);</span><br><span class="line">		exceptionHandler.setViewResolvers(<span class="built_in">this</span>.viewResolvers);</span><br><span class="line">		exceptionHandler.setMessageWriters(<span class="built_in">this</span>.serverCodecConfigurer.getWriters());</span><br><span class="line">		exceptionHandler.setMessageReaders(<span class="built_in">this</span>.serverCodecConfigurer.getReaders());</span><br><span class="line">		<span class="keyword">return</span> exceptionHandler;</span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean(value = ErrorAttributes.class,</span></span><br><span class="line"><span class="meta">			search = SearchStrategy.CURRENT)</span></span><br><span class="line">	<span class="keyword">public</span> DefaultErrorAttributes <span class="title function_">errorAttributes</span><span class="params">()</span> {</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DefaultErrorAttributes</span>(</span><br><span class="line">				<span class="built_in">this</span>.serverProperties.getError().isIncludeException());</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6CE8;&#x610F;&#x5230;&#x4E24;&#x4E2A;Bean&#x5B9E;&#x4F8B;ErrorWebExceptionHandler&#x548C;DefaultErrorAttributes&#x90FD;&#x4F7F;&#x7528;&#x4E86;@ConditionalOnMissingBean&#x6CE8;&#x89E3;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x81EA;&#x5B9A;&#x4E49;&#x5B9E;&#x73B0;&#x53BB;&#x8986;&#x76D6;&#x5B83;&#x4EEC;&#x3002;&#x5148;&#x81EA;&#x5B9A;&#x4E49;&#x4E00;&#x4E2A;CustomErrorWebFluxAutoConfiguration&#xFF08;&#x9664;&#x4E86;ErrorWebExceptionHandler&#x7684;&#x81EA;&#x5B9A;&#x4E49;&#x5B9E;&#x73B0;&#xFF0C;&#x5176;&#x4ED6;&#x76F4;&#x63A5;&#x62F7;&#x8D1D;ErrorWebFluxAutoConfiguration&#xFF09;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(WebFluxConfigurer.class)</span></span><br><span class="line"><span class="meta">@AutoConfigureBefore(WebFluxAutoConfiguration.class)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties({ServerProperties.class, ResourceProperties.class})</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomErrorWebFluxAutoConfiguration</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ServerProperties serverProperties;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ApplicationContext applicationContext;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ResourceProperties resourceProperties;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;ViewResolver&gt; viewResolvers;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ServerCodecConfigurer serverCodecConfigurer;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CustomErrorWebFluxAutoConfiguration</span><span class="params">(ServerProperties serverProperties,</span></span><br><span class="line"><span class="params">                                               ResourceProperties resourceProperties,</span></span><br><span class="line"><span class="params">                                               ObjectProvider&lt;ViewResolver&gt; viewResolversProvider,</span></span><br><span class="line"><span class="params">                                               ServerCodecConfigurer serverCodecConfigurer,</span></span><br><span class="line"><span class="params">                                               ApplicationContext applicationContext)</span> {</span><br><span class="line">        <span class="built_in">this</span>.serverProperties = serverProperties;</span><br><span class="line">        <span class="built_in">this</span>.applicationContext = applicationContext;</span><br><span class="line">        <span class="built_in">this</span>.resourceProperties = resourceProperties;</span><br><span class="line">        <span class="built_in">this</span>.viewResolvers = viewResolversProvider.orderedStream()</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">        <span class="built_in">this</span>.serverCodecConfigurer = serverCodecConfigurer;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean(value = ErrorWebExceptionHandler.class,</span></span><br><span class="line"><span class="meta">            search = SearchStrategy.CURRENT)</span></span><br><span class="line">    <span class="meta">@Order(-1)</span></span><br><span class="line">    <span class="keyword">public</span> ErrorWebExceptionHandler <span class="title function_">errorWebExceptionHandler</span><span class="params">(ErrorAttributes errorAttributes)</span> {</span><br><span class="line">        <span class="comment">// TODO &#x8FD9;&#x91CC;&#x5B8C;&#x6210;&#x81EA;&#x5B9A;&#x4E49;ErrorWebExceptionHandler&#x5B9E;&#x73B0;&#x903B;&#x8F91;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)</span></span><br><span class="line">    <span class="keyword">public</span> DefaultErrorAttributes <span class="title function_">errorAttributes</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DefaultErrorAttributes</span>(<span class="built_in">this</span>.serverProperties.getError().isIncludeException());</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>ErrorWebExceptionHandler&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x53EF;&#x4EE5;&#x76F4;&#x63A5;&#x53C2;&#x8003;DefaultErrorWebExceptionHandler&#xFF0C;&#x751A;&#x81F3;&#x76F4;&#x63A5;&#x7EE7;&#x627F;DefaultErrorWebExceptionHandler&#xFF0C;&#x8986;&#x76D6;&#x5BF9;&#x5E94;&#x7684;&#x65B9;&#x6CD5;&#x5373;&#x53EF;&#x3002;&#x8FD9;&#x91CC;&#x76F4;&#x63A5;&#x628A;&#x5F02;&#x5E38;&#x4FE1;&#x606F;&#x5C01;&#x88C5;&#x6210;&#x4E0B;&#x9762;&#x683C;&#x5F0F;&#x7684;Response&#x8FD4;&#x56DE;&#xFF0C;&#x6700;&#x540E;&#x9700;&#x8981;&#x6E32;&#x67D3;&#x6210;JSON&#x683C;&#x5F0F;&#xFF1A;</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="number">200</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#x63CF;&#x8FF0;&#x4FE1;&#x606F;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;path&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;method&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&quot;</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x6211;&#x4EEC;&#x9700;&#x8981;&#x5206;&#x6790;&#x4E00;&#x4E0B;DefaultErrorWebExceptionHandler&#x4E2D;&#x7684;&#x4E00;&#x4E9B;&#x6E90;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#x5C01;&#x88C5;&#x5F02;&#x5E38;&#x5C5E;&#x6027;</span></span><br><span class="line"><span class="keyword">protected</span> Map&lt;String, Object&gt; <span class="title function_">getErrorAttributes</span><span class="params">(ServerRequest request, <span class="type">boolean</span> includeStackTrace)</span> {</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">this</span>.errorAttributes.getErrorAttributes(request, includeStackTrace);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x6E32;&#x67D3;&#x5F02;&#x5E38;Response</span></span><br><span class="line"><span class="keyword">protected</span> Mono&lt;ServerResponse&gt; <span class="title function_">renderErrorResponse</span><span class="params">(ServerRequest request)</span> {</span><br><span class="line">	<span class="type">boolean</span> <span class="variable">includeStackTrace</span> <span class="operator">=</span> isIncludeStackTrace(request, MediaType.ALL);</span><br><span class="line">	Map&lt;String, Object&gt; error = getErrorAttributes(request, includeStackTrace);</span><br><span class="line">	<span class="keyword">return</span> ServerResponse.status(getHttpStatus(error))</span><br><span class="line">			.contentType(MediaType.APPLICATION_JSON_UTF8)</span><br><span class="line">			.body(BodyInserters.fromObject(error));</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x8FD4;&#x56DE;&#x8DEF;&#x7531;&#x65B9;&#x6CD5;&#x57FA;&#x4E8E;ServerResponse&#x7684;&#x5BF9;&#x8C61;</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> RouterFunction&lt;ServerResponse&gt; <span class="title function_">getRoutingFunction</span><span class="params">(ErrorAttributes errorAttributes)</span> {</span><br><span class="line">	<span class="keyword">return</span> route(acceptsTextHtml(), <span class="built_in">this</span>::renderErrorView).andRoute(all(), <span class="built_in">this</span>::renderErrorResponse);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// HTTP&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;&#x7684;&#x5C01;&#x88C5;&#xFF0C;&#x539F;&#x6765;&#x662F;&#x57FA;&#x4E8E;&#x5F02;&#x5E38;&#x5C5E;&#x6027;&#x7684;status&#x5C5E;&#x6027;&#x8FDB;&#x884C;&#x89E3;&#x6790;&#x7684;</span></span><br><span class="line"><span class="keyword">protected</span> HttpStatus <span class="title function_">getHttpStatus</span><span class="params">(Map&lt;String, Object&gt; errorAttributes)</span> {</span><br><span class="line">	<span class="type">int</span> <span class="variable">statusCode</span> <span class="operator">=</span> (<span class="type">int</span>) errorAttributes.get(<span class="string">&quot;status&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> HttpStatus.valueOf(statusCode);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x786E;&#x5B9A;&#x4E09;&#x70B9;&#xFF1A;</p>
+<ol>
+<li>&#x6700;&#x540E;&#x5C01;&#x88C5;&#x5230;&#x54CD;&#x5E94;&#x4F53;&#x7684;&#x5BF9;&#x8C61;&#x6765;&#x6E90;&#x4E8E;DefaultErrorWebExceptionHandler#getErrorAttributes()&#xFF0C;&#x5E76;&#x4E14;&#x7ED3;&#x679C;&#x662F;&#x4E00;&#x4E2A;Map&lt;String, Object&gt;&#x5B9E;&#x4F8B;&#x8F6C;&#x6362;&#x6210;&#x7684;&#x5B57;&#x8282;&#x5E8F;&#x5217;&#x3002;</li>
+<li>&#x539F;&#x6765;&#x7684;RouterFunction&#x5B9E;&#x73B0;&#x53EA;&#x652F;&#x6301;HTML&#x683C;&#x5F0F;&#x8FD4;&#x56DE;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x4FEE;&#x6539;&#x4E3A;JSON&#x683C;&#x5F0F;&#x8FD4;&#x56DE;(&#x6216;&#x8005;&#x8BF4;&#x652F;&#x6301;&#x6240;&#x6709;&#x683C;&#x5F0F;&#x8FD4;&#x56DE;)&#x3002;</li>
+<li>DefaultErrorWebExceptionHandler#getHttpStatus()&#x662F;&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;&#x7684;&#x5C01;&#x88C5;&#xFF0C;&#x539F;&#x6765;&#x7684;&#x903B;&#x8F91;&#x662F;&#x57FA;&#x4E8E;&#x5F02;&#x5E38;&#x5C5E;&#x6027;getErrorAttributes()&#x7684;status&#x5C5E;&#x6027;&#x8FDB;&#x884C;&#x89E3;&#x6790;&#x7684;&#x3002;</li>
+</ol>
+<p>&#x81EA;&#x5B9A;&#x4E49;&#x7684;JsonErrorWebExceptionHandler&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JsonErrorWebExceptionHandler</span> <span class="keyword">extends</span> <span class="title class_">DefaultErrorWebExceptionHandler</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">JsonErrorWebExceptionHandler</span><span class="params">(ErrorAttributes errorAttributes,</span></span><br><span class="line"><span class="params">                                        ResourceProperties resourceProperties,</span></span><br><span class="line"><span class="params">                                        ErrorProperties errorProperties,</span></span><br><span class="line"><span class="params">                                        ApplicationContext applicationContext)</span> {</span><br><span class="line">        <span class="built_in">super</span>(errorAttributes, resourceProperties, errorProperties, applicationContext);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;String, Object&gt; <span class="title function_">getErrorAttributes</span><span class="params">(ServerRequest request, <span class="type">boolean</span> includeStackTrace)</span> {</span><br><span class="line">        <span class="comment">// &#x8FD9;&#x91CC;&#x5176;&#x5B9E;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x5F02;&#x5E38;&#x7C7B;&#x578B;&#x8FDB;&#x884C;&#x5B9A;&#x5236;&#x5316;&#x903B;&#x8F91;</span></span><br><span class="line">        <span class="type">Throwable</span> <span class="variable">error</span> <span class="operator">=</span> <span class="built_in">super</span>.getError(request);</span><br><span class="line">        Map&lt;String, Object&gt; errorAttributes = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(<span class="number">8</span>);</span><br><span class="line">        errorAttributes.put(<span class="string">&quot;message&quot;</span>, error.getMessage());</span><br><span class="line">        errorAttributes.put(<span class="string">&quot;code&quot;</span>, HttpStatus.INTERNAL_SERVER_ERROR.value());</span><br><span class="line">        errorAttributes.put(<span class="string">&quot;method&quot;</span>, request.methodName());</span><br><span class="line">        errorAttributes.put(<span class="string">&quot;path&quot;</span>, request.path());</span><br><span class="line">        <span class="keyword">return</span> errorAttributes;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> RouterFunction&lt;ServerResponse&gt; <span class="title function_">getRoutingFunction</span><span class="params">(ErrorAttributes errorAttributes)</span> {</span><br><span class="line">        <span class="keyword">return</span> RouterFunctions.route(RequestPredicates.all(), <span class="built_in">this</span>::renderErrorResponse);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> HttpStatus <span class="title function_">getHttpStatus</span><span class="params">(Map&lt;String, Object&gt; errorAttributes)</span> {</span><br><span class="line">        <span class="comment">// &#x8FD9;&#x91CC;&#x5176;&#x5B9E;&#x53EF;&#x4EE5;&#x6839;&#x636E;errorAttributes&#x91CC;&#x9762;&#x7684;&#x5C5E;&#x6027;&#x5B9A;&#x5236;HTTP&#x54CD;&#x5E94;&#x7801;</span></span><br><span class="line">        <span class="keyword">return</span> HttpStatus.INTERNAL_SERVER_ERROR;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x914D;&#x7F6E;&#x7C7B;CustomErrorWebFluxAutoConfiguration&#x6DFB;&#x52A0;JsonErrorWebExceptionHandler&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean(value = ErrorWebExceptionHandler.class, search = SearchStrategy.CURRENT)</span></span><br><span class="line"><span class="meta">@Order(-1)</span></span><br><span class="line"><span class="keyword">public</span> ErrorWebExceptionHandler <span class="title function_">errorWebExceptionHandler</span><span class="params">(ErrorAttributes errorAttributes)</span> {</span><br><span class="line">    <span class="type">JsonErrorWebExceptionHandler</span> <span class="variable">exceptionHandler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JsonErrorWebExceptionHandler</span>(</span><br><span class="line">                errorAttributes,</span><br><span class="line">                resourceProperties,</span><br><span class="line">                <span class="built_in">this</span>.serverProperties.getError(),</span><br><span class="line">                applicationContext);</span><br><span class="line">    exceptionHandler.setViewResolvers(<span class="built_in">this</span>.viewResolvers);</span><br><span class="line">    exceptionHandler.setMessageWriters(<span class="built_in">this</span>.serverCodecConfigurer.getWriters());</span><br><span class="line">    exceptionHandler.setMessageReaders(<span class="built_in">this</span>.serverCodecConfigurer.getReaders());</span><br><span class="line">    <span class="keyword">return</span> exceptionHandler;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x8FD9;&#x91CC;&#x628A;&#x5F02;&#x5E38;&#x7684;HTTP&#x54CD;&#x5E94;&#x72B6;&#x6001;&#x7801;&#x7EDF;&#x4E00;&#x4E3A;HttpStatus.INTERNAL_SERVER_ERROR(500)&#xFF0C;&#x6539;&#x9020;&#x7684;&#x4E1C;&#x897F;&#x5E76;&#x4E0D;&#x591A;&#xFF0C;&#x53EA;&#x8981;&#x4E86;&#x89E3;&#x539F;&#x6765;&#x5F02;&#x5E38;&#x5904;&#x7406;&#x7684;&#x4E0A;&#x4E0B;&#x6587;&#x903B;&#x8F91;&#x5373;&#x53EF;&#x3002;</p>
+<p>&#x6D4B;&#x8BD5;<br>&#x6D4B;&#x8BD5;&#x573A;&#x666F;&#x4E00;&#xFF1A;&#x53EA;&#x542F;&#x52A8;&#x7F51;&#x5173;&#xFF0C;&#x4E0B;&#x6E38;&#x670D;&#x52A1;&#x4E0D;&#x542F;&#x52A8;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x76F4;&#x63A5;&#x8C03;&#x7528;&#x4E0B;&#x6E38;&#x670D;&#x52A1;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/host</span><br><span class="line"></span><br><span class="line">// &#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">{&quot;path&quot;:&quot;/order/host&quot;,&quot;code&quot;:500,&quot;message&quot;:&quot;Connection refused: no further information: localhost/127.0.0.1:9091&quot;,&quot;method&quot;:&quot;GET&quot;}</span><br><span class="line">&#x6D4B;&#x8BD5;&#x573A;&#x666F;&#x4E8C;&#xFF1A;&#x4E0B;&#x6E38;&#x670D;&#x52A1;&#x6B63;&#x5E38;&#x542F;&#x52A8;&#x548C;&#x8C03;&#x7528;&#xFF0C;&#x7F51;&#x5173;&#x81EA;&#x8EAB;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#x3002;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;&#x7F51;&#x5173;&#x5E94;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#x4E00;&#x4E2A;&#x5168;&#x5C40;&#x8FC7;&#x6EE4;&#x5668;&#x5E76;&#x4E14;&#x6545;&#x610F;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ErrorGlobalFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span> {</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> {</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>/<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> chain.filter(exchange);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/host</span><br><span class="line"></span><br><span class="line">// &#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">{&quot;path&quot;:&quot;/order/host&quot;,&quot;code&quot;:500,&quot;message&quot;:&quot;/ by zero&quot;,&quot;method&quot;:&quot;GET&quot;}</span><br><span class="line">&#x54CD;&#x5E94;&#x7ED3;&#x679C;&#x548C;&#x5B9A;&#x5236;&#x7684;&#x903B;&#x8F91;&#x4E00;&#x81F4;&#xFF0C;&#x5E76;&#x4E14;&#x540E;&#x53F0;&#x7684;&#x65E5;&#x5FD7;&#x4E5F;&#x6253;&#x5370;&#x4E86;&#x5BF9;&#x5E94;&#x7684;&#x5F02;&#x5E38;&#x5806;&#x6808;&#x3002;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5C0F;&#x7ED3;<br>&#x7B14;&#x8005;&#x4E00;&#x76F4;&#x8BA4;&#x4E3A;&#xFF0C;&#x505A;&#x5F02;&#x5E38;&#x5206;&#x7C7B;&#x548C;&#x6309;&#x7167;&#x5206;&#x7C7B;&#x5904;&#x7406;&#x662F;&#x5DE5;&#x7A0B;&#x91CC;&#x9762;&#x5341;&#x5206;&#x91CD;&#x8981;&#x7684;&#x4E00;&#x73AF;&#x3002;&#x7B14;&#x8005;&#x5728;&#x6240;&#x5728;&#x516C;&#x53F8;&#x8D1F;&#x8D23;&#x7684;&#x7CFB;&#x7EDF;&#x4E2D;&#xFF0C;&#x575A;&#x6301;&#x5B9E;&#x73B0;&#x5F02;&#x5E38;&#x5206;&#x7C7B;&#x6355;&#x83B7;&#xFF0C;&#x4E3B;&#x8981;&#x662F;&#x9700;&#x8981;&#x533A;&#x5206;&#x53EF;&#x4EE5;&#x91CD;&#x8BD5;&#x8865;&#x507F;&#x4EE5;&#x53CA;&#x65E0;&#x6CD5;&#x91CD;&#x8BD5;&#x9700;&#x8981;&#x53CA;&#x65F6;&#x9884;&#x8B66;&#x7684;&#x5F02;&#x5E38;&#xFF0C;&#x8FD9;&#x6837;&#x5B50;&#x624D;&#x80FD;&#x9488;&#x5BF9;&#x53EF;&#x6062;&#x590D;&#x5F02;&#x5E38;&#x5B9A;&#x5236;&#x81EA;&#x6108;&#x903B;&#x8F91;&#xFF0C;&#x5BF9;&#x4E0D;&#x80FD;&#x6062;&#x590D;&#x7684;&#x5F02;&#x5E38;&#x53CA;&#x65F6;&#x9884;&#x8B66;&#x548C;&#x4EBA;&#x4E3A;&#x4ECB;&#x5165;&#x3002;&#x6240;&#x4EE5;&#xFF0C;Spring Cloud Gateway&#x8FD9;&#x4E2A;&#x6280;&#x672F;&#x6808;&#x4E5F;&#x5FC5;&#x987B;&#x8C03;&#x7814;&#x5176;&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;&#x3002;</p>
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.throwable.club/2019/05/11/spring-cloud-gateway-custom-exception-handler/">Spring Cloud Gateway-&#x81EA;&#x5B9A;&#x4E49;&#x5F02;&#x5E38;&#x5904;&#x7406;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/09/01/9G5.007.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E8%87%AA%E5%AE%9A%E4%B9%89GlobalFilter/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-自定义GlobalFilter
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/09/01/9G5.010.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%87%E6%BB%A4%E5%99%A8%E9%80%9A%E8%BF%87Hystrix%E5%AE%9E%E7%8E%B0%E9%99%8D%E7%BA%A7%E5%A4%84%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-使用自定义过滤器通过Hystrix实现降级处理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

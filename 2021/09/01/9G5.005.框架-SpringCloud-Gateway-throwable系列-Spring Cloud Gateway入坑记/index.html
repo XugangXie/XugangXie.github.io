@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway入坑记 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-9G5.005.框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway入坑记"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway入坑记
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">29 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/1.png"></p>
+<span id="more"></span>
+
+<h1 id="&#x524D;&#x63D0;"><a href="#&#x524D;&#x63D0;" class="headerlink" title="&#x524D;&#x63D0;"></a>&#x524D;&#x63D0;</h1><p>&#x6700;&#x8FD1;&#x5728;&#x505A;&#x8001;&#x7CFB;&#x7EDF;&#x7684;&#x91CD;&#x6784;&#xFF0C;&#x91CD;&#x6784;&#x5B8C;&#x6210;&#x540E;&#x65B0;&#x7CFB;&#x7EDF;&#x4E2D;&#x9700;&#x8981;&#x5F15;&#x5165;&#x4E00;&#x4E2A;&#x7F51;&#x5173;&#x670D;&#x52A1;&#xFF0C;&#x4F5C;&#x4E3A;&#x65B0;&#x7CFB;&#x7EDF;&#x548C;&#x8001;&#x7CFB;&#x7EDF;&#x63A5;&#x53E3;&#x7684;&#x9002;&#x914D;&#x548C;&#x4EE3;&#x7406;&#x3002;&#x4E4B;&#x524D;&#xFF0C;&#x5F88;&#x591A;&#x7F51;&#x5173;&#x5E94;&#x7528;&#x4F7F;&#x7528;&#x7684;&#x662F;Spring-Cloud-Netfilx&#x57FA;&#x4E8E;Zuul1.x&#x7248;&#x672C;&#x5B9E;&#x73B0;&#x7684;&#x90A3;&#x5957;&#x65B9;&#x6848;&#xFF0C;&#x4F46;&#x662F;&#x9274;&#x4E8E;Zuul1.x&#x5DF2;&#x7ECF;&#x505C;&#x6B62;&#x8FED;&#x4EE3;&#xFF0C;&#x5B83;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x6BD4;&#x8F83;&#x4F20;&#x7EDF;&#x7684;&#x963B;&#x585E;(B)IO + &#x591A;&#x7EBF;&#x7A0B;&#x7684;&#x5B9E;&#x73B0;&#x65B9;&#x6848;&#xFF0C;&#x5176;&#x5B9E;&#x6027;&#x80FD;&#x4E0D;&#x592A;&#x597D;&#x3002;&#x540E;&#x6765;Spring&#x56E2;&#x961F;&#x5E72;&#x8106;&#x81EA;&#x5DF1;&#x91CD;&#x65B0;&#x7814;&#x53D1;&#x4E86;&#x4E00;&#x5957;&#x7F51;&#x5173;&#x7EC4;&#x4EF6;&#xFF0C;&#x8FD9;&#x4E2A;&#x5C31;&#x662F;&#x672C;&#x6B21;&#x8981;&#x8C03;&#x7814;&#x7684;Spring-Cloud-Gateway&#x3002;</p>
+<h1 id="&#x7B80;&#x4ECB;"><a href="#&#x7B80;&#x4ECB;" class="headerlink" title="&#x7B80;&#x4ECB;"></a>&#x7B80;&#x4ECB;</h1><p><code>Spring Cloud Gateway</code>&#x4F9D;&#x8D56;&#x4E8E;<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-boot#learn">Spring Boot 2.0</a>, <a target="_blank" rel="noopener" href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html">Spring WebFlux</a>,&#x548C; <a target="_blank" rel="noopener" href="https://projectreactor.io/docs">Project Reactor</a>&#x3002;&#x8BB8;&#x591A;&#x719F;&#x6089;&#x7684;&#x540C;&#x6B65;&#x7C7B;&#x5E93;(&#x4F8B;&#x5982;<code>Spring-Data</code>&#x548C;&#xB7;)&#x548C;&#x540C;&#x6B65;&#x7F16;&#x7A0B;&#x6A21;&#x5F0F;&#x5728;<code>Spring Cloud Gateway</code>&#x4E2D;&#x5E76;&#x4E0D;&#x9002;&#x7528;&#xFF0C;&#x6240;&#x4EE5;&#x6700;&#x597D;&#x5148;&#x9605;&#x8BFB;&#x4E00;&#x4E0B;&#x4E0A;&#x9762;&#x63D0;&#x5230;&#x7684;&#x4E09;&#x4E2A;&#x6846;&#x67B6;&#x7684;&#x6587;&#x6863;&#x3002;</p>
+<p><code>Spring Cloud Gateway</code>&#x4F9D;&#x8D56;&#x4E8E;<code>Spring Boot</code>&#x548C;<code>Spring WebFlux</code>&#x63D0;&#x4F9B;&#x7684;&#x57FA;&#x4E8E;<code>Netty</code>&#x7684;&#x8FD0;&#x884C;&#x65F6;&#x73AF;&#x5883;&#xFF0C;&#x5B83;&#x5E76;&#x975E;&#x6784;&#x5EFA;&#x4E3A;&#x4E00;&#x4E2A;<code>WAR</code>&#x5305;&#x6216;&#x8005;&#x8FD0;&#x884C;&#x5728;&#x4F20;&#x7EDF;&#x7684;<code>Servlet</code>&#x5BB9;&#x5668;&#x4E2D;&#x3002;</p>
+<h2 id="&#x4E13;&#x6709;&#x540D;&#x8BCD;"><a href="#&#x4E13;&#x6709;&#x540D;&#x8BCD;" class="headerlink" title="&#x4E13;&#x6709;&#x540D;&#x8BCD;"></a>&#x4E13;&#x6709;&#x540D;&#x8BCD;</h2><ul>
+<li>&#x8DEF;&#x7531;(Route)&#xFF1A;&#x8DEF;&#x7531;&#x662F;&#x7F51;&#x5173;&#x7684;&#x57FA;&#x672C;&#x7EC4;&#x4EF6;&#x3002;&#x5B83;&#x7531;ID&#xFF0C;&#x76EE;&#x6807;URI&#xFF0C;&#x8C13;&#x8BCD;(Predicate)&#x96C6;&#x5408;&#x548C;&#x8FC7;&#x6EE4;&#x5668;&#x96C6;&#x5408;&#x5B9A;&#x4E49;&#x3002;&#x5982;&#x679C;&#x8C13;&#x8BCD;&#x805A;&#x5408;&#x5224;&#x65AD;&#x4E3A;&#x771F;&#xFF0C;&#x5219;&#x5339;&#x914D;&#x8DEF;&#x7531;&#x3002;</li>
+<li>&#x8C13;&#x8BCD;(Predicate)&#xFF1A;&#x4F7F;&#x7528;&#x7684;&#x662F;Java8&#x4E2D;&#x57FA;&#x4E8E;&#x51FD;&#x6570;&#x5F0F;&#x7F16;&#x7A0B;&#x5F15;&#x5165;&#x7684;java.util.Predicate&#x3002;&#x4F7F;&#x7528;&#x8C13;&#x8BCD;(&#x805A;&#x5408;)&#x5224;&#x65AD;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8F93;&#x5165;&#x7684;&#x53C2;&#x6570;&#x662F;ServerWebExchange&#x7C7B;&#x578B;&#xFF0C;&#x5B83;&#x5141;&#x8BB8;&#x5F00;&#x53D1;&#x8005;&#x5339;&#x914D;&#x6765;&#x81EA;HTTP&#x8BF7;&#x6C42;&#x7684;&#x4EFB;&#x610F;&#x53C2;&#x6570;&#xFF0C;&#x4F8B;&#x5982;HTTP&#x8BF7;&#x6C42;&#x5934;&#x3001;HTTP&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x7B49;&#x7B49;&#x3002;</li>
+<li>&#x8FC7;&#x6EE4;&#x5668;(Filter)&#xFF1A;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x6307;&#x5B9A;&#x7684;GatewayFilter&#x5DE5;&#x5382;&#x6240;&#x521B;&#x5EFA;&#x51FA;&#x6765;&#x7684;GatewayFilter&#x5B9E;&#x4F8B;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x53D1;&#x9001;&#x8BF7;&#x6C42;&#x5230;&#x4E0B;&#x6E38;&#x4E4B;&#x524D;&#x6216;&#x8005;&#x4E4B;&#x540E;&#x4FEE;&#x6539;&#x8BF7;&#x6C42;(&#x53C2;&#x6570;)&#x6216;&#x8005;&#x54CD;&#x5E94;(&#x53C2;&#x6570;)&#x3002;</li>
+</ul>
+<p>&#x5176;&#x5B9E;Filter&#x8FD8;&#x5305;&#x62EC;&#x4E86;GlobalFilter&#xFF0C;&#x4E0D;&#x8FC7;&#x5728;&#x5B98;&#x65B9;&#x6587;&#x6863;&#x4E2D;&#x6CA1;&#x6709;&#x63D0;&#x5230;&#x3002;</p>
+<h2 id="&#x5DE5;&#x4F5C;&#x539F;&#x7406;"><a href="#&#x5DE5;&#x4F5C;&#x539F;&#x7406;" class="headerlink" title="&#x5DE5;&#x4F5C;&#x539F;&#x7406;"></a>&#x5DE5;&#x4F5C;&#x539F;&#x7406;</h2><p><img src="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/2.png"></p>
+<p>&#x5BA2;&#x6237;&#x7AEF;&#x5411;Spring Cloud Gateway&#x53D1;&#x51FA;&#x8BF7;&#x6C42;&#xFF0C;&#x5982;&#x679C;Gateway Handler Mapping&#x6A21;&#x5757;&#x5904;&#x7406;&#x5F53;&#x524D;&#x8BF7;&#x6C42;&#x5982;&#x679C;&#x5339;&#x914D;&#x5230;&#x4E00;&#x4E2A;&#x76EE;&#x6807;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#xFF0C;&#x8BE5;&#x8BF7;&#x6C42;&#x5C31;&#x4F1A;&#x8F6C;&#x53D1;&#x5230;Gateway Web Handler&#x6A21;&#x5757;&#x3002;Gateway Web Handler&#x6A21;&#x5757;&#x5728;&#x53D1;&#x9001;&#x8BF7;&#x6C42;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F1A;&#x628A;&#x8BE5;&#x8BF7;&#x6C42;&#x901A;&#x8FC7;&#x4E00;&#x4E2A;&#x5339;&#x914D;&#x4E8E;&#x8BE5;&#x8BF7;&#x6C42;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#x3002;&#x4E0A;&#x56FE;&#x4E2D;&#x8FC7;&#x6EE4;&#x5668;&#x88AB;&#x865A;&#x7EBF;&#x5206;&#x9694;&#x7684;&#x539F;&#x56E0;&#x662F;&#xFF1A;&#x8FC7;&#x6EE4;&#x5668;&#x7684;&#x5904;&#x7406;&#x903B;&#x8F91;&#x53EF;&#x4EE5;&#x5728;&#x4EE3;&#x7406;&#x8BF7;&#x6C42;&#x53D1;&#x9001;&#x4E4B;&#x524D;&#x6216;&#x8005;&#x4E4B;&#x540E;&#x6267;&#x884C;&#x3002;&#x6240;&#x6709;pre&#x7C7B;&#x578B;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#x6267;&#x884C;&#x4E4B;&#x540E;&#xFF0C;&#x4EE3;&#x7406;&#x8BF7;&#x6C42;&#x624D;&#x4F1A;&#x521B;&#x5EFA;(&#x548C;&#x53D1;&#x9001;)&#xFF0C;&#x5F53;&#x4EE3;&#x7406;&#x8BF7;&#x6C42;&#x521B;&#x5EFA;(&#x548C;&#x53D1;&#x9001;)&#x5B8C;&#x6210;&#x4E4B;&#x540E;&#xFF0C;&#x6240;&#x6709;&#x7684;post&#x7C7B;&#x578B;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#x624D;&#x4F1A;&#x6267;&#x884C;&#x3002;</p>
+<p>&#x89C1;&#x4E0A;&#x56FE;&#xFF0C;&#x5916;&#x90E8;&#x8BF7;&#x6C42;&#x8FDB;&#x6765;&#x540E;&#x5982;&#x679C;&#x843D;&#x5165;&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#xFF0C;&#x90A3;&#x4E48;&#x865A;&#x7EBF;&#x5DE6;&#x8FB9;&#x7684;&#x5C31;&#x662F;pre&#x7C7B;&#x578B;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#xFF0C;&#x8BF7;&#x6C42;&#x5148;&#x7ECF;&#x8FC7;pre&#x7C7B;&#x578B;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#xFF0C;&#x518D;&#x53D1;&#x9001;&#x5230;&#x76EE;&#x6807;&#x88AB;&#x4EE3;&#x7406;&#x7684;&#x670D;&#x52A1;&#x3002;&#x76EE;&#x6807;&#x88AB;&#x4EE3;&#x7406;&#x7684;&#x670D;&#x52A1;&#x54CD;&#x5E94;&#x8BF7;&#x6C42;&#xFF0C;&#x54CD;&#x5E94;&#x4F1A;&#x518D;&#x6B21;&#x7ECF;&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8D70;&#x865A;&#x7EBF;&#x53F3;&#x4FA7;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#xFF0C;&#x8FD9;&#x4E9B;&#x8FC7;&#x6EE4;&#x5668;&#x5C31;&#x662F;post&#x7C7B;&#x578B;&#x7684;&#x8FC7;&#x6EE4;&#x5668;&#x3002;</p>
+<p>&#x6CE8;&#x610F;&#xFF0C;&#x5982;&#x679C;&#x5728;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x4E2D;&#x6CA1;&#x6709;&#x660E;&#x786E;&#x6307;&#x5B9A;&#x5BF9;&#x5E94;&#x7684;&#x8DEF;&#x7531;&#x7AEF;&#x53E3;&#xFF0C;&#x90A3;&#x4E48;&#x4F1A;&#x4F7F;&#x7528;&#x5982;&#x4E0B;&#x7684;&#x9ED8;&#x8BA4;&#x7AEF;&#x53E3;&#xFF1A;</p>
+<ul>
+<li>HTTP&#x534F;&#x8BAE;&#xFF0C;&#x4F7F;&#x7528;80&#x7AEF;&#x53E3;&#x3002;</li>
+<li>HTTPS&#x534F;&#x8BAE;&#xFF0C;&#x4F7F;&#x7528;443&#x7AEF;&#x53E3;&#x3002;</li>
+</ul>
+<h2 id="&#x5F15;&#x5165;&#x4F9D;&#x8D56;"><a href="#&#x5F15;&#x5165;&#x4F9D;&#x8D56;" class="headerlink" title="&#x5F15;&#x5165;&#x4F9D;&#x8D56;"></a>&#x5F15;&#x5165;&#x4F9D;&#x8D56;</h2><p>&#x5EFA;&#x8BAE;&#x76F4;&#x63A5;&#x901A;&#x8FC7;Train&#x7248;&#x672C;(&#x5176;&#x5B9E;&#x7B14;&#x8005;&#x8003;&#x7A76;&#x8FC7;&#xFF0C;Train&#x7248;&#x672C;&#x7684;&#x4EE3;&#x53F7;&#x5176;&#x5B9E;&#x662F;&#x4F26;&#x6566;&#x5730;&#x94C1;&#x7AD9;&#x7684;&#x547D;&#x540D;&#xFF0C;&#x50CF;&#x5F53;&#x524D;&#x7684;Spring Cloud&#x6700;&#x65B0;&#x7248;&#x672C;&#x662F;Greenwich.SR1&#xFF0C;Greenwich&#x53EF;&#x4EE5;&#x5728;&#x4F26;&#x6566;&#x5730;&#x94C1;&#x7AD9;&#x7684;&#x5730;&#x56FE;&#x67E5;&#x5230;&#x8FD9;&#x4E2A;&#x7AD9;&#x70B9;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;SpringBoot&#x7248;&#x672C;&#x662F;2.1.x)&#x5F15;&#x5165;Spring-Cloud-Gateway&#xFF0C;&#x56E0;&#x4E3A;&#x8FD9;&#x6837;&#x53EF;&#x4EE5;&#x8DDF;&#x4E0A;&#x6700;&#x65B0;&#x7A33;&#x5B9A;&#x7248;&#x672C;&#x7684;Spring-Cloud&#x7248;&#x672C;&#xFF0C;&#x53E6;&#x5916;&#x7531;&#x4E8E;Spring-Cloud-Gateway&#x57FA;&#x4E8E;Netty&#x7684;&#x8FD0;&#x884C;&#x65F6;&#x73AF;&#x5883;&#x542F;&#x52A8;&#xFF0C;&#x4E0D;&#x9700;&#x8981;&#x5F15;&#x5165;&#x5E26;Servlet&#x5BB9;&#x5668;&#x7684;spring-boot-starter-web&#x3002;</p>
+<p>&#x7236;POM&#x5F15;&#x5165;&#x4E0B;&#x9762;&#x7684;&#x914D;&#x7F6E;&#xFF1A;</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>Greenwich.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x542F;&#x52A8;&#x7C7B;&#x5373;&#x53EF;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RouteServerApplication</span> {</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">		SpringApplication.run(RouteServerApplication.class, args);</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h2 id="&#x7F51;&#x5173;&#x914D;&#x7F6E;"><a href="#&#x7F51;&#x5173;&#x914D;&#x7F6E;" class="headerlink" title="&#x7F51;&#x5173;&#x914D;&#x7F6E;"></a>&#x7F51;&#x5173;&#x914D;&#x7F6E;</h2><p>&#x7F51;&#x5173;&#x914D;&#x7F6E;&#x6700;&#x7EC8;&#x9700;&#x8981;&#x8F6C;&#x5316;&#x4E3A;&#x4E00;&#x4E2A;RouteDefinition&#x7684;&#x96C6;&#x5408;&#xFF0C;&#x914D;&#x7F6E;&#x7684;&#x5B9A;&#x4E49;&#x63A5;&#x53E3;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RouteDefinitionLocator</span> {</span><br><span class="line">	Flux&lt;RouteDefinition&gt; <span class="title function_">getRouteDefinitions</span><span class="params">()</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<p>&#x901A;&#x8FC7;YAML&#x6587;&#x4EF6;&#x914D;&#x7F6E;&#x6216;&#x8005;&#x6D41;&#x5F0F;&#x7F16;&#x7A0B;&#x5F0F;&#x914D;&#x7F6E;&#xFF08;&#x5176;&#x5B9E;&#x6587;&#x6863;&#x4E2D;&#x8FD8;&#x6709;&#x914D;&#x5408;Eureka&#x7684;DiscoveryClient&#x8FDB;&#x884C;&#x914D;&#x7F6E;&#xFF0C;&#x8FD9;&#x91CC;&#x6682;&#x65F6;&#x4E0D;&#x7814;&#x7A76;&#xFF09;&#xFF0C;&#x6700;&#x7EC8;&#x90FD;&#x662F;&#x4E3A;&#x4E86;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;RouteDefinition&#x7684;&#x96C6;&#x5408;&#x3002;</p>
+<h3 id="Yaml&#x914D;&#x7F6E;"><a href="#Yaml&#x914D;&#x7F6E;" class="headerlink" title="Yaml&#x914D;&#x7F6E;"></a>Yaml&#x914D;&#x7F6E;</h3><p>&#x914D;&#x7F6E;&#x5B9E;&#x73B0;&#x662F;PropertiesRouteDefinitionLocator&#xFF0C;&#x5173;&#x8054;&#x7740;&#x914D;&#x7F6E;&#x7C7B;GatewayProperties&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">datetime_after_route</span>    <span class="comment"># &lt;------ &#x8FD9;&#x91CC;&#x662F;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x7684;ID</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://www.throwable.club</span>  <span class="comment"># &lt;------ &#x8FD9;&#x91CC;&#x662F;&#x8DEF;&#x7531;&#x6700;&#x7EC8;&#x76EE;&#x6807;Server&#x7684;URI(Host)</span></span><br><span class="line">        <span class="attr">predicates:</span>                     <span class="comment"># &lt;------ &#x8C13;&#x8BCD;&#x96C6;&#x5408;&#x914D;&#x7F6E;&#xFF0C;&#x591A;&#x4E2A;&#x662F;&#x7528;and&#x903B;&#x8F91;&#x8FDE;&#x63A5;</span></span><br><span class="line">         <span class="bullet">-</span> <span class="string">Path=/blog</span>    <span class="comment"># &lt;------- Key(name)=Expression&#xFF0C;&#x952E;&#x662F;&#x8C13;&#x8BCD;&#x89C4;&#x5219;&#x5DE5;&#x5382;&#x7684;ID&#xFF0C;&#x503C;&#x4E00;&#x822C;&#x662F;&#x5339;&#x914D;&#x89C4;&#x5219;&#x7684;&#x6B63;&#x5219;&#x8868;&#x793A;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x7F16;&#x7A0B;&#x5F0F;&#x6D41;&#x5F0F;&#x914D;&#x7F6E;"><a href="#&#x7F16;&#x7A0B;&#x5F0F;&#x6D41;&#x5F0F;&#x914D;&#x7F6E;" class="headerlink" title="&#x7F16;&#x7A0B;&#x5F0F;&#x6D41;&#x5F0F;&#x914D;&#x7F6E;"></a>&#x7F16;&#x7A0B;&#x5F0F;&#x6D41;&#x5F0F;&#x914D;&#x7F6E;</h3><p>&#x7F16;&#x7A0B;&#x5F0F;&#x548C;&#x6D41;&#x5F0F;&#x7F16;&#x7A0B;&#x914D;&#x7F6E;&#x9700;&#x8981;&#x4F9D;&#x8D56;RouteLocatorBuilder&#xFF0C;&#x76EE;&#x6807;&#x662F;&#x6784;&#x9020;&#x4E00;&#x4E2A;RouteLocator&#x5B9E;&#x4F8B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> RouteLocator <span class="title function_">customRouteLocator</span><span class="params">(RouteLocatorBuilder builder)</span> {</span><br><span class="line">    <span class="keyword">return</span> builder.routes()</span><br><span class="line">            .route(r -&gt; r.path(<span class="string">&quot;/blog&quot;</span>)</span><br><span class="line">                .uri(<span class="string">&quot;http://www.throwable.club&quot;</span>)</span><br><span class="line">            )</span><br><span class="line">            .build();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;"><a href="#&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;" class="headerlink" title="&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;"></a>&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;</h2><p>Spring Cloud Gateway&#x5C06;&#x8DEF;&#x7531;(Route)&#x4F5C;&#x4E3A;Spring-WebFlux&#x7684;HandlerMapping&#x7EC4;&#x4EF6;&#x57FA;&#x7840;&#x8BBE;&#x65BD;&#x7684;&#x4E00;&#x90E8;&#x5206;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;HandlerMapping&#x8FDB;&#x884C;&#x5339;&#x914D;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F1A;&#x628A;&#x914D;&#x7F6E;&#x597D;&#x7684;&#x8DEF;&#x7531;&#x89C4;&#x5219;&#x4E5F;&#x7EB3;&#x5165;&#x5339;&#x914D;&#x673A;&#x5236;&#x4E4B;&#x4E2D;&#x3002;Spring Cloud Gateway&#x81EA;&#x8EAB;&#x5305;&#x542B;&#x4E86;&#x5F88;&#x591A;&#x5185;&#x5EFA;&#x7684;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;&#x3002;&#x8FD9;&#x4E9B;&#x8C13;&#x8BCD;&#x5206;&#x522B;&#x5339;&#x914D;&#x4E00;&#x4E2A;HTTP&#x8BF7;&#x6C42;&#x7684;&#x4E0D;&#x540C;&#x5C5E;&#x6027;&#x3002;&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;&#x53EF;&#x4EE5;&#x7528;and&#x7684;&#x903B;&#x8F91;&#x7EC4;&#x5408;&#x5728;&#x4E00;&#x8D77;&#x3002;</p>
+<p>&#x76EE;&#x524D;Spring Cloud Gateway&#x63D0;&#x4F9B;&#x7684;&#x5185;&#x7F6E;&#x7684;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5DE5;&#x5382;&#x5982;&#x4E0B;&#xFF1A;<br><img src="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/3.png"></p>
+<h3 id="&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x89C4;&#x5219;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x89C4;&#x5219;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x89C4;&#x5219;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x89C4;&#x5219;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>&#x6309;&#x7167;&#x914D;&#x7F6E;&#x7684;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x6307;&#x5B9A;&#x7684;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x6709;&#x4E09;&#x79CD;&#x53EF;&#x9009;&#x89C4;&#x5219;&#xFF1A;</p>
+<ul>
+<li>&#x5339;&#x914D;&#x8BF7;&#x6C42;&#x5728;&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x4E4B;&#x524D;&#x3002;</li>
+<li>&#x5339;&#x914D;&#x8BF7;&#x6C42;&#x5728;&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x4E4B;&#x540E;&#x3002;</li>
+<li>&#x5339;&#x914D;&#x8BF7;&#x6C42;&#x5728;&#x6307;&#x5B9A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x4E4B;&#x95F4;&#x3002;<br>&#x503C;&#x5F97;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x914D;&#x7F6E;&#x7684;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x5FC5;&#x987B;&#x6EE1;&#x8DB3;ZonedDateTime&#x7684;&#x683C;&#x5F0F;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//&#x5E74;&#x6708;&#x65E5;&#x548C;&#x65F6;&#x5206;&#x79D2;&#x7528;&apos;T&apos;&#x5206;&#x9694;,&#x63A5;&#x7740;-07:00&#x662F;&#x548C;UTC&#x76F8;&#x5DEE;&#x7684;&#x65F6;&#x95F4;&#xFF0C;&#x6700;&#x540E;&#x7684;[America/Denver]&#x662F;&#x6240;&#x5728;&#x7684;&#x65F6;&#x95F4;&#x5730;&#x533A;</span><br><span class="line">2017-01-20T17:42:47.789-07:00[America/Denver]</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>&#x4F8B;&#x5982;&#x7F51;&#x5173;&#x7684;&#x5E94;&#x7528;&#x662F;2019-05-01T00:00:00+08:00[Asia/Shanghai]&#x4E0A;&#x7EBF;&#x7684;&#xFF0C;&#x4E0A;&#x7EBF;&#x4E4B;&#x540E;&#x7684;&#x8BF7;&#x6C42;&#x90FD;&#x8DEF;&#x7531;&#x5965;<a target="_blank" rel="noopener" href="http://www.throwable.club&#xFF0C;&#x90A3;&#x4E48;&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;">www.throwable.club&#xFF0C;&#x90A3;&#x4E48;&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;</a></p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">9090</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">datetime_after_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://www.throwable.club</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">         <span class="bullet">-</span> <span class="string">After=2019-05-01T00:00:00+08:00[Asia/Shanghai]</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x6B64;&#x65F6;&#xFF0C;&#x53EA;&#x8981;&#x8BF7;&#x6C42;&#x7F51;&#x5173;<a href="http://localhost:9090&#xFF0C;&#x8BF7;&#x6C42;&#x5C31;&#x4F1A;&#x8F6C;&#x53D1;&#x5230;http://www.throwable.club&#x3002;">http://localhost:9090&#xFF0C;&#x8BF7;&#x6C42;&#x5C31;&#x4F1A;&#x8F6C;&#x53D1;&#x5230;http://www.throwable.club&#x3002;</a></p>
+<p>&#x5982;&#x679C;&#x60F3;&#x8981;&#x53EA;&#x5141;&#x8BB8;2019-05-01T00:00:00+08:00[Asia/Shanghai]&#x4E4B;&#x524D;&#x7684;&#x8BF7;&#x6C42;&#xFF0C;&#x90A3;&#x4E48;&#x53EA;&#x9700;&#x8981;&#x6539;&#x4E3A;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">9091</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">datetime_before_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://www.throwable.club</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">         <span class="bullet">-</span> <span class="string">Before=2019-05-01T00:00:00+08:00[Asia/Shanghai]</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5982;&#x679C;&#x53EA;&#x5141;&#x8BB8;&#x4E24;&#x4E2A;&#x65E5;&#x671F;&#x65F6;&#x95F4;&#x6BB5;&#x4E4B;&#x95F4;&#x7684;&#x65F6;&#x95F4;&#x8FDB;&#x884C;&#x8BF7;&#x6C42;&#xFF0C;&#x90A3;&#x4E48;&#x53EA;&#x9700;&#x8981;&#x6539;&#x4E3A;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">9090</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">datetime_between_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://www.throwable.club</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">         <span class="bullet">-</span> <span class="string">Between=2019-05-01T00:00:00+08:00[Asia/Shanghai],2019-05-02T00:00:00+08:00[Asia/Shanghai]</span></span><br></pre></td></tr></table></figure>
+<p>&#x90A3;&#x4E48;&#x53EA;&#x6709;2019&#x5E74;5&#x6708;1&#x65E5;0&#x65F6;&#x5230;5&#x6708;2&#x65E5;0&#x65F6;&#x7684;&#x8BF7;&#x6C42;&#x624D;&#x80FD;&#x6B63;&#x5E38;&#x8DEF;&#x7531;&#x3002;</p>
+<h3 id="Cookie&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#Cookie&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="Cookie&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>Cookie&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>CookieRoutePredicateFactory&#x9700;&#x8981;&#x63D0;&#x4F9B;&#x4E24;&#x4E2A;&#x53C2;&#x6570;&#xFF0C;&#x5206;&#x522B;&#x662F;Cookie&#x7684;name&#x548C;&#x4E00;&#x4E2A;&#x6B63;&#x5219;&#x8868;&#x8FBE;&#x5F0F;(value)&#x3002;&#x53EA;&#x6709;&#x5728;&#x8BF7;&#x6C42;&#x4E2D;&#x7684;Cookie&#x5BF9;&#x5E94;&#x7684;name&#x548C;value&#x548C;Cookie&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x4E2D;&#x914D;&#x7F6E;&#x7684;&#x503C;&#x5339;&#x914D;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x624D;&#x80FD;&#x5339;&#x914D;&#x547D;&#x4E2D;&#x8FDB;&#x884C;&#x8DEF;&#x7531;&#x3002;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">server</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">9090</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">cookie_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://www.throwable.club</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">         <span class="bullet">-</span> <span class="string">Cookie=doge,throwable</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8BF7;&#x6C42;&#x9700;&#x8981;&#x643A;&#x5E26;&#x4E00;&#x4E2A;Cookie&#xFF0C;name&#x4E3A;doge&#xFF0C;value&#x9700;&#x8981;&#x5339;&#x914D;&#x6B63;&#x5219;&#x8868;&#x8FBE;&#x5F0F;&#x201D;throwable&#x201D;&#x624D;&#x80FD;&#x8DEF;&#x7531;&#x5230;<a target="_blank" rel="noopener" href="http://www.throwable.club./">http://www.throwable.club&#x3002;</a></p>
+<p>&#x8FD9;&#x91CC;&#x5C1D;&#x8BD5;&#x672C;&#x5730;&#x642D;&#x5EFA;&#x4E00;&#x4E2A;&#x8BA2;&#x5355;Order&#x670D;&#x52A1;&#xFF0C;&#x57FA;&#x4E8E;SpringBoot2.1.4&#x642D;&#x5EFA;&#xFF0C;&#x542F;&#x52A8;&#x5728;9091&#x7AEF;&#x53E3;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#x5165;&#x53E3;&#x7C7B;</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = &quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderServiceApplication</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        SpringApplication.run(OrderServiceApplication.class, args);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;/cookie&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">cookie</span><span class="params">(<span class="meta">@CookieValue(name = &quot;doge&quot;)</span> String doge)</span> {</span><br><span class="line">        <span class="keyword">return</span> ResponseEntity.ok(doge);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8BA2;&#x5355;&#x670D;&#x52A1;application.yaml&#x914D;&#x7F6E;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">order-service</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">9091</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x7F51;&#x5173;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">route-server</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">cookie_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Cookie=doge,throwable</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/cookie --cookie &quot;doge=throwable&quot;</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">throwable</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Header&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#Header&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="Header&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>Header&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>HeaderRoutePredicateFactory&#x9700;&#x8981;&#x63D0;&#x4F9B;&#x4E24;&#x4E2A;&#x53C2;&#x6570;&#xFF0C;&#x5206;&#x522B;&#x662F;Header&#x7684;name&#x548C;&#x4E00;&#x4E2A;&#x6B63;&#x5219;&#x8868;&#x8FBE;&#x5F0F;(value)&#x3002;&#x53EA;&#x6709;&#x5728;&#x8BF7;&#x6C42;&#x4E2D;&#x7684;Header&#x5BF9;&#x5E94;&#x7684;name&#x548C;value&#x548C;Header&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x4E2D;&#x914D;&#x7F6E;&#x7684;&#x503C;&#x5339;&#x914D;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x624D;&#x80FD;&#x5339;&#x914D;&#x547D;&#x4E2D;&#x8FDB;&#x884C;&#x8DEF;&#x7531;&#x3002;</p>
+<p>&#x8BA2;&#x5355;&#x670D;&#x52A1;&#x4E2D;&#x65B0;&#x589E;&#x4E00;&#x4E2A;/header&#x7AEF;&#x70B9;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = &quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderServiceApplication</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        SpringApplication.run(OrderServiceApplication.class, args);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;/header&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">header</span><span class="params">(<span class="meta">@RequestHeader(name = &quot;accessToken&quot;)</span> String accessToken)</span> {</span><br><span class="line">        <span class="keyword">return</span> ResponseEntity.ok(accessToken);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x7F51;&#x5173;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">header_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Header=accessToken,Doge</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;accessToken:Doge&quot; http://localhost:9090/order/header</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">Doge</span><br></pre></td></tr></table></figure>
+
+<h3 id="Host&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#Host&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="Host&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>Host&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>HostRoutePredicateFactory&#x53EA;&#x9700;&#x8981;&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x4E3B;&#x673A;&#x540D;&#x5217;&#x8868;&#xFF0C;&#x5217;&#x8868;&#x4E2D;&#x7684;&#x6BCF;&#x4E2A;&#x5143;&#x7D20;&#x652F;&#x6301;Ant&#x547D;&#x540D;&#x6837;&#x5F0F;&#xFF0C;&#x4F7F;&#x7528;.&#x4F5C;&#x4E3A;&#x5206;&#x9694;&#x7B26;&#xFF0C;&#x591A;&#x4E2A;&#x5143;&#x7D20;&#x4E4B;&#x95F4;&#x4F7F;&#x7528;,&#x533A;&#x5206;&#x3002;Host&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5B9E;&#x9645;&#x4E0A;&#x9488;&#x5BF9;&#x7684;&#x662F;HTTP&#x8BF7;&#x6C42;&#x5934;&#x4E2D;&#x7684;Host&#x5C5E;&#x6027;&#x3002;</p>
+<p>&#x8BA2;&#x5355;&#x670D;&#x52A1;&#x4E2D;&#x65B0;&#x589E;&#x4E00;&#x4E2A;/header&#x7AEF;&#x70B9;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(path = &quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderServiceApplication</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        SpringApplication.run(OrderServiceApplication.class, args);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;/host&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">host</span><span class="params">(<span class="meta">@RequestHeader(name = &quot;Host&quot;)</span> String host)</span> {</span><br><span class="line">        <span class="keyword">return</span> ResponseEntity.ok(host);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x7F51;&#x5173;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">host_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Host=localhost:9090</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/host</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">localhost:9091  # &lt;--------- &#x8FD9;&#x91CC;&#x8981;&#x6CE8;&#x610F;&#x4E00;&#x4E0B;&#xFF0C;&#x8DEF;&#x7531;&#x5230;&#x8BA2;&#x5355;&#x670D;&#x52A1;&#x7684;&#x65F6;&#x5019;&#xFF0C;Host&#x4F1A;&#x88AB;&#x4FEE;&#x6539;&#x4E3A;localhost:9091</span><br></pre></td></tr></table></figure>
+
+<p>&#x5176;&#x5B9E;&#x53EF;&#x4EE5;&#x5B9A;&#x5236;&#x66F4;&#x591A;&#x6837;&#x5316;&#x7684;Host&#x5339;&#x914D;&#x6A21;&#x5F0F;&#xFF0C;&#x751A;&#x81F3;&#x53EF;&#x4EE5;&#x652F;&#x6301;URI&#x6A21;&#x677F;&#x53D8;&#x91CF;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- Host=www.throwable.**,**.throwable.**</span><br><span class="line"></span><br><span class="line">- Host={sub}.throwable.club</span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>MethodRoutePredicateFactory&#x53EA;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x53C2;&#x6570;&#xFF1A;&#x8981;&#x5339;&#x914D;&#x7684;HTTP&#x8BF7;&#x6C42;&#x65B9;&#x6CD5;&#x3002;</p>
+<p>&#x7F51;&#x5173;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">method_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Method=GET</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x6837;&#x914D;&#x7F6E;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x8FDB;&#x5165;&#x5230;&#x7F51;&#x5173;&#x7684;GET&#x65B9;&#x6CD5;&#x7684;&#x8BF7;&#x6C42;&#x90FD;&#x4F1A;&#x8DEF;&#x7531;&#x5230;<a href="http://localhost:9091&#x3002;">http://localhost:9091&#x3002;</a></p>
+<p>&#x8BA2;&#x5355;&#x670D;&#x52A1;&#x4E2D;&#x65B0;&#x589E;&#x4E00;&#x4E2A;/get&#x7AEF;&#x70B9;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/get&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">get</span><span class="params">()</span> {</span><br><span class="line">    <span class="keyword">return</span> ResponseEntity.ok(<span class="string">&quot;get&quot;</span>);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/get</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">get</span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>PathRoutePredicateFactory&#x9700;&#x8981;PathMatcher&#x6A21;&#x5F0F;&#x8DEF;&#x5F84;&#x5217;&#x8868;&#x548C;&#x4E00;&#x4E2A;&#x53EF;&#x9009;&#x7684;&#x6807;&#x5FD7;&#x4F4D;&#x53C2;&#x6570;matchOptionalTrailingSeparator&#x3002;&#x8FD9;&#x4E2A;&#x662F;&#x6700;&#x5E38;&#x7528;&#x7684;&#x4E00;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x3002;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">path_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/order/path</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/path&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">path</span><span class="params">()</span> {</span><br><span class="line">    <span class="keyword">return</span> ResponseEntity.ok(<span class="string">&quot;path&quot;</span>);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/path</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">path</span><br></pre></td></tr></table></figure>
+
+<p>&#x6B64;&#x5916;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;{segment}&#x5360;&#x4F4D;&#x7B26;&#x914D;&#x7F6E;&#x8DEF;&#x5F84;&#x5982;/foo/1&#x6216;/foo/bar&#x6216;/bar/baz&#xFF0C;&#x5982;&#x679C;&#x901A;&#x8FC7;&#x8FD9;&#x79CD;&#x5F62;&#x5F0F;&#x914D;&#x7F6E;&#xFF0C;&#x5728;&#x5339;&#x914D;&#x547D;&#x4E2D;&#x8FDB;&#x884C;&#x8DEF;&#x7531;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F1A;&#x63D0;&#x53D6;&#x8DEF;&#x5F84;&#x4E2D;&#x5BF9;&#x5E94;&#x7684;&#x5185;&#x5BB9;&#x5E76;&#x4E14;&#x5C06;&#x952E;&#x503C;&#x5BF9;&#x653E;&#x5728;ServerWebExchange.getAttributes()&#x96C6;&#x5408;&#x4E2D;&#xFF0C;KEY&#x4E3A;ServerWebExchangeUtils.URI_TEMPLATE_VARIABLES_ATTRIBUTE&#xFF0C;&#x8FD9;&#x4E9B;&#x63D0;&#x53D6;&#x51FA;&#x6765;&#x7684;&#x5C5E;&#x6027;&#x53EF;&#x4EE5;&#x4F9B;GatewayFilter Factories&#x4F7F;&#x7528;&#x3002;</p>
+<h3 id="&#x8BF7;&#x6C42;&#x67E5;&#x8BE2;&#x53C2;&#x6570;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#&#x8BF7;&#x6C42;&#x67E5;&#x8BE2;&#x53C2;&#x6570;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="&#x8BF7;&#x6C42;&#x67E5;&#x8BE2;&#x53C2;&#x6570;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>&#x8BF7;&#x6C42;&#x67E5;&#x8BE2;&#x53C2;&#x6570;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>QueryRoutePredicateFactory&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x5FC5;&#x987B;&#x7684;&#x8BF7;&#x6C42;&#x67E5;&#x8BE2;&#x53C2;&#x6570;(param&#x7684;name)&#x4EE5;&#x53CA;&#x4E00;&#x4E2A;&#x53EF;&#x9009;&#x7684;&#x6B63;&#x5219;&#x8868;&#x8FBE;&#x5F0F;(regexp)&#x3002;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">query_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Query=doge,throwabl.</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x91CC;&#x914D;&#x7F6E;&#x7684;param&#x5C31;&#x662F;doge&#xFF0C;&#x6B63;&#x5219;&#x8868;&#x8FBE;&#x5F0F;&#x662F;throwabl.&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/query&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">query</span><span class="params">(<span class="meta">@RequestParam(&quot;name&quot;)</span> String doge)</span> {</span><br><span class="line">  <span class="keyword">return</span> ResponseEntity.ok(doge);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/query?doge=throwable</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">throwable</span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x8FDC;&#x7A0B;IP&#x5730;&#x5740;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"><a href="#&#x8FDC;&#x7A0B;IP&#x5730;&#x5740;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;" class="headerlink" title="&#x8FDC;&#x7A0B;IP&#x5730;&#x5740;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;"></a>&#x8FDC;&#x7A0B;IP&#x5730;&#x5740;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;</h3><p>RemoteAddrRoutePredicateFactory&#x5339;&#x914D;&#x89C4;&#x5219;&#x91C7;&#x7528;CIDR&#x7B26;&#x53F7;&#xFF08;IPv4&#x6216;IPv6&#xFF09;&#x5B57;&#x7B26;&#x4E32;&#x7684;&#x5217;&#x8868;&#xFF08;&#x6700;&#x5C0F;&#x503C;&#x4E3A;1&#xFF09;&#xFF0C;&#x4F8B;&#x5982;192.168.0.1/16&#xFF08;&#x5176;&#x4E2D;192.168.0.1&#x662F;&#x8FDC;&#x7A0B;IP&#x5730;&#x5740;&#x5E76;&#x4E14;16&#x662F;&#x5B50;&#x7F51;&#x63A9;&#x7801;&#xFF09;&#x3002;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">remoteaddr_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">RemoteAddr=127.0.0.1</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/remote&quot;)</span></span><br><span class="line"><span class="keyword">public</span> ResponseEntity&lt;String&gt; <span class="title function_">remote</span><span class="params">()</span> {</span><br><span class="line">  <span class="keyword">return</span> ResponseEntity.ok(<span class="string">&quot;remote&quot;</span>);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:9090/order/remote</span><br><span class="line"></span><br><span class="line">//&#x54CD;&#x5E94;&#x7ED3;&#x679C;</span><br><span class="line">remote</span><br></pre></td></tr></table></figure>
+
+<p>&#x5173;&#x4E8E;&#x8FDC;&#x7A0B;IP&#x8DEF;&#x7531;&#x8FD9;&#x4E00;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x5176;&#x5B9E;&#x8FD8;&#x6709;&#x5F88;&#x591A;&#x6269;&#x5C55;&#x624B;&#x6BB5;&#xFF0C;&#x8FD9;&#x91CC;&#x6682;&#x65F6;&#x4E0D;&#x5C55;&#x5F00;&#x3002;</p>
+<h3 id="&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x7EC4;&#x5408;"><a href="#&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x7EC4;&#x5408;" class="headerlink" title="&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x7EC4;&#x5408;"></a>&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x8C13;&#x8BCD;&#x7EC4;&#x5408;</h3><p>&#x56E0;&#x4E3A;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x4E2D;&#x7684;predicates&#x5C5E;&#x6027;&#x5176;&#x5B9E;&#x662F;&#x4E00;&#x4E2A;&#x5217;&#x8868;&#xFF0C;&#x53EF;&#x4EE5;&#x76F4;&#x63A5;&#x6DFB;&#x52A0;&#x591A;&#x4E2A;&#x8DEF;&#x7531;&#x89C4;&#x5219;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">remoteaddr_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">http://localhost:9091</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">RemoteAddr=xxxx</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Path=/yyyy</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Query=zzzz,aaaa</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x4E9B;&#x89C4;&#x5219;&#x662F;&#x7528;and&#x903B;&#x8F91;&#x7EC4;&#x5408;&#x7684;&#xFF0C;&#x4F8B;&#x5982;&#x4E0A;&#x9762;&#x7684;&#x4F8B;&#x5B50;&#x76F8;&#x5F53;&#x4E8E;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">request = ...</span><br><span class="line"><span class="keyword">if</span>(request.getRemoteAddr == <span class="string">&apos;xxxx&apos;</span> &amp;&amp; request.getPath match <span class="string">&apos;/yyyy&apos;</span> &amp;&amp; request.getQuery(<span class="string">&apos;zzzz&apos;</span>) match <span class="string">&apos;aaaa&apos;</span>) {</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">}</span><br><span class="line"><span class="keyword">return</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="GatewayFilter&#x5DE5;&#x5382;"><a href="#GatewayFilter&#x5DE5;&#x5382;" class="headerlink" title="GatewayFilter&#x5DE5;&#x5382;"></a>GatewayFilter&#x5DE5;&#x5382;</h2><p>&#x8DEF;&#x7531;&#x8FC7;&#x6EE4;&#x5668;GatewayFilter&#x5141;&#x8BB8;&#x4FEE;&#x6539;&#x8FDB;&#x6765;&#x7684;HTTP&#x8BF7;&#x6C42;&#x5185;&#x5BB9;&#x6216;&#x8005;&#x8FD4;&#x56DE;&#x7684;HTTP&#x54CD;&#x5E94;&#x5185;&#x5BB9;&#x3002;&#x8DEF;&#x7531;&#x8FC7;&#x6EE4;&#x5668;&#x7684;&#x4F5C;&#x7528;&#x57DF;&#x662F;&#x4E00;&#x4E2A;&#x5177;&#x4F53;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x3002;Spring Cloud Gateway&#x63D0;&#x4F9B;&#x4E86;&#x4E30;&#x5BCC;&#x7684;&#x5185;&#x5EFA;&#x7684;GatewayFilter&#x5DE5;&#x5382;&#xFF0C;&#x53EF;&#x4EE5;&#x6309;&#x9700;&#x9009;&#x7528;&#x3002;</p>
+<p>&#x56E0;&#x4E3A;GatewayFilter&#x5DE5;&#x5382;&#x7C7B;&#x5B9E;&#x5728;&#x592A;&#x591A;&#xFF0C;&#x7B14;&#x8005;&#x8FD9;&#x91CC;&#x4E3E;&#x4E2A;&#x7B80;&#x5355;&#x7684;&#x4F8B;&#x5B50;&#x3002;</p>
+<p>&#x5982;&#x679C;&#x6211;&#x4EEC;&#x60F3;&#x5BF9;&#x67D0;&#x4E9B;&#x8BF7;&#x6C42;&#x9644;&#x52A0;&#x7279;&#x6B8A;&#x7684;HTTP&#x8BF7;&#x6C42;&#x5934;&#xFF0C;&#x53EF;&#x4EE5;&#x9009;&#x7528;AddRequestHeaderX-Request-Foo:Bar&#xFF0C;application.yml&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">add_request_header_route</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">https://example.org</span></span><br><span class="line">        <span class="attr">filters:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">AddRequestHeader=X-Request-Foo,Bar</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x90A3;&#x4E48;&#x6240;&#x6709;&#x7684;&#x4ECE;&#x7F51;&#x5173;&#x5165;&#x53E3;&#x7684;HTTP&#x8BF7;&#x6C42;&#x90FD;&#x4F1A;&#x6DFB;&#x52A0;&#x4E00;&#x4E2A;&#x7279;&#x6B8A;&#x7684;HTTP&#x8BF7;&#x6C42;&#x5934;&#xFF1A;X-Request-Foo:Bar&#x3002;</p>
+<p>&#x76EE;&#x524D;GatewayFilter&#x5DE5;&#x5382;&#x7684;&#x5185;&#x5EFA;&#x5B9E;&#x73B0;&#x5982;&#x4E0B;&#xFF1A;</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>&#x7C7B;&#x540D;</th>
+<th>&#x7C7B;&#x578B;</th>
+<th>&#x529F;&#x80FD;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>StripPrefix</td>
+<td>StripPrefixGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x79FB;&#x9664;&#x8BF7;&#x6C42;URL&#x8DEF;&#x5F84;&#x7684;&#x7B2C;&#x4E00;&#x90E8;&#x5206;&#xFF0C;&#x4F8B;&#x5982;&#x539F;&#x59CB;&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x662F;/order/query&#xFF0C;&#x5904;&#x7406;&#x540E;&#x662F;/query</td>
+</tr>
+<tr>
+<td>SetStatus</td>
+<td>SetStatusGatewayFilterFactory</td>
+<td>post</td>
+<td>&#x8BBE;&#x7F6E;&#x8BF7;&#x6C42;&#x54CD;&#x5E94;&#x7684;&#x72B6;&#x6001;&#x7801;&#xFF0C;&#x4F1A;&#x4ECE;org.springframework.http.HttpStatus&#x4E2D;&#x89E3;&#x6790;</td>
+</tr>
+<tr>
+<td>SetResponseHeader</td>
+<td>SetResponseHeaderGatewayFilterFactory</td>
+<td>post</td>
+<td>&#x8BBE;&#x7F6E;(&#x6DFB;&#x52A0;)&#x8BF7;&#x6C42;&#x54CD;&#x5E94;&#x7684;&#x54CD;&#x5E94;&#x5934;</td>
+</tr>
+<tr>
+<td>SetRequestHeader</td>
+<td>SetRequestHeaderGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x8BBE;&#x7F6E;(&#x6DFB;&#x52A0;)&#x8BF7;&#x6C42;&#x5934;</td>
+</tr>
+<tr>
+<td>SetPath</td>
+<td>SetPathGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x8BBE;&#x7F6E;(&#x8986;&#x76D6;)&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;</td>
+</tr>
+<tr>
+<td>SecureHeader</td>
+<td>SecureHeadersGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x8BBE;&#x7F6E;&#x5B89;&#x5168;&#x76F8;&#x5173;&#x7684;&#x8BF7;&#x6C42;&#x5934;&#xFF0C;&#x89C1;SecureHeadersProperties</td>
+</tr>
+<tr>
+<td>SaveSession</td>
+<td>SaveSessionGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x4FDD;&#x5B58;WebSession</td>
+</tr>
+<tr>
+<td>RewriteResponseHeader</td>
+<td>RewriteResponseHeaderGatewayFilterFactory</td>
+<td>post</td>
+<td>&#x91CD;&#x65B0;&#x54CD;&#x5E94;&#x5934;</td>
+</tr>
+<tr>
+<td>RewritePath</td>
+<td>RewritePathGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x91CD;&#x5199;&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;</td>
+</tr>
+<tr>
+<td>Retry</td>
+<td>RetryGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x57FA;&#x4E8E;&#x6761;&#x4EF6;&#x5BF9;&#x8BF7;&#x6C42;&#x8FDB;&#x884C;&#x91CD;&#x8BD5;</td>
+</tr>
+<tr>
+<td>RequestSize</td>
+<td>RequestSizeGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x9650;&#x5236;&#x8BF7;&#x6C42;&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x5355;&#x4F4D;&#x662F;byte&#xFF0C;&#x8D85;&#x8FC7;&#x8BBE;&#x5B9A;&#x503C;&#x8FD4;&#x56DE;413 Payload Too Large</td>
+</tr>
+<tr>
+<td>RequestRateLimiter</td>
+<td>RequestRateLimiterGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x9650;&#x6D41;</td>
+</tr>
+<tr>
+<td>RequestHeaderToRequestUri</td>
+<td>RequestHeaderToRequestUriGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x901A;&#x8FC7;&#x8BF7;&#x6C42;&#x5934;&#x7684;&#x503C;&#x6539;&#x53D8;&#x8BF7;&#x6C42;URL</td>
+</tr>
+<tr>
+<td>RemoveResponseHeader</td>
+<td>RemoveResponseHeaderGatewayFilterFactory</td>
+<td>post</td>
+<td>&#x79FB;&#x9664;&#x914D;&#x7F6E;&#x7684;&#x54CD;&#x5E94;&#x5934;</td>
+</tr>
+<tr>
+<td>RemoveRequestHeader</td>
+<td>RemoveRequestHeaderGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x79FB;&#x9664;&#x914D;&#x7F6E;&#x7684;&#x8BF7;&#x6C42;&#x5934;</td>
+</tr>
+<tr>
+<td>RedirectTo</td>
+<td>RedirectToGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x91CD;&#x5B9A;&#x5411;&#xFF0C;&#x9700;&#x8981;&#x6307;&#x5B9A;HTTP&#x72B6;&#x6001;&#x7801;&#x548C;&#x91CD;&#x5B9A;&#x5411;URL</td>
+</tr>
+<tr>
+<td>PreserveHostHeader</td>
+<td>PreserveHostHeaderGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x8BBE;&#x7F6E;&#x8BF7;&#x6C42;&#x643A;&#x5E26;&#x7684;&#x5C5E;&#x6027;preserveHostHeader&#x4E3A;true</td>
+</tr>
+<tr>
+<td>PrefixPath</td>
+<td>PrefixPathGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;&#x6DFB;&#x52A0;&#x524D;&#x7F6E;&#x8DEF;&#x5F84;</td>
+</tr>
+<tr>
+<td>Hystrix</td>
+<td>HystrixGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x6574;&#x5408;Hystrix</td>
+</tr>
+<tr>
+<td>FallbackHeaders</td>
+<td>FallbackHeadersGatewayFilterFactory</td>
+<td>pre</td>
+<td>Hystrix&#x6267;&#x884C;&#x5982;&#x679C;&#x547D;&#x4E2D;&#x964D;&#x7EA7;&#x903B;&#x8F91;&#x5141;&#x8BB8;&#x901A;&#x8FC7;&#x8BF7;&#x6C42;&#x5934;&#x643A;&#x5E26;&#x5F02;&#x5E38;&#x660E;&#x7EC6;&#x4FE1;&#x606F;</td>
+</tr>
+<tr>
+<td>AddResponseHeader</td>
+<td>AddResponseHeaderGatewayFilterFactory</td>
+<td>post</td>
+<td>&#x6DFB;&#x52A0;&#x54CD;&#x5E94;&#x5934;</td>
+</tr>
+<tr>
+<td>AddRequestParameter</td>
+<td>AddRequestParameterGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x6DFB;&#x52A0;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#xFF0C;&#x4EC5;&#x4EC5;&#x9650;&#x4E8E;URL&#x7684;Query&#x53C2;&#x6570;</td>
+</tr>
+<tr>
+<td>AddRequestHeader</td>
+<td>AddRequestHeaderGatewayFilterFactory</td>
+<td>pre</td>
+<td>&#x6DFB;&#x52A0;&#x8BF7;&#x6C42;&#x5934;</td>
+</tr>
+</tbody></table>
+<p>GatewayFilter&#x5DE5;&#x5382;&#x4F7F;&#x7528;&#x7684;&#x65F6;&#x5019;&#x9700;&#x8981;&#x77E5;&#x9053;&#x5176;ID&#x4EE5;&#x53CA;&#x914D;&#x7F6E;&#x65B9;&#x5F0F;&#xFF0C;&#x914D;&#x7F6E;&#x65B9;&#x5F0F;&#x53EF;&#x4EE5;&#x770B;&#x5BF9;&#x5E94;&#x5DE5;&#x5382;&#x7C7B;&#x7684;&#x516C;&#x6709;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;XXXXConfig&#x3002;</p>
+<h2 id="GlobalFilter&#x5DE5;&#x5382;"><a href="#GlobalFilter&#x5DE5;&#x5382;" class="headerlink" title="GlobalFilter&#x5DE5;&#x5382;"></a>GlobalFilter&#x5DE5;&#x5382;</h2><p>GlobalFilter&#x7684;&#x529F;&#x80FD;&#x5176;&#x5B9E;&#x548C;GatewayFilter&#x662F;&#x76F8;&#x540C;&#x7684;&#xFF0C;&#x53EA;&#x662F;GlobalFilter&#x7684;&#x4F5C;&#x7528;&#x57DF;&#x662F;&#x6240;&#x6709;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x7ED1;&#x5B9A;&#x5728;&#x6307;&#x5B9A;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x4E0A;&#x3002;&#x591A;&#x4E2A;GlobalFilter&#x53EF;&#x4EE5;&#x901A;&#x8FC7;@Order&#x6216;&#x8005;getOrder()&#x65B9;&#x6CD5;&#x6307;&#x5B9A;&#x6BCF;&#x4E2A;GlobalFilter&#x7684;&#x6267;&#x884C;&#x987A;&#x5E8F;&#xFF0C;order&#x503C;&#x8D8A;&#x5C0F;&#xFF0C;GlobalFilter&#x6267;&#x884C;&#x7684;&#x4F18;&#x5148;&#x7EA7;&#x8D8A;&#x9AD8;&#x3002;</p>
+<p>&#x6CE8;&#x610F;&#xFF0C;&#x7531;&#x4E8E;&#x8FC7;&#x6EE4;&#x5668;&#x6709;pre&#x548C;post&#x4E24;&#x79CD;&#x7C7B;&#x578B;&#xFF0C;pre&#x7C7B;&#x578B;&#x8FC7;&#x6EE4;&#x5668;&#x5982;&#x679C;order&#x503C;&#x8D8A;&#x5C0F;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x5C31;&#x5E94;&#x8BE5;&#x5728;pre&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#x7684;&#x9876;&#x5C42;&#xFF0C;post&#x7C7B;&#x578B;&#x8FC7;&#x6EE4;&#x5668;&#x5982;&#x679C;order&#x503C;&#x8D8A;&#x5C0F;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x5C31;&#x5E94;&#x8BE5;&#x5728;pre&#x8FC7;&#x6EE4;&#x5668;&#x94FE;&#x7684;&#x5E95;&#x5C42;&#x3002;&#x793A;&#x610F;&#x56FE;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p><img src="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/4.png"></p>
+<p>&#x4F8B;&#x5982;&#x8981;&#x5B9E;&#x73B0;&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#x7684;&#x529F;&#x80FD;&#xFF0C;application.yml&#x914D;&#x7F6E;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">myRoute</span></span><br><span class="line">        <span class="attr">uri:</span> <span class="string">lb://myservice</span>   <span class="comment"># &lt;-------- lb&#x7279;&#x6B8A;&#x6807;&#x8BB0;&#x4F1A;&#x4F7F;&#x7528;LoadBalancerClient&#x641C;&#x7D22;&#x76EE;&#x6807;&#x670D;&#x52A1;&#x8FDB;&#x884C;&#x8D1F;&#x8F7D;&#x5747;&#x8861;</span></span><br><span class="line">        <span class="attr">predicates:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Path=/service/**</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x76EE;&#x524D;Spring Cloud Gateway&#x63D0;&#x4F9B;&#x7684;&#x5185;&#x5EFA;&#x7684;GlobalFilter&#x5982;&#x4E0B;&#xFF1A;</p>
+<table>
+<thead>
+<tr>
+<th>&#x7C7B;&#x540D;</th>
+<th>&#x529F;&#x80FD;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ForwardRoutingFilter</td>
+<td>&#x91CD;&#x5B9A;&#x5411;</td>
+</tr>
+<tr>
+<td>LoadBalancerClientFilter</td>
+<td>&#x8D1F;&#x8F7D;&#x5747;&#x8861;</td>
+</tr>
+<tr>
+<td>NettyRoutingFilter</td>
+<td>Netty&#x7684;HTTP&#x5BA2;&#x6237;&#x7AEF;&#x7684;&#x8DEF;&#x7531;</td>
+</tr>
+<tr>
+<td>NettyWriteResponseFilter</td>
+<td>Netty&#x54CD;&#x5E94;&#x8FDB;&#x884C;&#x5199;&#x64CD;&#x4F5C;</td>
+</tr>
+<tr>
+<td>RouteToRequestUrlFilter</td>
+<td>&#x57FA;&#x4E8E;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x66F4;&#x65B0;URL</td>
+</tr>
+<tr>
+<td>WebsocketRoutingFilter</td>
+<td>Websocket&#x8BF7;&#x6C42;&#x8F6C;&#x53D1;&#x5230;&#x4E0B;&#x6E38;</td>
+</tr>
+</tbody></table>
+<p>&#x5185;&#x5EFA;&#x7684;GlobalFilter&#x5927;&#x591A;&#x6570;&#x548C;ServerWebExchangeUtils&#x7684;&#x5C5E;&#x6027;&#x76F8;&#x5173;&#xFF0C;&#x8FD9;&#x91CC;&#x5C31;&#x4E0D;&#x6DF1;&#x5165;&#x5C55;&#x5F00;&#x3002;</p>
+<h2 id="&#x8DE8;&#x57DF;&#x914D;&#x7F6E;"><a href="#&#x8DE8;&#x57DF;&#x914D;&#x7F6E;" class="headerlink" title="&#x8DE8;&#x57DF;&#x914D;&#x7F6E;"></a>&#x8DE8;&#x57DF;&#x914D;&#x7F6E;</h2><p>&#x7F51;&#x5173;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x914D;&#x7F6E;&#x6765;&#x63A7;&#x5236;&#x5168;&#x5C40;&#x7684;CORS&#x884C;&#x4E3A;&#x3002;&#x5168;&#x5C40;&#x7684;CORS&#x914D;&#x7F6E;&#x5BF9;&#x5E94;&#x7684;&#x7C7B;&#x662F;CorsConfiguration&#xFF0C;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x662F;&#x4E00;&#x4E2A;URL&#x6A21;&#x5F0F;&#x7684;&#x6620;&#x5C04;&#x3002;&#x4F8B;&#x5982;application.yaml&#x6587;&#x4EF6;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">globalcors:</span></span><br><span class="line">        <span class="attr">corsConfigurations:</span></span><br><span class="line">          <span class="string">&apos;[/**]&apos;</span><span class="string">:</span></span><br><span class="line">            <span class="attr">allowedOrigins:</span> <span class="string">&quot;https://docs.spring.io&quot;</span></span><br><span class="line">            <span class="attr">allowedMethods:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">GET</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;&#x4E0A;&#x9762;&#x7684;&#x793A;&#x4F8B;&#x4E2D;&#xFF0C;&#x5BF9;&#x4E8E;&#x6240;&#x6709;&#x8BF7;&#x6C42;&#x7684;&#x8DEF;&#x5F84;&#xFF0C;&#x5C06;&#x5141;&#x8BB8;&#x6765;&#x81EA;docs.spring.io&#x5E76;&#x4E14;&#x662F;GET&#x65B9;&#x6CD5;&#x7684;CORS&#x8BF7;&#x6C42;&#x3002;</p>
+<h2 id="Actuator&#x7AEF;&#x70B9;&#x76F8;&#x5173;"><a href="#Actuator&#x7AEF;&#x70B9;&#x76F8;&#x5173;" class="headerlink" title="Actuator&#x7AEF;&#x70B9;&#x76F8;&#x5173;"></a>Actuator&#x7AEF;&#x70B9;&#x76F8;&#x5173;</h2><p>&#x5F15;&#x5165;spring-boot-starter-actuator&#xFF0C;&#x9700;&#x8981;&#x505A;&#x4EE5;&#x4E0B;&#x914D;&#x7F6E;&#x5F00;&#x542F;gateway&#x76D1;&#x63A7;&#x7AEF;&#x70B9;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">management.endpoint.gateway.enabled=true</span><br><span class="line">management.endpoints.web.exposure.include=gateway</span><br></pre></td></tr></table></figure>
+
+<p>&#x76EE;&#x524D;&#x652F;&#x6301;&#x7684;&#x7AEF;&#x70B9;&#x5217;&#x8868;&#xFF1A;</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>&#x8BF7;&#x6C42;&#x8DEF;&#x5F84;</th>
+<th>HTTP&#x65B9;&#x6CD5;</th>
+<th>&#x63CF;&#x8FF0;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>globalfilters</td>
+<td>/actuator/gateway/globalfilters</td>
+<td>GET</td>
+<td>&#x5C55;&#x793A;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x4E2D;&#x7684;GlobalFilter&#x5217;&#x8868;</td>
+</tr>
+<tr>
+<td>routefilters</td>
+<td>/actuator/gateway/routefilters</td>
+<td>GE</td>
+<td>T	&#x5C55;&#x793A;&#x7ED1;&#x5B9A;&#x5230;&#x5BF9;&#x5E94;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x7684;GatewayFilter&#x5217;&#x8868;</td>
+</tr>
+<tr>
+<td>refresh</td>
+<td>/actuator/gateway/refresh</td>
+<td>POST</td>
+<td>&#x6E05;&#x7A7A;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x7F13;&#x5B58;</td>
+</tr>
+<tr>
+<td>routes</td>
+<td>/actuator/gateway/routes</td>
+<td>GET</td>
+<td>&#x5C55;&#x793A;&#x5DF2;&#x7ECF;&#x5B9A;&#x4E49;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x5217;&#x8868;</td>
+</tr>
+<tr>
+<td>routes/{id}</td>
+<td>/actuator/gateway/routes/{id}</td>
+<td>GET</td>
+<td>&#x5C55;&#x793A;&#x5BF9;&#x5E94;ID&#x5DF2;&#x7ECF;&#x5B9A;&#x4E49;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;</td>
+</tr>
+<tr>
+<td>routes/{id}</td>
+<td>/actuator/gateway/routes/{id}</td>
+<td>POST</td>
+<td>&#x6DFB;&#x52A0;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;</td>
+</tr>
+<tr>
+<td>routes/{id}</td>
+<td>/actuator/gateway/routes/{id}</td>
+<td>DELETE</td>
+<td>&#x5220;&#x9664;&#x6307;&#x5B9A;ID&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;</td>
+</tr>
+</tbody></table>
+<p>&#x5176;&#x4E2D;/actuator/gateway/routes/{id}&#x6DFB;&#x52A0;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x8DEF;&#x7531;&#x914D;&#x7F6E;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x7684;&#x683C;&#x5F0F;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;first_route&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;predicates&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">{</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Path&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span> <span class="punctuation">{</span><span class="attr">&quot;doge&quot;</span><span class="punctuation">:</span><span class="string">&quot;/throwable&quot;</span><span class="punctuation">}</span></span><br><span class="line">  <span class="punctuation">}</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;filters&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;uri&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://www.throwable.club&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;order&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="&#x5C0F;&#x7ED3;"><a href="#&#x5C0F;&#x7ED3;" class="headerlink" title="&#x5C0F;&#x7ED3;"></a>&#x5C0F;&#x7ED3;</h2><p>&#x7B14;&#x8005;&#x867D;&#x7136;&#x662F;&#x4E00;&#x4E2A;&#x5E95;&#x5C42;&#x7684;&#x7801;&#x755C;&#xFF0C;&#x4F46;&#x662F;&#x5F88;&#x4E45;&#x4E4B;&#x524D;&#x5C31;&#x5411;&#x8EAB;&#x8FB9;&#x7684;&#x670B;&#x53CB;&#x8BF4;&#xFF1A;</p>
+<blockquote>
+<p>&#x53CD;&#x5E94;&#x5F0F;&#x7F16;&#x7A0B;&#x7ED3;&#x5408;&#x540C;&#x6B65;&#x975E;&#x963B;&#x585E;IO&#x6216;&#x8005;&#x5F02;&#x6B65;&#x975E;&#x963B;&#x585E;IO&#x662F;&#x76EE;&#x524D;&#x7F51;&#x7EDC;&#x7F16;&#x7A0B;&#x6846;&#x67B6;&#x7684;&#x4E3B;&#x6D41;&#x65B9;&#x5411;&#xFF0C;&#x6700;&#x597D;&#x8981;&#x8DDF;&#x4E0A;&#x4E3B;&#x6D41;&#x7684;&#x6B65;&#x4F10;&#x638C;&#x63E1;&#x8FD9;&#x4E9B;&#x6846;&#x67B6;&#x7684;&#x4F7F;&#x7528;&#xFF0C;&#x6709;&#x80FD;&#x529B;&#x6700;&#x597D;&#x6210;&#x4E3A;&#x5B83;&#x4EEC;&#x7684;&#x8D21;&#x732E;&#x8005;&#x3002;</p>
+</blockquote>
+<p>&#x76EE;&#x524D;&#x5E38;&#x89C1;&#x7684;&#x53CD;&#x5E94;&#x5F0F;&#x7F16;&#x7A0B;&#x6846;&#x67B6;&#x6709;&#xFF1A;</p>
+<ul>
+<li>Reactor&#x548C;RxJava2&#xFF0C;&#x5176;&#x4E2D;Reactor&#x5728;&#x540E;&#x7AEF;&#x7684;JVM&#x5E94;&#x7528;&#x6BD4;&#x8F83;&#x5E38;&#x89C1;&#xFF0C;RxJava2&#x5728;&#x5B89;&#x5353;&#x7F16;&#x5199;&#x7684;APP&#x5BA2;&#x6237;&#x7AEF;&#x6BD4;&#x8F83;&#x5E38;&#x89C1;&#x3002;</li>
+<li>Reactor-Netty&#xFF0C;&#x8FD9;&#x4E2A;&#x662F;&#x57FA;&#x4E8E;Reactor&#x548C;Netty&#x5C01;&#x88C5;&#x7684;&#x3002;</li>
+<li>Spring-WebFlux&#x548C;Spring-Cloud-Gateway&#xFF0C;&#x5176;&#x4E2D;Spring-Cloud-Gateway&#x4F9D;&#x8D56;Spring-WebFlux&#xFF0C;&#x800C;Spring-WebFlux&#x5E95;&#x5C42;&#x4F9D;&#x8D56;&#x4E8E;Reactor-Netty&#x3002;<br>&#x6839;&#x636E;&#x8FD9;&#x4E2A;&#x94FE;&#x5F0F;&#x5173;&#x7CFB;&#xFF0C;&#x6700;&#x597D;&#x7CFB;&#x7EDF;&#x5B66;&#x4E60;&#x4E00;&#x4E0B;Reactor&#x548C;Netty&#x3002;</li>
+</ul>
+<h2 id="&#x9644;&#x5F55;"><a href="#&#x9644;&#x5F55;" class="headerlink" title="&#x9644;&#x5F55;"></a>&#x9644;&#x5F55;</h2><p>&#x9009;&#x7528;Spring-Cloud-Gateway&#x4E0D;&#x4EC5;&#x4EC5;&#x662F;&#x4E3A;&#x4E86;&#x4F7F;&#x7528;&#x65B0;&#x7684;&#x6280;&#x672F;&#xFF0C;&#x66F4;&#x91CD;&#x8981;&#x7684;&#x662F;&#x5B83;&#x7684;&#x6027;&#x80FD;&#x6709;&#x4E86;&#x4E0D;&#x4FD7;&#x7684;&#x63D0;&#x5347;&#xFF0C;&#x57FA;&#x51C6;&#x6D4B;&#x8BD5;&#x9879;&#x76EE;spring-cloud-gateway-bench&#x7684;&#x7ED3;&#x679C;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p><img src="/2021/09/01/9G5.005.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway%E5%85%A5%E5%9D%91%E8%AE%B0/5.png"></p>
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.throwable.club/2019/05/03/spring-cloud-gateway-guide/">Spring Cloud Gateway&#x5165;&#x5751;&#x8BB0;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/09/01/9G5.004.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-%E5%86%85%E9%83%A8%E5%88%86%E4%BA%AB-Spring%20Cloud%20Gateway%E5%88%9D%E4%BD%93%E9%AA%8C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            框架-SpringCloud-Gateway-throwable系列-内部分享-Spring Cloud Gateway初体验
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/09/01/9G5.006.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-throwable%E7%B3%BB%E5%88%97-Spring%20Cloud%20Gateway-%E8%87%AA%E5%AE%9A%E4%B9%89GatewayFilter/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">框架-SpringCloud-Gateway-throwable系列-Spring Cloud Gateway-自定义GatewayFilter</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>12D011.[读一致性问题]-一致性读-深入研究 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-12D011.[读一致性问题]-一致性读-深入研究"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  12D011.[读一致性问题]-一致性读-深入研究
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D011.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">17 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x4E00;&#x81F4;&#x6027;&#x8BFB;-&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7684;&#x51C6;&#x786E;&#x65F6;&#x673A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/digdeep/p/4947694.html">https://www.cnblogs.com/digdeep/p/4947694.html</a></p>
+</blockquote>
+<span id="more"></span>
+<p><code>&#x540C;&#x6837;&#x53EF;&#x4EE5;&#x53C2;&#x8003;&#xFF1A;D.10 2022/&#x516B;&#x80A1;&#x6587;/mysql/&#x4E00;&#x81F4;&#x6027;&#x8BFB;-&#x6DF1;&#x5165;&#x7814;&#x7A76;.md</code></p>
+<p><code>&#x4E00;&#x81F4;&#x6027;&#x8BFB;</code>&#xFF0C;&#x53C8;&#x79F0;&#x4E3A;<code>&#x5FEB;&#x7167;&#x8BFB;</code>&#x3002;&#x4F7F;&#x7528;&#x7684;&#x662F;<code>MVCC&#x673A;&#x5236;</code>&#x8BFB;&#x53D6;undo&#x4E2D;&#x7684;&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;&#x7684;&#x6570;&#x636E;&#x3002;&#x6240;&#x4EE5;&#x5B83;&#x7684;&#x8BFB;&#x53D6;&#x662F;&#x975E;&#x963B;&#x585E;&#x7684;&#x3002;&#x4F46;&#x662F;&#x662F; <code>&#x9501;&#x5B9A;&#x7684;&#x8BFB;</code></p>
+<p>&#x76F8;&#x5173;&#x6587;&#x6863;&#xFF1A;<code>http://dev.mysql.com/doc/refman/5.6/en/innodb-consistent-read.html</code></p>
+<blockquote>
+<p>A consistent read means that <code>InnoDB</code> uses multi-versioning to present to a query a snapshot of the database at a point in time. The query sees the changes made by transactions that committed before that point of time, and no changes made by later or uncommitted transactions. The exception to this rule is that the query sees the changes made by earlier statements within the same transaction.</p>
+</blockquote>
+<p>&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x80AF;&#x5B9A;&#x662F;&#x8BFB;&#x53D6;&#x5728;&#x67D0;&#x4E2A;&#x65F6;&#x95F4;&#x70B9;&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;&#x4E86;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x6709;&#x4E2A;&#x7279;&#x4F8B;&#xFF1A;&#x672C;&#x4E8B;&#x52A1;&#x4E2D;&#x4FEE;&#x6539;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x5373;&#x4F7F;&#x672A;&#x63D0;&#x4EA4;&#x7684;&#x6570;&#x636E;&#x4E5F;&#x53EF;&#x4EE5;&#x5728;&#x672C;&#x4E8B;&#x52A1;&#x7684;&#x540E;&#x9762;&#x90E8;&#x5206;&#x8BFB;&#x53D6;&#x5230;&#x3002;</p>
+<h3 id="1-RC-&#x9694;&#x79BB;-&#x548C;-RR-&#x9694;&#x79BB;&#x4E2D;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;&#x533A;&#x522B;"><a href="#1-RC-&#x9694;&#x79BB;-&#x548C;-RR-&#x9694;&#x79BB;&#x4E2D;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;&#x533A;&#x522B;" class="headerlink" title="1. RC &#x9694;&#x79BB; &#x548C; RR &#x9694;&#x79BB;&#x4E2D;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;&#x533A;&#x522B;"></a>1. RC &#x9694;&#x79BB; &#x548C; RR &#x9694;&#x79BB;&#x4E2D;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;&#x533A;&#x522B;</h3><p><strong>&#x6839;&#x636E;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x7684;&#x4E0D;&#x540C;&#xFF0C;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x4E5F;&#x662F;&#x4E0D;&#x4E00;&#x6837;&#x7684;&#x3002;&#x4E0D;&#x540C;&#x70B9;&#x5728;&#x4E8E;&#x5224;&#x65AD;&#x662F;&#x5426;&#x63D0;&#x4EA4;&#x7684;&#x201C;&#x67D0;&#x4E2A;&#x65F6;&#x95F4;&#x70B9;&#x201D;&#xFF1A;</strong></p>
+<h4 id="1&#xFF09;&#x5BF9;&#x4E8E;RR&#x9694;&#x79BB;&#xFF1A;"><a href="#1&#xFF09;&#x5BF9;&#x4E8E;RR&#x9694;&#x79BB;&#xFF1A;" class="headerlink" title="1&#xFF09;&#x5BF9;&#x4E8E;RR&#x9694;&#x79BB;&#xFF1A;"></a>1&#xFF09;&#x5BF9;&#x4E8E;RR&#x9694;&#x79BB;&#xFF1A;</h4><blockquote>
+<p>If the transaction <code>isolation level</code> is <code>REPEATABLE READ</code> (the default level), all consistent reads within the same transaction read the snapshot established by the first such read in that transaction.</p>
+</blockquote>
+<p>&#x6587;&#x6863;&#x4E2D;&#x8BF4;&#x7684;&#x662F;&#xFF1A;<code>the first such read in that transaction</code>&#x3002;&#x5B9E;&#x9645;&#x4E0A;&#x5B9E;&#x9A8C;&#x7684;&#x7ED3;&#x679C;&#x8868;&#x660E;&#xFF0C;&#x8FD9;&#x91CC;&#x7684; the first such read&#x6307;&#x7684;&#x662F;&#xFF1A;<strong>&#x5BF9;&#x540C;&#x4E00;&#x4E2A;&#x8868;&#x6216;&#x8005;&#x4E0D;&#x540C;&#x8868;&#x8FDB;&#x884C;&#x7684;&#x7B2C;&#x4E00;&#x6B21;select&#x8BED;&#x53E5;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5EFA;&#x7ACB;&#x4E86;&#x8BE5;&#x4E8B;&#x52A1;&#x4E2D;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;snapshot. &#x5176;&#x5B83;update, delete, insert &#x8BED;&#x53E5;&#x548C;&#x4E00;&#x81F4;&#x6027;&#x8BFB;snapshot&#x7684;&#x5EFA;&#x7ACB;&#x6CA1;&#x6709;&#x5173;&#x7CFB;</strong>&#x3002;&#x5728;snapshot&#x5EFA;&#x7ACB;&#x4E4B;&#x540E;&#x63D0;&#x4EA4;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x5C31;&#x8BFB;&#x4E0D;&#x5230;&#xFF0C;&#x4E4B;&#x524D;&#x63D0;&#x4EA4;&#x7684;&#x6570;&#x636E;&#x5C31;&#x53EF;&#x4EE5;&#x8BFB;&#x5230;&#x3002;</p>
+<p><strong>&#x4E8B;&#x52A1;&#x7684;&#x8D77;&#x59CB;&#x70B9;&#x5176;&#x5B9E;&#x662F;&#x4EE5;&#x6267;&#x884C;&#x7684;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;select&#x4E3A;&#x8D77;&#x59CB;&#x70B9;&#x7684;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x4EE5;begin&#x4F5C;&#x4E3A;&#x4E8B;&#x52A1;&#x7684;&#x8D77;&#x59CB;&#x70B9;&#x7684;&#x3002;</strong></p>
+<p>&#x4EE5;&#x4E0B;&#x51E0;&#x4E2A;&#x5B9E;&#x9A8C;&#x4E2D;&#xFF0C;&#x5168;&#x5C40;&#x7684;<code>autocommit</code>&#x90FD;&#x662F;<code>ON</code></p>
+<p><strong>&#x5B9E;&#x9A8C;1&#xFF1A;</strong></p>
+<p>session A 	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;	mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;<br>mysql&gt; begin;<br>Query OK, 0 rows affected (0.01 sec)</p>
+<p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)</p>
+<p>mysql&gt; insert into T(id, a, b) values(1,1, 1);<br>(&#x7531;&#x4E8E;autocommit=ON&#xFF0C;&#x6BCF;&#x6761;sql&#x8BED;&#x53E5;&#x90FD;&#x91CD;&#x65B0;&#x5F00;&#x542F;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;sessionB&#x53C8;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)<br>Query OK, 1 row affected (0.01 sec)<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;Read-View&#x89C4;&#x5219;&#xFF0C;&#x56E0;&#x4E3A;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x662F;RR&#xFF0C;&#x65B0;&#x5EFA;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x4E0D;&#x662F;&#x5728;begin&#x8FD9;&#x6B65;&#xFF0C;&#x662F;&#x5728;&#x7B2C;&#x4E00;&#x6B21;select&#x67E5;&#x8BE2;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x624D;&#x4F1A;&#x9012;&#x589E;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x53F7;&#xFF0C;&#x6240;&#x4EE5;&#x6B64;&#x65F6;sessionA&#x7684;&#x4E8B;&#x52A1;ID=13&#xFF0E;&#x6839;&#x636E;MVCC&#x7684;&#x67E5;&#x8BE2;&#x89C4;&#x5219;&#xFF1A;&#x5F53;&#x524D;sessionA&#x8981;&#x67E5;&#x8BE2;&#x7684;&#x884C;&#xFF0C;&#x4ED6;&#x4EEC;&#x7684;&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#x8981;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;13&#xFF0C;&#x56E0;&#x6B64;&#x4E0A;&#x9762;&#x7684;&#x4E8B;&#x52A1;ID=11&#x4E5F;&#x80FD;&#x67E5;&#x8BE2;&#x5230;)<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>| id | a    | b    |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>|  1 |    1 |    1 |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>1 row in set (0.00 sec)</p>
+<p>&#x7528;&#x8FD9;&#x79CD;&#x601D;&#x8DEF;&#x89E3;&#x91CA;&#x4E5F;&#x53EF;&#x4EE5;<br><strong>&#x4E0A;&#x9762;&#x7684;&#x5B9E;&#x9A8C;&#x8BF4;&#x660E;&#xFF1A;RR&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#xFF0C;&#x4E0D;&#x662F;&#x4EE5;begin&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x4F5C;&#x4E3A;snapshot&#x5EFA;&#x7ACB;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x800C;&#x662F;&#x4EE5;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x4F5C;&#x4E3A;snapshot&#x5EFA;&#x7ACB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x3002;</strong></p>
+<p><strong>&#x5B9E;&#x9A8C;2&#xFF1A;</strong><br>session A	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;	mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;</p>
+<p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)<br>mysql&gt; begin;<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;Read-View&#x89C4;&#x5219;&#xFF0C;&#x9694;&#x79BB;&#x7EA7;&#x522B;RR&#x4E0B;&#xFF0C;begin&#x540E;&#x9762;&#x7684;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x624D;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x6B64;&#x65F6;&#x5F00;&#x542F;&#x4E86;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)</p>
+<p>mysql&gt; insert into T(id, a, b) values(1,1, 1);<br>(&#x7531;&#x4E8E;autocommit=ON&#xFF0C;&#x6BCF;&#x6761;sql&#x8BED;&#x53E5;&#x90FD;&#x91CD;&#x65B0;&#x5F00;&#x542F;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;sessionB&#x53C8;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=12)<br>Query OK, 1 row affected (0.01 sec)<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;MVCC&#x7684;&#x89C4;&#x5219;&#xFF0C;&#x5F53;&#x524D;&#x4E8B;&#x52A1;Id=11&#xFF0C;&#x67E5;&#x8BE2;&#x884C;&#x7684;&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#xFF0C;&#x8981;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;11&#xFF0C;&#x6240;&#x4EE5;&#x8FD4;&#x56DE;&#x7A7A;)<br>Empty set (0.00 sec) 	</p>
+<p><img src="/2020/05/01/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/1.png"></p>
+<p>&#x7528;&#x8FD9;&#x79CD;&#x601D;&#x8DEF;&#x89E3;&#x91CA;&#x4E5F;&#x53EF;&#x4EE5;&#xFF0C;&#x8FD9;&#x91CC;&#x6CA1;&#x7528;&#xFF12;&#x4E2A;&#x4E0D;&#x540C;&#x7684;&#x8868;&#x505A;&#x5B9E;&#x9A8C;&#xFF1A;<br><strong>&#x8BE5;&#x4F7F;&#x7528;&#x8BF4;&#x660E;&#xFF1A;RR&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#xFF0C;&#x662F;&#x4EE5;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x7684;&#x6267;&#x884C;&#x70B9;&#x4F5C;&#x4E3A;snapshot&#x5EFA;&#x7ACB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x7684;&#xFF0C;&#x5373;&#x4F7F;&#x662F;&#x4E0D;&#x540C;&#x8868;&#x7684;select&#x8BED;&#x53E5;&#x3002;&#x8FD9;&#x91CC;&#x56E0;&#x4E3A;session A&#x5728;insert&#x4E4B;&#x524D;&#x5BF9; t &#x8868;&#x6267;&#x884C;&#x4E86;select&#xFF0C;&#x6240;&#x4EE5;&#x5EFA;&#x7ACB;&#x4E86;snapshot&#xFF0C;&#x6240;&#x4EE5;&#x540E;&#x9762;&#x7684;select * from t1 &#x4E0D;&#x80FD;&#x8BFB;&#x53D6;&#x5230;insert&#x7684;&#x63D2;&#x5165;&#x7684;&#x503C;&#x3002;</strong></p>
+<p><strong>&#x5B9E;&#x9A8C;3&#xFF1A;</strong><br>session A	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;	mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;</p>
+<p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)<br>mysql&gt; begin;<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;Read-View&#x89C4;&#x5219;&#xFF0C;&#x9694;&#x79BB;&#x7EA7;&#x522B;RR&#x4E0B;&#xFF0C;begin&#x540E;&#x9762;&#x7684;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x624D;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x6B64;&#x65F6;&#x5F00;&#x542F;&#x4E86;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)<br>Empty set (0.00 sec)</p>
+<p>mysql&gt; select * from T;<br>(&#x7531;&#x4E8E;autocommit=ON&#xFF0C;&#x6BCF;&#x6761;sql&#x8BED;&#x53E5;&#x90FD;&#x91CD;&#x65B0;&#x5F00;&#x542F;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;sessionB&#x53C8;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=13)<br>Empty set (0.00 sec)</p>
+<p>mysql&gt; insert into T(id, a, b) values(1,1, 1);<br>(&#x7531;&#x4E8E;autocommit=ON&#xFF0C;&#x6BCF;&#x6761;sql&#x8BED;&#x53E5;&#x90FD;&#x91CD;&#x65B0;&#x5F00;&#x542F;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;sessionB&#x53C8;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=14)<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;MVCC&#x7684;&#x89C4;&#x5219;&#xFF0C;&#x5F53;&#x524D;&#x4E8B;&#x52A1;Id=11&#xFF0C;&#x67E5;&#x8BE2;&#x884C;&#x7684;&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#xFF0C;&#x8981;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;11&#xFF0C;&#x6240;&#x4EE5;&#x8FD4;&#x56DE;&#x7A7A;)<br>Empty set (0.01 sec)</p>
+<p>&#x7528;&#x8FD9;&#x79CD;&#x601D;&#x8DEF;&#x89E3;&#x91CA;&#x4E5F;&#x53EF;&#x4EE5;:</p>
+<p><strong>&#x8BE5;&#x5B9E;&#x9A8C;&#x4E2D;&#xFF1A;session A &#x7684;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;&#xFF0C;&#x53D1;&#x751F;&#x5728;session B&#x7684; insert&#x8BED;&#x53E5;&#x63D0;&#x4EA4;&#x4E4B;&#x524D;&#xFF0C;&#x6240;&#x4EE5;session A&#x4E2D;&#x7684;&#x7B2C;&#x4E8C;&#x6761;select&#x8FD8;&#x662F;&#x4E0D;&#x80FD;&#x8BFB;&#x53D6;&#x5230;&#x6570;&#x636E;&#x3002;&#x56E0;&#x4E3A;RR&#x4E2D;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x662F;&#x4EE5;&#x4E8B;&#x52A1;&#x4E2D;&#x7B2C;&#x4E00;&#x4E2A;select&#x8BED;&#x53E5;&#x6267;&#x884C;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x4F5C;&#x4E3A;snapshot&#x5EFA;&#x7ACB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x7684;&#x3002;&#x800C;&#x6B64;&#x65F6;&#xFF0C;session B&#x7684;insert&#x8BED;&#x53E5;&#x8FD8;&#x6CA1;&#x6709;&#x6267;&#x884C;&#xFF0C;&#x6240;&#x4EE5;&#x8BFB;&#x53D6;&#x4E0D;&#x5230;&#x6570;&#x636E;&#x3002;</strong></p>
+<p><strong>&#x5B9E;&#x9A8C;4&#xFF1A;</strong>&#x3000;&#x7F51;&#x7AD9;&#x4E2D;&#x7684;&#x5B9E;&#x9A8C;&#xFF14;&#xFF0C;&#x65E0;&#x6CD5;&#x6A21;&#x62DF;&#x51FA;&#xFF0C;&#x4E0B;&#x9762;&#x6839;&#x636E;&#x4E2A;&#x4EBA;&#x60F3;&#x6CD5;&#x6A21;&#x62DF;&#xFF1A;<br>session A	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;<br>mysql&gt; set @@session.autocommit=0;<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;<br>mysql&gt; set @@session.autocommit=0;</p>
+<p>begin;</p>
+<p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)<br>begin;<br>mysql&gt; select * from T;<br>(&#x6B64;&#x65F6;&#x5F00;&#x542F;&#x4E86;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)<br>Empty set (0.00 sec)</p>
+<p>mysql&gt; insert into T(id, a, b) values(1,1, 1);<br>(&#x65B0;&#x589E;&#x4E00;&#x884C;&#xFF0C;&#x521B;&#x5EFA;&#x7248;&#x672C;ID=10)</p>
+<p>mysql&gt; select * from T;<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>| id | a    | b    |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>|  1 |    1 |    1 |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>1 row in set (0.00 sec)<br>mysql&gt; select * from T;<br>(&#x8FD9;&#x91CC;&#x8FD4;&#x56DE;&#x7A7A;&#xFF0C;&#x600E;&#x4E48;&#x89E3;&#x91CA;&#xFF1F;)<br>(&#x5F53;&#x524D;&#x4E8B;&#x52A1;ID=11&#xFF0C;&#x8FD4;&#x56DE;&#x7684;&#x884C;&#xFF0C;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#x8981;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;11&#xFF0C;&#x5E94;&#x8BE5;&#x8FD4;&#x56DE;[1,1,1]&#x624D;&#x5BF9;)<br>Empty set (0.00 sec)</p>
+<p>commit;<br>(&#x8FD9;&#x91CC;&#x4E00;&#x5B9A;&#x8981;&#x63D0;&#x4EA4;&#xFF0C;&#x5426;&#x5219;sessionA&#x7684;update&#x4F1A;&#x88AB;&#x963B;&#x585E;&#xFF0C;&#x56E0;&#x4E3A;&#x67E5;&#x8BE2;&#x8BED;&#x53E5;&#x6CA1;&#x6709;&#x547D;&#x4E2D;&#x7D22;&#x5F15;&#xFF0C;&#x9501;&#x8868;&#x4E86;&#xFF1F;)<br>mysql&gt; update T set a=100 where id=1;<br>Query OK, 1 row affected (29.56 sec)<br>Rows matched: 1  Changed: 1  Warnings: 0</p>
+<p>mysql&gt; select * from T;<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>| id | a    | b    |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>|  1 |  100 |    1 |<br>+&#x2014;-+&#x2014;&#x2014;+&#x2014;&#x2014;+<br>1 row in set (0.00 sec)</p>
+<h4 id="2&#xFF09;&#x5BF9;&#x4E8E;RC&#x9694;&#x79BB;&#x5C31;&#x7B80;&#x5355;&#x591A;&#x4E86;&#xFF1A;"><a href="#2&#xFF09;&#x5BF9;&#x4E8E;RC&#x9694;&#x79BB;&#x5C31;&#x7B80;&#x5355;&#x591A;&#x4E86;&#xFF1A;" class="headerlink" title="2&#xFF09;&#x5BF9;&#x4E8E;RC&#x9694;&#x79BB;&#x5C31;&#x7B80;&#x5355;&#x591A;&#x4E86;&#xFF1A;"></a>2&#xFF09;&#x5BF9;&#x4E8E;RC&#x9694;&#x79BB;&#x5C31;&#x7B80;&#x5355;&#x591A;&#x4E86;&#xFF1A;</h4><blockquote>
+<p>With <code>READ COMMITTED</code> isolation level, each consistent read within a transaction sets and reads its own fresh snapshot.</p>
+</blockquote>
+<p>&#x4E8B;&#x52A1;&#x4E2D;&#x6BCF;&#x4E00;&#x6B21;&#x8BFB;&#x53D6;&#x90FD;&#x662F;&#x4EE5;&#x5F53;&#x524D;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x4F5C;&#x4E3A;&#x5224;&#x65AD;&#x662F;&#x5426;&#x63D0;&#x4EA4;&#x7684;&#x5B9E;&#x9645;&#x70B9;&#xFF0C;&#x4E5F;&#x5373;&#x662F; reads its own fresh snapshot.</p>
+<p><strong>RC&#x662F;&#x8BED;&#x53E5;&#x7EA7;&#x591A;&#x7248;&#x672C;(&#x4E8B;&#x52A1;&#x7684;&#x591A;&#x6761;&#x53EA;&#x8BFB;&#x8BED;&#x53E5;&#xFF0C;&#x521B;&#x5EFA;&#x4E0D;&#x540C;&#x7684;ReadView&#xFF0C;&#x4EE3;&#x4EF7;&#x66F4;&#x9AD8;)&#xFF0C;RR&#x662F;&#x4E8B;&#x52A1;&#x7EA7;&#x591A;&#x7248;&#x672C;(&#x4E00;&#x4E2A;ReadView)&#xFF1B;</strong></p>
+<h4 id="3-MySQL-&#x4E2D;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;"><a href="#3-MySQL-&#x4E2D;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;" class="headerlink" title="3. MySQL &#x4E2D;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;"></a>3. MySQL &#x4E2D;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;</h4><p>&#x4E00;&#x822C;&#x6211;&#x4EEC;&#x4F1A;&#x8BA4;&#x4E3A; <code>begin/start transaction</code> &#x662F;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x4E00;&#x65E6;&#x6211;&#x4EEC;&#x6267;&#x884C;&#x4E86; start transaction&#xFF0C;&#x5C31;&#x8BA4;&#x4E3A;&#x4E8B;&#x52A1;&#x5DF2;&#x7ECF;&#x5F00;&#x59CB;&#x4E86;&#xFF0C;&#x5176;&#x5B9E;&#x8FD9;&#x662F;&#x9519;&#x8BEF;&#x7684;&#x3002;&#x4E0A;&#x9762;&#x7684;&#x5B9E;&#x9A8C;&#x4E5F;&#x8BF4;&#x660E;&#x4E86;&#x8FD9;&#x4E00;&#x70B9;&#x3002;<strong>&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x771F;&#x6B63;&#x7684;&#x65F6;&#x95F4;&#x70B9;(LSN)&#xFF0C;&#x662F; start transaction &#x4E4B;&#x540E;&#x6267;&#x884C;&#x7684;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;&#xFF0C;&#x4E0D;&#x7BA1;&#x662F;&#x4EC0;&#x4E48;&#x8BED;&#x53E5;&#xFF0C;&#x4E0D;&#x7BA1;&#x6210;&#x529F;&#x4E0E;&#x5426;&#x3002;</strong></p>
+<p>&#x4F46;&#x662F;&#x5982;&#x679C;&#x4F60;&#x60F3;&#x8981;&#x8FBE;&#x5230;&#x5C06; start transaction &#x4F5C;&#x4E3A;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x90A3;&#x4E48;&#x6211;&#x4EEC;&#x5FC5;&#x987B;&#x4F7F;&#x7528;&#xFF1A;<code>START TRANSACTION WITH consistent snapshot</code></p>
+<p>&#x5B83;&#x7684;&#x542B;&#x4E49;&#x662F;&#xFF1A;<strong>&#x6267;&#x884C; start transaction &#x540C;&#x65F6;&#x5EFA;&#x7ACB;&#x672C;&#x4E8B;&#x52A1;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684; snapshot . &#x800C;&#x4E0D;&#x662F;&#x7B49;&#x5230;&#x6267;&#x884C;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;&#x65F6;&#xFF0C;&#x624D;&#x5F00;&#x59CB;&#x4E8B;&#x52A1;&#xFF0C;&#x5E76;&#x4E14;&#x5EFA;&#x7ACB;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684; snapshot .</strong></p>
+<blockquote>
+<p>The WITH CONSISTENT SNAPSHOT modifier starts a consistent read for storage engines that are capable of it. This applies only to InnoDB. The effect is the same as issuing a START TRANSACTION followed by a SELECT from any InnoDB table. See Section 14.2.2.2, &#x201C;Consistent Nonlocking Reads&#x201D;. The WITH CONSISTENT SNAPSHOT modifier does not change the current transaction isolation level, so it provides a consistent snapshot only if the current isolation level is one that permits a consistent read. The only isolation level that permits a consistent read is REPEATABLE READ. For all other isolation levels, the WITH CONSISTENT SNAPSHOT clause is ignored. As of MySQL 5.7.2, a warning is generated when the WITH CONSISTENT SNAPSHOT clause is ignored.</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.6/en/commit.html">http://dev.mysql.com/doc/refman/5.6/en/commit.html</a><br>&#x6548;&#x679C;&#x7B49;&#x4EF7;&#x4E8E;&#xFF1A; <code>start transaction</code> &#x4E4B;&#x540E;&#xFF0C;&#x9A6C;&#x4E0A;&#x6267;&#x884C;&#x4E00;&#x6761; select &#x8BED;&#x53E5;(&#x6B64;&#x65F6;&#x4F1A;&#x5EFA;&#x7ACB;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;snapshot)&#x3002;</p>
+<blockquote>
+<p>If the transaction isolation level is REPEATABLE READ (the default level), all consistent reads within the same transaction read the snapshot established by the first such read in that transaction. You can get a fresher snapshot for your queries by committing the current transaction and after that issuing new queries. (RR&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E2D;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;snapshot&#x662F;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x6267;&#x884C;&#x65F6;&#x5EFA;&#x7ACB;&#x7684;&#xFF0C;&#x5176;&#x5B9E;&#x5E94;&#x8BE5;&#x662F;&#x7B2C;&#x4E00;&#x6761;&#x4EFB;&#x4F55;&#x8BED;&#x53E5;&#x6267;&#x884C;&#x65F6;&#x5EFA;&#x7ACB;&#x7684;)</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.6/en/innodb-consistent-read.html">http://dev.mysql.com/doc/refman/5.6/en/innodb-consistent-read.html</a></p>
+<p>&#x6240;&#x4EE5;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x5206;&#x4E3A;&#x4E24;&#x79CD;&#x60C5;&#x51B5;&#xFF1A;</p>
+<p>1&#xFF09;<code>START TRANSACTION</code> &#x65F6;&#xFF0C;&#x662F;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;&#x7684;&#x6267;&#x884C;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x5C31;&#x662F;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x5EFA;&#x7ACB;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;snapshot&#xFF1B;</p>
+<p>2&#xFF09;<code>START TRANSACTION  WITH consistent snapshot</code> &#x65F6;&#xFF0C;&#x5219;&#x662F;&#x7ACB;&#x5373;&#x5EFA;&#x7ACB;&#x672C;&#x4E8B;&#x52A1;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;snapshot&#xFF0C;&#x5F53;&#x7136;&#x4E5F;&#x5F00;&#x59CB;&#x4E8B;&#x52A1;&#x4E86;&#xFF1B;</p>
+<p><img src="/2020/05/01/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/2.png"></p>
+<hr>
+<blockquote>
+<p><code>MVCC</code> &#x5728; RC &#x548C; RR &#x4E24;&#x79CD;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x90FD;&#x6709;&#xFF0C;&#x5728;RC&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;<code>MVCC</code>&#x4E3A;&#x4EC0;&#x4E48;&#x89E3;&#x51B3;&#x4E0D;&#x4E86;<code>&#x4E0D;&#x53EF;&#x91CD;&#x590D;&#x8BFB;</code></p>
+</blockquote>
+<p>MVCC&#x5728;&#x8FD9;RC&#x548C;RR&#x4E0B;&#xFF0C;&#x4E24;&#x8005;&#x5EFA;&#x7ACB;&#x5FEB;&#x7167;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x4E0D;&#x4E00;&#x6837;</p>
+<ul>
+<li><p>RC&#x7684;&#x5FEB;&#x7167;&#x5EFA;&#x7ACB;&#x65F6;&#x95F4;&#x662F;&#x5F53;&#x524D;select&#xFF08;&#x4E8B;&#x52A1;&#x4E2D;&#x6BCF;&#x6761;select&#x8BED;&#x53E5;&#x90FD;&#x4F1A;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x5FEB;&#x7167;&#x8BFB;&#xFF09;,&#x6240;&#x4EE5;&#x80FD;&#x591F;&#x770B;&#x5230;&#x5176;&#x4ED6;&#x4E8B;&#x52A1;&#x5DF2;&#x63D0;&#x4EA4;&#x7684;&#x6570;&#x636E;&#xFF1B;</p>
+</li>
+<li><p>RC&#x7684;&#x6A21;&#x5F0F;&#x4E0B;&#xFF0C;MVCC&#x89E3;&#x51B3;&#x4E0D;&#x4E86;&#x4E0D;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x548C;&#x5E7B;&#x8BFB;&#xFF0C;&#x56E0;&#x4E3A;&#x6BCF;&#x6B21;&#x8BFB;&#x90FD;&#x4F1A;&#x8BFB;&#x5B83;&#x81EA;&#x5DF1;&#x5237;&#x65B0;&#x7684;&#x5FEB;&#x7167;&#x7248;&#x672C;&#xFF0C;&#x7B80;&#x5355;&#x6765;&#x8BF4;&#x5C31;&#x662F;&#x53E6;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#xFF0C;&#x4ED6;&#x5C31;&#x5237;&#x65B0;&#x4E00;&#x6B21;&#xFF0C;&#x53BB;&#x8BFB;&#x6700;&#x65B0;&#x7684;(&#x8BF4;&#x767D;&#x4E86;&#xFF0C;&#x5C31;&#x662F;RC&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;MVCC&#x7684;select&#x662F;<code>&#x5FEB;&#x7167;&#x8BFB;</code>/<code>&#x666E;&#x901A;&#x8BFB;</code>/<code>&#x4E00;&#x81F4;&#x6027;&#x975E;&#x9501;&#x5B9A;&#x8BFB;</code>)</p>
+</li>
+<li><p>RR&#x7684;&#x5FEB;&#x7167;&#x5EFA;&#x7ACB;&#x65F6;&#x95F4;&#x662F;&#x7B2C;&#x4E00;&#x6B21;&#x67E5;&#x8BE2;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6240;&#x4EE5;&#x672A;&#x63D0;&#x4EA4;&#x7684;&#x4E8B;&#x52A1;&#x548C;&#x5176;&#x540E;&#x7684;&#x4E8B;&#x52A1;&#x7684;&#x6570;&#x636E;&#x662F;&#x4E0D;&#x53EF;&#x89C1;&#x7684;&#xFF1B;(&#x8BF4;&#x767D;&#x4E86;&#xFF0C;&#x5C31;&#x662F;RR&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;MVCC&#x7684;select&#x662F;<code>&#x5F53;&#x524D;&#x8BFB;</code>/<code>&#x4E00;&#x81F4;&#x6027;&#x9501;&#x5B9A;&#x8BFB;</code>)</p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/05/01/12D010.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E5%AE%9E%E9%AA%8C-RR%E7%BA%A7%E5%88%AB%E9%81%BF%E5%85%8D%E4%BA%86%E2%80%9C%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E2%80%9D/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            12D010.[读一致性问题]-实验-RR级别避免了“不可重复读”
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/01/12D012.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C2/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">12D012.[读一致性问题]-MVCC原理+实验2</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

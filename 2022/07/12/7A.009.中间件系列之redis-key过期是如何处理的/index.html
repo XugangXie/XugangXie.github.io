@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之redis-key过期是如何处理的 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7A.009.中间件系列之redis-key过期是如何处理的"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之redis-key过期是如何处理的
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/" class="article-date">
+  <time datetime="2022-07-12T07:47:21.464Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">937</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>redis key&#x8FC7;&#x671F;&#x662F;&#x5982;&#x4F55;&#x5904;&#x7406;&#x7684;<br>&#x6458;&#x81EA;&#xFF1A;&#x300A;Redis&#x6DF1;&#x5EA6;&#x5386;&#x9669;&#xFF1A;&#x6838;&#x5FC3;&#x539F;&#x7406;&#x548C;&#x5E94;&#x7528;&#x5B9E;&#x8DF5;.pdf&#x300B;</p>
+</blockquote>
+<span id="more"></span>
+<h4 id="&#x8FC7;&#x671F;&#x7684;-key-&#x96C6;&#x5408;"><a href="#&#x8FC7;&#x671F;&#x7684;-key-&#x96C6;&#x5408;" class="headerlink" title="&#x8FC7;&#x671F;&#x7684; key &#x96C6;&#x5408;"></a>&#x8FC7;&#x671F;&#x7684; key &#x96C6;&#x5408;</h4><p>redis &#x4F1A;&#x5C06;&#x6BCF;&#x4E2A;&#x8BBE;&#x7F6E;&#x4E86;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#x7684; key &#x653E;&#x5165;&#x5230;&#x4E00;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x5B57;&#x5178;&#x4E2D;&#xFF0C;&#x4EE5;&#x540E;&#x4F1A;&#x5B9A;&#x65F6;&#x904D;&#x5386;&#x8FD9;&#x4E2A;&#x5B57;&#x5178;&#x6765;&#x5220;&#x9664;&#x5230;&#x671F;&#x7684; key&#x3002;&#x9664;&#x4E86;<strong>&#x5B9A;&#x65F6;&#x5220;&#x9664;</strong>&#x4E4B;&#x5916;&#xFF0C;&#x5B83;&#x8FD8;&#x4F1A;&#x4F7F;&#x7528;<strong>&#x60F0;&#x6027;&#x7B56;&#x7565;</strong>&#x6765;&#x5220;&#x9664;&#x8FC7;&#x671F;&#x7684; key&#xFF0C;&#x6240;&#x8C13;&#x60F0;&#x6027;&#x7B56;&#x7565;&#x5C31;&#x662F;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x8BBF;&#x95EE;&#x8FD9;&#x4E2A; key &#x7684;&#x65F6;&#x5019;&#xFF0C;redis &#x5BF9; key &#x7684;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#x8FDB;&#x884C;&#x68C0;&#x67E5;&#xFF0C;&#x5982;&#x679C;&#x8FC7;&#x671F;&#x4E86;&#x5C31;&#x7ACB;&#x5373;&#x5220;&#x9664;&#x3002;&#x5B9A;&#x65F6;&#x5220;&#x9664;&#x662F;&#x96C6;&#x4E2D;&#x5904;&#x7406;&#xFF0C;&#x60F0;&#x6027;&#x5220;&#x9664;&#x662F;&#x96F6;&#x6563;&#x5904;&#x7406;&#x3002;</p>
+<h4 id="&#x5B9A;&#x65F6;&#x626B;&#x63CF;&#x7B56;&#x7565;"><a href="#&#x5B9A;&#x65F6;&#x626B;&#x63CF;&#x7B56;&#x7565;" class="headerlink" title="&#x5B9A;&#x65F6;&#x626B;&#x63CF;&#x7B56;&#x7565;"></a>&#x5B9A;&#x65F6;&#x626B;&#x63CF;&#x7B56;&#x7565;</h4><p>Redis &#x9ED8;&#x8BA4;&#x4F1A;&#x6BCF;&#x79D2;&#x8FDB;&#x884C;&#x5341;&#x6B21;&#x8FC7;&#x671F;&#x626B;&#x63CF;&#xFF0C;&#x8FC7;&#x671F;&#x626B;&#x63CF;&#x4E0D;&#x4F1A;&#x904D;&#x5386;&#x8FC7;&#x671F;&#x5B57;&#x5178;&#x4E2D;&#x6240;&#x6709;&#x7684; key&#xFF0C;&#x800C;&#x662F;&#x91C7;&#x7528;&#x4E86;&#x4E00;&#x79CD;&#x7B80;&#x5355;&#x7684;&#x8D2A;&#x5FC3;&#x7B56;&#x7565;&#x3002;</p>
+<ul>
+<li>1&#x3001;&#x4ECE;&#x8FC7;&#x671F;&#x5B57;&#x5178;&#x4E2D;&#x968F;&#x673A; 20 &#x4E2A; key&#xFF1B;</li>
+<li>2&#x3001;&#x5220;&#x9664;&#x8FD9; 20 &#x4E2A; key &#x4E2D;&#x5DF2;&#x7ECF;&#x8FC7;&#x671F;&#x7684; key&#xFF1B;</li>
+<li>3&#x3001;&#x5982;&#x679C;&#x8FC7;&#x671F;&#x7684; key &#x6BD4;&#x7387;&#x8D85;&#x8FC7; 1/4&#xFF0C;&#x90A3;&#x5C31;&#x91CD;&#x590D;&#x6B65;&#x9AA4; 1&#xFF1B;</li>
+</ul>
+<p>&#x540C;&#x65F6;&#xFF0C;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x8FC7;&#x671F;&#x626B;&#x63CF;&#x4E0D;&#x4F1A;&#x51FA;&#x73B0;&#x5FAA;&#x73AF;&#x8FC7;&#x5EA6;&#xFF0C;&#x5BFC;&#x81F4;&#x7EBF;&#x7A0B;&#x5361;&#x6B7B;&#x73B0;&#x8C61;&#xFF0C;&#x7B97;&#x6CD5;&#x8FD8;&#x589E;&#x52A0;&#x4E86;&#x626B;&#x63CF;&#x65F6;&#x95F4;&#x7684;&#x4E0A;&#x9650;&#xFF0C;&#x9ED8;&#x8BA4;&#x4E0D;&#x4F1A;&#x8D85;&#x8FC7; 25ms&#x3002;</p>
+<blockquote>
+<p>&#x8BBE;&#x60F3;&#x4E00;&#x4E2A;&#x5927;&#x578B;&#x7684; Redis &#x5B9E;&#x4F8B;&#x4E2D;&#x6240;&#x6709;&#x7684; key &#x5728;&#x540C;&#x4E00;&#x65F6;&#x95F4;&#x8FC7;&#x671F;&#x4E86;&#xFF0C;&#x4F1A;&#x51FA;&#x73B0;&#x600E;&#x6837;&#x7684;&#x7ED3;&#x679C;&#xFF1F;</p>
+</blockquote>
+<blockquote>
+<p>&#x6BEB;&#x65E0;&#x7591;&#x95EE;&#xFF0C;Redis &#x4F1A;&#x6301;&#x7EED;&#x626B;&#x63CF;&#x8FC7;&#x671F;&#x5B57;&#x5178; (&#x5FAA;&#x73AF;&#x591A;&#x6B21;)&#xFF0C;&#x76F4;&#x5230;&#x8FC7;&#x671F;&#x5B57;&#x5178;&#x4E2D;&#x8FC7;&#x671F;&#x7684; key &#x53D8;&#x5F97;&#x7A00;&#x758F;&#xFF0C;&#x624D;&#x4F1A;&#x505C;&#x6B62; (&#x5FAA;&#x73AF;&#x6B21;&#x6570;&#x660E;&#x663E;&#x4E0B;&#x964D;)&#x3002;&#x8FD9;&#x5C31;&#x4F1A;&#x5BFC;&#x81F4;&#x7EBF;&#x4E0A;&#x8BFB;&#x5199;&#x8BF7;&#x6C42;&#x51FA;&#x73B0;&#x660E;&#x663E;&#x7684;&#x5361;&#x987F;&#x73B0;&#x8C61;&#x3002;&#x5BFC;&#x81F4;&#x8FD9;&#x79CD;&#x5361;&#x987F;&#x7684;&#x53E6;&#x5916;&#x4E00;&#x79CD;&#x539F;&#x56E0;&#x662F;&#x5185;&#x5B58;&#x7BA1;&#x7406;&#x5668;&#x9700;&#x8981;&#x9891;&#x7E41;&#x56DE;&#x6536;&#x5185;&#x5B58;&#x9875;&#xFF0C;&#x8FD9;&#x4E5F;&#x4F1A;&#x4EA7;&#x751F;&#x4E00;&#x5B9A;&#x7684; CPU &#x6D88;&#x8017;&#x3002;</p>
+</blockquote>
+<blockquote>
+<p>&#x4E5F;&#x8BB8;&#x4F60;&#x4F1A;&#x4E89;&#x8FA9;&#x8BF4;&#x201C;&#x626B;&#x63CF;&#x4E0D;&#x662F;&#x6709; 25ms &#x7684;&#x65F6;&#x95F4;&#x4E0A;&#x9650;&#x4E86;&#x4E48;&#xFF0C;&#x600E;&#x4E48;&#x4F1A;&#x5BFC;&#x81F4;&#x5361;&#x987F;&#x5462;&#x201D;&#xFF1F;&#x8FD9;&#x91CC;&#x6253;&#x4E2A;&#x6BD4;&#x65B9;&#xFF0C;&#x5047;&#x5982;&#x6709; 101 &#x4E2A;&#x5BA2;&#x6237;&#x7AEF;&#x540C;&#x65F6;&#x5C06;&#x8BF7;&#x6C42;&#x53D1;&#x8FC7;&#x6765;&#x4E86;&#xFF0C;&#x7136;&#x540E;&#x524D; 100 &#x4E2A;&#x8BF7;&#x6C42;&#x7684;&#x6267;&#x884C;&#x65F6;&#x95F4;&#x90FD;&#x662F;25ms&#xFF0C;&#x90A3;&#x4E48;&#x7B2C; 101 &#x4E2A;&#x6307;&#x4EE4;&#x9700;&#x8981;&#x7B49;&#x5F85;&#x591A;&#x4E45;&#x624D;&#x80FD;&#x6267;&#x884C;&#xFF1F;2500ms&#xFF0C;&#x8FD9;&#x4E2A;&#x5C31;&#x662F;&#x5BA2;&#x6237;&#x7AEF;&#x7684;&#x5361;&#x987F;&#x65F6;&#x95F4;&#xFF0C;&#x662F;&#x7531;&#x670D;&#x52A1;&#x5668;&#x4E0D;&#x95F4;&#x65AD;&#x7684;&#x5C0F;&#x5361;&#x987F;&#x79EF;&#x5C11;&#x6210;&#x591A;&#x5BFC;&#x81F4;&#x7684;&#x3002;</p>
+</blockquote>
+<blockquote>
+<p>&#x6240;&#x4EE5;&#x4E1A;&#x52A1;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x4E00;&#x5B9A;&#x8981;&#x6CE8;&#x610F;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#xFF0C;&#x5982;&#x679C;&#x6709;&#x5927;&#x6279;&#x91CF;&#x7684; key &#x8FC7;&#x671F;&#xFF0C;&#x8981;&#x7ED9;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x968F;&#x673A;&#x8303;&#x56F4;&#xFF0C;&#x800C;&#x4E0D;&#x80FD;&#x5168;&#x90E8;&#x5728;&#x540C;&#x4E00;&#x65F6;&#x95F4;&#x8FC7;&#x671F;&#x3002;<br><strong>&#x5728;&#x76EE;&#x6807;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#x4E0A;&#x589E;&#x52A0;&#x4E00;&#x5929;&#x7684;&#x968F;&#x673A;&#x65F6;&#x95F4;</strong><br><strong>redis.expire_at(key, random.randint(86400) + expire_ts)</strong></p>
+</blockquote>
+<blockquote>
+<p>&#x638C;&#x9605;&#x670D;&#x52A1;&#x7AEF;&#x5728;&#x5F00;&#x53D1;&#x8FC7;&#x7A0B;&#x4E2D;&#x5C31;&#x66FE;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x6B21;&#x56E0;&#x4E3A;&#x5927;&#x91CF; key &#x540C;&#x65F6;&#x8FC7;&#x671F;&#x5BFC;&#x81F4;&#x7684;&#x5361;&#x987F;&#x62A5;&#x8B66;&#x73B0;&#x8C61;&#xFF0C;&#x901A;&#x8FC7;&#x5C06;&#x8FC7;&#x671F;&#x65F6;&#x95F4;&#x968F;&#x673A;&#x5316;&#x603B;&#x662F;&#x80FD;&#x5F88;&#x597D;&#x5730;&#x89E3;&#x51B3;&#x4E86;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;&#x5E0C;&#x671B;&#x8BFB;&#x8005;&#x4EEC;&#x4ECA;&#x540E;&#x80FD;&#x5C11;&#x72AF;&#x8FD9;&#x6837;&#x7684;&#x9519;&#x8BEF;&#x3002;</p>
+</blockquote>
+<h4 id="&#x4ECE;&#x5E93;&#x7684;&#x8FC7;&#x671F;&#x7B56;&#x7565;"><a href="#&#x4ECE;&#x5E93;&#x7684;&#x8FC7;&#x671F;&#x7B56;&#x7565;" class="headerlink" title="&#x4ECE;&#x5E93;&#x7684;&#x8FC7;&#x671F;&#x7B56;&#x7565;"></a>&#x4ECE;&#x5E93;&#x7684;&#x8FC7;&#x671F;&#x7B56;&#x7565;</h4><p>&#x4ECE;&#x5E93;&#x4E0D;&#x4F1A;&#x8FDB;&#x884C;&#x8FC7;&#x671F;&#x626B;&#x63CF;&#xFF0C;&#x4ECE;&#x5E93;&#x5BF9;&#x8FC7;&#x671F;&#x7684;&#x5904;&#x7406;&#x662F;&#x88AB;&#x52A8;&#x7684;&#x3002;&#x4E3B;&#x5E93;&#x5728; key &#x5230;&#x671F;&#x65F6;&#xFF0C;&#x4F1A;&#x5728; AOF&#x6587;&#x4EF6;&#x91CC;&#x589E;&#x52A0;&#x4E00;&#x6761; del &#x6307;&#x4EE4;&#xFF0C;&#x540C;&#x6B65;&#x5230;&#x6240;&#x6709;&#x7684;&#x4ECE;&#x5E93;&#xFF0C;&#x4ECE;&#x5E93;&#x901A;&#x8FC7;&#x6267;&#x884C;&#x8FD9;&#x6761; del &#x6307;&#x4EE4;&#x6765;&#x5220;&#x9664;&#x8FC7;&#x671F;&#x7684;key&#x3002;</p>
+<p>&#x56E0;&#x4E3A;&#x6307;&#x4EE4;&#x540C;&#x6B65;&#x662F;&#x5F02;&#x6B65;&#x8FDB;&#x884C;&#x7684;&#xFF0C;&#x6240;&#x4EE5;&#x4E3B;&#x5E93;&#x8FC7;&#x671F;&#x7684; key &#x7684; del &#x6307;&#x4EE4;&#x6CA1;&#x6709;&#x53CA;&#x65F6;&#x540C;&#x6B65;&#x5230;&#x4ECE;&#x5E93;&#x7684;&#x8BDD;&#xFF0C;&#x4F1A;&#x51FA;&#x73B0;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x7684;&#x4E0D;&#x4E00;&#x81F4;&#xFF0C;&#x4E3B;&#x5E93;&#x6CA1;&#x6709;&#x7684;&#x6570;&#x636E;&#x5728;&#x4ECE;&#x5E93;&#x91CC;&#x8FD8;&#x5B58;&#x5728;&#xFF0C;&#x6BD4;&#x5982;&#x4E0A;&#x4E00;&#x8282;&#x7684;&#x96C6;&#x7FA4;&#x73AF;&#x5883;&#x5206;&#x5E03;&#x5F0F;&#x9501;&#x7684;&#x7B97;&#x6CD5;&#x6F0F;&#x6D1E;&#x5C31;&#x662F;&#x56E0;&#x4E3A;&#x8FD9;&#x4E2A;&#x540C;&#x6B65;&#x5EF6;&#x8FDF;&#x4EA7;&#x751F;&#x7684;&#x3002;</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/7A.008.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E5%86%85%E5%AD%98%E7%9A%84%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之redis-内存的淘汰策略
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/07/12/7A.010.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-pubsub%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之redis-pubsub底层数据结构的实现</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

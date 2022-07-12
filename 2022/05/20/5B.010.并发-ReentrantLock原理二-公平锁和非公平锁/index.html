@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>并发-ReentrantLock原理二-公平锁和非公平锁 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-5B.010.并发-ReentrantLock原理二-公平锁和非公平锁"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  并发-ReentrantLock原理二-公平锁和非公平锁
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>AQS&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45305463">https://zhuanlan.zhihu.com/p/45305463</a></p>
+</blockquote>
+<p><strong>ReentrantLock &#x662F;&#x628A;&#x72EC;&#x5360;&#x5F0F;&#x7684;&#x53EF;&#x91CD;&#x5165;&#x9501;</strong></p>
+<h3 id="ReentrantLock-&#x7684;&#x516C;&#x5E73;&#x9501;"><a href="#ReentrantLock-&#x7684;&#x516C;&#x5E73;&#x9501;" class="headerlink" title="ReentrantLock &#x7684;&#x516C;&#x5E73;&#x9501;"></a>ReentrantLock &#x7684;&#x516C;&#x5E73;&#x9501;</h3><p>ReentrantLock &#x9ED8;&#x8BA4;&#x91C7;&#x7528;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x9664;&#x975E;&#x5728;&#x6784;&#x9020;&#x65B9;&#x6CD5;&#x4E2D;&#x4F20;&#x5165;&#x53C2;&#x6570; true &#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//&#x9ED8;&#x8BA4;</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">()</span> {</span><br><span class="line">    sync = <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br><span class="line"><span class="comment">//&#x4F20;&#x5165;true or false</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<p>&#x516C;&#x5E73;&#x9501;&#x7684; lock &#x65B9;&#x6CD5;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">FairSync</span> <span class="keyword">extends</span> <span class="title class_">Sync</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span> {</span><br><span class="line">        acquire(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// AbstractQueuedSynchronizer.acquire(int arg)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">        <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">            selfInterrupt();</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">        <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="number">0</span>) {</span><br><span class="line">            <span class="comment">// 1. &#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x76F8;&#x6BD4;&#xFF0C;&#x8FD9;&#x91CC;&#x591A;&#x4E86;&#x4E00;&#x4E2A;&#x5224;&#x65AD;&#xFF1A;&#x662F;&#x5426;&#x6709;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;</span></span><br><span class="line">            <span class="keyword">if</span> (!hasQueuedPredecessors() &amp;&amp;</span><br><span class="line">                compareAndSetState(<span class="number">0</span>, acquires)) {</span><br><span class="line">                setExclusiveOwnerThread(current);</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) {</span><br><span class="line">            <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">            <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;Maximum lock count exceeded&quot;</span>);</span><br><span class="line">            setState(nextc);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x5728;&#x6CE8;&#x91CA;1&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x6709;&#x4E2A;<code>!hasQueuedPredecessors()</code>&#x6761;&#x4EF6;&#xFF0C;&#x610F;&#x601D;&#x662F;&#x8BF4;<strong>&#x5F53;&#x524D;&#x540C;&#x6B65;&#x961F;&#x5217;&#x6CA1;&#x6709;&#x524D;&#x9A71;&#x8282;&#x70B9;&#xFF08;&#x4E5F;&#x5C31;&#x662F;&#x6CA1;&#x6709;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;&#xFF09;&#x65F6;&#x624D;&#x4F1A;&#x53BB;<code>compareAndSetState(0, acquires)</code>&#x4F7F;&#x7528;CAS&#x4FEE;&#x6539;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x53D8;&#x91CF;</strong>&#x3002;&#x6240;&#x4EE5;&#x5C31;&#x5B9E;&#x73B0;&#x4E86;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x6839;&#x636E;&#x7EBF;&#x7A0B;&#x53D1;&#x51FA;&#x8BF7;&#x6C42;&#x7684;&#x987A;&#x5E8F;&#x83B7;&#x53D6;&#x9501;&#x3002;</p>
+<h3 id="&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;"><a href="#&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;" class="headerlink" title="&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;"></a>&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">NonfairSync</span> <span class="keyword">extends</span> <span class="title class_">Sync</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span> {</span><br><span class="line">        <span class="comment">// 2. &#x548C;&#x516C;&#x5E73;&#x9501;&#x76F8;&#x6BD4;&#xFF0C;&#x8FD9;&#x91CC;&#x4F1A;&#x76F4;&#x63A5;&#x5148;&#x8FDB;&#x884C;&#x4E00;&#x6B21;CAS&#xFF0C;&#x6210;&#x529F;&#x5C31;&#x8FD4;&#x56DE;&#x4E86;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, <span class="number">1</span>))</span><br><span class="line">            setExclusiveOwnerThread(Thread.currentThread());</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            acquire(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// AbstractQueuedSynchronizer.acquire(int arg)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">        <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">            selfInterrupt();</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">        <span class="keyword">return</span> nonfairTryAcquire(acquires);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Performs non-fair tryLock.  tryAcquire is implemented in</span></span><br><span class="line"><span class="comment"> * subclasses, but both need nonfair try for trylock method.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">nonfairTryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) {</span><br><span class="line">        <span class="comment">//3.&#x8FD9;&#x91CC;&#x4E5F;&#x662F;&#x76F4;&#x63A5;CAS&#xFF0C;&#x6CA1;&#x6709;&#x5224;&#x65AD;&#x524D;&#x9762;&#x662F;&#x5426;&#x8FD8;&#x6709;&#x8282;&#x70B9;&#x3002;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) {</span><br><span class="line">            setExclusiveOwnerThread(current);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) {</span><br><span class="line">        <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">        <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;Maximum lock count exceeded&quot;</span>);</span><br><span class="line">        setState(nextc);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><strong>&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x5B9E;&#x73B0;&#x5728;&#x521A;&#x8FDB;&#x5165;lock&#x65B9;&#x6CD5;&#x65F6;&#x4F1A;&#x76F4;&#x63A5;&#x4F7F;&#x7528;&#x4E00;&#x6B21;CAS&#x53BB;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x4E0D;&#x6210;&#x529F;&#x624D;&#x4F1A;&#x5230;acquire&#x65B9;&#x6CD5;&#x4E2D;&#xFF0C;&#x5982;&#x6CE8;&#x91CA;2&#x3002;&#x800C;&#x5728;nonfairTryAcquire&#x65B9;&#x6CD5;&#x4E2D;&#x5E76;&#x6CA1;&#x6709;&#x5224;&#x65AD;&#x662F;&#x5426;&#x6709;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x5728;&#x7B49;&#x5F85;&#xFF0C;&#x76F4;&#x63A5;CAS&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5982;&#x6CE8;&#x91CA;3&#x3002;&#x7531;&#x6B64;&#x5B9E;&#x73B0;&#x4E86;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;</strong></p>
+<h3 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h3><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x548C;&#x516C;&#x5E73;&#x9501;&#x7684;&#x4E24;&#x5904;&#x4E0D;&#x540C;&#xFF1A;</p>
+<ol>
+<li><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x5728;&#x8C03;&#x7528; lock &#x540E;&#xFF0C;&#x9996;&#x5148;&#x5C31;&#x4F1A;&#x8C03;&#x7528; CAS &#x8FDB;&#x884C;&#x4E00;&#x6B21;&#x62A2;&#x9501;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x6070;&#x5DE7;&#x9501;&#x6CA1;&#x6709;&#x88AB;&#x5360;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x76F4;&#x63A5;&#x5C31;&#x83B7;&#x53D6;&#x5230;&#x9501;&#x8FD4;&#x56DE;&#x4E86;&#x3002;</p>
+</li>
+<li><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x5728; CAS &#x5931;&#x8D25;&#x540E;&#xFF0C;&#x548C;&#x516C;&#x5E73;&#x9501;&#x4E00;&#x6837;&#x90FD;&#x4F1A;&#x8FDB;&#x5165;&#x5230; tryAcquire &#x65B9;&#x6CD5;&#xFF0C;&#x5728; tryAcquire &#x65B9;&#x6CD5;&#x4E2D;&#xFF0C;&#x5982;&#x679C;&#x53D1;&#x73B0;&#x9501;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x88AB;&#x91CA;&#x653E;&#x4E86;&#xFF08;state == 0&#xFF09;&#xFF0C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x76F4;&#x63A5; CAS &#x62A2;&#x9501;&#xFF0C;&#x4F46;&#x662F;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x5224;&#x65AD;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x662F;&#x5426;&#x6709;&#x7EBF;&#x7A0B;&#x5904;&#x4E8E;&#x7B49;&#x5F85;&#x72B6;&#x6001;&#xFF0C;&#x5982;&#x679C;&#x6709;&#x5219;&#x4E0D;&#x53BB;&#x62A2;&#x9501;&#xFF0C;&#x4E56;&#x4E56;&#x6392;&#x5230;&#x540E;&#x9762;&#x3002;</p>
+</li>
+</ol>
+<p>&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x5C31;&#x8FD9;&#x4E24;&#x70B9;&#x533A;&#x522B;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E24;&#x6B21; CAS &#x90FD;&#x4E0D;&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;&#x540E;&#x9762;&#x975E;&#x516C;&#x5E73;&#x9501;&#x548C;&#x516C;&#x5E73;&#x9501;&#x662F;&#x4E00;&#x6837;&#x7684;&#xFF0C;&#x90FD;&#x8981;&#x8FDB;&#x5165;&#x5230;&#x963B;&#x585E;&#x961F;&#x5217;&#x7B49;&#x5F85;&#x5524;&#x9192;&#x3002;<br>&#x76F8;&#x5BF9;&#x6765;&#x8BF4;&#xFF0C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x6709;&#x66F4;&#x597D;&#x7684;&#x6027;&#x80FD;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x7684;&#x541E;&#x5410;&#x91CF;&#x6BD4;&#x8F83;&#x5927;&#x3002;</p>
+<hr>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/279baac48960">https://www.jianshu.com/p/279baac48960</a></p>
+</blockquote>
+<h3 id="ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;"><a href="#ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;" class="headerlink" title="ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;"></a>ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;</h3><ol>
+<li>ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;<br>ReentrantLock&#x628A;&#x6240;&#x6709;Lock&#x63A5;&#x53E3;&#x7684;&#x64CD;&#x4F5C;&#x90FD;&#x59D4;&#x6D3E;&#x5230;&#x4E00;&#x4E2A;Sync&#x7C7B;&#x4E0A;&#xFF0C;&#x8BE5;&#x7C7B;&#x7EE7;&#x627F;&#x4E86;AbstractQueuedSynchronizer&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static abstract class Sync extends AbstractQueuedSynchronizer  </span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>Sync&#x53C8;&#x6709;&#x4E24;&#x4E2A;&#x5B50;&#x7C7B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">final static class NonfairSync extends Sync  </span><br><span class="line">final static class FairSync extends Sync  </span><br></pre></td></tr></table></figure>
+
+<p>&#x663E;&#x7136;&#x662F;&#x4E3A;&#x4E86;&#x652F;&#x6301;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x800C;&#x5B9A;&#x4E49;&#xFF0C;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x4E3A;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;<br>&#x5148;&#x7406;&#x4E00;&#x4E0B;Reentrant.lock()&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;&#xFF08;&#x9ED8;&#x8BA4;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF09;&#xFF1A;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/4.png"></p>
+<p>ReentrantLock&#x53EF;&#x4EE5;&#x6709;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x4E0D;&#x540C;&#x5B9E;&#x73B0;,&#x53EA;&#x8981;&#x5728;&#x6784;&#x9020;&#x5B83;&#x7684;&#x65F6;&#x5019;&#x4F20;&#x5165;&#x4E0D;&#x540C;&#x7684;&#x5E03;&#x5C14;&#x503C;,&#x7EE7;&#x7EED;&#x8DDF;&#x8FDB;&#x4E0B;&#x6E90;&#x7801;&#x6211;&#x4EEC;&#x5C31;&#x80FD;&#x53D1;&#x73B0;,&#x5173;&#x952E;&#x5728;&#x4E8E;&#x5B9E;&#x4F8B;&#x5316;&#x5185;&#x90E8;&#x53D8;&#x91CF;sync&#x7684;&#x65B9;&#x5F0F;&#x4E0D;&#x540C;,&#x5982;&#x4E0B;&#x6240;&#x793A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Creates an instance of {<span class="doctag">@code</span> ReentrantLock} with the</span></span><br><span class="line"><span class="comment"> * given fairness policy.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> fair {<span class="doctag">@code</span> true} if this lock should use a fair ordering policy</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;FairSync,&#x975E;&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;NonfairSync&#x3002;&#x800C;&#x4E0D;&#x7BA1;&#x662F;FairSync&#x8FD8;&#x662F;NonfariSync,&#x90FD;&#x95F4;&#x63A5;&#x7EE7;&#x627F;&#x81EA;AbstractQueuedSynchronizer&#x8FD9;&#x4E2A;&#x62BD;&#x8C61;&#x7C7B;&#xFF0C;&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;</p>
+<ul>
+<li><p>NonfairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/1.png"></p>
+</li>
+<li><p>FairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/2.png"></p>
+</li>
+</ul>
+<p>&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x4E3A;&#x6211;&#x4EEC;&#x7684;&#x52A0;&#x9501;&#x548C;&#x89E3;&#x9501;&#x8FC7;&#x7A0B;&#x63D0;&#x4F9B;&#x4E86;&#x7EDF;&#x4E00;&#x7684;&#x6A21;&#x677F;&#x65B9;&#x6CD5;&#xFF0C;&#x53EA;&#x662F;&#x4E00;&#x4E9B;&#x7EC6;&#x8282;&#x7684;&#x5904;&#x7406;&#x7531;&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x7684;&#x5B9E;&#x73B0;&#x7C7B;&#x81EA;&#x5DF1;&#x51B3;&#x5B9A;&#x3002;&#x6240;&#x4EE5;&#x5728;&#x89E3;&#x8BFB;ReentrantLock(&#x91CD;&#x5165;&#x9501;)&#x7684;&#x6E90;&#x7801;&#x4E4B;&#x524D;,&#x6709;&#x5FC5;&#x8981;&#x4E86;&#x89E3;&#x4E0B;AbstractQueuedSynchronizer&#x3002;</p>
+<ol start="2">
+<li>&#x9501;&#x5B9E;&#x73B0;&#xFF08;&#x52A0;&#x9501;&#xFF09;<br>&#x7B80;&#x5355;&#x8BF4;&#x6765;&#xFF0C;AbstractQueuedSynchronizer&#x4F1A;&#x628A;&#x6240;&#x6709;&#x7684;&#x8BF7;&#x6C42;&#x7EBF;&#x7A0B;&#x6784;&#x6210;&#x4E00;&#x4E2A;CLH&#x961F;&#x5217;&#xFF0C;&#x5F53;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x5B8C;&#x6BD5;&#xFF08;lock.unlock()&#xFF09;&#x65F6;&#x4F1A;&#x6FC0;&#x6D3B;&#x81EA;&#x5DF1;&#x7684;&#x540E;&#x7EE7;&#x8282;&#x70B9;&#xFF0C;&#x4F46;&#x6B63;&#x5728;&#x6267;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#x5E76;&#x4E0D;&#x5728;&#x961F;&#x5217;&#x4E2D;&#xFF0C;&#x800C;&#x90A3;&#x4E9B;&#x7B49;&#x5F85;&#x6267;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#x5168;&#x90E8;&#x5904;&#x4E8E;&#x963B;&#x585E;&#x72B6;&#x6001;.</li>
+</ol>
+<blockquote>
+<p><strong>&#x7EBF;&#x7A0B;&#x7684;&#x663E;&#x5F0F;&#x963B;&#x585E;&#x662F;&#x901A;&#x8FC7;&#x8C03;&#x7528;LockSupport.park()&#x5B8C;&#x6210;&#xFF0C;&#x800C;LockSupport.park()&#x5219;&#x8C03;&#x7528;sun.misc.Unsafe.park()&#x672C;&#x5730;&#x65B9;&#x6CD5;&#xFF0C;&#x518D;&#x8FDB;&#x4E00;&#x6B65;&#xFF0C;HotSpot&#x5728;Linux&#x4E2D;&#x4E2D;&#x901A;&#x8FC7;&#x8C03;&#x7528;pthread_mutex_lock&#x51FD;&#x6570;&#x628A;&#x7EBF;&#x7A0B;&#x4EA4;&#x7ED9;&#x7CFB;&#x7EDF;&#x5185;&#x6838;&#x8FDB;&#x884C;&#x963B;&#x585E;&#x3002;</strong></p>
+</blockquote>
+<p>&#x5F53;&#x6709;&#x7EBF;&#x7A0B;&#x7ADE;&#x4E89;&#x9501;&#x65F6;&#xFF0C;&#x8BE5;&#x7EBF;&#x7A0B;&#x4F1A;&#x9996;&#x5148;&#x5C1D;&#x8BD5;&#x83B7;&#x5F97;&#x9501;&#xFF0C;&#x8FD9;&#x5BF9;&#x4E8E;&#x90A3;&#x4E9B;&#x5DF2;&#x7ECF;&#x5728;&#x961F;&#x5217;&#x4E2D;&#x6392;&#x961F;&#x7684;&#x7EBF;&#x7A0B;&#x6765;&#x8BF4;&#x663E;&#x5F97;&#x4E0D;&#x516C;&#x5E73;&#xFF0C;&#x8FD9;&#x662F;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x7531;&#x6765;&#x4E4B;&#x4E00;&#xFF0C;&#x4E0E;synchronized&#x5B9E;&#x73B0;&#x7C7B;&#x4F3C;&#xFF0C;&#x8FD9;&#x6837;&#x4F1A;&#x6781;&#x5927;&#x63D0;&#x9AD8;&#x541E;&#x5410;&#x91CF;&#x3002;</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReentrantLock/" rel="tag">ReentrantLock</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/20/5B.002.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            并发-AQS原理二
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/20/5B.008.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%B8%80/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">并发-ReentrantLock原理二</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

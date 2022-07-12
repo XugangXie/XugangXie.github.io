@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7A.302.中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-07-12T07:47:21.480Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">19 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103367975">https://zhuanlan.zhihu.com/p/103367975</a></p>
+</blockquote>
+<span id="more"></span>
+<p>Redis &#x81EA;&#x5DF1;&#x5B9E;&#x73B0;&#x4E86;&#x4E00;&#x4E2A;<strong>&#x5B57;&#x5178;</strong>&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span>{</span></span><br><span class="line">  <span class="comment">// &#x7C7B;&#x578B;&#x7279;&#x5B9A;&#x51FD;&#x6570;</span></span><br><span class="line">  dictType *type;</span><br><span class="line">  <span class="comment">// &#x79C1;&#x6709;&#x6570;&#x636E;</span></span><br><span class="line">  <span class="type">void</span> *private;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;</span></span><br><span class="line">  dictht ht[<span class="number">2</span>];</span><br><span class="line">  <span class="comment">// rehash &#x7D22;&#x5F15;&#xFF0C;&#x5F53;&#x5F53;&#x524D;&#x7684;&#x5B57;&#x5178;&#x4E0D;&#x5728; rehash &#x65F6;&#xFF0C;&#x503C;&#x4E3A;-1</span></span><br><span class="line">  <span class="type">int</span> trehashidx;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><strong>&#x54C8;&#x5E0C;&#x8868;</strong><br>&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span>{</span></span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x7EC4;</span></span><br><span class="line">  dictEntry **table;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5927;&#x5C0F;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5927;&#x5C0F;&#x7684;&#x63A9;&#x7801;&#xFF0C;&#x7528;&#x4E8E;&#x8BA1;&#x7B97;&#x7D22;&#x5F15;&#x503C;&#xFF0C;&#x603B;&#x662F;&#x7B49;&#x4E8E; size-1</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> sizemasky;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x4E2D;&#x5DF2;&#x6709;&#x7684;&#x8282;&#x70B9;&#x6570;&#x91CF;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5176;&#x4E2D;&#x54C8;&#x5E0C;&#x8868;&#x4E2D;&#x7684;<strong>&#x8282;&#x70B9;</strong>&#x7684;&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span>{</span></span><br><span class="line">  <span class="comment">// &#x952E;</span></span><br><span class="line">  <span class="type">void</span> *key;</span><br><span class="line">  <span class="comment">// &#x503C;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> {</span></span><br><span class="line">    <span class="type">void</span> *val;</span><br><span class="line">    uint64_tu64;</span><br><span class="line">    int64_ts64;</span><br><span class="line">  }v;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// &#x6307;&#x5411;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x6307;&#x9488;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">} dictEntry;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/1.0.jpg"></p>
+<p>&#x4E0A;&#x56FE;&#x662F;&#x4E00;&#x4E2A;&#x6CA1;&#x6709;&#x5904;&#x5728; rehash &#x72B6;&#x6001;&#x4E0B;&#x7684;&#x5B57;&#x5178;&#x3002;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x5B57;&#x5178;&#x6301;&#x6709;&#x4E24;&#x5F20;&#x54C8;&#x5E0C;&#x8868;&#xFF0C;&#x5176;&#x4E2D;&#x4E00;&#x4E2A;&#x7684;&#x503C;&#x4E3A; null, &#x53E6;&#x5916;&#x4E00;&#x4E2A;&#x54C8;&#x5E0C;&#x8868;&#x7684; size=4, &#x5176;&#x4E2D;&#x4E24;&#x4E2A;&#x4F4D;&#x7F6E;&#x4E0A;&#x5DF2;&#x7ECF;&#x5B58;&#x653E;&#x4E86;&#x5177;&#x4F53;&#x7684;&#x952E;&#x503C;&#x5BF9;&#xFF0C;&#x800C;&#x4E14;&#x6CA1;&#x6709;&#x53D1;&#x751F; hash &#x51B2;&#x7A81;&#x3002;</p>
+<h3 id="&#x6269;&#x5BB9;&#x4E0E;&#x7F29;&#x5BB9;"><a href="#&#x6269;&#x5BB9;&#x4E0E;&#x7F29;&#x5BB9;" class="headerlink" title="&#x6269;&#x5BB9;&#x4E0E;&#x7F29;&#x5BB9;"></a>&#x6269;&#x5BB9;&#x4E0E;&#x7F29;&#x5BB9;</h3><p><code>&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;</code>&#x662F;&#x7528;&#x6765;&#x63CF;&#x8FF0;&#x54C8;&#x5E0C;&#x8868;&#x5F53;&#x524D;&#x88AB;&#x586B;&#x5145;&#x7684;&#x7A0B;&#x5EA6;&#x3002;&#x8BA1;&#x7B97;&#x516C;&#x5F0F;&#x662F;&#xFF1A;<code>&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;=&#x54C8;&#x5E0C;&#x8868;&#x4EE5;&#x4FDD;&#x5B58;&#x8282;&#x70B9;&#x6570;&#x91CF; / &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5927;&#x5C0F;</code>.</p>
+<p>&#x5728; Redis &#x7684;&#x5B9E;&#x73B0;&#x91CC;&#xFF0C;&#x6269;&#x5BB9;&#x7F29;&#x5BB9;&#x6709;&#x4E09;&#x6761;&#x89C4;&#x5219;&#xFF1A;</p>
+<ul>
+<li>&#x5F53; Redis &#x6CA1;&#x6709;&#x8FDB;&#x884C; BGSAVE &#x76F8;&#x5173;&#x64CD;&#x4F5C;&#xFF0C;&#x4E14; &#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&gt;1&#x7684;&#x65F6;&#x5019;&#x8FDB;&#x884C;&#x6269;&#x5BB9;&#x3002;</li>
+<li>&#x5F53;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&gt;5&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5F3A;&#x884C;&#x8FDB;&#x884C;&#x6269;&#x5BB9;&#x3002;</li>
+<li>&#x5F53;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&lt;0.1&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8FDB;&#x884C;&#x7F29;&#x5BB9;&#x3002;</li>
+</ul>
+<p>&#x6839;&#x636E;&#x7A0B;&#x5E8F;&#x5F53;&#x524D;&#x662F;&#x5426;&#x5728;&#x8FDB;&#x884C; BGSAVE &#x76F8;&#x5173;&#x64CD;&#x4F5C;&#xFF0C;&#x6269;&#x5BB9;&#x9700;&#x8981;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x6761;&#x4EF6;&#x4E0D;&#x76F8;&#x540C;&#x3002;</p>
+<p>&#x8FD9;&#x662F;&#x56E0;&#x4E3A;&#x5728;&#x8FDB;&#x884C; BGSAVE &#x64CD;&#x4F5C;&#x65F6;&#xFF0C;&#x5B58;&#x5728;&#x5B50;&#x8FDB;&#x7A0B;&#xFF0C;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x4F1A;&#x4F7F;&#x7528; &#x5199;&#x65F6;&#x590D;&#x5236; (Copy On Write) &#x6765;&#x4F18;&#x5316;&#x5B50;&#x8FDB;&#x7A0B;&#x7684;&#x6548;&#x7387;&#x3002;Redis &#x5C3D;&#x91CF;&#x907F;&#x514D;&#x5728;&#x5B58;&#x5728;&#x5B50;&#x8FDB;&#x7A0B;&#x7684;&#x65F6;&#x5019;&#x8FDB;&#x884C;&#x6269;&#x5BB9;&#xFF0C;&#x5C3D;&#x91CF;&#x7684;&#x8282;&#x7701;&#x5185;&#x5B58;&#x3002;</p>
+<h3 id="&#x6E10;&#x8FDB;&#x5F0F;rehash"><a href="#&#x6E10;&#x8FDB;&#x5F0F;rehash" class="headerlink" title="&#x6E10;&#x8FDB;&#x5F0F;rehash"></a>&#x6E10;&#x8FDB;&#x5F0F;rehash</h3><p>Redis &#x5B9E;&#x73B0;&#x4E86;&#x6E10;&#x8FDB;&#x5F0F; hash. &#x8FC7;&#x7A0B;&#x5982;&#x4E0B;&#xFF1A;</p>
+<ul>
+<li>&#x5047;&#x5982;&#x5F53;&#x524D;&#x6570;&#x636E;&#x5728; ht[0] &#x4E2D;&#xFF0C;&#x90A3;&#x4E48;&#x9996;&#x5148;&#x4E3A; ht[1] &#x5206;&#x914D;&#x8DB3;&#x591F;&#x7684;&#x7A7A;&#x95F4;&#x3002;</li>
+<li>&#x5728;&#x5B57;&#x5178;&#x4E2D;&#x7EF4;&#x62A4;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#xFF0C;rehashindex = 0. &#x7528;&#x6765;&#x6307;&#x793A;&#x5F53;&#x524D; rehash &#x7684;&#x8FDB;&#x5EA6;&#x3002;</li>
+<li>&#x5728; rehash &#x671F;&#x95F4;&#xFF0C;&#x6BCF;&#x6B21;&#x5BF9; &#x5B57;&#x5178;&#x8FDB;&#x884C; &#x589E;&#x5220;&#x6539;&#x67E5;&#x64CD;&#x4F5C;&#xFF0C;&#x5728;&#x5B8C;&#x6210;&#x5B9E;&#x9645;&#x64CD;&#x4F5C;&#x4E4B;&#x540E;&#xFF0C;&#x90FD;&#x4F1A;&#x8FDB;&#x884C; &#x4E00;&#x6B21; rehash &#x64CD;&#x4F5C;&#xFF0C;&#x5C06; ht[0] &#x5728;rehashindex &#x4F4D;&#x7F6E;&#x4E0A;&#x7684;&#x503C; rehash &#x5230; ht[1] &#x4E0A;&#x3002;&#x5C06; rehashindex &#x9012;&#x589E;&#x4E00;&#x4F4D;&#x3002;</li>
+<li>&#x968F;&#x7740;&#x4E0D;&#x65AD;&#x7684;&#x6267;&#x884C;&#xFF0C;&#x539F;&#x6765;&#x7684; ht[0] &#x4E0A;&#x7684;&#x6570;&#x503C;&#x603B;&#x4F1A;&#x5168;&#x90E8; rehash &#x5B8C;&#x6210;&#xFF0C;&#x6B64;&#x65F6;&#x7ED3;&#x675F; rehash &#x8FC7;&#x7A0B;&#x3002; &#x5C06; rehashindex &#x7F6E;&#x4E3A;-1.</li>
+</ul>
+<p>&#x5728;&#x4E0A;&#x9762;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#x6709;&#x4E24;&#x4E2A;&#x95EE;&#x9898;&#x6CA1;&#x6709;&#x63D0;&#x5230;&#xFF1A;</p>
+<p>&#x5047;&#x5982;&#x8FD9;&#x4E2A;&#x670D;&#x52A1;&#x5668;&#x5F88;&#x7A7A;&#x4F59;&#x5462;&#xFF1F;&#x4E2D;&#x95F4;&#x51E0;&#x5C0F;&#x65F6;&#x90FD;&#x6CA1;&#x6709;&#x8BF7;&#x6C42;&#x8FDB;&#x6765;&#xFF0C;&#x90A3;&#x4E48;&#x540C;&#x65F6;&#x4FDD;&#x6301;&#x4E24;&#x4E2A; table, &#x5C82;&#x4E0D;&#x662F;&#x5F88;&#x6D6A;&#x8D39;&#x5185;&#x5B58;&#xFF1F;<br>&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#x662F;&#xFF1A;&#x5728; redis &#x7684;&#x5B9A;&#x65F6;&#x51FD;&#x6570;&#x91CC;&#xFF0C;&#x4E5F;&#x52A0;&#x5165;&#x5E2E;&#x52A9; rehash &#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x8FD9;&#x6837;&#x5B50;&#x5982;&#x679C;&#x670D;&#x52A1;&#x5668;&#x7A7A;&#x95F2;&#xFF0C;&#x5C31;&#x4F1A;&#x6BD4;&#x8F83;&#x5FEB;&#x7684;&#x5B8C;&#x6210; rehash.</p>
+<p><strong>&#x5728;&#x4FDD;&#x6301;&#x4E24;&#x4E2A; table &#x671F;&#x95F4;&#xFF0C;&#x8BE5;&#x54C8;&#x5E0C;&#x8868;&#x600E;&#x4E48;&#x5BF9;&#x5916;&#x63D0;&#x4F9B;&#x670D;&#x52A1;&#x5462;&#xFF1F;</strong><br>&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#xFF1A;</p>
+<ul>
+<li>&#x5BF9;&#x4E8E;&#x6DFB;&#x52A0;&#x64CD;&#x4F5C;&#xFF0C;&#x76F4;&#x63A5;&#x6DFB;&#x52A0;&#x5230; ht[1] &#x4E0A;&#xFF0C;&#x56E0;&#x6B64;&#x8FD9;&#x6837;&#x624D;&#x80FD;&#x4FDD;&#x8BC1; ht[0] &#x7684;&#x6570;&#x91CF;&#x53EA;&#x4F1A;&#x51CF;&#x5C11;&#x4E0D;&#x4F1A;&#x589E;&#x52A0;&#xFF0C;&#x624D;&#x80FD;&#x4FDD;&#x8BC1; rehash &#x8FC7;&#x7A0B;&#x53EF;&#x4EE5;&#x5B8C;&#x7ED3;&#x3002;</li>
+<li>&#x800C;&#x5220;&#x9664;&#xFF0C;&#x4FEE;&#x6539;&#xFF0C;&#x67E5;&#x8BE2;&#x7B49;&#x64CD;&#x4F5C;&#x4F1A;&#x5728; ht[0] &#x4E0A;&#x8FDB;&#x884C;&#xFF0C;&#x5982;&#x679C;&#x5F97;&#x4E0D;&#x5230;&#x7ED3;&#x679C;&#xFF0C;&#x4F1A;&#x53BB; ht[1] &#x518D;&#x6267;&#x884C;&#x4E00;&#x904D;&#x3002;</li>
+</ul>
+<p>&#x6E10;&#x8FDB;&#x5F0F; hash &#x5E26;&#x6765;&#x7684;&#x597D;&#x5904;&#x662F;&#x663E;&#x800C;&#x6613;&#x89C1;&#x7684;&#xFF0C;&#x4ED6;&#x91C7;&#x7528;&#x4E86;&#x5206;&#x800C;&#x6CBB;&#x4E4B;&#x7684;&#x601D;&#x60F3;&#xFF0C;&#x5C06; rehash &#x64CD;&#x4F5C;&#x5206;&#x6563;&#x5230;&#x6BCF;&#x4E00;&#x4E2A;&#x5BF9;&#x8BE5;&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x64CD;&#x4F5C;&#x4E0A;&#x4EE5;&#x53CA;&#x5B9A;&#x65F6;&#x51FD;&#x6570;&#x4E0A;&#xFF0C;&#x907F;&#x514D;&#x4E86;&#x96C6;&#x4E2D;&#x5F0F; rehash &#x5E26;&#x6765;&#x7684;&#x6027;&#x80FD;&#x538B;&#x529B;&#x3002;</p>
+<h3 id="Redis-&#x7684;&#x5B57;&#x5178;&#x7ED3;&#x6784;&#xFF0C;&#x5728;-rehash-&#x65F6;&#x548C;-Java-&#x7684;-HashMap-&#x7684;-Rehash-&#x6709;&#x4EC0;&#x4E48;&#x4E0D;&#x540C;&#xFF1F;"><a href="#Redis-&#x7684;&#x5B57;&#x5178;&#x7ED3;&#x6784;&#xFF0C;&#x5728;-rehash-&#x65F6;&#x548C;-Java-&#x7684;-HashMap-&#x7684;-Rehash-&#x6709;&#x4EC0;&#x4E48;&#x4E0D;&#x540C;&#xFF1F;" class="headerlink" title="Redis &#x7684;&#x5B57;&#x5178;&#x7ED3;&#x6784;&#xFF0C;&#x5728; rehash &#x65F6;&#x548C; Java &#x7684; HashMap &#x7684; Rehash &#x6709;&#x4EC0;&#x4E48;&#x4E0D;&#x540C;&#xFF1F;"></a>Redis &#x7684;&#x5B57;&#x5178;&#x7ED3;&#x6784;&#xFF0C;&#x5728; rehash &#x65F6;&#x548C; Java &#x7684; HashMap &#x7684; Rehash &#x6709;&#x4EC0;&#x4E48;&#x4E0D;&#x540C;&#xFF1F;</h3><p>&#x5728; Java &#x7684; HashMap &#x4E2D;&#xFF0C;&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;&#x662F; &#x65B0;&#x5EFA;&#x4E00;&#x4E2A;&#x54C8;&#x5E0C;&#x8868;&#xFF0C;&#x4E00;&#x6B21;&#x6027;&#x7684;&#x5C06;&#x5F53;&#x524D;&#x6240;&#x6709;&#x8282;&#x70B9; rehash &#x5B8C;&#x6210;&#xFF0C;&#x4E4B;&#x540E;&#x91CA;&#x653E;&#x6389;&#x539F;&#x6709;&#x7684; hash &#x8868;&#xFF0C;&#x800C;&#x6301;&#x6709;&#x65B0;&#x7684;&#x8868;&#x3002;</p>
+<p>&#x800C; Redis &#x4E0D;&#x662F;&#xFF0C;Redis &#x4F7F;&#x7528;&#x4E86;&#x4E00;&#x79CD;&#x540D;&#x4E3A;<code>&#x6E10;&#x8FDB;&#x5F0F; rehash</code> &#x7684;&#x65B9;&#x5F0F;&#x6765;&#x6EE1;&#x8DB3;&#x81EA;&#x5DF1;&#x7684;&#x6027;&#x80FD;&#x9700;&#x6C42;&#x3002;</p>
+<hr>
+<blockquote>
+<p>&#x4EE5;&#x4E0B;&#x4E3B;&#x8981;&#x53C2;&#x8003;&#xFF1A;<a target="_blank" rel="noopener" href="https://blog.csdn.net/Seky_fei/article/details/108270778">https://blog.csdn.net/Seky_fei/article/details/108270778</a></p>
+</blockquote>
+<h3 id="dict&#x5B57;&#x5178;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;"><a href="#dict&#x5B57;&#x5178;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;" class="headerlink" title="dict&#x5B57;&#x5178;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;"></a>dict&#x5B57;&#x5178;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span>{</span></span><br><span class="line">    dictType *type; <span class="comment">//&#x76F4;&#x7EBF;dictType&#x7ED3;&#x6784;&#xFF0C;dictType&#x7ED3;&#x6784;&#x4E2D;&#x5305;&#x542B;&#x81EA;&#x5B9A;&#x4E49;&#x7684;&#x51FD;&#x6570;&#xFF0C;&#x8FD9;&#x4E9B;&#x51FD;&#x6570;&#x4F7F;&#x5F97;key&#x548C;value&#x80FD;&#x591F;&#x5B58;&#x50A8;&#x4EFB;&#x4F55;&#x7C7B;&#x578B;&#x7684;&#x6570;&#x636E;</span></span><br><span class="line">    <span class="type">void</span> *privdata; <span class="comment">//&#x79C1;&#x6709;&#x6570;&#x636E;&#xFF0C;&#x4FDD;&#x5B58;&#x7740;dictType&#x7ED3;&#x6784;&#x4E2D;&#x51FD;&#x6570;&#x7684; &#x53C2;&#x6570;</span></span><br><span class="line">    dictht ht[<span class="number">2</span>]; <span class="comment">//&#x4E24;&#x5F20;&#x54C8;&#x5E0C;&#x8868;</span></span><br><span class="line">    <span class="type">long</span> rehashidx; <span class="comment">//rehash&#x7684;&#x6807;&#x8BB0;&#xFF0C;rehashidx=-1&#x8868;&#x793A;&#x6CA1;&#x6709;&#x8FDB;&#x884C;rehash&#xFF0C;rehash&#x65F6;&#x6BCF;&#x8FC1;&#x79FB;&#x4E00;&#x4E2A;&#x6876;&#x5C31;&#x5BF9;rehashidx&#x52A0;&#x4E00;</span></span><br><span class="line">    <span class="type">int</span> itreators;  <span class="comment">//&#x6B63;&#x5728;&#x8FED;&#x4EE3;&#x7684;&#x8FED;&#x4EE3;&#x5668;&#x6570;&#x91CF;</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h3 id="dict&#x7ED3;&#x6784;&#x4E2D;ht-0-&#x3001;ht-1-&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;"><a href="#dict&#x7ED3;&#x6784;&#x4E2D;ht-0-&#x3001;ht-1-&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;" class="headerlink" title="dict&#x7ED3;&#x6784;&#x4E2D;ht[0]&#x3001;ht[1]&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;"></a>dict&#x7ED3;&#x6784;&#x4E2D;ht[0]&#x3001;ht[1]&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span>{</span></span><br><span class="line">    dictEntry[] table;        <span class="comment">//&#x5B58;&#x653E;&#x4E00;&#x4E2A;&#x6570;&#x7EC4;&#x7684;&#x5730;&#x5740;&#xFF0C;&#x6570;&#x7EC4;&#x4E2D;&#x5B58;&#x653E;&#x54C8;&#x5E0C;&#x8282;&#x70B9;dictEntry&#x7684;&#x5730;&#x5740;</span></span><br><span class="line">    unsingned <span class="type">long</span> size;      <span class="comment">//&#x54C8;&#x5E0C;&#x8868;table&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x51FA;&#x59CB;&#x5927;&#x5C0F;&#x4E3A;4</span></span><br><span class="line">    unsingned <span class="type">long</span>  sizemask; <span class="comment">//&#x7528;&#x4E8E;&#x5C06;hash&#x503C;&#x6620;&#x5C04;&#x5230;table&#x4F4D;&#x7F6E;&#x7684;&#x7D22;&#x5F15;&#xFF0C;&#x5927;&#x5C0F;&#x4E3A;&#xFF08;size-1&#xFF09;</span></span><br><span class="line">    unsingned <span class="type">long</span>  used;     <span class="comment">//&#x8BB0;&#x5F55;&#x54C8;&#x5E0C;&#x8868;&#x5DF2;&#x6709;&#x8282;&#x70B9;&#xFF08;&#x952E;&#x503C;&#x5BF9;&#xFF09;&#x7684;&#x6570;&#x91CF;</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x4E3A;&#x4E86;&#x80FD;&#x66F4;&#x6E05;&#x695A;&#x5730;&#x5C55;&#x793A;dict&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x5B9A;&#x4E49;&#xFF0C;&#x7528;&#x4E00;&#x5F20;&#x7ED3;&#x6784;&#x56FE;&#x6765;&#x8868;&#x793A;dict(&#x5B57;&#x5178;)&#x7684;&#x6784;&#x6210;&#x3002;&#x5982;&#x4E0B;&#x56FE;&#xFF1A;</p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.0.png"></p>
+<p>&#x4E0A;&#x56FE;&#x5C31;&#x662F;Redis&#x7684;dict(&#x5B57;&#x5178;)&#x6570;&#x636E;&#x7ED3;&#x6784;&#xFF0C;&#x4E00;&#x4E2A;dict&#x9700;&#x8981;&#x6CE8;&#x610F;&#x51E0;&#x70B9;&#xFF1A;</p>
+<p>&#xFF08;1&#xFF09;dict&#x91C7;&#x7528;&#x54C8;&#x5E0C;&#x51FD;&#x6570;&#x5BF9;key&#x53D6;&#x54C8;&#x5E0C;&#x503C;&#x5F97;&#x5230;&#x5728;&#x54C8;&#x5E0C;&#x8868;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;(&#x6876;&#x7684;&#x4F4D;&#x7F6E;)&#xFF0C;&#x91C7;&#x7528;&#x62C9;&#x94FE;&#x6CD5;&#x89E3;&#x51B3;hash&#x51B2;&#x7A81;&#x3002;</p>
+<p>&#xFF08;2&#xFF09;&#x4E24;&#x5F20;&#x54C8;&#x5E0C;&#x8868;&#xFF08;ht[2]&#xFF09;&#xFF1A;&#x53EA;&#x6709;&#x5728;&#x91CD;&#x54C8;&#x5E0C;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;ht[0]&#x548C;ht[1]&#x624D;&#x90FD;&#x6709;&#x6548;&#x3002;&#x800C;&#x5728;&#x5E73;&#x5E38;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x53EA;&#x6709;ht[0]&#x6709;&#x6548;&#xFF0C;ht[1]&#x91CC;&#x9762;&#x6CA1;&#x6709;&#x4EFB;&#x4F55;&#x6570;&#x636E;&#x3002;&#x4E0A;&#x56FE;&#x8868;&#x793A;&#x7684;&#x5C31;&#x662F;&#x91CD;&#x54C8;&#x5E0C;&#x8FDB;&#x884C;&#x5230;&#x4E2D;&#x95F4;&#x67D0;&#x4E00;&#x6B65;&#x65F6;&#x7684;&#x60C5;&#x51B5;&#x3002;</p>
+<p>&#xFF08;3&#xFF09;&#x91CD;&#x54C8;&#x5E0C;&#xFF1A;&#x8DDF;HashMap&#x4E00;&#x6837;&#x5F53;&#x88C5;&#x8F7D;&#x56E0;&#x5B50;&#xFF08;load factor&#xFF09;&#x8D85;&#x8FC7;&#x9884;&#x5B9A;&#x503C;&#x65F6;&#x5C31;&#x4F1A;&#x8FDB;&#x884C;rehash&#x3002;dict&#x8FDB;&#x884C;rehash&#x6269;&#x5BB9;&#xFF0C;&#x5C06;ht[0]&#x4E0A;&#x67D0;&#x4E00;&#x4E2A;bucket&#xFF08;&#x5373;&#x4E00;&#x4E2A;&#x6876;&#x4E0A;dictEntry&#x94FE;&#x8868;&#xFF09;&#x4E0A;&#x7684;&#x6BCF;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#x79FB;&#x52A8;&#x5230;&#x6269;&#x5BB9;&#x540E;&#x7684;ht[1]&#x4E0A;(<strong>&#x6BCF;&#x6B21;&#x53EA;&#x79FB;&#x52A8;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x5373;&#x6E10;&#x8FDB;&#x5F0F;rehash&#x3002;&#x539F;&#x56E0;&#x662F;&#x4E3A;&#x4E86;&#x9632;&#x6B62;redis&#x957F;&#x65F6;&#x95F4;&#x7684;&#x5835;&#x585E;&#x5BFC;&#x81F4;&#x4E0D;&#x53EF;&#x7528;</strong>)&#xFF0C;&#x89E6;&#x53D1;rehash&#x7684;&#x64CD;&#x4F5C;&#x6709;&#x67E5;&#x8BE2;&#x3001;&#x63D2;&#x5165;&#x548C;&#x5220;&#x9664;&#x5143;&#x7D20;&#x3002;rehashidx&#x4F1A;&#x8BB0;&#x5F55;&#x6BCF;&#x6B21;&#x9700;&#x8981;&#x79FB;&#x52A8;&#x94FE;&#x8868;bucket&#x6876;&#x7684;&#x4F4D;&#x7F6E;(&#x540E;&#x9762;&#x4F1A;&#x8BE6;&#x7EC6;&#x8BB2;&#x89E3;)&#x3002;</p>
+<p>&#xFF08;4&#xFF09;&#x5F53; ht[0] &#x5305;&#x542B;&#x7684;&#x6240;&#x6709;&#x952E;&#x503C;&#x5BF9;&#x90FD;&#x8FC1;&#x79FB;&#x5230;&#x4E86; ht[1] &#x4E4B;&#x540E; &#xFF08;ht[0] &#x53D8;&#x4E3A;&#x7A7A;&#x8868;&#xFF09;&#xFF0C;&#x91CA;&#x653E; ht[0] &#xFF0C; &#x5C06; ht[1] &#x8BBE;&#x7F6E;&#x4E3A; ht[0] &#xFF0C; &#x5E76;&#x5728; ht[1] &#x65B0;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x7A7A;&#x767D;&#x54C8;&#x5E0C;&#x8868;&#xFF0C; &#x4E3A;&#x4E0B;&#x4E00;&#x6B21; rehash &#x505A;&#x51C6;&#x5907;&#x3002;</p>
+<h3 id="&#x89E6;&#x53D1;rehash&#x7684;&#x6761;&#x4EF6;"><a href="#&#x89E6;&#x53D1;rehash&#x7684;&#x6761;&#x4EF6;" class="headerlink" title="&#x89E6;&#x53D1;rehash&#x7684;&#x6761;&#x4EF6;"></a>&#x89E6;&#x53D1;rehash&#x7684;&#x6761;&#x4EF6;</h3><p>&#x89E6;&#x53D1;dict&#x7684;rehash&#x4E3B;&#x8981;&#x6709;&#x4E24;&#x79CD;&#xFF1A;&#x4E00;&#x79CD;&#x662F;&#x89E6;&#x53D1;&#x6269;&#x5BB9;&#x64CD;&#x4F5C;&#xFF0C;&#x53E6;&#x4E00;&#x79CD;&#x662F;&#x89E6;&#x53D1;&#x6536;&#x7F29;&#x64CD;&#x4F5C;&#x3002;&#x4E24;&#x79CD;rehash&#x89E6;&#x53D1;&#x7684;&#x6761;&#x4EF6;&#x662F;&#x4E0D;&#x4E00;&#x6837;&#x7684;&#xFF0C;&#x9700;&#x8981;&#x5404;&#x81EA;&#x6EE1;&#x8DB3;&#x4E00;&#x4E0B;&#x6761;&#x4EF6;&#x624D;&#x80FD;&#x5BFC;&#x81F4;rehash&#x64CD;&#x4F5C;&#x3002;</p>
+<ul>
+<li>&#x89E6;&#x53D1;&#x6269;&#x5BB9;&#x64CD;&#x4F5C;&#x6761;&#x4EF6;&#xFF1A;&#x5F53;&#x4EE5;&#x4E0B;&#x6761;&#x4EF6;&#x4E2D;&#x7684;&#x4EFB;&#x610F;&#x4E00;&#x4E2A;&#x88AB;&#x6EE1;&#x8DB3;&#x65F6;&#xFF0C; &#x7A0B;&#x5E8F;&#x4F1A;&#x81EA;&#x52A8;&#x5F00;&#x59CB;&#x5BF9;&#x54C8;&#x5E0C;&#x8868;&#x6267;&#x884C;&#x6269;&#x5C55;&#x64CD;&#x4F5C;&#x3002;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#1&#x3001;&#x670D;&#x52A1;&#x5668;&#x76EE;&#x524D;&#x6CA1;&#x6709;&#x5728;&#x6267;&#x884C; BGSAVE &#x547D;&#x4EE4;&#x6216;&#x8005; BGREWRITEAOF &#x547D;&#x4EE4;&#xFF0C;&#x5E76;&#x4E14;&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x5927;&#x4E8E;&#x7B49;&#x4E8E; 1&#x3002;</span><br><span class="line"></span><br><span class="line">#2&#x3001;&#x670D;&#x52A1;&#x5668;&#x76EE;&#x524D;&#x6B63;&#x5728;&#x6267;&#x884C; BGSAVE &#x547D;&#x4EE4;&#x6216;&#x8005; BGREWRITEAOF &#x547D;&#x4EE4;&#xFF0C;&#x5E76;&#x4E14;&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x5927;&#x4E8E;&#x7B49;&#x4E8E; 5&#x3002;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x8BA1;&#x7B97;&#xFF1A;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50; = &#x54C8;&#x5E0C;&#x8868;&#x5DF2;&#x4FDD;&#x5B58;&#x8282;&#x70B9;&#x6570;&#x91CF; / &#x54C8;&#x5E0C;&#x8868;&#x5927;&#x5C0F;</span><br><span class="line">load_factor = ht[0].used / ht[0].size</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>&#x6839;&#x636E; BGSAVE &#x547D;&#x4EE4;&#x6216; BGREWRITEAOF &#x547D;&#x4EE4;&#x662F;&#x5426;&#x6B63;&#x5728;&#x6267;&#x884C;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x6267;&#x884C;&#x6269;&#x5C55;&#x64CD;&#x4F5C;&#x6240;&#x9700;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x5E76;&#x4E0D;&#x76F8;&#x540C;&#xFF0C;&#x8FD9;&#x662F;&#x56E0;&#x4E3A;&#x5728;&#x6267;&#x884C; BGSAVE &#x547D;&#x4EE4;&#x6216; BGREWRITEAOF&#x547D;&#x4EE4;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C; Redis&#x4F1A;fork&#x4E00;&#x4E2A;&#x5B50;&#x8FDB;&#x7A0B;&#xFF0C;&#x800C;&#x5927;&#x591A;&#x6570;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x90FD;&#x91C7;&#x7528;&#x5199;&#x65F6;&#x590D;&#x5236;&#xFF08;copy-on-write&#xFF09;&#x6280;&#x672F;&#x6765;&#x4F18;&#x5316;&#x5B50;&#x8FDB;&#x7A0B;&#x7684;&#x4F7F;&#x7528;&#x6548;&#x7387;&#xFF0C;&#x6240;&#x4EE5;&#x5728;&#x5B50;&#x8FDB;&#x7A0B;&#x5B58;&#x5728;&#x671F;&#x95F4;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x4F1A;&#x63D0;&#x9AD8;&#x6267;&#x884C;&#x6269;&#x5C55;&#x64CD;&#x4F5C;&#x6240;&#x9700;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#xFF0C;&#x4ECE;&#x800C;&#x5C3D;&#x53EF;&#x80FD;&#x5730;&#x907F;&#x514D;&#x5728;&#x5B50;&#x8FDB;&#x7A0B;&#x5B58;&#x5728;&#x671F;&#x95F4;&#x8FDB;&#x884C;&#x54C8;&#x5E0C;&#x8868;&#x6269;&#x5C55;&#x64CD;&#x4F5C;&#xFF0C;&#x8FD9;&#x53EF;&#x4EE5;&#x907F;&#x514D;&#x4E0D;&#x5FC5;&#x8981;&#x7684;&#x5185;&#x5B58;&#x5199;&#x5165;&#x64CD;&#x4F5C;&#xFF0C; &#x6700;&#x5927;&#x9650;&#x5EA6;&#x5730;&#x8282;&#x7EA6;&#x5185;&#x5B58;&#x3002;</p>
+</blockquote>
+<ul>
+<li>&#x89E6;&#x53D1;&#x6536;&#x7F29;&#x64CD;&#x4F5C;&#x6761;&#x4EF6;&#xFF1A;&#x5F53;&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x8D1F;&#x8F7D;&#x56E0;&#x5B50;&#x5C0F;&#x4E8E;0.1&#x65F6;&#xFF0C;&#x7A0B;&#x5E8F;&#x81EA;&#x52A8;&#x5F00;&#x59CB;&#x5BF9;&#x54C8;&#x5E0C;&#x8868;&#x6267;&#x884C;&#x6536;&#x7F29;&#x64CD;&#x4F5C;&#x3002;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ht[0].used / ht[0].siz) &lt; 0.1&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x586B;&#x5145;&#x7387;&#x5FC5;&#x987B;&lt;10%&#x3002;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="&#x6E10;&#x8FDB;&#x5F0F;rehash-1"><a href="#&#x6E10;&#x8FDB;&#x5F0F;rehash-1" class="headerlink" title="&#x6E10;&#x8FDB;&#x5F0F;rehash"></a>&#x6E10;&#x8FDB;&#x5F0F;rehash</h3><p>&#x6269;&#x5C55;&#x6216;&#x6536;&#x7F29;&#x54C8;&#x5E0C;&#x8868;&#x9700;&#x8981;&#x5C06; ht[0]&#x91CC;&#x9762;&#x7684;&#x6240;&#x6709;&#x952E;&#x503C;&#x5BF9; rehash &#x5230; ht[1]&#x91CC;&#x9762;&#xFF0C; &#x4F46;&#x662F;&#xFF0C; &#x8FD9;&#x4E2A; rehash &#x52A8;&#x4F5C;&#x5E76;&#x4E0D;&#x662F;&#x4E00;&#x6B21;&#x6027;&#x3001;&#x96C6;&#x4E2D;&#x5F0F;&#x5730;&#x5B8C;&#x6210;&#x7684;&#xFF0C; &#x800C;&#x662F;&#x5206;&#x591A;&#x6B21;&#x3001;&#x6E10;&#x8FDB;&#x5F0F;&#x5730;&#x5B8C;&#x6210;&#x7684;&#x3002;</p>
+<p>&#x8FD9;&#x6837;&#x505A;&#x7684;&#x539F;&#x56E0;&#x5728;&#x4E8E;&#xFF0C;&#x5982;&#x679C;&#x54C8;&#x5E0C;&#x8868;&#x91CC;&#x4FDD;&#x5B58;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x6570;&#x91CF;&#x5F88;&#x5927;&#x65F6;&#xFF0C; &#x5982;&#xFF1A;&#x56DB;&#x767E;&#x4E07;&#x3001;&#x56DB;&#x5343;&#x4E07;&#x751A;&#x81F3;&#x56DB;&#x4EBF;&#x4E2A;&#x952E;&#x503C;&#x5BF9;&#xFF0C; &#x90A3;&#x4E48;&#x4E00;&#x6B21;&#x6027;&#x5C06;&#x8FD9;&#x4E9B;&#x952E;&#x503C;&#x5BF9;&#x5168;&#x90E8; rehash &#x5230; ht[1] &#x7684;&#x8BDD;&#xFF0C;&#x5E9E;&#x5927;&#x7684;&#x8BA1;&#x7B97;&#x91CF;(&#x9700;&#x8981;&#x91CD;&#x65B0;&#x8BA1;&#x7B97;&#x94FE;&#x8868;&#x5728;&#x6876;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;)&#x53EF;&#x80FD;&#x4F1A;&#x5BFC;&#x81F4;&#x670D;&#x52A1;&#x5668;&#x5728;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#x5185;&#x505C;&#x6B62;&#x670D;&#x52A1;(redis&#x662F;&#x5355;&#x7EBF;&#x7A0B;&#x7684;&#xFF0C;&#x5982;&#x679C;&#x5168;&#x90E8;&#x79FB;&#x52A8;&#x4F1A;&#x5F15;&#x8D77;&#x5BA2;&#x6237;&#x7AEF;&#x957F;&#x65F6;&#x95F4;&#x963B;&#x585E;&#x4E0D;&#x53EF;&#x7528;)&#x3002;</p>
+<p>&#x56E0;&#x6B64;&#xFF0C; &#x4E3A;&#x4E86;&#x907F;&#x514D; rehash &#x5BF9;&#x670D;&#x52A1;&#x5668;&#x6027;&#x80FD;&#x9020;&#x6210;&#x5F71;&#x54CD;&#xFF0C; &#x670D;&#x52A1;&#x5668;&#x4E0D;&#x662F;&#x4E00;&#x6B21;&#x6027;&#x5C06; ht[0]&#x91CC;&#x9762;&#x7684;&#x6240;&#x6709;&#x952E;&#x503C;&#x5BF9;&#x5168;&#x90E8; rehash &#x5230; ht[1]&#xFF0C; &#x800C;&#x662F;&#x5206;&#x591A;&#x6B21;&#x3001;&#x6E10;&#x8FDB;&#x5F0F;&#x5730;&#x5C06; ht[0]&#x91CC;&#x9762;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x6162;&#x6162;&#x5730; rehash &#x5230; ht[1]&#x3002;</p>
+<p><strong>&#x4EE5;&#x4E0B;&#x662F;&#x54C8;&#x5E0C;&#x8868;&#x6E10;&#x8FDB;&#x5F0F;rehash&#x7684;&#x8BE6;&#x7EC6;&#x6B65;&#x9AA4;&#xFF1A;</strong></p>
+<ul>
+<li>&#xFF08;1&#xFF09;&#x4E3A;ht[1]&#x5206;&#x914D;&#x7A7A;&#x95F4;&#xFF0C;&#x8BA9;dict&#x5B57;&#x5178;&#x540C;&#x65F6;&#x6301;&#x6709; ht[0] &#x548C; ht[1] &#x4E24;&#x4E2A;&#x54C8;&#x5E0C;&#x8868;&#x3002;</li>
+<li>&#xFF08;2&#xFF09;&#x5728;&#x5B57;&#x5178;&#x4E2D;&#x7EF4;&#x6301;&#x4E00;&#x4E2A;&#x7D22;&#x5F15;&#x8BA1;&#x6570;&#x5668;&#x53D8;&#x91CF;rehashidx&#xFF0C;&#x5E76;&#x5C06;&#x5B83;&#x7684;&#x503C;&#x8BBE;&#x7F6E;&#x4E3A;0&#xFF0C;&#x8868;&#x793A;rehash&#x5DE5;&#x4F5C;&#x6B63;&#x5F0F;&#x5F00;&#x59CB;&#x3002;</li>
+<li>&#xFF08;3&#xFF09;&#x5728;rehash&#x8FDB;&#x884C;&#x671F;&#x95F4;&#xFF0C;&#x6BCF;&#x6B21;&#x5BF9;&#x5B57;&#x5178;&#x6267;&#x884C;&#x6DFB;&#x52A0;&#x3001;&#x5220;&#x9664;&#x3001;&#x67E5;&#x627E;&#x6216;&#x8005;&#x66F4;&#x65B0;&#x64CD;&#x4F5C;&#x65F6;&#xFF0C;&#x7A0B;&#x5E8F;&#x9664;&#x4E86;&#x6267;&#x884C;&#x6307;&#x5B9A;&#x7684;&#x64CD;&#x4F5C;&#x4EE5;&#x5916;&#xFF0C;&#x8FD8;&#x4F1A;&#x987A;&#x5E26;&#x5C06;ht[0]&#x54C8;&#x5E0C;&#x8868;&#x5728; rehashidx&#x7D22;&#x5F15;(table[rehashidx]&#x6876;&#x4E0A;&#x7684;&#x94FE;&#x8868;)&#x4E0A;&#x7684;&#x6240;&#x6709;&#x952E;&#x503C;&#x5BF9;rehash&#x5230;ht[1]&#x4E0A;&#xFF0C;&#x5F53;rehash&#x5DE5;&#x4F5C;&#x5B8C;&#x6210;&#x4E4B;&#x540E;&#xFF0C;&#x5C06;rehashidx&#x5C5E;&#x6027;&#x7684;&#x503C;&#x589E;&#x4E00;&#xFF0C;&#x8868;&#x793A;&#x4E0B;&#x4E00;&#x6B21;&#x8981;&#x8FC1;&#x79FB;&#x94FE;&#x8868;&#x6240;&#x5728;&#x6876;&#x7684;&#x4F4D;&#x7F6E;&#x3002;</li>
+<li>&#xFF08;4&#xFF09;&#x968F;&#x7740;&#x5B57;&#x5178;&#x64CD;&#x4F5C;&#x7684;&#x4E0D;&#x65AD;&#x6267;&#x884C;&#xFF0C;&#x6700;&#x7EC8;&#x5728;&#x67D0;&#x4E2A;&#x65F6;&#x95F4;&#x70B9;&#x4E0A;&#xFF0C;ht[0]&#x7684;&#x6240;&#x6709;&#x6876;&#x5BF9;&#x5E94;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x90FD;&#x4F1A;&#x88AB;rehash&#x81F3;ht[1]&#xFF0C;&#x8FD9;&#x65F6;&#x7A0B;&#x5E8F;&#x5C06;rehashidx&#x5C5E;&#x6027;&#x7684;&#x503C;&#x8BBE;&#x4E3A;-1&#xFF0C;&#x8868;&#x793A;rehash&#x64CD;&#x4F5C;&#x5DF2;&#x5B8C;&#x6210;&#x3002;</li>
+</ul>
+<p>&#x6E10;&#x8FDB;&#x5F0F; rehash &#x7684;&#x597D;&#x5904;&#x5728;&#x4E8E;&#x5B83;&#x91C7;&#x53D6;&#x5206;&#x800C;&#x6CBB;&#x4E4B;&#x7684;&#x65B9;&#x5F0F;&#xFF0C; &#x5C06; rehash &#x952E;&#x503C;&#x5BF9;&#x6240;&#x9700;&#x7684;&#x8BA1;&#x7B97;&#x5DE5;&#x4F5C;&#x5747;&#x6EE9;&#x5230;&#x5BF9;&#x5B57;&#x5178;&#x7684;&#x6BCF;&#x4E2A;&#x6DFB;&#x52A0;&#x3001;&#x5220;&#x9664;&#x3001;&#x67E5;&#x627E;&#x548C;&#x66F4;&#x65B0;&#x64CD;&#x4F5C;&#x4E0A;&#xFF0C; &#x4ECE;&#x800C;&#x907F;&#x514D;&#x4E86;&#x96C6;&#x4E2D;&#x5F0F; rehash &#x800C;&#x5E26;&#x6765;&#x7684;&#x5E9E;&#x5927;&#x8BA1;&#x7B97;&#x91CF;&#x3002;</p>
+<p>&#x4E0B;&#x56FE;&#x5C55;&#x793A;&#x4E86;&#x4E00;&#x6B21;&#x5B8C;&#x6574;&#x7684;&#x6E10;&#x8FDB;&#x5F0F; rehash &#x8FC7;&#x7A0B;&#xFF0C; &#x6CE8;&#x610F;:&#x89C2;&#x5BDF;&#x5728;&#x6574;&#x4E2A; rehash &#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C; &#x5B57;&#x5178;&#x7684; rehashidx &#x5C5E;&#x6027;&#x662F;&#x5982;&#x4F55;&#x53D8;&#x5316;&#x7684;&#x3002;</p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.1.png"></p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.2.png"></p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.3.png"></p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.4.png"></p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.5.png"></p>
+<p><img src="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BC%96%E7%A0%81]redis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/2.6.png"></p>
+<p>&#x603B;&#x7ED3;&#xFF1A;&#x6E10;&#x8FDB;&#x5F0F; rehash &#x6267;&#x884C;&#x671F;&#x95F4;&#x7684;&#x54C8;&#x5E0C;&#x8868;&#x64CD;&#x4F5C;</p>
+<ul>
+<li><p>&#xFF08;1&#xFF09;&#x5220;&#x9664;&#x548C;&#x67E5;&#x627E;&#xFF1A;&#x5728;&#x8FDB;&#x884C;&#x6E10;&#x8FDB;&#x5F0F;rehash&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x5B57;&#x5178;&#x4F1A;&#x540C;&#x65F6;&#x4F7F;&#x7528;ht[0]&#x548C;ht[1]&#x4E24;&#x4E2A;&#x54C8;&#x5E0C;&#x8868;&#xFF0C;&#x6240;&#x4EE5;&#x5728;&#x6E10;&#x8FDB;&#x5F0F;rehash&#x8FDB;&#x884C;&#x671F;&#x95F4;&#xFF0C;&#x5B57;&#x5178;&#x7684;&#x5220;&#x9664;&#x3001;&#x67E5;&#x627E;&#x3001;&#x66F4;&#x65B0;&#x7B49;&#x64CD;&#x4F5C;&#x4F1A;&#x5728;&#x4E24;&#x4E2A;&#x54C8;&#x5E0C;&#x8868;&#x4E0A;&#x8FDB;&#x884C;&#x3002;&#x6BD4;&#x5982;&#x8BF4;&#xFF0C;&#x8981;&#x5728;&#x5B57;&#x5178;&#x91CC;&#x9762;&#x67E5;&#x627E;&#x4E00;&#x4E2A;&#x952E;&#x7684;&#x8BDD;&#xFF0C;&#x7A0B;&#x5E8F;&#x4F1A;&#x5148;&#x5728;ht[0]&#x91CC;&#x9762;&#x8FDB;&#x884C;&#x67E5;&#x627E;&#xFF0C;&#x5982;&#x679C;&#x6CA1;&#x627E;&#x5230;&#x7684;&#x8BDD;&#xFF0C;&#x5C31;&#x4F1A;&#x7EE7;&#x7EED;&#x5230;ht[1]&#x91CC;&#x9762;&#x8FDB;&#x884C;&#x67E5;&#x627E;&#xFF0C;&#x8BF8;&#x5982;&#x6B64;&#x7C7B;&#x3002;</p>
+</li>
+<li><p>&#xFF08;2&#xFF09;&#x65B0;&#x589E;&#x6570;&#x636E;&#xFF1A;&#x5728;&#x6E10;&#x8FDB;&#x5F0F; rehash &#x6267;&#x884C;&#x671F;&#x95F4;&#xFF0C;&#x65B0;&#x6DFB;&#x52A0;&#x5230;&#x5B57;&#x5178;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x4E00;&#x5F8B;&#x4F1A;&#x88AB;&#x4FDD;&#x5B58;&#x5230;ht[1]&#x91CC;&#x9762;&#xFF0C;&#x800C;ht[0]&#x5219;&#x4E0D;&#x518D;&#x8FDB;&#x884C;&#x4EFB;&#x4F55;&#x6DFB;&#x52A0;&#x64CD;&#x4F5C;&#x3002;&#x8FD9;&#x4E00;&#x63AA;&#x65BD;&#x4FDD;&#x8BC1;&#x4E86;ht[0]&#x5305;&#x542B;&#x7684;&#x952E;&#x503C;&#x5BF9;&#x6570;&#x91CF;&#x4F1A;&#x53EA;&#x51CF;&#x4E0D;&#x589E;&#xFF0C;&#x5E76;&#x968F;&#x7740;rehash&#x64CD;&#x4F5C;&#x7684;&#x6267;&#x884C;&#x800C;&#x6700;&#x7EC8;&#x53D8;&#x6210;&#x7A7A;&#x8868;&#x3002;</p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/7A.301.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E7%AE%80%E5%8D%95%E5%8A%A8%E6%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2SDS%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之redis-[编码]redis底层数据结构或编码-简单动态字符串SDS原理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/07/12/7A.303.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E8%B7%B3%E8%A1%A8skiplist%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之redis-[编码]redis底层数据结构或编码-跳表skiplist原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

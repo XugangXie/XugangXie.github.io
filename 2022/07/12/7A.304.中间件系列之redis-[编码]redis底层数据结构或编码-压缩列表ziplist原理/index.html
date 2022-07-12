@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之redis-[编码]redis底层数据结构或编码-压缩列表ziplist原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7A.304.中间件系列之redis-[编码]redis底层数据结构或编码-压缩列表ziplist原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之redis-[编码]redis底层数据结构或编码-压缩列表ziplist原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.304.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8ziplist%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-07-12T07:47:21.480Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br>1.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Finley/p/13423846.html">https://www.cnblogs.com/Finley/p/13423846.html</a><br>2.<a target="_blank" rel="noopener" href="https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/">https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/</a></p>
+</blockquote>
+<span id="more"></span>
+<h2 id="ziplist"><a href="#ziplist" class="headerlink" title="ziplist"></a>ziplist</h2><h3 id="ziplist&#x4F18;&#x7F3A;&#x70B9;"><a href="#ziplist&#x4F18;&#x7F3A;&#x70B9;" class="headerlink" title="ziplist&#x4F18;&#x7F3A;&#x70B9;"></a>ziplist&#x4F18;&#x7F3A;&#x70B9;</h3><p>ziplist &#x662F;&#x4E00;&#x6BB5;&#x8FDE;&#x7EED;&#x5185;&#x5B58;&#xFF0C;&#x7C7B;&#x4F3C;&#x4E8E;&#x6570;&#x7EC4;&#x7ED3;&#x6784;&#x3002;&#x5F53;&#x5143;&#x7D20;&#x6BD4;&#x8F83;&#x5C11;&#x65F6;&#x4F7F;&#x7528;&#x6570;&#x7EC4;&#x7ED3;&#x6784;&#x4E0D;&#x4EC5;&#x8282;&#x7701;&#x5185;&#x5B58;&#xFF0C;&#x800C;&#x4E14;&#x904D;&#x5386;&#x64CD;&#x4F5C;&#x7684;&#x5F00;&#x9500;&#x4E5F;&#x4E0D;&#x5927;&#x3002;&#x56E0;&#x6B64; list, hash, zset &#x5728;&#x5143;&#x7D20;&#x8F83;&#x5C11;&#x65F6;&#x90FD;&#x91C7;&#x7528; ziplist &#x5B58;&#x50A8;&#x3002;</p>
+<p>ziplist &#x4E0D;&#x4F1A;&#x9884;&#x7559;&#x6269;&#x5C55;&#x7A7A;&#x95F4;&#xFF0C;&#x6BCF;&#x6B21;&#x63D2;&#x5165;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x5143;&#x7D20;&#x5C31;&#x9700;&#x8981;&#x8C03;&#x7528; realloc &#x6269;&#x5C55;&#x5185;&#x5B58;, &#x5E76;&#x53EF;&#x80FD;&#x9700;&#x8981;&#x5C06;&#x539F;&#x6709;&#x5185;&#x5BB9;&#x62F7;&#x8D1D;&#x5230;&#x65B0;&#x5730;&#x5740;&#x3002;</p>
+<p>&#x7EFC;&#x4E0A;&#xFF0C;ziplist &#x662F;&#x4E00;&#x4E2A;&#x4F7F;&#x7528;&#x8FDE;&#x7EED;&#x5185;&#x5B58;&#x5B58;&#x50A8;&#x6570;&#x636E;&#xFF0C;&#x7C7B;&#x4F3C;&#x4E8E;&#x6570;&#x7EC4;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x3002;&#x53EF;&#x4EE5; O(1) &#x7684;&#x65F6;&#x95F4;&#x590D;&#x6742;&#x5EA6;&#x8BBF;&#x95EE;&#x9996;&#x5C3E;&#x5143;&#x7D20;&#x3002;&#x56E0;&#x4E3A; entry &#x957F;&#x5EA6;&#x4E0D;&#x786E;&#x5B9A;&#xFF0C;&#x53EF;&#x4EE5;&#x5411;&#x524D;&#x6216;&#x5411;&#x540E;&#x987A;&#x5E8F;&#x8BBF;&#x95EE;&#xFF0C;&#x4E0D;&#x80FD;&#x968F;&#x673A;&#x8BBF;&#x95EE;&#x3002;&#x56E0;&#x4E3A;&#x7EA7;&#x8054;&#x66F4;&#x65B0;&#x7684;&#x73B0;&#x8C61;&#x7684;&#x5B58;&#x5728;&#xFF0C;&#x6DFB;&#x52A0;&#x3001;&#x4FEE;&#x6539;&#x3001;&#x5220;&#x9664;&#x5143;&#x7D20;&#x64CD;&#x4F5C;&#x7684;&#x590D;&#x6742;&#x5EA6;&#x5728; O(n) &#x5230; O(n^2) &#x4E4B;&#x95F4;&#x3002;</p>
+<blockquote>
+<p>&#x7EA7;&#x8054;&#x66F4;&#x65B0;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Finley/p/13423846.html">https://www.cnblogs.com/Finley/p/13423846.html</a><br>&#x524D;&#x9762;&#x63D0;&#x5230;&#x6BCF;&#x4E2A; entry &#x90FD;&#x4F1A;&#x6709;&#x4E00;&#x4E2A; prevlen &#x5B57;&#x6BB5;&#x5B58;&#x50A8;&#x524D;&#x4E00;&#x4E2A; entry &#x7684;&#x957F;&#x5EA6;&#x3002;&#x5982;&#x679C;&#x5185;&#x5BB9;&#x5C0F;&#x4E8E; 254 &#x5B57;&#x8282;&#xFF0C;prevlen &#x7528; 1 &#x5B57;&#x8282;&#x5B58;&#x50A8;&#xFF0C;&#x5426;&#x5219;&#x5C31;&#x662F; 5 &#x5B57;&#x8282;&#x3002;&#x8FD9;&#x610F;&#x5473;&#x7740;&#x5982;&#x679C;&#x67D0;&#x4E2A; entry &#x7ECF;&#x8FC7;&#x4E86;&#x4FEE;&#x6539;&#x64CD;&#x4F5C;&#x4ECE; 253 &#x5B57;&#x8282;&#x53D8;&#x6210;&#x4E86; 254 &#x5B57;&#x8282;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x7684;&#x4E0B;&#x4E00;&#x4E2A; entry &#x7684; prevlen &#x5B57;&#x6BB5;&#x5C31;&#x8981;&#x66F4;&#x65B0;&#xFF0C;&#x4ECE; 1 &#x4E2A;&#x5B57;&#x8282;&#x6269;&#x5C55;&#x5230; 5 &#x4E2A;&#x5B57;&#x8282;&#xFF1B;&#x5982;&#x679C;&#x8FD9;&#x4E2A; entry &#x7684;&#x957F;&#x5EA6;&#x672C;&#x6765;&#x4E5F;&#x662F; 253 &#x5B57;&#x8282;&#xFF0C;&#x90A3;&#x4E48;&#x540E;&#x9762; entry &#x7684; prevlen &#x5B57;&#x6BB5;&#x8FD8;&#x5F97;&#x7EE7;&#x7EED;&#x66F4;&#x65B0;&#x3002;&#x8FD9;&#x79CD;&#x73B0;&#x8C61;&#x88AB;&#x79F0;&#x4E3A; ziplist &#x7684;&#x7EA7;&#x8054;&#x66F4;&#x65B0;&#xFF0C;&#x6DFB;&#x52A0;&#x3001;&#x4FEE;&#x6539;&#x3001;&#x5220;&#x9664;&#x5143;&#x7D20;&#x7684;&#x64CD;&#x4F5C;&#x90FD;&#x6709;&#x53EF;&#x80FD;&#x5BFC;&#x81F4;&#x7EA7;&#x8054;&#x66F4;&#x65B0;&#x3002;</p>
+</blockquote>
+<h4 id="ziplist&#x7684;&#x4F18;&#x70B9;"><a href="#ziplist&#x7684;&#x4F18;&#x70B9;" class="headerlink" title="ziplist&#x7684;&#x4F18;&#x70B9;"></a>ziplist&#x7684;&#x4F18;&#x70B9;</h4><p>&#x5185;&#x5B58;&#x5360;&#x7528;&#x5C11; &#x5BB9;&#x6613;&#x88AB;&#x52A0;&#x8F7D;&#x5230;CPU&#x7F13;&#x5B58;<br>&#x7ED3;&#x6784;&#x7D27;&#x51D1; &#x51CF;&#x5C11;&#x5185;&#x5B58;&#x788E;&#x7247;</p>
+<h4 id="ziplist&#x7684;&#x7F3A;&#x70B9;"><a href="#ziplist&#x7684;&#x7F3A;&#x70B9;" class="headerlink" title="ziplist&#x7684;&#x7F3A;&#x70B9;"></a>ziplist&#x7684;&#x7F3A;&#x70B9;</h4><p>&#x7EA7;&#x8054;&#x66F4;&#x65B0;&#xFF08;&#x5934;&#x90E8;&#x63D2;&#x5165; &#x6216; &#x5220;&#x9664;&#xFF0C;&#x5BF9;&#x5934;&#x90E8;&#x7684;&#x64CD;&#x4F5C;&#x4E3B;&#x8981;&#x662F;&#x5728;&#x7528;ziplist&#x4FDD;&#x5B58;list&#x7C7B;&#x578B;&#x5BF9;&#x8C61;&#x65F6;&#x53D1;&#x9001;&#xFF0C;&#x4FDD;&#x5B58;hash&#x5BF9;&#x8C61;&#x4E0D;&#x9700;&#x8981;&#x5728;&#x5934;&#x90E8;&#x66F4;&#x65B0;&#x3002;&#xFF09;<br>&#x67E5;&#x8BE2;&#x590D;&#x6742;&#x5EA6;&#x4ECE;O&#xFF08;1&#xFF09;&#x53D8;&#x6210;O&#xFF08;N&#xFF09;&#xFF08;&#x4FDD;&#x5B58;hash&#x5BF9;&#x8C61;&#x65F6;&#xFF09;</p>
+<h3 id="ziplist&#x7F16;&#x7801;&#x7528;&#x4E8E;&#x7C7B;&#x578B;&#xFF1A;list&#x3001;hash&#x3001;zset"><a href="#ziplist&#x7F16;&#x7801;&#x7528;&#x4E8E;&#x7C7B;&#x578B;&#xFF1A;list&#x3001;hash&#x3001;zset" class="headerlink" title="ziplist&#x7F16;&#x7801;&#x7528;&#x4E8E;&#x7C7B;&#x578B;&#xFF1A;list&#x3001;hash&#x3001;zset"></a>ziplist&#x7F16;&#x7801;&#x7528;&#x4E8E;&#x7C7B;&#x578B;&#xFF1A;list&#x3001;hash&#x3001;zset</h3><p>&#x5728;&#x6EE1;&#x8DB3;&#x4E0B;&#x5217;&#x6761;&#x4EF6;&#x65F6;&#xFF0C; list, hash &#x548C; sortedset &#x4E09;&#x79CD;&#x7ED3;&#x6784;&#x4F1A;&#x91C7;&#x7528; ziplist &#x7F16;&#x7801;:</p>
+<ul>
+<li><p><code>list</code>: value &#x5B57;&#x8282;&#x6570; &lt;= <code>list-max-ziplist-value</code> &#x4E14; &#x5143;&#x7D20;&#x4E2A;&#x6570; &lt;= <code>list-max-ziplist-entries</code><br>&#x9ED8;&#x8BA4;&#xFF1A;<br><code>list-max-ziplist-entries</code>  512<br><code>list-max-ziplist-value</code>  64</p>
+</li>
+<li><p><code>hash</code>: value &#x5B57;&#x8282;&#x6570; &lt;= <code>hash-max-ziplist-value</code> &#x4E14; &#x5143;&#x7D20;&#x4E2A;&#x6570; &lt;= <code>hash-max-ziplist-entries</code><br>&#x9ED8;&#x8BA4;&#xFF1A;<br><code>hash-max-ziplist-entries</code> 512<br><code>hash-max-ziplist-value</code> 64</p>
+</li>
+<li><p><code>zset</code>: value &#x5B57;&#x8282;&#x6570; &lt;= <code>zset-max-ziplist-value</code> &#x4E14; &#x5143;&#x7D20;&#x4E2A;&#x6570; &lt;= <code>zset-max-ziplist-entries</code><br>&#x9ED8;&#x8BA4;&#xFF1A;<br><code>zset-max-ziplist-entries</code> 128<br><code>zset-max-ziplist-value</code> 64</p>
+</li>
+</ul>
+<p>&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x547D;&#x4EE4; <code>config get *ziplist*</code> &#x67E5;&#x770B;&#x5230;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1) &#x201C;hash-max-ziplist-entries&#x201D;</span><br><span class="line">2) &#x201C;512&#x201D;</span><br><span class="line">3) &#x201C;hash-max-ziplist-value&#x201D;</span><br><span class="line">4) &#x201C;64&#x201D;</span><br><span class="line">5) &#x201C;list-max-ziplist-entries&#x201D;</span><br><span class="line">6) &#x201C;512&#x201D;</span><br><span class="line">7) &#x201C;list-max-ziplist-value&#x201D;</span><br><span class="line">8) &#x201C;64&#x201D;</span><br><span class="line">9) &#x201C;zset-max-ziplist-entries&#x201D;</span><br><span class="line">10) &#x201C;128&#x201D;</span><br><span class="line">11) &#x201C;zset-max-ziplist-value&#x201D;</span><br><span class="line">12) &#x201C;64&#x201D;</span><br></pre></td></tr></table></figure>
+<p>&#x53EF;&#x4EE5;&#x8FD9;&#x4E48;&#x901F;&#x8BB0;&#xFF1A;<br><code>xxx-entries</code> &#x8868;&#x793A;ziplsit&#x5BF9;&#x591A;&#x4FDD;&#x5B58;<strong>&#x6570;&#x636E;&#x9879;&#x7684;&#x4E2A;&#x6570;</strong>&#xFF0C;&#x8D85;&#x51FA;&#x4E4B;&#x540E;&#x4E0D;&#x80FD;&#x518D;&#x4F7F;&#x7528;ziplist<br><code>xxx-value</code> &#x8868;&#x793A;<strong>&#x6BCF;&#x4E2A;&#x6570;&#x636E;&#x9879;&#x7684;&#x6700;&#x5927;&#x5B57;&#x8282;&#x6570;</strong>&#xFF0C;&#x8D85;&#x51FA;&#x4E4B;&#x540E;&#x4E0D;&#x80FD;&#x518D;&#x4F7F;&#x7528;ziplist</p>
+<p><code>ziplist</code> &#x5B58;&#x50A8; <code>list</code> &#x65F6;&#x6BCF;&#x4E2A;&#x5143;&#x7D20;&#x4F1A;&#x4F5C;&#x4E3A;&#x4E00;&#x4E2A; <code>entry</code> ;<br><code>ziplist</code> &#x5B58;&#x50A8; <code>hash</code> &#x65F6; <code>key</code> &#x548C; <code>value</code> &#x4F1A;&#x4F5C;&#x4E3A;&#x76F8;&#x90BB;&#x7684;&#x4E24;&#x4E2A; <code>entry</code> ;<br><code>ziplist</code> &#x5B58;&#x50A8; <code>zset</code> &#x65F6; <code>member</code> &#x548C; <code>score</code> &#x4F1A;&#x4F5C;&#x4E3A;&#x76F8;&#x90BB;&#x7684;&#x4E24;&#x4E2A; <code>entry</code> &#x3002;<br>&#x5F53;&#x4E0D;&#x6EE1;&#x8DB3;&#x4E0A;&#x8FF0;&#x6761;&#x4EF6;&#x65F6;&#xFF0C; <code>ziplist</code> &#x4F1A;&#x5347;&#x7EA7;&#x4E3A; <code>linkedlist</code>, <code>hashtable</code> &#x6216; <code>skiplist</code> &#x7F16;&#x7801;&#x3002;&#x5728;&#x4EFB;&#x4F55;&#x60C5;&#x51B5;&#x4E0B;&#x5927;&#x5185;&#x5B58;&#x7684;&#x7F16;&#x7801;&#x90FD;&#x4E0D;&#x4F1A;&#x964D;&#x7EA7;&#x4E3A; ziplist&#x3002;</p>
+<h3 id="ziplist&#x6570;&#x636E;&#x7ED3;&#x6784;"><a href="#ziplist&#x6570;&#x636E;&#x7ED3;&#x6784;" class="headerlink" title="ziplist&#x6570;&#x636E;&#x7ED3;&#x6784;"></a>ziplist&#x6570;&#x636E;&#x7ED3;&#x6784;</h3><p>ziplist &#x7684;&#x6E90;&#x7801;&#x53EF;&#x4EE5;&#x5728;: <a target="_blank" rel="noopener" href="https://github.com/redis/redis/blob/unstable/src/ziplist.c">redis/ziplist.c</a> &#x4E2D;&#x627E;&#x5230;&#x3002;<br>ziplist &#x5B58;&#x50A8;&#x4E3A;&#x4E00;&#x6BB5;&#x88F8;&#x4E8C;&#x8FDB;&#x5236;&#x6570;&#x636E;(unsigned char *)&#xFF0C; &#x53EF;&#x4EE5;&#x770B;&#x5230;&#x6E90;&#x4EE3;&#x7801;&#x4E2D;&#x5927;&#x91CF;&#x4F7F;&#x7528;&#x5B8F;&#x8FDB;&#x884C;&#x5B9A;&#x4E49;&#xFF0C;&#x867D;&#x7136;&#x8282;&#x7701;&#x4E86;&#x5927;&#x91CF;&#x5185;&#x5B58;&#x4F46;&#x662F;&#x4EE3;&#x7801;&#x53EF;&#x8BFB;&#x6027;&#x8F83;&#x4F4E;&#x3002;<br>ziplist &#x7684;&#x7ED3;&#x6784;:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;zlbytes&gt; &lt;zltail&gt; &lt;zllen&gt; &lt;entry&gt; &lt;entry&gt; ... &lt;entry&gt; &lt;zlend&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>zlbytes</code>: <code>uint32</code> &#x578B;, &#x5B58;&#x50A8;&#x6574;&#x4E2A; <code>ziplist</code> &#x5F53;&#x524D;&#x88AB;&#x5206;&#x914D;&#x7684;&#x7A7A;&#x95F4;&#xFF0C;&#x5305;&#x542B;&#x81EA;&#x8EAB;&#x5360;&#x7528;&#x7684;4&#x4E2A;&#x5B57;&#x8282;&#x3002;</li>
+<li><code>zltail</code>: <code>uint32</code> &#x578B;, &#x5B58;&#x50A8; <code>ziplist</code> &#x4E2D;&#x6700;&#x540E;&#x4E00;&#x4E2A;entry&#x76F8;&#x5BF9;&#x5934;&#x90E8;&#x7684;&#x504F;&#x79FB;&#x91CF;, &#x7528;&#x4E8E;&#x76F4;&#x63A5;&#x8BBF;&#x95EE;&#x5C3E;&#x7AEF;&#x5143;&#x7D20;&#x907F;&#x514D;&#x904D;&#x5386;&#x3002;</li>
+<li><code>zllen</code>: <code>uint16</code> &#x578B;, &#x8BB0;&#x5F55; <code>ziplist</code> &#x4E2D;&#x5143;&#x7D20;&#x7684;&#x4E2A;&#x6570;</li>
+<li><code>entry</code>: &#x5B9E;&#x9645;&#x5B58;&#x50A8;&#x5143;&#x7D20;&#x7684;&#x5355;&#x5143;</li>
+<li><code>zlend</code>: &#x9B54;&#x6CD5;&#x6570;&#x5B57; <code>255</code> &#x6807;&#x8BB0; <code>ziplist</code> &#x7684;&#x7ED3;&#x5C3E;, &#x6CA1;&#x6709; <code>entry</code> &#x4EE5; <code>0xff</code> &#x5F00;&#x5934;&#x4E0D;&#x4F1A;&#x51FA;&#x73B0;&#x8BEF;&#x5224;&#x7684;&#x95EE;&#x9898;</li>
+</ul>
+<p><code>entry</code> &#x662F;&#x5B9E;&#x9645;&#x5B58;&#x50A8;&#x6570;&#x636E;&#x7684;&#x5355;&#x5143;, &#x53EF;&#x4EE5;&#x5B58;&#x50A8; <code>int</code> &#x6216; <code>string</code> &#x7C7B;&#x578B;&#x6570;&#x636E;&#x3002;<br>&#x5F53;&#x5B58;&#x50A8; <code>string</code> &#x7C7B;&#x578B;&#x6570;&#x636E;&#x65F6; <code>entry</code> &#x7684;&#x7ED3;&#x6784;&#x4E3A;:</p>
+<ul>
+<li><code>prevlen</code>: &#x8868;&#x793A;&#x524D;&#x4E00;&#x4E2A; entry &#x7684;&#x957F;&#x5EA6;&#xFF0C;&#x7528;&#x4E8E;&#x4ECE;&#x540E;&#x5411;&#x524D;&#x904D;&#x5386;&#x3002;</li>
+<li><code>encoding</code>: &#x5B58;&#x50A8;&#x5F53;&#x524D; entry &#x7684;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x548C;&#x957F;&#x5EA6;</li>
+<li><code>entry-data</code>: &#x5B9E;&#x9645;&#x7684;&#x6570;&#x636E;&#x90E8;&#x5206;</li>
+</ul>
+<p>&#x5F53;&#x5B58;&#x50A8; int &#x7C7B;&#x578B;&#x7684;&#x6570;&#x636E;&#x65F6;, &#x6570;&#x636E;(entry-data)&#x4F1A;&#x88AB;&#x5408;&#x5E76;&#x5230; encoding &#x5185;&#x90E8;&#xFF0C;&#x6B64;&#x65F6;&#x6CA1;&#x6709; entry-data &#x5B57;&#x6BB5;&#x3002;</p>
+<p>&#x8FD9;&#x4E2A;&#x56FE;&#x7247;&#x4E5F;&#x5F88;&#x6E05;&#x6670;&#xFF0C;&#x6458;&#x81EA;&#xFF1A;<a target="_blank" rel="noopener" href="https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/">https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/</a><br><img src="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/ziplist.png"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/7A.303.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E8%B7%B3%E8%A1%A8skiplist%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之redis-[编码]redis底层数据结构或编码-跳表skiplist原理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/07/12/7A.008.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E5%86%85%E5%AD%98%E7%9A%84%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之redis-内存的淘汰策略</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

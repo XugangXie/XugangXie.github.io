@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之redis-[综合]5种数据结构底层实现 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7A.100.中间件系列之redis-[综合]5种数据结构底层实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之redis-[综合]5种数据结构底层实现
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2022-07-12T07:47:21.480Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br>1.<a target="_blank" rel="noopener" href="https://i6448038.github.io/2019/12/01/redis-data-struct/">https://i6448038.github.io/2019/12/01/redis-data-struct/</a></p>
+</blockquote>
+<span id="more"></span>
+<h3 id="redis&#x4E94;&#x79CD;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5B9E;&#x73B0;"><a href="#redis&#x4E94;&#x79CD;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5B9E;&#x73B0;" class="headerlink" title="redis&#x4E94;&#x79CD;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5B9E;&#x73B0;"></a>redis&#x4E94;&#x79CD;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5B9E;&#x73B0;</h3><h4 id="redis&#x5BF9;&#x8C61;"><a href="#redis&#x5BF9;&#x8C61;" class="headerlink" title="redis&#x5BF9;&#x8C61;"></a>redis&#x5BF9;&#x8C61;</h4><p>redis&#x4E2D;&#x5E76;&#x6CA1;&#x6709;&#x76F4;&#x63A5;&#x4F7F;&#x7528;&#x4EE5;&#x4E0A;&#x6240;&#x8BF4;&#x7684;&#x5404;&#x79CD;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x6765;&#x5B9E;&#x73B0;&#x952E;&#x503C;&#x6570;&#x636E;&#x5E93;&#xFF0C;&#x800C;&#x662F;&#x57FA;&#x4E8E;&#x4E00;&#x79CD;&#x5BF9;&#x8C61;&#xFF0C;&#x5BF9;&#x8C61;&#x5E95;&#x5C42;&#x518D;&#x95F4;&#x63A5;&#x7684;&#x5F15;&#x7528;&#x4E0A;&#x6587;&#x6240;&#x8BF4;&#x7684;&#x5177;&#x4F53;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x3002;</p>
+<p>&#x7ED3;&#x6784;&#x5982;&#x4E0B;&#x56FE;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/6.png"></p>
+<h4 id="&#x5B57;&#x7B26;&#x4E32;"><a href="#&#x5B57;&#x7B26;&#x4E32;" class="headerlink" title="&#x5B57;&#x7B26;&#x4E32;"></a>&#x5B57;&#x7B26;&#x4E32;</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/7.png"><br>&#x5176;&#x4E2D;&#xFF1A;embstr&#x548C;raw&#x90FD;&#x662F;&#x7531;SDS&#x52A8;&#x6001;&#x5B57;&#x7B26;&#x4E32;&#x6784;&#x6210;&#x7684;&#x3002;&#x552F;&#x4E00;&#x533A;&#x522B;&#x662F;&#xFF1A;raw&#x662F;&#x5206;&#x914D;&#x5185;&#x5B58;&#x7684;&#x65F6;&#x5019;&#xFF0C;redisobject&#x548C; sds &#x5404;&#x5206;&#x914D;&#x4E00;&#x5757;&#x5185;&#x5B58;&#xFF0C;&#x800C;embstr&#x662F;redisobject&#x548C;raw&#x5728;&#x4E00;&#x5757;&#x513F;&#x5185;&#x5B58;&#x4E2D;&#x3002;</p>
+<h4 id="&#x5217;&#x8868;"><a href="#&#x5217;&#x8868;" class="headerlink" title="&#x5217;&#x8868;"></a>&#x5217;&#x8868;</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/8.png"></p>
+<h4 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/9.png"></p>
+<h4 id="set"><a href="#set" class="headerlink" title="set"></a>set</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/10.png"></p>
+<h4 id="zset"><a href="#zset" class="headerlink" title="zset"></a>zset</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/11.png"></p>
+<h3 id="&#x91CD;&#x70B9;&#x51E0;&#x4E2A;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E95;&#x5C42;&#x7F16;&#x7801;&#x5B9E;&#x73B0;"><a href="#&#x91CD;&#x70B9;&#x51E0;&#x4E2A;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E95;&#x5C42;&#x7F16;&#x7801;&#x5B9E;&#x73B0;" class="headerlink" title="&#x91CD;&#x70B9;&#x51E0;&#x4E2A;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E95;&#x5C42;&#x7F16;&#x7801;&#x5B9E;&#x73B0;"></a>&#x91CD;&#x70B9;&#x51E0;&#x4E2A;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E95;&#x5C42;&#x7F16;&#x7801;&#x5B9E;&#x73B0;</h3><blockquote>
+<p>redis&#x91CD;&#x70B9;&#x51E0;&#x4E2A;&#x5BF9;&#x8C61;&#x7C7B;&#x578B;&#x7684;&#x5E95;&#x5C42;&#x7F16;&#x7801;&#x5B9E;&#x73B0;</p>
+</blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yuanfang0903/p/12165394.html">https://www.cnblogs.com/yuanfang0903/p/12165394.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</a></li>
+</ul>
+<h4 id="&#x5B57;&#x7B26;&#x4E32;str"><a href="#&#x5B57;&#x7B26;&#x4E32;str" class="headerlink" title="&#x5B57;&#x7B26;&#x4E32;str"></a>&#x5B57;&#x7B26;&#x4E32;str</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/a1.jpg"></p>
+<h4 id="&#x54C8;&#x5E0C;hash"><a href="#&#x54C8;&#x5E0C;hash" class="headerlink" title="&#x54C8;&#x5E0C;hash"></a>&#x54C8;&#x5E0C;hash</h4><p>&#x54C8;&#x5E0C;&#x7ED3;&#x6784;&#x4E2D;&#x653E;&#x4E86;&#x4E24;&#x4E2A;&#x77ED;&#x7684;&#x503C;&#xFF0C;&#x6B64;&#x65F6; &#x54C8;&#x5E0C;&#x7684;&#x7F16;&#x7801;&#x65B9;&#x5F0F;&#x662F; <code>ziplist</code>, &#x800C;&#x5F53;&#x6211;&#x63D2;&#x5165;&#x4E00;&#x4E2A;&#x6BD4;&#x8F83;&#x957F;&#x7684;&#x503C;&#xFF0C;&#x54C8;&#x5E0C;&#x7684;&#x7F16;&#x7801;&#x65B9;&#x5F0F;&#x6210;&#x4E3A;&#x4E86; <code>hashtable</code>.<br>Redis &#x81EA;&#x5DF1;&#x5B9E;&#x73B0;&#x4E86;&#x4E00;&#x4E2A;&#x5B57;&#x5178;&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span>{</span></span><br><span class="line">  <span class="comment">// &#x7C7B;&#x578B;&#x7279;&#x5B9A;&#x51FD;&#x6570;</span></span><br><span class="line">  dictType *type;</span><br><span class="line">  <span class="comment">// &#x79C1;&#x6709;&#x6570;&#x636E;</span></span><br><span class="line">  <span class="type">void</span> *private;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;</span></span><br><span class="line">  dictht ht[<span class="number">2</span>];</span><br><span class="line">  <span class="comment">// rehash &#x7D22;&#x5F15;&#xFF0C;&#x5F53;&#x5F53;&#x524D;&#x7684;&#x5B57;&#x5178;&#x4E0D;&#x5728; rehash &#x65F6;&#xFF0C;&#x503C;&#x4E3A;-1</span></span><br><span class="line">  <span class="type">int</span> trehashidx;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>ht[2]<br>&#x8FD9;&#x662F;&#x4E00;&#x4E2A;&#x957F;&#x5EA6;&#x4E3A; 2 &#x7684; dictht&#x7ED3;&#x6784;&#x7684;&#x6570;&#x7EC4;&#xFF0C;dictht&#x5C31;&#x662F;&#x54C8;&#x5E0C;&#x8868;&#x3002;</p>
+</li>
+<li><p>trehashidx</p>
+</li>
+</ul>
+<p>&#x8FD9;&#x662F;&#x4E00;&#x4E2A;&#x8F85;&#x52A9;&#x53D8;&#x91CF;&#xFF0C;&#x7528;&#x4E8E;&#x8BB0;&#x5F55; rehash &#x8FC7;&#x7A0B;&#x7684;&#x8FDB;&#x5EA6;&#xFF0C;&#x4EE5;&#x53CA;&#x662F;&#x5426;&#x6B63;&#x5728;&#x8FDB;&#x884C; rehash &#x7B49;&#x4FE1;&#x606F;&#x3002;</p>
+<p>&#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span>{</span></span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x6570;&#x7EC4;</span></span><br><span class="line">  dictEntry **table;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5927;&#x5C0F;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x7684;&#x5927;&#x5C0F;&#x7684;&#x63A9;&#x7801;&#xFF0C;&#x7528;&#x4E8E;&#x8BA1;&#x7B97;&#x7D22;&#x5F15;&#x503C;&#xFF0C;&#x603B;&#x662F;&#x7B49;&#x4E8E; size-1</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> sizemasky;</span><br><span class="line">  <span class="comment">// &#x54C8;&#x5E0C;&#x8868;&#x4E2D;&#x5DF2;&#x6709;&#x7684;&#x8282;&#x70B9;&#x6570;&#x91CF;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5176;&#x4E2D;&#x54C8;&#x5E0C;&#x8868;&#x4E2D;&#x7684;&#x8282;&#x70B9;&#x7684;&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span>{</span></span><br><span class="line">  <span class="comment">// &#x952E;</span></span><br><span class="line">  <span class="type">void</span> *key;</span><br><span class="line">  <span class="comment">// &#x503C;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> {</span></span><br><span class="line">    <span class="type">void</span> *val;</span><br><span class="line">    uint64_tu64;</span><br><span class="line">    int64_ts64;</span><br><span class="line">  }v;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// &#x6307;&#x5411;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x6307;&#x9488;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">} dictEntry;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/a2.png"></p>
+<p><strong>&#x54C8;&#x5E0C;&#x51B2;&#x7A81;</strong><br>Redis &#x7684;&#x54C8;&#x5E0C;&#x8868;&#x5904;&#x7406; Hash &#x51B2;&#x7A81;&#x7684;&#x65B9;&#x5F0F;&#x548C; Java &#x4E2D;&#x7684; HashMap &#x4E00;&#x6837;&#xFF0C;&#x9009;&#x62E9;&#x4E86;&#x5206;&#x6876;&#x7684;&#x65B9;&#x5F0F;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5E38;&#x8BF4;&#x7684;&#x94FE;&#x5730;&#x5740;&#x6CD5;&#x3002;Hash &#x8868;&#x6709;&#x4E24;&#x7EF4;&#xFF0C;&#x7B2C;&#x4E00;&#x7EF4;&#x5EA6;&#x662F;&#x4E2A;&#x6570;&#x7EC4;&#xFF0C;&#x7B2C;&#x4E8C;&#x7EF4;&#x5EA6;&#x662F;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x5F53;&#x53D1;&#x751F;&#x4E86; Hash &#x51B2;&#x7A81;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5C06;&#x51B2;&#x7A81;&#x7684;&#x8282;&#x70B9;&#x4F7F;&#x7528;&#x94FE;&#x8868;&#x8FDE;&#x63A5;&#x8D77;&#x6765;&#xFF0C;&#x653E;&#x5728;&#x540C;&#x4E00;&#x4E2A;&#x6876;&#x5185;&#x3002;</p>
+<p>&#x6269;&#x5BB9;&#x671F;&#x95F4;&#x6D89;&#x53CA;&#x5230;&#x5230; rehash &#x7684;&#x95EE;&#x9898;: &#x6E10;&#x8FDB;&#x5F0F; hash</p>
+<p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/a3.png"></p>
+<h4 id="&#x6709;&#x5E8F;&#x96C6;&#x5408;zset"><a href="#&#x6709;&#x5E8F;&#x96C6;&#x5408;zset" class="headerlink" title="&#x6709;&#x5E8F;&#x96C6;&#x5408;zset"></a>&#x6709;&#x5E8F;&#x96C6;&#x5408;zset</h4><p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/a4.png"></p>
+<p>&#x6709;&#x5E8F;&#x96C6;&#x5408;zset&#x5E95;&#x5C42;&#x6570;&#x636E;&#x7ED3;&#x6784;</p>
+<ul>
+<li>ziplist     REDIS_ENCODING_ZIPLIST</li>
+<li>skiplist     REDIS_ENCODING_SKIPLIST</li>
+</ul>
+<p>&#x6709;&#x5E8F;&#x96C6;&#x5408;&#x5BF9;&#x8C61;&#x7684;&#x7F16;&#x7801;&#x53EF;&#x4EE5;&#x662F;ziplist&#x6216;&#x8005;skiplist&#x3002;&#x540C;&#x65F6;&#x6EE1;&#x8DB3;&#x4EE5;&#x4E0B;&#x6761;&#x4EF6;&#x65F6;&#x4F7F;&#x7528;ziplist&#x7F16;&#x7801;&#xFF1A;</p>
+<ul>
+<li>&#x5143;&#x7D20;&#x6570;&#x91CF;&#x5C0F;&#x4E8E;128&#x4E2A;</li>
+<li>&#x6240;&#x6709;member&#x7684;&#x957F;&#x5EA6;&#x90FD;&#x5C0F;&#x4E8E;64&#x5B57;&#x8282;</li>
+</ul>
+<p>&#x4EE5;&#x4E0A;&#x4E24;&#x4E2A;&#x6761;&#x4EF6;&#x4E5F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;Redis&#x914D;&#x7F6E;&#x6587;&#x4EF6;<code>zset-max-ziplist-entries</code> &#x9009;&#x9879;&#x548C; <code>zset-max-ziplist-value</code> &#x8FDB;&#x884C;&#x4FEE;&#x6539;</p>
+<p><code>ziplist</code> &#x7F16;&#x7801;&#x7684; Zset &#x4F7F;&#x7528;&#x7D27;&#x6328;&#x5728;&#x4E00;&#x8D77;&#x7684;&#x538B;&#x7F29;&#x5217;&#x8868;&#x8282;&#x70B9;&#x6765;&#x4FDD;&#x5B58;&#xFF0C;&#x7B2C;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x4FDD;&#x5B58; member&#xFF0C;&#x7B2C;&#x4E8C;&#x4E2A;&#x4FDD;&#x5B58; score&#x3002;<br>ziplist &#x5185;&#x7684;&#x96C6;&#x5408;&#x5143;&#x7D20;&#x6309; score &#x4ECE;&#x5C0F;&#x5230;&#x5927;&#x6392;&#x5E8F;&#xFF0C;&#x5176;&#x5B9E;&#x8D28;&#x662F;&#x4E00;&#x4E2A;&#x53CC;&#x5411;&#x94FE;&#x8868;&#x3002;&#x867D;&#x7136;&#x5143;&#x7D20;&#x662F;&#x6309; score &#x6709;&#x5E8F;&#x6392;&#x5E8F;&#x7684;&#xFF0C; &#x4F46;&#x5BF9; ziplist &#x7684;&#x8282;&#x70B9;&#x6307;&#x9488;&#x53EA;&#x80FD;&#x7EBF;&#x6027;&#x5730;&#x79FB;&#x52A8;&#xFF0C;&#x6240;&#x4EE5;&#x5728; REDIS_ENCODING_ZIPLIST &#x7F16;&#x7801;&#x7684; Zset &#x4E2D;&#xFF0C; &#x67E5;&#x627E;&#x67D0;&#x4E2A;&#x7ED9;&#x5B9A;&#x5143;&#x7D20;&#x7684;&#x590D;&#x6742;&#x5EA6;&#x4E3A; O(n)</p>
+<p><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/a5.png"></p>
+<p><code>&#x8DF3;&#x8868;(skip List)</code>&#x662F;&#x4E00;&#x79CD;&#x968F;&#x673A;&#x5316;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#xFF0C;&#x57FA;&#x4E8E;&#x5E76;&#x8054;&#x7684;&#x94FE;&#x8868;&#xFF0C;&#x5B9E;&#x73B0;&#x7B80;&#x5355;&#xFF0C;&#x63D2;&#x5165;&#x3001;&#x5220;&#x9664;&#x3001;&#x67E5;&#x627E;&#x7684;&#x590D;&#x6742;&#x5EA6;&#x5747;&#x4E3A;O(logN)&#x3002;<br>&#x7B80;&#x5355;&#x8BF4;&#x6765;&#x8DF3;&#x8868;&#x4E5F;&#x662F;&#x94FE;&#x8868;&#x7684;&#x4E00;&#x79CD;&#xFF0C;&#x53EA;&#x4E0D;&#x8FC7;&#x5B83;&#x5728;&#x94FE;&#x8868;&#x7684;&#x57FA;&#x7840;&#x4E0A;&#x589E;&#x52A0;&#x4E86;&#x8DF3;&#x8DC3;&#x529F;&#x80FD;&#xFF0C;&#x6B63;&#x662F;&#x8FD9;&#x4E2A;&#x8DF3;&#x8DC3;&#x7684;&#x529F;&#x80FD;&#xFF0C;&#x4F7F;&#x5F97;&#x5728;&#x67E5;&#x627E;&#x5143;&#x7D20;&#x65F6;&#xFF0C;&#x8DF3;&#x8868;&#x80FD;&#x591F;&#x63D0;&#x4F9B;O(logN)&#x7684;&#x65F6;&#x95F4;&#x590D;&#x6742;&#x5EA6;&#x3002;</p>
+<p><code>skiplist</code>&#x7F16;&#x7801;&#x7684;&#x6709;&#x5E8F;&#x96C6;&#x5408;&#x5E95;&#x5C42;&#x662F;&#x4E00;&#x4E2A;&#x547D;&#x540D;&#x4E3A;zset&#x7684;&#x7ED3;&#x6784;&#x4F53;&#xFF0C;&#x800C;&#x4E00;&#x4E2A;zset&#x7ED3;&#x6784;&#x540C;&#x65F6;&#x5305;&#x542B;&#x4E00;&#x4E2A;&#x5B57;&#x5178;&#x548C;&#x4E00;&#x4E2A;&#x8DF3;&#x8DC3;&#x8868;&#x3002;<br>&#x8DF3;&#x8DC3;&#x8868;&#x6309;score&#x4ECE;&#x5C0F;&#x5230;&#x5927;&#x4FDD;&#x5B58;&#x6240;&#x6709;&#x96C6;&#x5408;&#x5143;&#x7D20;&#x3002;&#x800C;&#x5B57;&#x5178;&#x5219;&#x4FDD;&#x5B58;&#x7740;&#x4ECE;member&#x5230;score&#x7684;&#x6620;&#x5C04;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x7528;O(1)&#x7684;&#x590D;&#x6742;&#x5EA6;&#x6765;&#x67E5;&#x627E;member&#x5BF9;&#x5E94;&#x7684;score&#x503C;&#x3002;</p>
+<h3 id="&#x91CD;&#x70B9;2&#x4E2A;&#x7F16;&#x7801;&#x7684;&#x5B9E;&#x73B0;&#x539F;&#x7406;"><a href="#&#x91CD;&#x70B9;2&#x4E2A;&#x7F16;&#x7801;&#x7684;&#x5B9E;&#x73B0;&#x539F;&#x7406;" class="headerlink" title="&#x91CD;&#x70B9;2&#x4E2A;&#x7F16;&#x7801;&#x7684;&#x5B9E;&#x73B0;&#x539F;&#x7406;"></a>&#x91CD;&#x70B9;2&#x4E2A;&#x7F16;&#x7801;&#x7684;&#x5B9E;&#x73B0;&#x539F;&#x7406;</h3><h4 id="ziplist"><a href="#ziplist" class="headerlink" title="ziplist"></a>ziplist</h4><p>&#x538B;&#x7F29;&#x5217;&#x8868;&#x3002;<br>redis&#x7684;&#x5217;&#x8868;&#x952E;&#x548C;&#x54C8;&#x5E0C;&#x952E;&#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x4E4B;&#x4E00;&#x3002;&#x6B64;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x662F;&#x4E3A;&#x4E86;&#x8282;&#x7EA6;&#x5185;&#x5B58;&#x800C;&#x5F00;&#x53D1;&#x7684;&#x3002;&#x548C;&#x5404;&#x79CD;&#x8BED;&#x8A00;&#x7684;&#x6570;&#x7EC4;&#x7C7B;&#x4F3C;&#xFF0C;&#x5B83;&#x662F;&#x7531;&#x8FDE;&#x7EED;&#x7684;&#x5185;&#x5B58;&#x5757;&#x7EC4;&#x6210;&#x7684;&#xFF0C;&#x8FD9;&#x6837;&#x4E00;&#x6765;&#xFF0C;&#x7531;&#x4E8E;&#x5185;&#x5B58;&#x662F;&#x8FDE;&#x7EED;&#x7684;&#xFF0C;&#x5C31;&#x51CF;&#x5C11;&#x4E86;&#x5F88;&#x591A;&#x5185;&#x5B58;&#x788E;&#x7247;&#x548C;&#x6307;&#x9488;&#x7684;&#x5185;&#x5B58;&#x5360;&#x7528;&#xFF0C;&#x8FDB;&#x800C;&#x8282;&#x7EA6;&#x4E86;&#x5185;&#x5B58;&#x3002;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/2.png"></p>
+<p>&#x7136;&#x540E;&#x6587;&#x4E2D;&#x7684;entry&#x7684;&#x7ED3;&#x6784;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/3.png"></p>
+<h5 id="&#x5143;&#x7D20;&#x7684;&#x904D;&#x5386;"><a href="#&#x5143;&#x7D20;&#x7684;&#x904D;&#x5386;" class="headerlink" title="&#x5143;&#x7D20;&#x7684;&#x904D;&#x5386;"></a>&#x5143;&#x7D20;&#x7684;&#x904D;&#x5386;</h5><p>&#x5148;&#x627E;&#x5230;&#x5217;&#x8868;&#x5C3E;&#x90E8;&#x5143;&#x7D20;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/4.gif"></p>
+<p>&#x7136;&#x540E;&#x518D;&#x6839;&#x636E;ziplist&#x8282;&#x70B9;&#x5143;&#x7D20;&#x4E2D;&#x7684;<code>previous_entry_length</code>&#x5C5E;&#x6027;&#xFF0C;&#x6765;&#x9010;&#x4E2A;&#x904D;&#x5386;:<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/5.gif"></p>
+<h5 id="&#x8FDE;&#x9501;&#x66F4;&#x65B0;"><a href="#&#x8FDE;&#x9501;&#x66F4;&#x65B0;" class="headerlink" title="&#x8FDE;&#x9501;&#x66F4;&#x65B0;"></a>&#x8FDE;&#x9501;&#x66F4;&#x65B0;</h5><p>&#x518D;&#x6B21;&#x770B;&#x770B;entry&#x5143;&#x7D20;&#x7684;&#x7ED3;&#x6784;&#xFF0C;&#x6709;&#x4E00;&#x4E2A;previous_entry_length&#x5B57;&#x6BB5;&#xFF0C;&#x4ED6;&#x7684;&#x957F;&#x5EA6;&#x8981;&#x4E48;&#x90FD;&#x662F;1&#x4E2A;&#x5B57;&#x8282;&#xFF0C;&#x8981;&#x4E48;&#x90FD;&#x662F;5&#x4E2A;&#x5B57;&#x8282;&#xFF1A;</p>
+<ul>
+<li>&#x524D;&#x4E00;&#x8282;&#x70B9;&#x7684;&#x957F;&#x5EA6;&#x5C0F;&#x4E8E;254&#x5B57;&#x8282;&#xFF0C;&#x5219;previous_entry_length&#x957F;&#x5EA6;&#x4E3A;1&#x5B57;&#x8282;</li>
+<li>&#x524D;&#x4E00;&#x8282;&#x70B9;&#x7684;&#x957F;&#x5EA6;&#x5C0F;&#x4E8E;254&#x5B57;&#x8282;&#xFF0C;&#x5219;previous_entry_length&#x957F;&#x5EA6;&#x4E3A;5&#x5B57;&#x8282;</li>
+</ul>
+<p>&#x5047;&#x8BBE;&#x73B0;&#x5728;&#x5B58;&#x5728;&#x4E00;&#x7EC4;&#x538B;&#x7F29;&#x5217;&#x8868;&#xFF0C;&#x957F;&#x5EA6;&#x90FD;&#x5728;250&#x5B57;&#x8282;&#x81F3;253&#x5B57;&#x8282;&#x4E4B;&#x95F4;&#xFF0C;&#x7A81;&#x7136;&#x65B0;&#x589E;&#x4E00;&#x65B0;&#x8282;&#x70B9;new&#xFF0C;<br>&#x957F;&#x5EA6;&#x5927;&#x4E8E;&#x7B49;&#x4E8E;254&#x5B57;&#x8282;&#xFF0C;&#x4F1A;&#x51FA;&#x73B0;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/6.gif"></p>
+<p>&#x7A0B;&#x5E8F;&#x9700;&#x8981;&#x4E0D;&#x65AD;&#x7684;&#x5BF9;&#x538B;&#x7F29;&#x5217;&#x8868;&#x8FDB;&#x884C;&#x7A7A;&#x95F4;&#x91CD;&#x5206;&#x914D;&#x5DE5;&#x4F5C;&#xFF0C;&#x76F4;&#x5230;&#x7ED3;&#x675F;&#x3002;</p>
+<p>&#x9664;&#x4E86;&#x589E;&#x52A0;&#x64CD;&#x4F5C;&#xFF0C;&#x5220;&#x9664;&#x64CD;&#x4F5C;&#x4E5F;&#x6709;&#x53EF;&#x80FD;&#x5E26;&#x6765;&#x201C;&#x8FDE;&#x9501;&#x66F4;&#x65B0;&#x201D;&#x3002;<br>&#x8BF7;&#x770B;&#x4E0B;&#x56FE;&#xFF0C;ziplist&#x4E2D;&#x6240;&#x6709;entry&#x8282;&#x70B9;&#x7684;&#x957F;&#x5EA6;&#x90FD;&#x5728;250&#x5B57;&#x8282;&#x81F3;253&#x5B57;&#x8282;&#x4E4B;&#x95F4;&#xFF0C;big&#x8282;&#x70B9;&#x957F;&#x5EA6;&#x5927;&#x4E8E;254&#x5B57;&#x8282;&#xFF0C;small&#x8282;&#x70B9;&#x5C0F;&#x4E8E;254&#x5B57;&#x8282;&#x3002;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/7.gif"></p>
+<h4 id="&#x8DF3;&#x8868;"><a href="#&#x8DF3;&#x8868;" class="headerlink" title="&#x8DF3;&#x8868;"></a>&#x8DF3;&#x8868;</h4><p>&#x8DF3;&#x8868;&#x8FD9;&#x79CD;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x957F;&#x8FD9;&#x6837;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/4.png"></p>
+<p>redis&#x4E2D;&#x628A;&#x8DF3;&#x8868;&#x62BD;&#x8C61;&#x6210;&#x5982;&#x4E0B;&#x6240;&#x793A;&#xFF1A;<br><img src="/2022/07/12/7A.100.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-[%E7%BB%BC%E5%90%88]5%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/5.png"></p>
+<p>&#x770B;&#x8FD9;&#x4E2A;&#x56FE;&#xFF0C;&#x5DE6;&#x8FB9;&#x201C;&#x7EDF;&#x7B79;&#x201D;&#xFF0C;&#x53F3;&#x8FB9;&#x5B9E;&#x73B0;&#x3002;<br>&#x7EDF;&#x7B79;&#x90E8;&#x5206;&#x6709;&#x4EE5;&#x4E0B;&#x51E0;&#x70B9;&#x8BF4;&#x660E;&#xFF1A;</p>
+<ul>
+<li>header: &#x8DF3;&#x8868;&#x8868;&#x5934;</li>
+<li>tail:&#x8DF3;&#x8868;&#x8868;&#x5C3E;</li>
+<li>level:&#x5C42;&#x6570;&#x6700;&#x5927;&#x7684;&#x90A3;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x5C42;&#x6570;</li>
+<li>length&#xFF1A;&#x8DF3;&#x8868;&#x7684;&#x957F;&#x5EA6;</li>
+</ul>
+<p>&#x5B9E;&#x73B0;&#x90E8;&#x5206;&#x6709;&#x4EE5;&#x4E0B;&#x51E0;&#x70B9;&#x8BF4;&#x660E;&#xFF1A;</p>
+<ul>
+<li>&#x8868;&#x5934;&#xFF1A;&#x662F;&#x94FE;&#x8868;&#x7684;&#x54E8;&#x5175;&#x8282;&#x70B9;&#xFF0C;&#x4E0D;&#x8BB0;&#x5F55;&#x4E3B;&#x4F53;&#x6570;&#x636E;&#x3002;</li>
+<li>&#x662F;&#x4E2A;&#x53CC;&#x5411;&#x94FE;&#x8868;</li>
+<li>&#x5206;&#x503C;&#x662F;&#x6709;&#x987A;&#x5E8F;&#x7684;</li>
+<li>o1&#x3001;o2&#x3001;o3&#x662F;&#x8282;&#x70B9;&#x6240;&#x4FDD;&#x5B58;&#x7684;&#x6210;&#x5458;&#xFF0C;&#x662F;&#x4E00;&#x4E2A;&#x6307;&#x9488;&#xFF0C;&#x53EF;&#x4EE5;&#x6307;&#x5411;&#x4E00;&#x4E2A;SDS&#x503C;&#x3002;</li>
+<li>&#x5C42;&#x7EA7;&#x9AD8;&#x5EA6;&#x6700;&#x9AD8;&#x662F;32&#x3002;&#x6CA1;&#x6BCF;&#x6B21;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x8282;&#x70B9;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x7A0B;&#x5E8F;&#x90FD;&#x4F1A;&#x968F;&#x673A;&#x751F;&#x6210;&#x4E00;&#x4E2A;&#x4ECB;&#x4E8E;1&#x548C;32&#x4E4B;&#x95F4;&#x7684;&#x503C;&#x4F5C;&#x4E3A;level&#x6570;&#x7EC4;&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x8FD9;&#x4E2A;&#x5927;&#x5C0F;&#x5C31;&#x662F;&#x201C;&#x9AD8;&#x5EA6;&#x201D;</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/7E.000.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-kafka%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之kafka-kafka集群架构设计
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/07/12/7A.101.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E7%BC%96%E7%A0%81%5DredisObject%E3%80%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E3%80%81%E7%BC%96%E7%A0%81%E3%80%81%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%85%B3%E7%B3%BB%E8%BE%A8%E6%9E%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">中间件系列之redis-[数据类型、编码]redisObject、数据类型、编码、底层数据结构关系辨析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

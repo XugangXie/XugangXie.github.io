@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title> xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      
+<section class="cover">
+    
+  <div class="cover-frame">
+    <div class="bg-box">
+      <img src="/images/cover1.jpg" alt="image frame" />
+    </div>
+    <div class="cover-inner text-center text-white">
+      <h1><a href="/">xugang.xie&#39;s blog</a></h1>
+      <div id="subtitle-box">
+        
+        <span id="subtitle"></span>
+        
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="cover-learn-more">
+    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
+  </div>
+</section>
+
+
+
+<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
+
+
+<!-- Subtitle -->
+
+  <script>
+    try {
+      var typed = new Typed("#subtitle", {
+        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        startDelay: 0,
+        typeSpeed: 200,
+        loop: true,
+        backSpeed: 100,
+        showCursor: true
+      });
+    } catch (err) {
+      console.log(err)
+    }
+  </script>
+  
+<div id="main">
+  <section class="outer">
+  
+  
+  
+
+<div class="notice" style="margin-top:50px">
+    <i class="ri-heart-fill"></i>
+    <div class="notice-content" id="broad"></div>
+</div>
+<script type="text/javascript">
+    fetch('https://v1.hitokoto.cn')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("broad").innerHTML = data.hitokoto;
+        })
+        .catch(console.error)
+</script>
+
+<style>
+    .notice {
+        padding: 20px;
+        border: 1px dashed #e6e6e6;
+        color: #969696;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        background: #fbfbfb50;
+        border-radius: 10px;
+    }
+
+    .notice i {
+        float: left;
+        color: #999;
+        font-size: 16px;
+        padding-right: 10px;
+        vertical-align: middle;
+        margin-top: -2px;
+    }
+
+    .notice-content {
+        display: initial;
+        vertical-align: middle;
+    }
+</style>
+  
+  <article class="articles">
+    
+    
+    
+    
+    <article
+  id="post-9G5.019.框架-SpringCloud-Gateway-使用自带RequestRateLimiter限流过滤器"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.019.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%B8%A6RequestRateLimiter%E9%99%90%E6%B5%81%E8%BF%87%E6%BB%A4%E5%99%A8/"
+    >框架-SpringCloud-Gateway-使用自带RequestRateLimiter限流过滤器</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.019.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E4%BD%BF%E7%94%A8%E8%87%AA%E5%B8%A6RequestRateLimiter%E9%99%90%E6%B5%81%E8%BF%87%E6%BB%A4%E5%99%A8/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="http://www.itmuch.com/spring-cloud-gateway/spring-cloud-rate-limit/">Spring Cloud Gateway&#x9650;&#x6D41;&#x8BE6;&#x89E3;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.020.框架-SpringCloud-Gateway-重试专题一-retry 与 fallback"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.020.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%B8%80-retry%20%E4%B8%8E%20fallback/"
+    >框架-SpringCloud-Gateway-重试专题一-retry 与 fallback</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.020.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%B8%80-retry%20%E4%B8%8E%20fallback/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cabbbeea386f">Spring Cloud Gateway&#xFF1A;retry &#x4E0E; fallback</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.021.框架-SpringCloud-Gateway-重试专题二-重试机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.021.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%BA%8C-%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6/"
+    >框架-SpringCloud-Gateway-重试专题二-重试机制</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.021.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%BA%8C-%E9%87%8D%E8%AF%95%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/6844903681297481741">Spring Cloud Gateway&#x91CD;&#x8BD5;&#x673A;&#x5236;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.022.框架-SpringCloud-Gateway-重试专题三-RetryGatewayFilter源码解析"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.022.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%B8%89-RetryGatewayFilter%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"
+    >框架-SpringCloud-Gateway-重试专题三-RetryGatewayFilter源码解析</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.022.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E9%87%8D%E8%AF%95%E4%B8%93%E9%A2%98%E4%B8%89-RetryGatewayFilter%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000015327034">&#x804A;&#x804A;spring cloud gateway&#x7684;RetryGatewayFilter</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.023.框架-SpringCloud-Gateway-踩的一些坑及解决办法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.023.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E8%B8%A9%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9D%91%E5%8F%8A%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/"
+    >框架-SpringCloud-Gateway-踩的一些坑及解决办法</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.023.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E8%B8%A9%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9D%91%E5%8F%8A%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaolaoban212/article/details/97375629">&#x5FAE;&#x670D;&#x52A1;&#x7CFB;&#x5217;-SpringCloud-Gateway-spring cloud gateway &#x8E29;&#x7684;&#x4E00;&#x4E9B;&#x5751;&#x53CA;&#x89E3;&#x51B3;&#x529E;&#x6CD5;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.024.框架-SpringCloud-Gateway-Spring cloud gateway with Resilience4j circuit breaker"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.024.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-Spring%20cloud%20gateway%20with%20Resilience4j%20circuit%20breaker/"
+    >9G5.024.框架-SpringCloud-Gateway-Spring cloud gateway with Resilience4j circuit breaker</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.024.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-Spring%20cloud%20gateway%20with%20Resilience4j%20circuit%20breaker/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud-circuitbreaker">Spring Cloud Circuit Breaker</a></li>
+<li><a target="_blank" rel="noopener" href="https://mromeh.com/2019/12/26/spring-cloud-gateway-with-resilience4j-circuit-breaker/">Spring cloud gateway with Resilience4j circuit breaker</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G5.025.框架-SpringCloud-Gateway-如何配置CircuitBreaker"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G5.025.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AECircuitBreaker/"
+    >框架-SpringCloud-Gateway-如何配置CircuitBreaker</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G5.025.%E6%A1%86%E6%9E%B6-SpringCloud-Gateway-%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AECircuitBreaker/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/netyeaxi/article/details/104469248">SpringCloud&#xFF1A;Spring Cloud Gateway&#x4E2D;&#x5982;&#x4F55;&#x914D;&#x7F6E;CircuitBreaker</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud-gateway/" rel="tag">springcloud-gateway</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9G6.001.框架-Spring-WebFlux之一"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/09/01/9G6.001.%E6%A1%86%E6%9E%B6-Spring-WebFlux%E4%B9%8B%E4%B8%80/"
+    >框架-Spring-WebFlux之一</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/09/01/9G6.001.%E6%A1%86%E6%9E%B6-Spring-WebFlux%E4%B9%8B%E4%B8%80/" class="article-date">
+  <time datetime="2021-08-31T16:00:00.000Z" itemprop="datePublished">2021-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h4 id="spring-webflux"><a href="#spring-webflux" class="headerlink" title="spring webflux"></a>spring webflux</h4><ul>
+<li><p><strong>Spring MVC &#x6784;&#x5EFA;&#x4E8E; Servlet API &#x4E4B;&#x4E0A;&#xFF0C;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x540C;&#x6B65;&#x963B;&#x585E;&#x5F0F; I/O &#x6A21;&#x578B;&#xFF0C;&#x4EC0;&#x4E48;&#x662F;&#x540C;&#x6B65;&#x963B;&#x585E;&#x5F0F; I/O &#x6A21;&#x578B;&#x5462;&#xFF1F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;&#x6BCF;&#x4E00;&#x4E2A;&#x8BF7;&#x6C42;&#x5BF9;&#x5E94;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x53BB;&#x5904;&#x7406;&#x3002;</strong></p></li></ul> 
+      <a class="article-more-link" href="/2021/09/01/9G6.001.%E6%A1%86%E6%9E%B6-Spring-WebFlux%E4%B9%8B%E4%B8%80/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-webflux/" rel="tag">spring-webflux</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-14.002 java8系列-Function、Predicate、Consumer、Supplier用法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/08/10/14.002%20java8%E7%B3%BB%E5%88%97-Function%E3%80%81Predicate%E3%80%81Consumer%E3%80%81Supplier%E7%94%A8%E6%B3%95/"
+    >java8系列-Function、Predicate、Consumer、Supplier用法</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/08/10/14.002%20java8%E7%B3%BB%E5%88%97-Function%E3%80%81Predicate%E3%80%81Consumer%E3%80%81Supplier%E7%94%A8%E6%B3%95/" class="article-date">
+  <time datetime="2021-08-09T16:00:00.000Z" itemprop="datePublished">2021-08-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java8/">java8</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+
+
+<h1 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.im/post/6844903904837107720">Java8&#x4E4B;Consumer&#x3001;Supplier&#x3001;Predicate&#x548C;Function&#x653B;&#x7565;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-14.003 java8系列-@FunctionalInterface功能性函数、方法引用"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/08/10/14.003%20java8%E7%B3%BB%E5%88%97-@FunctionalInterface%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0%E3%80%81%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8/"
+    >java8系列-@FunctionalInterface功能性函数、方法引用</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/08/10/14.003%20java8%E7%B3%BB%E5%88%97-@FunctionalInterface%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0%E3%80%81%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8/" class="article-date">
+  <time datetime="2021-08-09T16:00:00.000Z" itemprop="datePublished">2021-08-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java8/">java8</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x51FD;&#x6570;&#x5F0F;&#x63A5;&#x53E3;&#xFF1A;"><a href="#&#x51FD;&#x6570;&#x5F0F;&#x63A5;&#x53E3;&#xFF1A;" class="headerlink" title="&#x51FD;&#x6570;&#x5F0F;&#x63A5;&#x53E3;&#xFF1A;"></a>&#x51FD;&#x6570;&#x5F0F;&#x63A5;&#x53E3;&#xFF1A;</h3><p>&#x4E0D;&#x662F;&#x6BCF;&#x4E2A;&#x63A5;&#x53E3;&#x90FD;&#x53EF;&#x4EE5;&#x7F29;&#x5199;&#x6210; Lambda &#x8868;&#x8FBE;&#x5F0F;&#x3002;<strong>&#x53EA;&#x6709;&#x90A3;&#x4E9B;&#x51FD;&#x6570;&#x5F0F;&#x63A5;&#x53E3;&#xFF08;Functional Interface&#xFF09;&#x624D;&#x80FD;&#x7F29;&#x5199;&#x6210; Lambda &#x8868;&#x793A;&#x5F0F;</strong></p> 
+      <a class="article-more-link" href="/2021/08/10/14.003%20java8%E7%B3%BB%E5%88%97-@FunctionalInterface%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0%E3%80%81%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-14.004 java8系列-自定义并调用功能性函数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/08/10/14.004%20java8%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B9%B6%E8%B0%83%E7%94%A8%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0/"
+    >java8系列-自定义并调用功能性函数</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/08/10/14.004%20java8%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B9%B6%E8%B0%83%E7%94%A8%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0/" class="article-date">
+  <time datetime="2021-08-09T16:00:00.000Z" itemprop="datePublished">2021-08-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java8/">java8</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x590D;&#x4E60;&#x4E0B;&#xFF1A;<br>Function&#x63A5;&#x53E3;</p>
+<ul>
+<li>Function&#x63A5;&#x53E3;: Function &#x63A5;&#x53E3;&#x662F;&#x4E00;&#x4E2A;&#x529F;&#x80FD;&#x578B;&#x63A5;&#x53E3;&#xFF0C;&#x5B83;&#x7684;&#x4E00;&#x4E2A;&#x4F5C;&#x7528;&#x5C31;&#x662F;&#x8F6C;&#x6362;&#x4F5C;&#x7528;&#xFF0C;&#x5C06;&#x8F93;&#x5165;&#x6570;&#x636E;&#x8F6C;&#x6362;&#x6210;&#x53E6;&#x4E00;&#x79CD;&#x5F62;&#x5F0F;&#x7684;&#x8F93;&#x51FA;&#x6570;&#x636E;&#x3002;</li>
+<li>Function &#x63A5;&#x53E3;&#x5BF9;&#x8C61;&#xFF0C;&#x5B9E;&#x73B0;&#x4E86;&#x4E00;&#x4E2A; apply &#x65B9;&#x6CD5;&#xFF0C;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x6709;&#x4E00;&#x4E2A;&#x8F93;&#x5165;&#x53C2;&#x6570;&#x548C;&#x4E00;&#x4E2A;&#x8F93;&#x51FA;&#x53C2;&#x6570;&#x3002;&#x5176;&#x4E2D;&#xFF0C;&#x6CDB;&#x578B;&#x7684;&#x7B2C;&#x4E00;&#x4E2A;&#x53C2;&#x6570;&#x662F;&#x8F6C;&#x6362;&#x524D;&#x7684;&#x7C7B;&#x578B;&#xFF0C;&#x7B2C;&#x4E8C;&#x4E2A;&#x662F;&#x8F6C;&#x5316;&#x540E;&#x7684;&#x7C7B;&#x578B;&#x3002;</li>
+<li>&#x4F7F;&#x7528;lambda&#x8868;&#x8FBE;&#x5F0F;&#xFF0C;jdk&#x4E2D;&#x7684;Stream.map&#x65B9;&#x6CD5;&#x9700;&#x8981;&#x7684;&#x5C31;&#x662F;&#x4E00;&#x4E2A;Function&#x63A5;&#x53E3;</li>
+<li>&#x2460; Function &#x63A5;&#x53E3;&#x662F;&#x4E00;&#x4E2A;&#x529F;&#x80FD;&#x578B;&#x63A5;&#x53E3;&#xFF0C;&#x662F;&#x4E00;&#x4E2A;&#x8F6C;&#x6362;&#x6570;&#x636E;&#x7684;&#x4F5C;&#x7528;&#x3002;</li>
+<li>&#x2461; Function &#x63A5;&#x53E3;&#x5B9E;&#x73B0; apply &#x65B9;&#x6CD5;&#x6765;&#x505A;&#x8F6C;&#x6362;&#x3002;</li></ul> 
+      <a class="article-more-link" href="/2021/08/10/14.004%20java8%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B9%B6%E8%B0%83%E7%94%A8%E5%8A%9F%E8%83%BD%E6%80%A7%E5%87%BD%E6%95%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-14.005 java8系列-方法引用示例"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/08/10/14.005%20java8%E7%B3%BB%E5%88%97-%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B/"
+    >java8系列-方法引用示例</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/08/10/14.005%20java8%E7%B3%BB%E5%88%97-%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B/" class="article-date">
+  <time datetime="2021-08-09T16:00:00.000Z" itemprop="datePublished">2021-08-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java8/">java8</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x65B9;&#x6CD5;&#x5F15;&#x7528;&#x7684;&#x5206;&#x7C7B;"><a href="#&#x65B9;&#x6CD5;&#x5F15;&#x7528;&#x7684;&#x5206;&#x7C7B;" class="headerlink" title="&#x65B9;&#x6CD5;&#x5F15;&#x7528;&#x7684;&#x5206;&#x7C7B;"></a>&#x65B9;&#x6CD5;&#x5F15;&#x7528;&#x7684;&#x5206;&#x7C7B;</h3><p>&#x53EF;&#x4EE5;&#x5C06;&#x65B9;&#x6CD5;&#x5F15;&#x7528;&#x5206;&#x4E3A;&#x56DB;&#x79CD;&#xFF1A;</p>
+<ol>
+<li>&#x7C7B;::static&#x65B9;&#x6CD5;</li>
+<li>&#x5BF9;&#x8C61;&#x5B9E;&#x4F8B;:&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;</li>
+<li>&#x7C7B;::&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;</li>
+<li>&#x6784;&#x9020;&#x51FD;&#x6570;&#x5F15;&#x7528;  &#x7C7B;&#x540D;::new</li>
+<li>&#x7C7B;[]::new</li></ol> 
+      <a class="article-more-link" href="/2021/08/10/14.005%20java8%E7%B3%BB%E5%88%97-%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B010.系统设计-网关设计与说明"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/07/11/11B010.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%BD%91%E5%85%B3%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%AF%B4%E6%98%8E/"
+    >系统设计-网关设计与说明</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/07/11/11B010.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%BD%91%E5%85%B3%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%AF%B4%E6%98%8E/" class="article-date">
+  <time datetime="2021-07-10T16:00:00.000Z" itemprop="datePublished">2021-07-11</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x80CC;&#x666F;"><a href="#&#x80CC;&#x666F;" class="headerlink" title="&#x80CC;&#x666F;"></a>&#x80CC;&#x666F;</h3><p>&#x8C03;&#x7528;&#x65B9;&#x7CFB;&#x7EDF;&#xFF08;server&#x7AEF;&#xFF09;&#xFF0C;&#x9700;&#x8981;&#x901A;&#x8FC7; RESTful &#x65B9;&#x5F0F;&#xFF0C;&#x8C03;&#x7528;&#x53E6;&#x4E00;&#x4E2A;&#x670D;&#x52A1;&#x7684;&#x540E;&#x7AEF;API&#xFF0C;&#x6B64;&#x65F6;&#x9700;&#x8981;&#x5728;&#x4E2D;&#x95F4;&#x52A0;&#x5165;&#x4E00;&#x5C42;&#x7F51;&#x5173;&#x7CFB;&#x7EDF;&#xFF08;&#x4E1A;&#x754C;&#x7684;&#x53EB;&#x6CD5;&#x6709;&#x5F88;&#x591A;&#xFF1A;API Gateway&#x3001; OpenAPI&#x3001;&#x670D;&#x52A1;&#x7F51;&#x5173;&#x3001;&#x667A;&#x80FD;&#x7F51;&#x5173;&#x7B49;&#xFF09;&#x3002;</p> 
+      <a class="article-more-link" href="/2021/07/11/11B010.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%BD%91%E5%85%B3%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%AF%B4%E6%98%8E/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E5%85%B3/" rel="tag">网关</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B011.系统设计-OpenAPI网关实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/07/11/11B011.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-OpenAPI%E7%BD%91%E5%85%B3%E5%AE%9E%E7%8E%B0/"
+    >系统设计-OpenAPI网关实现</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/07/11/11B011.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-OpenAPI%E7%BD%91%E5%85%B3%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2021-07-10T16:00:00.000Z" itemprop="datePublished">2021-07-11</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x76EE;&#x6807;"><a href="#&#x76EE;&#x6807;" class="headerlink" title="&#x76EE;&#x6807;"></a>&#x76EE;&#x6807;</h3><ol>
+<li>&#x5B9E;&#x73B0;&#x4E00;&#x4E2A;&#x5F88;&#x8584;&#x5F88;&#x8F7B;&#x91CF;&#x7EA7;&#x7684;OpenAPI&#x7CFB;&#x7EDF;&#x3001;&#x7F51;&#x5173;&#x5C42;&#x7CFB;&#x7EDF;&#xFF0C;&#x53EF;&#x4EE5;&#x5B8C;&#x6210;&#x5BF9;&#x540E;&#x7AEF;&#x5E94;&#x7528;&#x5C42;&#x63A5;&#x53E3;&#x8BF7;&#x6C42;&#x7684;&#x8DEF;&#x7531;&#x8F6C;&#x53D1;&#x3002;&#x8DEF;&#x7531;&#x8F6C;&#x53D1;&#x89C4;&#x5219;&#x8981;&#x53EF;&#x52A8;&#x6001;&#x914D;&#x7F6E;&#x3002;</li>
+<li>&#x9700;&#x8981;&#x4FDD;&#x969C;&#x63A5;&#x53E3;&#x8BF7;&#x6C42;&#x7684;&#x5B89;&#x5168;&#x6027;&#xFF08;&#x901A;&#x8FC7;token&#x548C;sign&#x5B9E;&#x73B0;&#xFF09;&#x3002;</li>
+<li>&#x9700;&#x8981;&#x5B9E;&#x73B0;&#x63A5;&#x53E3;&#x7684;&#x8D85;&#x65F6;&#x4E0E;&#x91CD;&#x8BD5;&#x673A;&#x5236;&#x3002;&#x8FD9;&#x4E24;&#x4E2A;&#x53C2;&#x6570;&#x8981;&#x5BF9;&#x6BCF;&#x4E2A;&#x63A5;&#x53E3;&#x5B9E;&#x73B0;&#x52A8;&#x6001;&#x53EF;&#x914D;&#x7F6E;&#x5316;&#x3002;</li>
+</ol> 
+      <a class="article-more-link" href="/2021/07/11/11B011.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-OpenAPI%E7%BD%91%E5%85%B3%E5%AE%9E%E7%8E%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenAPI/" rel="tag">OpenAPI</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A001.java线程几个状态"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A001.java%E7%BA%BF%E7%A8%8B%E5%87%A0%E4%B8%AA%E7%8A%B6%E6%80%81/"
+    >java线程几个状态</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A001.java%E7%BA%BF%E7%A8%8B%E5%87%A0%E4%B8%AA%E7%8A%B6%E6%80%81/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.flydean.com/java-thread-lifecycle/#NEW">java&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;</a></p>
+</blockquote>
+<p>java&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;<br>&#x7EBF;&#x7A0B;&#x662F;java&#x4E2D;&#x7ED5;&#x4E0D;&#x8FC7;&#x53BB;&#x7684;&#x4E00;&#x4E2A;&#x8BDD;&#x9898;&#xFF0C; &#x4ECA;&#x5929;&#x672C;&#x6587;&#x5C06;&#x4F1A;&#x8BE6;&#x7EC6;&#x8BB2;&#x89E3;java&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;&#xFF0C;&#x5E0C;&#x671B;&#x53EF;&#x4EE5;&#x7ED9;&#x5927;&#x5BB6;&#x4E00;&#x4E9B;&#x542F;&#x53D1;&#x3002;</p> 
+      <a class="article-more-link" href="/2021/03/07/1A001.java%E7%BA%BF%E7%A8%8B%E5%87%A0%E4%B8%AA%E7%8A%B6%E6%80%81/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A002.线程池原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A002.%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8E%9F%E7%90%86/"
+    >线程池原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A002.%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="tag">线程池</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A003.创建多少个线程合适"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A003.%E5%88%9B%E5%BB%BA%E5%A4%9A%E5%B0%91%E4%B8%AA%E7%BA%BF%E7%A8%8B%E5%90%88%E9%80%82/"
+    >创建多少个线程合适</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A003.%E5%88%9B%E5%BB%BA%E5%A4%9A%E5%B0%91%E4%B8%AA%E7%BA%BF%E7%A8%8B%E5%90%88%E9%80%82/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5728;&#x804A;&#x5177;&#x4F53;&#x573A;&#x666F;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6211;&#x4EEC;&#x5FC5;&#x987B;&#x8981;&#x62FF;&#x51FA;&#x6211;&#x4EEC;&#x7684;&#x4E13;&#x4E1A;&#x6027;&#x6765;&#x3002;&#x9001;&#x4F60;&#x4E24;&#x4E2A;&#x540D;&#x8BCD; buff &#x52A0;&#x6210;</p>
+<p>CPU &#x5BC6;&#x96C6;&#x578B;&#x7A0B;&#x5E8F;<br>I/O &#x5BC6;&#x96C6;&#x578B;&#x7A0B;&#x5E8F;</p> 
+      <a class="article-more-link" href="/2021/03/07/1A003.%E5%88%9B%E5%BB%BA%E5%A4%9A%E5%B0%91%E4%B8%AA%E7%BA%BF%E7%A8%8B%E5%90%88%E9%80%82/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A004.Thread类的几个方法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A004.Thread%E7%B1%BB%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E6%B3%95/"
+    >Thread类的几个方法</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A004.Thread%E7%B1%BB%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E6%B3%95/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h4 id="1-&#x7EBF;&#x7A0B;&#x7684;&#x51E0;&#x4E2A;&#x72B6;&#x6001;"><a href="#1-&#x7EBF;&#x7A0B;&#x7684;&#x51E0;&#x4E2A;&#x72B6;&#x6001;" class="headerlink" title="1. &#x7EBF;&#x7A0B;&#x7684;&#x51E0;&#x4E2A;&#x72B6;&#x6001;"></a>1. &#x7EBF;&#x7A0B;&#x7684;&#x51E0;&#x4E2A;&#x72B6;&#x6001;</h4><p><img src="/2021/03/07/1A004.Thread%E7%B1%BB%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E6%B3%95/1.png"></p> 
+      <a class="article-more-link" href="/2021/03/07/1A004.Thread%E7%B1%BB%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E6%B3%95/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A005.final用法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/"
+    >final用法</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>final&#x65E2;&#x7136;&#x662F;&#x4E00;&#x4E2A;&#x4FEE;&#x9970;&#x7B26;&#xFF0C;&#x5728;Java&#x4E2D;&#xFF0C;final &#x80FD;&#x4FEE;&#x9970;&#x54EA;&#x4E9B;&#x4E1C;&#x897F;&#x5462;&#xFF1F;&#x57FA;&#x672C;&#x4E0A;&#x53EF;&#x4EE5;&#x6982;&#x62EC;&#x7684;&#x8BF4;&#xFF0C;&#x5728;Java&#x4E2D;&#x57FA;&#x672C;&#x53EF;&#x4EE5;&#x4FEE;&#x9970;&#x9762;&#x5411;&#x5BF9;&#x8C61;&#x7684;&#x7EDD;&#x5927;&#x90E8;&#x5206;&#x5143;&#x7D20;&#x3002;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x5982;&#x4E0B;&#x7684;&#x4EE3;&#x7801;&#x6BB5;&#x6765;&#x770B;final&#x4FEE;&#x9970;&#x7684;&#x90E8;&#x5206;&#x3002;</p> 
+      <a class="article-more-link" href="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/final/" rel="tag">final</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-1A006.static用法和原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/07/1A006.static%E7%94%A8%E6%B3%95%E5%92%8C%E5%8E%9F%E7%90%86/"
+    >static用法和原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A006.static%E7%94%A8%E6%B3%95%E5%92%8C%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_43410048/article/details/105283869">https://blog.csdn.net/m0_43410048/article/details/105283869</a></p>
+</blockquote>
+<ul>
+<li>&#x67D0;&#x4E2A;&#x7C7B;&#x4E2D;&#x7684;&#x6210;&#x5458;&#x6216;&#x8005;&#x65B9;&#x6CD5;&#x52A0;&#x4E0A;static&#x4E4B;&#x540E;&#xFF0C;&#x8BE5;&#x6210;&#x5458;&#x6216;&#x8005;&#x65B9;&#x6CD5;&#x662F;&#x5C5E;&#x4E8E;&#x7C7B;&#xFF08;Class&#xFF09;&#x7684;&#xFF0C;&#x800C;&#x4E0D;&#x5C5E;&#x4E8E;&#x5BF9;&#x8C61;&#xFF08;Object&#xFF09;&#x7684;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;&#x4F60;&#x7528;&#x67D0;&#x4E2A;Class&#x7C7B;new&#x51FA;&#x6765;&#x7684;&#x4E1C;&#x897F;&#x7684;&#x7A7A;&#x95F4;&#x5F53;&#x4E2D;&#xFF0C;&#x4E0D;&#x5305;&#x542B;&#x8FD9;&#x4E2A;static&#x6210;&#x5458;&#x6216;&#x5BF9;&#x8C61;&#x3002;</li>
+<li>static&#x53EA;&#x5728;&#x7C7B;&#x5F53;&#x4E2D;&#x4FDD;&#x5B58;&#x4E00;&#x4EFD;&#xFF0C;&#x6240;&#x6709;&#x672C;&#x7C7B;&#x7684;&#x5BF9;&#x8C61;&#x5171;&#x4EAB;&#x4E00;&#x4EFD;&#x3002;&#x5176;&#x4E2D;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x6539;&#x4E86;static&#x7684;&#x503C;&#xFF0C;&#x53E6;&#x4E00;&#x4E2A;&#x5BF9;&#x8C61;&#x7684;&#x4E5F;&#x4F1A;&#x6539;&#x3002;</li>
+<li>static &#x7684;&#x4E00;&#x4E2A;&#x7528;&#x6CD5;&#x662F;&#x53EF;&#x4EE5;&#x7528;&#x4F5C;&#x7C7B;&#x7684;&#x8BA1;&#x6570;&#xFF0C;&#x8BB0;&#x5F55;&#x8BE5;&#x7C7B;&#x88AB;&#x521B;&#x5EFA;&#x4E86;&#x591A;&#x5C11;&#x6B21;&#x3002;&#x6BD4;&#x5982;&#x81EA;&#x52A8;&#x751F;&#x6210;&#x5B66;&#x53F7;&#x3002;</li></ul> 
+      <a class="article-more-link" href="/2021/03/07/1A006.static%E7%94%A8%E6%B3%95%E5%92%8C%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/static/" rel="tag">static</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+  </article>
+  
+
+  
+  <nav class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/11/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/13/">下一页</a>
+  </nav>
+  
+</section>
+</div>
+
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>类加载--Tomcat类加载 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-3.003.类加载--Tomcat类加载"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  类加载--Tomcat类加载
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/10/3.003.%E7%B1%BB%E5%8A%A0%E8%BD%BD--Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD/" class="article-date">
+  <time datetime="2022-05-09T16:00:00.000Z" itemprop="datePublished">2022-05-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">19 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903881067986957">https://juejin.cn/post/6844903881067986957</a></p>
+</blockquote>
+<span id="more"></span>
+<h3 id="Tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;"><a href="#Tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;" class="headerlink" title="Tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;"></a>Tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;</h3><p>&#x4E0B;&#x9762;&#x7684;&#x7B80;&#x56FE;&#x662F;Tomcat9&#x7248;&#x672C;&#x7684;&#x5B98;&#x65B9;&#x6587;&#x6863;&#x7ED9;&#x51FA;&#x7684;Tomcat&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x7684;&#x56FE;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    Bootstrap</span><br><span class="line">        |</span><br><span class="line">     System</span><br><span class="line">        |</span><br><span class="line">     Common</span><br><span class="line">     /     \</span><br><span class="line">Webapp1   Webapp2 ..</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Bootstrap</code> &#xFF1A; &#x662F;Java&#x7684;&#x6700;&#x9AD8;&#x7684;&#x52A0;&#x8F7D;&#x5668;&#xFF0C;&#x7528;C&#x8BED;&#x8A00;&#x5B9E;&#x73B0;&#xFF0C;&#x4E3B;&#x8981;&#x7528;&#x6765;&#x52A0;&#x8F7D;JVM&#x542F;&#x52A8;&#x65F6;&#x6240;&#x9700;&#x8981;&#x7684;&#x6838;&#x5FC3;&#x7C7B;&#xFF0C;&#x4F8B;&#x5982;<code>$JAVA_HOME/jre/lib/ext</code>&#x8DEF;&#x5F84;&#x4E0B;&#x7684;&#x7C7B;&#x3002;</li>
+<li><code>System</code> &#xFF1A; &#x4F1A;&#x52A0;&#x8F7D;CLASSPATH&#x7CFB;&#x7EDF;&#x53D8;&#x91CF;&#x6240;&#x5B9A;&#x4E49;&#x8DEF;&#x5F84;&#x7684;&#x6240;&#x6709;&#x7684;&#x7C7B;&#x3002;</li>
+<li><code>Common</code> &#xFF1A;&#x4F1A;&#x52A0;&#x8F7D;Tomcat&#x8DEF;&#x5F84;&#x4E0B;&#x7684;lib&#x6587;&#x4EF6;&#x4E0B;&#x7684;&#x6240;&#x6709;&#x7C7B;&#x3002;</li>
+<li><code>Webapp1&#x3001;Webapp2</code>&#x2026;&#x2026;&#xFF1A; &#x4F1A;&#x52A0;&#x8F7D;webapp&#x8DEF;&#x5F84;&#x4E0B;&#x9879;&#x76EE;&#x4E2D;&#x7684;&#x6240;&#x6709;&#x7684;&#x7C7B;&#x3002;&#x4E00;&#x4E2A;&#x9879;&#x76EE;&#x5BF9;&#x5E94;&#x4E00;&#x4E2A;<code>WebappClassLoader</code>&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x5B9E;&#x73B0;&#x4E86;&#x5E94;&#x7528;&#x4E4B;&#x95F4;&#x7C7B;&#x7684;&#x9694;&#x79BB;&#x4E86;&#x3002;</li>
+</ul>
+<p>&#x8FD9;3&#x4E2A;&#x90E8;&#x5206;&#xFF0C;&#x5728;&#x4E0A;&#x9762;&#x7684;Java&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x6A21;&#x578B;&#x56FE;&#x4E2D;&#x90FD;&#x6709;&#x4F53;&#x73B0;&#x3002;&#x4E0D;&#x8FC7;&#x53EF;&#x4EE5;&#x770B;&#x5230;<code>ExtClassLoader</code>&#x6CA1;&#x6709;&#x753B;&#x51FA;&#x6765;&#xFF0C;&#x53EF;&#x4EE5;&#x7406;&#x89E3;&#x4E3A;&#x662F;&#x8DDF;bootstrap&#x5408;&#x5E76;&#x4E86;&#xFF0C;&#x90FD;&#x662F;&#x53BB;<code>JAVA_HOME/jre/lib</code>&#x4E0B;&#x9762;&#x52A0;&#x8F7D;&#x7C7B;&#x3002; &#x90A3;&#x4E48;Tomcat&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x5462;&#xFF1F;</p>
+<ul>
+<li><strong>&#x9694;&#x79BB;&#x4E0D;&#x540C;&#x5E94;&#x7528;</strong>&#xFF1A;&#x90E8;&#x7F72;&#x5728;&#x540C;&#x4E00;&#x4E2A;Tomcat&#x4E2D;&#x7684;&#x4E0D;&#x540C;&#x5E94;&#x7528;A&#x548C;B&#xFF0C;&#x4F8B;&#x5982;A&#x7528;&#x4E86;Spring2.5&#x3002;B&#x7528;&#x4E86;Spring3.5&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E24;&#x4E2A;&#x5E94;&#x7528;&#x5982;&#x679C;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x540C;&#x4E00;&#x4E2A;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#xFF0C;&#x90A3;&#x4E48;Web&#x5E94;&#x7528;&#x5C31;&#x4F1A;&#x56E0;&#x4E3A;jar&#x5305;&#x8986;&#x76D6;&#x800C;&#x65E0;&#x6CD5;&#x542F;&#x52A8;&#x3002;</li>
+<li><strong>&#x7075;&#x6D3B;&#x6027;</strong>&#xFF1A;Web&#x5E94;&#x7528;&#x4E4B;&#x95F4;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x76F8;&#x4E92;&#x72EC;&#x7ACB;&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x4FEE;&#x6539;&#x4E0D;&#x540C;&#x7684;&#x6587;&#x4EF6;&#x91CD;&#x5EFA;&#x4E0D;&#x540C;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x66FF;&#x6362;&#x539F;&#x6765;&#x7684;&#x3002;&#x4ECE;&#x800C;&#x4E0D;&#x5F71;&#x54CD;&#x5176;&#x4ED6;&#x5E94;&#x7528;&#x3002;</li>
+<li><strong>&#x6027;&#x80FD;</strong>&#xFF1A;&#x5982;&#x679C;&#x5728;&#x4E00;&#x4E2A;Tomcat&#x90E8;&#x7F72;&#x591A;&#x4E2A;&#x5E94;&#x7528;&#xFF0C;&#x591A;&#x4E2A;&#x5E94;&#x7528;&#x4E2D;&#x90FD;&#x6709;&#x76F8;&#x540C;&#x7684;&#x7C7B;&#x5E93;&#x4F9D;&#x8D56;&#x3002;&#x90A3;&#x4E48;&#x53EF;&#x4EE5;&#x628A;&#x8FD9;&#x76F8;&#x540C;&#x7684;&#x7C7B;&#x5E93;&#x8BA9;Common&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x8FDB;&#x884C;&#x52A0;&#x8F7D;&#x3002;</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) {</span><br><span class="line">        Class&lt;?&gt; clazz = <span class="literal">null</span>;</span><br><span class="line">        <span class="comment">// 1. &#x4ECE;&#x672C;&#x5730;&#x7F13;&#x5B58;&#x4E2D;&#x67E5;&#x627E;&#x662F;&#x5426;&#x52A0;&#x8F7D;&#x8FC7;&#x6B64;&#x7C7B;</span></span><br><span class="line">        clazz = findLoadedClass0(name);</span><br><span class="line">        <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">            <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                log.debug(<span class="string">&quot;  Returning class from cache&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (resolve)</span><br><span class="line">                resolveClass(clazz);</span><br><span class="line">            <span class="keyword">return</span> clazz;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. &#x4ECE;AppClassLoader&#x4E2D;&#x67E5;&#x627E;&#x662F;&#x5426;&#x52A0;&#x8F7D;&#x8FC7;&#x6B64;&#x7C7B;</span></span><br><span class="line">        clazz = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">            <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                log.debug(<span class="string">&quot;  Returning class from cache&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (resolve)</span><br><span class="line">                resolveClass(clazz);</span><br><span class="line">            <span class="keyword">return</span> clazz;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">resourceName</span> <span class="operator">=</span> binaryNameToPath(name, <span class="literal">false</span>);</span><br><span class="line">        <span class="comment">// 3. &#x5C1D;&#x8BD5;&#x7528;ExtClassLoader &#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x52A0;&#x8F7D;&#x7C7B;,&#x9632;&#x6B62;Web&#x5E94;&#x7528;&#x8986;&#x76D6;JRE&#x7684;&#x6838;&#x5FC3;&#x7C7B;</span></span><br><span class="line">        <span class="type">ClassLoader</span> <span class="variable">javaseLoader</span> <span class="operator">=</span> getJavaseClassLoader();</span><br><span class="line">        <span class="type">boolean</span> tryLoadingFromJavaseLoader;</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            URL url;</span><br><span class="line">            <span class="keyword">if</span> (securityManager != <span class="literal">null</span>) {</span><br><span class="line">                PrivilegedAction&lt;URL&gt; dp = <span class="keyword">new</span> <span class="title class_">PrivilegedJavaseGetResource</span>(resourceName);</span><br><span class="line">                url = AccessController.doPrivileged(dp);</span><br><span class="line">            } <span class="keyword">else</span> {</span><br><span class="line">                url = javaseLoader.getResource(resourceName);</span><br><span class="line">            }</span><br><span class="line">            tryLoadingFromJavaseLoader = (url != <span class="literal">null</span>);</span><br><span class="line">        } <span class="keyword">catch</span> (Throwable t) {</span><br><span class="line">            tryLoadingFromJavaseLoader = <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">delegateLoad</span> <span class="operator">=</span> delegate || filter(name, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. &#x5224;&#x65AD;&#x662F;&#x5426;&#x8BBE;&#x7F6E;&#x4E86;delegate&#x5C5E;&#x6027;,&#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x4E3A;true&#x90A3;&#x4E48;&#x5C31;&#x6309;&#x7167;&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x673A;&#x5236;&#x52A0;&#x8F7D;&#x7C7B;</span></span><br><span class="line">        <span class="keyword">if</span> (delegateLoad) {</span><br><span class="line">            <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                log.debug(<span class="string">&quot;  Delegating to parent classloader1 &quot;</span> + parent);</span><br><span class="line">            <span class="keyword">try</span> {</span><br><span class="line">                clazz = Class.forName(name, <span class="literal">false</span>, parent);</span><br><span class="line">                <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                    <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                        log.debug(<span class="string">&quot;  Loading class from parent&quot;</span>);</span><br><span class="line">                    <span class="keyword">if</span> (resolve)</span><br><span class="line">                        resolveClass(clazz);</span><br><span class="line">                    <span class="keyword">return</span> clazz;</span><br><span class="line">                }</span><br><span class="line">            } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">                <span class="comment">// Ignore</span></span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. &#x9ED8;&#x8BA4;&#x662F;&#x8BBE;&#x7F6E;delegate&#x662F;false&#x7684;,&#x90A3;&#x4E48;&#x5C31;&#x4F1A;&#x5148;&#x7528;WebAppClassLoader&#x8FDB;&#x884C;&#x52A0;&#x8F7D;</span></span><br><span class="line">        <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">            log.debug(<span class="string">&quot;  Searching local repositories&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            clazz = findClass(name);</span><br><span class="line">            <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                    log.debug(<span class="string">&quot;  Loading class from local repository&quot;</span>);</span><br><span class="line">                <span class="keyword">if</span> (resolve)</span><br><span class="line">                    resolveClass(clazz);</span><br><span class="line">                <span class="keyword">return</span> clazz;</span><br><span class="line">            }</span><br><span class="line">        } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">            <span class="comment">// Ignore</span></span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 6. &#x5982;&#x679C;&#x6B64;&#x65F6;&#x5728;WebAppClassLoader&#x6CA1;&#x627E;&#x5230;&#x7C7B;,&#x90A3;&#x4E48;&#x5C31;&#x59D4;&#x6258;&#x7ED9;AppClassLoader&#x53BB;&#x52A0;&#x8F7D;</span></span><br><span class="line">        <span class="keyword">if</span> (!delegateLoad) {</span><br><span class="line">            <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                log.debug(<span class="string">&quot;  Delegating to parent classloader at end: &quot;</span> + parent);</span><br><span class="line">            <span class="keyword">try</span> {</span><br><span class="line">                clazz = Class.forName(name, <span class="literal">false</span>, parent);</span><br><span class="line">                <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                    <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                        log.debug(<span class="string">&quot;  Loading class from parent&quot;</span>);</span><br><span class="line">                    <span class="keyword">if</span> (resolve)</span><br><span class="line">                        resolveClass(clazz);</span><br><span class="line">                    <span class="keyword">return</span> clazz;</span><br><span class="line">                }</span><br><span class="line">            } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">                <span class="comment">// Ignore</span></span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6700;&#x540E;&#x501F;&#x7528;Tomcat&#x5B98;&#x7F51;&#x4E0A;&#x7684;&#x8BDD;&#x603B;&#x7ED3;&#xFF1A;</p>
+<p>Web&#x5E94;&#x7528;&#x9ED8;&#x8BA4;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x987A;&#x5E8F;&#x662F;&#xFF08;&#x6253;&#x7834;&#x4E86;&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x89C4;&#x5219;&#xFF09;&#xFF1A;</p>
+<ol>
+<li>&#x5148;&#x4ECE;JVM&#x7684;<code>BootStrapClassLoader</code>&#x4E2D;&#x52A0;&#x8F7D;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;Web&#x5E94;&#x7528;&#x4E0B;<code>/WEB-INF/classes</code>&#x4E2D;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;Web&#x5E94;&#x7528;&#x4E0B;<code>/WEB-INF/lib/*.jar</code>&#x4E2D;&#x7684;jar&#x5305;&#x4E2D;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;&#x4E0A;&#x9762;&#x5B9A;&#x4E49;&#x7684;System&#x8DEF;&#x5F84;&#x4E0B;&#x9762;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;&#x4E0A;&#x9762;&#x5B9A;&#x4E49;&#x7684;Common&#x8DEF;&#x5F84;&#x4E0B;&#x9762;&#x7684;&#x7C7B;&#x3002;</li>
+</ol>
+<p>&#x5982;&#x679C;&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x914D;&#x7F6E;&#x4E86;<code>&lt;Loader delegate=&quot;true&quot;/&gt;</code>&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x662F;&#x9075;&#x5FAA;&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x89C4;&#x5219;&#xFF0C;&#x52A0;&#x8F7D;&#x987A;&#x5E8F;&#x5982;&#x4E0B;&#xFF1A;</p>
+<ol>
+<li>&#x5148;&#x4ECE;JVM&#x7684;<code>BootStrapClassLoader</code>&#x4E2D;&#x52A0;&#x8F7D;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;&#x4E0A;&#x9762;&#x5B9A;&#x4E49;&#x7684;System&#x8DEF;&#x5F84;&#x4E0B;&#x9762;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;&#x4E0A;&#x9762;&#x5B9A;&#x4E49;&#x7684;Common&#x8DEF;&#x5F84;&#x4E0B;&#x9762;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;Web&#x5E94;&#x7528;&#x4E0B;<code>/WEB-INF/classes</code>&#x4E2D;&#x7684;&#x7C7B;&#x3002;</li>
+<li>&#x52A0;&#x8F7D;Web&#x5E94;&#x7528;&#x4E0B;<code>/WEB-INF/lib/*.jap</code>&#x4E2D;&#x7684;jar&#x5305;&#x4E2D;&#x7684;&#x7C7B;&#x3002;</li>
+</ol>
+<hr>
+<blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7706a42ba200">https://www.jianshu.com/p/7706a42ba200</a></p>
+</blockquote>
+<p><img src="/2022/05/10/3.003.%E7%B1%BB%E5%8A%A0%E8%BD%BD--Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD/1.png"></p>
+<p>&#x4E0B;&#x9762;&#x662F;java 8 &#x4E2D;ClassLoad.loadclass()&#x6E90;&#x7801;&#xFF0C;&#x5982;&#x679C;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x9700;&#x8981;&#x81EA;&#x5B9A;&#x4E49;&#x7684;&#x52A0;&#x8F7D;&#x5668;&#x9700;&#x8981;&#x91CD;&#x65B0;&#x6CE8;&#x610F;&#x4E0B;&#x9762;&#x7684;loadClass&#x548C;find classde &#x65B9;&#x6CD5;&#xFF0C;&#x4ECE;&#x800C;&#x53EF;&#x4EE5;&#x6253;&#x7834;&#x53CC;&#x4EB2;&#x7684;&#x59D4;&#x6D3E;&#x673A;&#x5236;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Loads the class with the specified &lt;a href=&quot;#name&quot;&gt;binary name&lt;/a&gt;.  The</span></span><br><span class="line"><span class="comment">  * default implementation of this method searches for classes in the</span></span><br><span class="line"><span class="comment">  * following order:</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * &lt;ol&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  *   &lt;li&gt;&lt;p&gt; Invoke {<span class="doctag">@link</span> #findLoadedClass(String)} to check if the class</span></span><br><span class="line"><span class="comment">  *   has already been loaded.  &lt;/p&gt;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  *   &lt;li&gt;&lt;p&gt; Invoke the {<span class="doctag">@link</span> #loadClass(String) &lt;tt&gt;loadClass&lt;/tt&gt;} method</span></span><br><span class="line"><span class="comment">  *   on the parent class loader.  If the parent is &lt;tt&gt;null&lt;/tt&gt; the class</span></span><br><span class="line"><span class="comment">  *   loader built-in to the virtual machine is used, instead.  &lt;/p&gt;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  *   &lt;li&gt;&lt;p&gt; Invoke the {<span class="doctag">@link</span> #findClass(String)} method to find the</span></span><br><span class="line"><span class="comment">  *   class.  &lt;/p&gt;&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * &lt;/ol&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * &lt;p&gt; If the class was found using the above steps, and the</span></span><br><span class="line"><span class="comment">  * &lt;tt&gt;resolve&lt;/tt&gt; flag is true, this method will then invoke the {<span class="doctag">@link</span></span></span><br><span class="line"><span class="comment">  * #resolveClass(Class)} method on the resulting &lt;tt&gt;Class&lt;/tt&gt; object.</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * &lt;p&gt; Subclasses of &lt;tt&gt;ClassLoader&lt;/tt&gt; are encouraged to override {<span class="doctag">@link</span></span></span><br><span class="line"><span class="comment">  * #findClass(String)}, rather than this method.  &lt;/p&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * &lt;p&gt; Unless overridden, this method synchronizes on the result of</span></span><br><span class="line"><span class="comment">  * {<span class="doctag">@link</span> #getClassLoadingLock &lt;tt&gt;getClassLoadingLock&lt;/tt&gt;} method</span></span><br><span class="line"><span class="comment">  * during the entire class loading process.</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span>  name</span></span><br><span class="line"><span class="comment">  *         The &lt;a href=&quot;#name&quot;&gt;binary name&lt;/a&gt; of the class</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span>  resolve</span></span><br><span class="line"><span class="comment">  *         If &lt;tt&gt;true&lt;/tt&gt; then resolve the class</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span>  The resulting &lt;tt&gt;Class&lt;/tt&gt; object</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@throws</span>  ClassNotFoundException</span></span><br><span class="line"><span class="comment">  *          If the class could not be found</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve)</span><br><span class="line">       <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">{</span><br><span class="line">   <span class="keyword">synchronized</span> (getClassLoadingLock(name)) {</span><br><span class="line">       <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line">       Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">       <span class="keyword">if</span> (c == <span class="literal">null</span>) {</span><br><span class="line">           <span class="type">long</span> <span class="variable">t0</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">           <span class="keyword">try</span> {</span><br><span class="line">               <span class="keyword">if</span> (parent != <span class="literal">null</span>) {</span><br><span class="line">                 <span class="comment">//&#x662F;&#x4E00;&#x4E2A;&#x9012;&#x5F52;&#x8C03;&#x7528;&#xFF0C;&#x76F4;&#x81F3;&#x6CA1;&#x6709;&#x7236;&#x7C7B;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;</span></span><br><span class="line">                   c = parent.loadClass(name, <span class="literal">false</span>);</span><br><span class="line">               } <span class="keyword">else</span> {</span><br><span class="line">                 <span class="comment">//&#x52A0;&#x8F7D;java&#x6838;&#x5FC3;&#x7C7B;&#x5E93;&#x7684;&#x52A0;&#x8F7D;&#x5668;</span></span><br><span class="line">                   c = findBootstrapClassOrNull(name);</span><br><span class="line">               }</span><br><span class="line">           } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">               <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">               <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">           }</span><br><span class="line"></span><br><span class="line">           <span class="keyword">if</span> (c == <span class="literal">null</span>) {</span><br><span class="line">               <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">               <span class="comment">// to find the class.</span></span><br><span class="line">               <span class="type">long</span> <span class="variable">t1</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">             <span class="comment">//&#x5728;&#x6307;&#x5B9A;&#x7684;&#x8DEF;&#x5F84;&#x4E0B;&#x83B7;&#x53D6;&#x5230;&#x8BE5;&#x7C7B;</span></span><br><span class="line">               c = findClass(name);</span><br><span class="line"></span><br><span class="line">               <span class="comment">// this is the defining class loader; record the stats</span></span><br><span class="line">               sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">               sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">               sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">           }</span><br><span class="line">       }</span><br><span class="line">       <span class="keyword">if</span> (resolve) {</span><br><span class="line">           resolveClass(c);</span><br><span class="line">       }</span><br><span class="line">       <span class="keyword">return</span> c;</span><br><span class="line">   }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>URLClassloader&#x4E2D;&#x7684;findclass&#x65B9;&#x6CD5;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Finds and loads the class with the specified name from the URL search</span></span><br><span class="line"><span class="comment">* path. Any URLs referring to JAR files are loaded and opened as needed</span></span><br><span class="line"><span class="comment">* until the class is found.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> name the name of the class</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> the resulting class</span></span><br><span class="line"><span class="comment">* <span class="doctag">@exception</span> ClassNotFoundException if the class could not be found,</span></span><br><span class="line"><span class="comment">*            or if the loader is closed.</span></span><br><span class="line"><span class="comment">* <span class="doctag">@exception</span> NullPointerException if {<span class="doctag">@code</span> name} is {<span class="doctag">@code</span> null}.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; findClass(<span class="keyword">final</span> String name)</span><br><span class="line">   <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">{</span><br><span class="line">   <span class="keyword">final</span> Class&lt;?&gt; result;</span><br><span class="line">   <span class="keyword">try</span> {</span><br><span class="line">       result = AccessController.doPrivileged(</span><br><span class="line">           <span class="keyword">new</span> <span class="title class_">PrivilegedExceptionAction</span>&lt;Class&lt;?&gt;&gt;() {</span><br><span class="line">               <span class="keyword">public</span> Class&lt;?&gt; run() <span class="keyword">throws</span> ClassNotFoundException {</span><br><span class="line">                 <span class="comment">//&#x62FC;&#x63A5;&#x6210;&#x6307;&#x5B9A;&#x524D;&#x7F00;&#x7684;.class&#x6587;&#x4EF6;</span></span><br><span class="line">                   <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> name.replace(<span class="string">&apos;.&apos;</span>, <span class="string">&apos;/&apos;</span>).concat(<span class="string">&quot;.class&quot;</span>);</span><br><span class="line">                 <span class="comment">//&#x4ECE;classpath&#x83B7;&#x53D6;&#x5230;.class&#x6587;&#x4EF6;</span></span><br><span class="line">                   <span class="type">Resource</span> <span class="variable">res</span> <span class="operator">=</span> ucp.getResource(path, <span class="literal">false</span>);</span><br><span class="line">                   <span class="keyword">if</span> (res != <span class="literal">null</span>) {</span><br><span class="line">                       <span class="keyword">try</span> {</span><br><span class="line">                         <span class="comment">//&#x4ECE;&#x8DEF;&#x5F84;&#x4E2D;&#x8BFB;&#x53D6;class&#x6587;&#x4EF6;&#x5B57;&#x8282;&#x6D41;&#xFF0C;&#x5E76;&#x5B9A;&#x4E49;&#x6210;&#x7C7B;&#xFF1B;todo bytebuffer</span></span><br><span class="line">                           <span class="keyword">return</span> defineClass(name, res);</span><br><span class="line">                       } <span class="keyword">catch</span> (IOException e) {</span><br><span class="line">                           <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name, e);</span><br><span class="line">                       }</span><br><span class="line">                   } <span class="keyword">else</span> {</span><br><span class="line">                       <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                   }</span><br><span class="line">               }</span><br><span class="line">           }, acc);</span><br><span class="line">   } <span class="keyword">catch</span> (java.security.PrivilegedActionException pae) {</span><br><span class="line">       <span class="keyword">throw</span> (ClassNotFoundException) pae.getException();</span><br><span class="line">   }</span><br><span class="line">   <span class="keyword">if</span> (result == <span class="literal">null</span>) {</span><br><span class="line">       <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line">   }</span><br><span class="line">   <span class="keyword">return</span> result;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<h3 id="tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x673A;&#x5236;"><a href="#tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x673A;&#x5236;" class="headerlink" title="tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x673A;&#x5236;"></a>tomcat&#x4E2D;&#x7684;&#x7C7B;&#x52A0;&#x8F7D;&#x673A;&#x5236;</h3><p><img src="/2022/05/10/3.003.%E7%B1%BB%E5%8A%A0%E8%BD%BD--Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD/2.png"></p>
+<h3 id="tomcat&#x662F;&#x5982;&#x4F55;&#x6253;&#x7834;&#x7684;"><a href="#tomcat&#x662F;&#x5982;&#x4F55;&#x6253;&#x7834;&#x7684;" class="headerlink" title="tomcat&#x662F;&#x5982;&#x4F55;&#x6253;&#x7834;&#x7684;"></a>tomcat&#x662F;&#x5982;&#x4F55;&#x6253;&#x7834;&#x7684;</h3><p>&#x901A;&#x8FC7;&#x81EA;&#x5B9A;&#x4E49;&#x52A0;&#x8F7D;&#x5668;&#x7684;&#x8FC7;&#x7A0B;&#xFF0C;&#x6211;&#x4EEC;&#x77E5;&#x9053;&#xFF0C;&#x5B9E;&#x73B0;&#x81EA;&#x5B9A;&#x4E49;&#x7684;classloader&#xFF0C;&#x9700;&#x8981;&#x91CD;&#x65B0;&#x5B9E;&#x73B0;loadClass&#x4EE5;&#x53CA;findClass&#xFF0C;&#x6211;&#x4EEC;&#x5148;&#x770B;</p>
+<p>webappsClassLoaderBase&#x7684;&#x4E0B;&#x9762;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;&#xFF1B;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Load the class with the specified name, searching using the following</span></span><br><span class="line"><span class="comment">  * algorithm until it finds and returns the class.  If the class cannot</span></span><br><span class="line"><span class="comment">  * be found, returns &lt;code&gt;ClassNotFoundException&lt;/code&gt;.</span></span><br><span class="line"><span class="comment">  * &lt;ul&gt;</span></span><br><span class="line"><span class="comment">  * &lt;li&gt;Call &lt;code&gt;findLoadedClass(String)&lt;/code&gt; to check if the</span></span><br><span class="line"><span class="comment">  *     class has already been loaded.  If it has, the same</span></span><br><span class="line"><span class="comment">  *     &lt;code&gt;Class&lt;/code&gt; object is returned.&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  * &lt;li&gt;If the &lt;code&gt;delegate&lt;/code&gt; property is set to &lt;code&gt;true&lt;/code&gt;,</span></span><br><span class="line"><span class="comment">  *     call the &lt;code&gt;loadClass()&lt;/code&gt; method of the parent class</span></span><br><span class="line"><span class="comment">  *     loader, if any.&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  * &lt;li&gt;Call &lt;code&gt;findClass()&lt;/code&gt; to find this class in our locally</span></span><br><span class="line"><span class="comment">  *     defined repositories.&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  * &lt;li&gt;Call the &lt;code&gt;loadClass()&lt;/code&gt; method of our parent</span></span><br><span class="line"><span class="comment">  *     class loader, if any.&lt;/li&gt;</span></span><br><span class="line"><span class="comment">  * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment">  * If the class was found using the above steps, and the</span></span><br><span class="line"><span class="comment">  * &lt;code&gt;resolve&lt;/code&gt; flag is &lt;code&gt;true&lt;/code&gt;, this method will then</span></span><br><span class="line"><span class="comment">  * call &lt;code&gt;resolveClass(Class)&lt;/code&gt; on the resulting Class object.</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> name The binary name of the class to be loaded</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> resolve If &lt;code&gt;true&lt;/code&gt; then resolve the class</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@exception</span> ClassNotFoundException if the class was not found</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException {</span><br><span class="line"></span><br><span class="line">     <span class="keyword">synchronized</span> (getClassLoadingLock(name)) {</span><br><span class="line">         <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">             log.debug(<span class="string">&quot;loadClass(&quot;</span> + name + <span class="string">&quot;, &quot;</span> + resolve + <span class="string">&quot;)&quot;</span>);</span><br><span class="line">         Class&lt;?&gt; clazz = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// Log access to stopped class loader</span></span><br><span class="line">         checkStateForClassLoading(name);</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (0) Check our previously loaded local class cache &#x672C;&#x5730;&#x7F13;&#x5B58;</span></span><br><span class="line">         clazz = findLoadedClass0(name);</span><br><span class="line">         <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">             <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                 log.debug(<span class="string">&quot;  Returning class from cache&quot;</span>);</span><br><span class="line">             <span class="keyword">if</span> (resolve)</span><br><span class="line">                 resolveClass(clazz);<span class="comment">//&#x94FE;&#x63A5;classloader  todo</span></span><br><span class="line">             <span class="keyword">return</span> clazz;</span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (0.1) Check our previously loaded class cache</span></span><br><span class="line">         clazz = findLoadedClass(name);<span class="comment">//&#x6821;&#x9A8C;jvm &#x7684;appclassloader&#x7684;&#x7F13;&#x5B58;&#x4E2D;&#x662F;&#x5426;&#x5B58;&#x5728;</span></span><br><span class="line">         <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">             <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                 log.debug(<span class="string">&quot;  Returning class from cache&quot;</span>);</span><br><span class="line">             <span class="keyword">if</span> (resolve)</span><br><span class="line">                 resolveClass(clazz);</span><br><span class="line">             <span class="keyword">return</span> clazz;</span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (0.2) Try loading the class with the system class loader, to prevent</span></span><br><span class="line">         <span class="comment">//       the webapp from overriding Java SE classes. This implements</span></span><br><span class="line">         <span class="comment">//       SRV.10.7.2</span></span><br><span class="line">         <span class="type">String</span> <span class="variable">resourceName</span> <span class="operator">=</span> binaryNameToPath(name, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">         <span class="type">ClassLoader</span> <span class="variable">javaseLoader</span> <span class="operator">=</span> getJavaseClassLoader();<span class="comment">//&#x7CFB;&#x7EDF;&#x7684;bootstrap classloader &#x7684;classloader</span></span><br><span class="line">         <span class="type">boolean</span> tryLoadingFromJavaseLoader;</span><br><span class="line">         <span class="keyword">try</span> {</span><br><span class="line">             <span class="comment">// Use getResource as it won&apos;t trigger an expensive</span></span><br><span class="line">             <span class="comment">// ClassNotFoundException if the resource is not available from</span></span><br><span class="line">             <span class="comment">// the Java SE class loader. However (see</span></span><br><span class="line">             <span class="comment">// https://bz.apache.org/bugzilla/show_bug.cgi?id=58125 for</span></span><br><span class="line">             <span class="comment">// details) when running under a security manager in rare cases</span></span><br><span class="line">             <span class="comment">// this call may trigger a ClassCircularityError.</span></span><br><span class="line">             <span class="comment">// See https://bz.apache.org/bugzilla/show_bug.cgi?id=61424 for</span></span><br><span class="line">             <span class="comment">// details of how this may trigger a StackOverflowError</span></span><br><span class="line">             <span class="comment">// Given these reported errors, catch Throwable to ensure any</span></span><br><span class="line">             <span class="comment">// other edge cases are also caught</span></span><br><span class="line">             URL url;</span><br><span class="line">             <span class="keyword">if</span> (securityManager != <span class="literal">null</span>) {</span><br><span class="line">                 PrivilegedAction&lt;URL&gt; dp = <span class="keyword">new</span> <span class="title class_">PrivilegedJavaseGetResource</span>(resourceName);</span><br><span class="line">                 url = AccessController.doPrivileged(dp);</span><br><span class="line">             } <span class="keyword">else</span> {</span><br><span class="line">                 url = javaseLoader.getResource(resourceName);</span><br><span class="line">             }</span><br><span class="line">             tryLoadingFromJavaseLoader = (url != <span class="literal">null</span>);</span><br><span class="line">         } <span class="keyword">catch</span> (Throwable t) {</span><br><span class="line">             <span class="comment">// Swallow all exceptions apart from those that must be re-thrown</span></span><br><span class="line">             ExceptionUtils.handleThrowable(t);</span><br><span class="line">             <span class="comment">// The getResource() trick won&apos;t work for this class. We have to</span></span><br><span class="line">             <span class="comment">// try loading it directly and accept that we might get a</span></span><br><span class="line">             <span class="comment">// ClassNotFoundException.</span></span><br><span class="line">             tryLoadingFromJavaseLoader = <span class="literal">true</span>;</span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="keyword">if</span> (tryLoadingFromJavaseLoader) {</span><br><span class="line">             <span class="keyword">try</span> {</span><br><span class="line">                 <span class="comment">//&#x5229;&#x7528;javaser&#x7684;&#x52A0;&#x8F7D;&#x65B9;&#x5F0F; &#xFF0C;&#x5373;&#x53CC;&#x4EB2;&#x59D4;&#x6D3E;&#x7684;&#x6A21;&#x5F0F;&#xFF0C;&#x6838;&#x5FC3;&#x7C7B;&#x5E93;</span></span><br><span class="line">                 clazz = javaseLoader.loadClass(name);</span><br><span class="line">                 <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                     <span class="keyword">if</span> (resolve)</span><br><span class="line">                         resolveClass(clazz);</span><br><span class="line">                     <span class="keyword">return</span> clazz;</span><br><span class="line">                 }</span><br><span class="line">             } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">                 <span class="comment">// Ignore</span></span><br><span class="line">             }</span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (0.5) Permission to access this class when using a SecurityManager</span></span><br><span class="line">         <span class="keyword">if</span> (securityManager != <span class="literal">null</span>) {</span><br><span class="line">             <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> name.lastIndexOf(<span class="string">&apos;.&apos;</span>);</span><br><span class="line">             <span class="keyword">if</span> (i &gt;= <span class="number">0</span>) {</span><br><span class="line">                 <span class="keyword">try</span> {</span><br><span class="line">                     securityManager.checkPackageAccess(name.substring(<span class="number">0</span>,i));</span><br><span class="line">                 } <span class="keyword">catch</span> (SecurityException se) {</span><br><span class="line">                     <span class="type">String</span> <span class="variable">error</span> <span class="operator">=</span> <span class="string">&quot;Security Violation, attempt to use &quot;</span> +</span><br><span class="line">                         <span class="string">&quot;Restricted Class: &quot;</span> + name;</span><br><span class="line">                     log.info(error, se);</span><br><span class="line">                     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(error, se);</span><br><span class="line">                 }</span><br><span class="line">             }</span><br><span class="line">         }</span><br><span class="line">         <span class="comment">//&#x662F;&#x5426;&#x4F7F;&#x7528;&#x59D4;&#x6258;&#x65B9;&#x5F0F;,&#x5373;&#x5229;&#x7528;&#x7236;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x52A0;&#x8F7D;&#x8BE5;&#x7C7B;&#x7684;&#x65B9;&#x5F0F;</span></span><br><span class="line">         <span class="type">boolean</span> <span class="variable">delegateLoad</span> <span class="operator">=</span> delegate || filter(name, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (1) Delegate to our parent if requested</span></span><br><span class="line">         <span class="keyword">if</span> (delegateLoad) {</span><br><span class="line">             <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                 log.debug(<span class="string">&quot;  Delegating to parent classloader1 &quot;</span> + parent);</span><br><span class="line">             <span class="keyword">try</span> {</span><br><span class="line">                 clazz = Class.forName(name, <span class="literal">false</span>, parent);</span><br><span class="line">                 <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                     <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                         log.debug(<span class="string">&quot;  Loading class from parent&quot;</span>);</span><br><span class="line">                     <span class="keyword">if</span> (resolve)</span><br><span class="line">                         resolveClass(clazz);</span><br><span class="line">                     <span class="keyword">return</span> clazz;</span><br><span class="line">                 }</span><br><span class="line">             } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">                 <span class="comment">// Ignore</span></span><br><span class="line">             }</span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (2) Search local repositories</span></span><br><span class="line">         <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">             log.debug(<span class="string">&quot;  Searching local repositories&quot;</span>);</span><br><span class="line">         <span class="keyword">try</span> {</span><br><span class="line">             <span class="comment">//&#x4E0D;&#x4F7F;&#x7528;&#x7236;&#x7C7B;&#x52A0;&#x8F7D;&#x5668;&#x7684;&#x65B9;&#x5F0F;&#xFF0C;&#x76F4;&#x63A5;&#x91CD;&#x5199;findclass&#xFF0C;</span></span><br><span class="line">             clazz = findClass(name);</span><br><span class="line">             <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                 <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                     log.debug(<span class="string">&quot;  Loading class from local repository&quot;</span>);</span><br><span class="line">                 <span class="keyword">if</span> (resolve)</span><br><span class="line">                     resolveClass(clazz);</span><br><span class="line">                 <span class="keyword">return</span> clazz;</span><br><span class="line">             }</span><br><span class="line">         } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">             <span class="comment">// Ignore</span></span><br><span class="line">         }</span><br><span class="line"></span><br><span class="line">         <span class="comment">// (3) Delegate to parent unconditionally</span></span><br><span class="line">         <span class="keyword">if</span> (!delegateLoad) {</span><br><span class="line">             <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                 log.debug(<span class="string">&quot;  Delegating to parent classloader at end: &quot;</span> + parent);</span><br><span class="line">             <span class="keyword">try</span> {</span><br><span class="line">                 clazz = Class.forName(name, <span class="literal">false</span>, parent);</span><br><span class="line">                 <span class="keyword">if</span> (clazz != <span class="literal">null</span>) {</span><br><span class="line">                     <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">                         log.debug(<span class="string">&quot;  Loading class from parent&quot;</span>);</span><br><span class="line">                     <span class="keyword">if</span> (resolve)</span><br><span class="line">                         resolveClass(clazz);</span><br><span class="line">                     <span class="keyword">return</span> clazz;</span><br><span class="line">                 }</span><br><span class="line">             } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">                 <span class="comment">// Ignore</span></span><br><span class="line">             }</span><br><span class="line">         }</span><br><span class="line">     }</span><br><span class="line"></span><br><span class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line"> }</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">checkStateForClassLoading</span><span class="params">(String className)</span> <span class="keyword">throws</span> ClassNotFoundException {</span><br><span class="line">     <span class="comment">// It is not permitted to load new classes once the web application has</span></span><br><span class="line">     <span class="comment">// been stopped.</span></span><br><span class="line">     <span class="keyword">try</span> {</span><br><span class="line">         checkStateForResourceLoading(className);</span><br><span class="line">     } <span class="keyword">catch</span> (IllegalStateException ise) {</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(ise.getMessage(), ise);</span><br><span class="line">     }</span><br><span class="line"> }</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException {</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">       log.debug(<span class="string">&quot;    findClass(&quot;</span> + name + <span class="string">&quot;)&quot;</span>);</span><br><span class="line"></span><br><span class="line">   checkStateForClassLoading(name);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// (1) Permission to define this class when using a SecurityManager</span></span><br><span class="line">   <span class="keyword">if</span> (securityManager != <span class="literal">null</span>) {</span><br><span class="line">       <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> name.lastIndexOf(<span class="string">&apos;.&apos;</span>);</span><br><span class="line">       <span class="keyword">if</span> (i &gt;= <span class="number">0</span>) {</span><br><span class="line">           <span class="keyword">try</span> {</span><br><span class="line">               <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">                   log.trace(<span class="string">&quot;      securityManager.checkPackageDefinition&quot;</span>);</span><br><span class="line">               securityManager.checkPackageDefinition(name.substring(<span class="number">0</span>,i));</span><br><span class="line">           } <span class="keyword">catch</span> (Exception se) {</span><br><span class="line">               <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">                   log.trace(<span class="string">&quot;      --&gt;Exception--&gt;ClassNotFoundException&quot;</span>, se);</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name, se);</span><br><span class="line">           }</span><br><span class="line">       }</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Ask our superclass to locate this class, if possible</span></span><br><span class="line">   <span class="comment">// (throws ClassNotFoundException if it is not found)</span></span><br><span class="line">   Class&lt;?&gt; clazz = <span class="literal">null</span>;</span><br><span class="line">   <span class="keyword">try</span> {</span><br><span class="line">       <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">           log.trace(<span class="string">&quot;      findClassInternal(&quot;</span> + name + <span class="string">&quot;)&quot;</span>);</span><br><span class="line">       <span class="keyword">try</span> {</span><br><span class="line">           <span class="keyword">if</span> (securityManager != <span class="literal">null</span>) {</span><br><span class="line">               PrivilegedAction&lt;Class&lt;?&gt;&gt; dp =</span><br><span class="line">                   <span class="keyword">new</span> <span class="title class_">PrivilegedFindClassByName</span>(name);</span><br><span class="line">               clazz = AccessController.doPrivileged(dp);</span><br><span class="line">           } <span class="keyword">else</span> {</span><br><span class="line">               <span class="comment">//&#x4ECE;&#x672C;&#x5730;&#x7684;&#x5177;&#x4F53;&#x7C7B;&#x540D;&#x67E5;&#x627E; &#x5185;&#x90E8;&#x65B9;&#x5F0F; &#xFF1B;//webapps lib</span></span><br><span class="line">               clazz = findClassInternal(name);</span><br><span class="line">           }</span><br><span class="line">       } <span class="keyword">catch</span>(AccessControlException ace) {</span><br><span class="line">           log.warn(<span class="string">&quot;WebappClassLoader.findClassInternal(&quot;</span> + name</span><br><span class="line">                   + <span class="string">&quot;) security exception: &quot;</span> + ace.getMessage(), ace);</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name, ace);</span><br><span class="line">       } <span class="keyword">catch</span> (RuntimeException e) {</span><br><span class="line">           <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">               log.trace(<span class="string">&quot;      --&gt;RuntimeException Rethrown&quot;</span>, e);</span><br><span class="line">           <span class="keyword">throw</span> e;</span><br><span class="line">       }</span><br><span class="line">       <span class="keyword">if</span> ((clazz == <span class="literal">null</span>) &amp;&amp; hasExternalRepositories) {</span><br><span class="line">           <span class="keyword">try</span> {</span><br><span class="line">               <span class="comment">//&#x8C03;&#x7528;&#x7236;&#x7C7B;&#x7684;&#x52A0;&#x8F7D;&#x65B9;&#x5F0F;</span></span><br><span class="line">               clazz = <span class="built_in">super</span>.findClass(name);</span><br><span class="line">           } <span class="keyword">catch</span>(AccessControlException ace) {</span><br><span class="line">               log.warn(<span class="string">&quot;WebappClassLoader.findClassInternal(&quot;</span> + name</span><br><span class="line">                       + <span class="string">&quot;) security exception: &quot;</span> + ace.getMessage(), ace);</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name, ace);</span><br><span class="line">           } <span class="keyword">catch</span> (RuntimeException e) {</span><br><span class="line">               <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">                   log.trace(<span class="string">&quot;      --&gt;RuntimeException Rethrown&quot;</span>, e);</span><br><span class="line">               <span class="keyword">throw</span> e;</span><br><span class="line">           }</span><br><span class="line">       }</span><br><span class="line">       <span class="keyword">if</span> (clazz == <span class="literal">null</span>) {</span><br><span class="line">           <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">               log.debug(<span class="string">&quot;    --&gt; Returning ClassNotFoundException&quot;</span>);</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line">       }</span><br><span class="line">   } <span class="keyword">catch</span> (ClassNotFoundException e) {</span><br><span class="line">       <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">           log.trace(<span class="string">&quot;    --&gt; Passing on ClassNotFoundException&quot;</span>);</span><br><span class="line">       <span class="keyword">throw</span> e;</span><br><span class="line">   }</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Return the class we have located</span></span><br><span class="line">   <span class="keyword">if</span> (log.isTraceEnabled())</span><br><span class="line">       log.debug(<span class="string">&quot;      Returning class &quot;</span> + clazz);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (log.isTraceEnabled()) {</span><br><span class="line">       ClassLoader cl;</span><br><span class="line">       <span class="keyword">if</span> (Globals.IS_SECURITY_ENABLED){</span><br><span class="line">           cl = AccessController.doPrivileged(</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">PrivilegedGetClassLoader</span>(clazz));</span><br><span class="line">       } <span class="keyword">else</span> {</span><br><span class="line">           <span class="comment">//&#x5982;&#x679C;&#x7236;&#x7C7B;&#x518D;&#x52A0;&#x8F7D;&#x4E0D;&#x5230;&#x7684;&#x5316;&#xFF0C;</span></span><br><span class="line">           cl = clazz.getClassLoader();</span><br><span class="line">       }</span><br><span class="line">       log.debug(<span class="string">&quot;      Loaded by &quot;</span> + cl.toString());</span><br><span class="line">   }</span><br><span class="line">   <span class="keyword">return</span> clazz;</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD/" rel="tag">Tomcat类加载</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            类加载-类加载机制
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JMM-运行时数据区域</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

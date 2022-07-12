@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title> xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      
+<section class="cover">
+    
+  <div class="cover-frame">
+    <div class="bg-box">
+      <img src="/images/cover1.jpg" alt="image frame" />
+    </div>
+    <div class="cover-inner text-center text-white">
+      <h1><a href="/">xugang.xie&#39;s blog</a></h1>
+      <div id="subtitle-box">
+        
+        <span id="subtitle"></span>
+        
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="cover-learn-more">
+    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
+  </div>
+</section>
+
+
+
+<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
+
+
+<!-- Subtitle -->
+
+  <script>
+    try {
+      var typed = new Typed("#subtitle", {
+        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        startDelay: 0,
+        typeSpeed: 200,
+        loop: true,
+        backSpeed: 100,
+        showCursor: true
+      });
+    } catch (err) {
+      console.log(err)
+    }
+  </script>
+  
+<div id="main">
+  <section class="outer">
+  
+  
+  
+
+<div class="notice" style="margin-top:50px">
+    <i class="ri-heart-fill"></i>
+    <div class="notice-content" id="broad"></div>
+</div>
+<script type="text/javascript">
+    fetch('https://v1.hitokoto.cn')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("broad").innerHTML = data.hitokoto;
+        })
+        .catch(console.error)
+</script>
+
+<style>
+    .notice {
+        padding: 20px;
+        border: 1px dashed #e6e6e6;
+        color: #969696;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        background: #fbfbfb50;
+        border-radius: 10px;
+    }
+
+    .notice i {
+        float: left;
+        color: #999;
+        font-size: 16px;
+        padding-right: 10px;
+        vertical-align: middle;
+        margin-top: -2px;
+    }
+
+    .notice-content {
+        display: initial;
+        vertical-align: middle;
+    }
+</style>
+  
+  <article class="articles">
+    
+    
+    
+    
+    <article
+  id="post-13.AB004 牛客网数组-NC29二维数组中的查找"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB004%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC29%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/"
+    >13.AB004 牛客网数组-NC29二维数组中的查找</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB004%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC29%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5B9E;&#x73B0;&#xFF1A;<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/f146364d1331407080adbbb5a062e067">https://blog.nowcoder.net/n/f146364d1331407080adbbb5a062e067</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB004%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC29%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB005 牛客网数组-NC30缺失的第一个正整数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC30%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B4%E6%95%B0/"
+    >13.AB005 牛客网数组-NC30缺失的第一个正整数</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC30%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B4%E6%95%B0/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>3&#x4E2A;&#x65B9;&#x6CD5;&#x5B9E;&#x73B0;&#xFF1A;<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/first-missing-positive/solution/tong-pai-xu-python-dai-ma-by-liweiwei1419/">https://leetcode.cn/problems/first-missing-positive/solution/tong-pai-xu-python-dai-ma-by-liweiwei1419/</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC30%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B4%E6%95%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB006 牛客网数组-NC36在两个长度相等的排序数组中找到上中位数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC36%E5%9C%A8%E4%B8%A4%E4%B8%AA%E9%95%BF%E5%BA%A6%E7%9B%B8%E7%AD%89%E7%9A%84%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%89%BE%E5%88%B0%E4%B8%8A%E4%B8%AD%E4%BD%8D%E6%95%B0/"
+    >13.AB006 牛客网数组-NC36在两个长度相等的排序数组中找到上中位数</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC36%E5%9C%A8%E4%B8%A4%E4%B8%AA%E9%95%BF%E5%BA%A6%E7%9B%B8%E7%AD%89%E7%9A%84%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%89%BE%E5%88%B0%E4%B8%8A%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x9898;&#x76EE;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC36%E5%9C%A8%E4%B8%A4%E4%B8%AA%E9%95%BF%E5%BA%A6%E7%9B%B8%E7%AD%89%E7%9A%84%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%89%BE%E5%88%B0%E4%B8%8A%E4%B8%AD%E4%BD%8D%E6%95%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB007 牛客网数组-NC37合并区间"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC37%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/"
+    >13.AB007 牛客网数组-NC37合并区间</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC37%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li><p>&#x9898;&#x76EE;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC37%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB008 牛客网数组-NC38螺旋矩阵"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC38%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/"
+    >13.AB008 牛客网数组-NC38螺旋矩阵</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC38%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5B9E;&#x73B0;&#xFF1A;<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/1e3dba4db16b4243bf858cf3fc515b6e">https://blog.nowcoder.net/n/1e3dba4db16b4243bf858cf3fc515b6e</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC38%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB009 牛客网数组-NC41 最长无重复子数组"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC41%20%E6%9C%80%E9%95%BF%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%90%E6%95%B0%E7%BB%84/"
+    >13.AB009 牛客网数组-NC41 最长无重复子数组</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC41%20%E6%9C%80%E9%95%BF%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%90%E6%95%B0%E7%BB%84/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x9898;&#x76EE;"><a href="#&#x9898;&#x76EE;" class="headerlink" title="&#x9898;&#x76EE;"></a>&#x9898;&#x76EE;</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x63CF;&#x8FF0;</span><br><span class="line">&#x7ED9;&#x5B9A;&#x4E00;&#x4E2A;&#x6570;&#x7EC4;arr&#xFF0C;&#x8FD4;&#x56DE;arr&#x7684;&#x6700;&#x957F;&#x65E0;&#x91CD;&#x590D;&#x5143;&#x7D20;&#x5B50;&#x6570;&#x7EC4;&#x7684;&#x957F;&#x5EA6;&#xFF0C;&#x65E0;&#x91CD;&#x590D;&#x6307;&#x7684;&#x662F;&#x6240;&#x6709;&#x6570;&#x5B57;&#x90FD;&#x4E0D;&#x76F8;&#x540C;&#x3002;</span><br><span class="line">&#x5B50;&#x6570;&#x7EC4;&#x662F;&#x8FDE;&#x7EED;&#x7684;&#xFF0C;&#x6BD4;&#x5982;[1,3,5,7,9]&#x7684;&#x5B50;&#x6570;&#x7EC4;&#x6709;[1,3]&#xFF0C;[3,5,7]&#x7B49;&#x7B49;&#xFF0C;&#x4F46;&#x662F;[1,3,7]&#x4E0D;&#x662F;&#x5B50;&#x6570;&#x7EC4;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;1</span><br><span class="line">  &#x8F93;&#x5165;&#xFF1A; [2,3,4,5]</span><br><span class="line">  &#x8FD4;&#x56DE;&#x503C;&#xFF1A;4</span><br><span class="line">  &#x8BF4;&#x660E;&#xFF1A; [2,3,4,5]&#x662F;&#x6700;&#x957F;&#x5B50;&#x6570;&#x7EC4;  </span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;2</span><br><span class="line">  &#x8F93;&#x5165;&#xFF1A;[2,2,3,4,3]</span><br><span class="line">  &#x8FD4;&#x56DE;&#x503C;&#xFF1A;3</span><br><span class="line">  &#x8BF4;&#x660E;&#xFF1A;[2,3,4]&#x662F;&#x6700;&#x957F;&#x5B50;&#x6570;&#x7EC4;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;3</span><br><span class="line">  &#x8F93;&#x5165;&#xFF1A;[9]</span><br><span class="line">  &#x8FD4;&#x56DE;&#x503C;&#xFF1A;1</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;4</span><br><span class="line">  &#x8F93;&#x5165;&#xFF1A;[1,2,3,1,2,3,2,2]</span><br><span class="line">  &#x8FD4;&#x56DE;&#x503C;&#xFF1A;3</span><br><span class="line">  &#x8BF4;&#x660E;&#xFF1A;&#x6700;&#x957F;&#x5B50;&#x6570;&#x7EC4;&#x4E3A;[1,2,3]</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;5</span><br><span class="line">  &#x8F93;&#x5165;&#xFF1A;[2,2,3,4,8,99,3]</span><br><span class="line">  &#x8FD4;&#x56DE;&#x503C;&#xFF1A;5</span><br><span class="line">  &#x8BF4;&#x660E;&#xFF1A;&#x6700;&#x957F;&#x5B50;&#x6570;&#x7EC4;&#x4E3A;[2,3,4,8,99]</span><br></pre></td></tr></table></figure> 
+      <a class="article-more-link" href="/2020/04/20/13.AB009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC41%20%E6%9C%80%E9%95%BF%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%90%E6%95%B0%E7%BB%84/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB010 牛客网数组-NC54 三数之和"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC54%20%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/"
+    >13.AB010 牛客网数组-NC54 三数之和</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC54%20%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x9898;&#x76EE;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC54%20%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB011 牛客网数组-NC59 矩阵的最小路径和"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB011%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC59%20%E7%9F%A9%E9%98%B5%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/"
+    >13.AB011 牛客网数组-NC59 矩阵的最小路径和</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB011%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC59%20%E7%9F%A9%E9%98%B5%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB011%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC59%20%E7%9F%A9%E9%98%B5%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB012 牛客网数组-NC61两数之和"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/"
+    >13.AB012 牛客网数组-NC61两数之和</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB013 牛客网数组-NC65 斐波那契数列"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB013%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC65%20%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97/"
+    >13.AB013 牛客网数组-NC65 斐波那契数列</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB013%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC65%20%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB013%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC65%20%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB014 牛客网数组-NC73 数组中出现次数超过一半的数字"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB014%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC73%20%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97/"
+    >13.AB014 牛客网数组-NC73 数组中出现次数超过一半的数字</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB014%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC73%20%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB014%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC73%20%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB015 牛客网数组-NC74 数字在升序数组中出现的次数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB015%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC74%20%E6%95%B0%E5%AD%97%E5%9C%A8%E5%8D%87%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0/"
+    >13.AB015 牛客网数组-NC74 数字在升序数组中出现的次数</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB015%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC74%20%E6%95%B0%E5%AD%97%E5%9C%A8%E5%8D%87%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x4EE3;&#x7801;&#xFF1A;</p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB015%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC74%20%E6%95%B0%E5%AD%97%E5%9C%A8%E5%8D%87%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB016 牛客网数组-NC77 调整数组顺序使奇数位于偶数前面"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB016%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC77%20%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/"
+    >13.AB016 牛客网数组-NC77 调整数组顺序使奇数位于偶数前面</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB016%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC77%20%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x63CF;&#x8FF0;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x8F93;&#x5165;&#x4E00;&#x4E2A;&#x6574;&#x6570;&#x6570;&#x7EC4;&#xFF0C;&#x5B9E;&#x73B0;&#x4E00;&#x4E2A;&#x51FD;&#x6570;&#x6765;&#x8C03;&#x6574;&#x8BE5;&#x6570;&#x7EC4;&#x4E2D;&#x6570;&#x5B57;&#x7684;&#x987A;&#x5E8F;&#xFF0C;&#x4F7F;&#x5F97;&#x6240;&#x6709;&#x7684;&#x5947;&#x6570;&#x4F4D;&#x4E8E;&#x6570;&#x7EC4;&#x7684;&#x524D;&#x534A;&#x90E8;&#x5206;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x5076;&#x6570;&#x4F4D;&#x4E8E;&#x6570;&#x7EC4;&#x7684;&#x540E;&#x534A;&#x90E8;&#x5206;&#xFF0C;&#x5E76;&#x4FDD;&#x8BC1;&#x5947;&#x6570;&#x548C;&#x5947;&#x6570;&#xFF0C;&#x5076;&#x6570;&#x548C;&#x5076;&#x6570;&#x4E4B;&#x95F4;&#x7684;&#x76F8;&#x5BF9;&#x4F4D;&#x7F6E;&#x4E0D;&#x53D8;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;1</span><br><span class="line">&#x8F93;&#x5165;&#xFF1A;[1,2,3,4]</span><br><span class="line">&#x8FD4;&#x56DE;&#x503C;&#xFF1A;[1,3,2,4]</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;2</span><br><span class="line">&#x8F93;&#x5165;&#xFF1A;[2,4,6,5,7]</span><br><span class="line">&#x8FD4;&#x56DE;&#x503C;&#xFF1A;[5,7,2,4,6]</span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AB016%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC77%20%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB017 牛客网数组-NC95 数组中的最长连续子序列"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB017%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC95%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97/"
+    >13.AB017 牛客网数组-NC95 数组中的最长连续子序列</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB017%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC95%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>NC202 &#x957F;&#x5EA6;&#x6700;&#x5C0F;&#x7684;&#x8FDE;&#x7EED;&#x5B50;&#x6570;&#x7EC4;<br><a target="_blank" rel="noopener" href="https://www.nowcoder.com/practice/eac1c953170243338f941959146ac4bf?tpId=117&amp;tqId=37810&amp;rp=1&amp;ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=/exam/oj?page=1&amp;pageSize=50&amp;search=&amp;tab=%25E7%25AE%2597%25E6%25B3%2595%25E7%25AF%2587&amp;topicId=117&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=578&amp;title=">https://www.nowcoder.com/practice/eac1c953170243338f941959146ac4bf?tpId=117&amp;tqId=37810&amp;rp=1&amp;ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26pageSize%3D50%26search%3D%26tab%3D%25E7%25AE%2597%25E6%25B3%2595%25E7%25AF%2587%26topicId%3D117&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=578&amp;title=</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/04/20/13.AB017%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC95%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB018 牛客网数组-NC106 三个数的最大乘积"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB018%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC106%20%E4%B8%89%E4%B8%AA%E6%95%B0%E7%9A%84%E6%9C%80%E5%A4%A7%E4%B9%98%E7%A7%AF/"
+    >13.AB018 牛客网数组-NC106 三个数的最大乘积</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB018%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC106%20%E4%B8%89%E4%B8%AA%E6%95%B0%E7%9A%84%E6%9C%80%E5%A4%A7%E4%B9%98%E7%A7%AF/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x4EE3;&#x7801;&#xFF1A;</p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB018%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC106%20%E4%B8%89%E4%B8%AA%E6%95%B0%E7%9A%84%E6%9C%80%E5%A4%A7%E4%B9%98%E7%A7%AF/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB019 牛客网数组-NC107 寻找峰值"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC107%20%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC/"
+    >13.AB019 牛客网数组-NC107 寻找峰值</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC107%20%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5B9E;&#x73B0;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/603de3ce0b8e4406a4d1b0572ccd1139">https://blog.nowcoder.net/n/603de3ce0b8e4406a4d1b0572ccd1139</a><br><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/8537af4f142c4588bf52a10825ad7436%EF%BC%8C%E6%9B%B4%E5%A5%BD%E7%90%86%E8%A7%A3">https://blog.nowcoder.net/n/8537af4f142c4588bf52a10825ad7436&#xFF0C;&#x66F4;&#x597D;&#x7406;&#x89E3;</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC107%20%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB020 牛客网数组-NC110 旋转数组"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/"
+    >13.AB020 牛客网数组-NC110 旋转数组</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><strong>&#x65B9;&#x6CD5;1&#xFF1A;</strong></p>
+<p>&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span>[] solve1(<span class="type">int</span> n, <span class="type">int</span> m, <span class="type">int</span>[] a) {</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; m; i++) {</span><br><span class="line">    <span class="type">int</span> <span class="variable">last</span> <span class="operator">=</span> a[n-<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> n-<span class="number">1</span>; j &gt; <span class="number">0</span>; j--) {</span><br><span class="line">      a[j] = a[j-<span class="number">1</span>];</span><br><span class="line">    }</span><br><span class="line">    a[<span class="number">0</span>] = last;</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> a;</span><br><span class="line">}</span><br></pre></td></tr></table></figure> 
+      <a class="article-more-link" href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB021 牛客网数组-NC118 数组中的逆序对"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB021%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC118%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9/"
+    >13.AB021 牛客网数组-NC118 数组中的逆序对</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB021%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC118%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x601D;&#x8DEF;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/925dccc54b54416984f4d819ca3cd4ad">https://blog.nowcoder.net/n/925dccc54b54416984f4d819ca3cd4ad</a><br><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/64be4788b4e442599d5b532f52feb2dc">https://blog.nowcoder.net/n/64be4788b4e442599d5b532f52feb2dc</a><br><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/solution/jian-zhi-offer-51-shu-zu-zhong-de-ni-xu-pvn2h/">https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/solution/jian-zhi-offer-51-shu-zu-zhong-de-ni-xu-pvn2h/</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB021%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC118%20%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB022 牛客网数组-NC143 矩阵乘法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC143%20%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95/"
+    >13.AB022 牛客网数组-NC143 矩阵乘法</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC143%20%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5B9E;&#x73B0;&#xFF1A;<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/28cf18d710a84d7dad56d2ea48367f04">https://blog.nowcoder.net/n/28cf18d710a84d7dad56d2ea48367f04</a></p> 
+      <a class="article-more-link" href="/2020/04/20/13.AB022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC143%20%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AB023 牛客网数组-NC18 顺时针旋转矩阵"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/"
+    >13.AB023 牛客网数组-NC18 顺时针旋转矩阵</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5B9E;&#x73B0;&#xFF1A;</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/rotate-matrix-lcci/solution/xuan-zhuan-ju-zhen-by-leetcode-solution/">https://leetcode.cn/problems/rotate-matrix-lcci/solution/xuan-zhuan-ju-zhen-by-leetcode-solution/</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/3e57cbef241444659ce71c7fc5269b77">https://blog.nowcoder.net/n/3e57cbef241444659ce71c7fc5269b77</a></li></ol> 
+      <a class="article-more-link" href="/2020/04/20/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+  </article>
+  
+
+  
+  <nav class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/18/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/20/">下一页</a>
+  </nav>
+  
+</section>
+</div>
+
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

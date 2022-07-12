@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>GC-CMS和G1优缺点对比 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-4.006.GC-CMS和G1优缺点对比"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  GC-CMS和G1优缺点对比
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/12/4.006.GC-CMS%E5%92%8CG1%E4%BC%98%E7%BC%BA%E7%82%B9%E5%AF%B9%E6%AF%94/" class="article-date">
+  <time datetime="2022-05-11T16:00:00.000Z" itemprop="datePublished">2022-05-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x9996;&#x5148;&#x8981;&#x77E5;&#x9053; Stop the world&#x7684;&#x542B;&#x4E49;(&#x7F51;&#x6613;&#x9762;&#x8BD5;)&#xFF1A;&#x4E0D;&#x7BA1;&#x9009;&#x62E9;&#x54EA;&#x79CD;GC&#x7B97;&#x6CD5;&#xFF0C;stop-the-world&#x90FD;&#x662F;&#x4E0D;&#x53EF;&#x907F;&#x514D;&#x7684;&#x3002;Stop-the-world&#x610F;&#x5473;&#x7740;&#x4ECE;&#x5E94;&#x7528;&#x4E2D;&#x505C;&#x4E0B;&#x6765;&#x5E76;&#x8FDB;&#x5165;&#x5230;GC&#x6267;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#x53BB;&#x3002;&#x4E00;&#x65E6;Stop-the-world&#x53D1;&#x751F;&#xFF0C;&#x9664;&#x4E86;GC&#x6240;&#x9700;&#x7684;&#x7EBF;&#x7A0B;&#x5916;&#xFF0C;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x90FD;&#x5C06;&#x505C;&#x6B62;&#x5DE5;&#x4F5C;&#xFF0C;&#x4E2D;&#x65AD;&#x4E86;&#x7684;&#x7EBF;&#x7A0B;&#x76F4;&#x5230;GC&#x4EFB;&#x52A1;&#x7ED3;&#x675F;&#x624D;&#x7EE7;&#x7EED;&#x5B83;&#x4EEC;&#x7684;&#x4EFB;&#x52A1;&#x3002;GC&#x8C03;&#x4F18;&#x901A;&#x5E38;&#x5C31;&#x662F;&#x4E3A;&#x4E86;&#x6539;&#x5584;stop-the-world&#x7684;&#x65F6;&#x95F4;</p>
+<span id="more"></span>
+
+<p>CMS&#x6536;&#x96C6;&#x5668;&#x662F;&#x4E00;&#x79CD;&#x4EE5;&#x83B7;&#x53D6;&#x6700;&#x77ED;&#x56DE;&#x6536;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x4E3A;&#x76EE;&#x6807;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;CMS&#x6536;&#x96C6;&#x5668;&#x662F;&#x57FA;&#x4E8E;&#x201C;&#x201D;&#x6807;&#x8BB0;&#x2013;&#x6E05;&#x9664;&#x201D;(Mark-Sweep)&#x7B97;&#x6CD5;&#x5B9E;&#x73B0;&#x7684;&#xFF0C;&#x6574;&#x4E2A;&#x8FC7;&#x7A0B;&#x5206;&#x4E3A;&#x56DB;&#x4E2A;&#x6B65;&#x9AA4;&#xFF1A;  </p>
+<ol>
+<li><p>&#x521D;&#x59CB;&#x6807;&#x8BB0; (Stop the World&#x4E8B;&#x4EF6; CPU&#x505C;&#x987F;&#xFF0C; &#x5F88;&#x77ED;) &#x521D;&#x59CB;&#x6807;&#x8BB0;&#x4EC5;&#x6807;&#x8BB0;&#x4E00;&#x4E0B;GC Roots&#x80FD;&#x76F4;&#x63A5;&#x5173;&#x8054;&#x5230;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x901F;&#x5EA6;&#x5F88;&#x5FEB;&#xFF1B;</p>
+</li>
+<li><p>&#x5E76;&#x53D1;&#x6807;&#x8BB0; (&#x6536;&#x96C6;&#x5783;&#x573E;&#x8DDF;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4E00;&#x8D77;&#x6267;&#x884C;) &#x521D;&#x59CB;&#x6807;&#x8BB0;&#x548C;&#x91CD;&#x65B0;&#x6807;&#x8BB0;&#x4EFB;&#x7136;&#x9700;&#x8981;&#x201C;stop the world&#x201D;&#xFF0C;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;&#x5C31;&#x662F;&#x8FDB;&#x884C;GC Roots Tracing&#x7684;&#x8FC7;&#x7A0B;&#xFF1B;</p>
+</li>
+<li><p>&#x91CD;&#x65B0;&#x6807;&#x8BB0; (Stop the World&#x4E8B;&#x4EF6; CPU&#x505C;&#x987F;&#xFF0C;&#x6BD4;&#x521D;&#x59CB;&#x6807;&#x8BB0;&#x7A0D;&#x5FAE;&#x957F;&#xFF0C;&#x8FDC;&#x6BD4;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x77ED;)&#x4FEE;&#x6B63;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x671F;&#x95F4;&#x56E0;&#x7528;&#x6237;&#x7A0B;&#x5E8F;&#x7EE7;&#x7EED;&#x8FD0;&#x4F5C;&#x800C;&#x5BFC;&#x81F4;&#x6807;&#x8BB0;&#x4EA7;&#x751F;&#x53D8;&#x52A8;&#x7684;&#x90A3;&#x4E00;&#x90E8;&#x5206;&#x5BF9;&#x8C61;&#x7684;&#x6807;&#x8BB0;&#x8BB0;&#x5F55;&#xFF0C;&#x8FD9;&#x4E2A;&#x9636;&#x6BB5;&#x7684;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x4E00;&#x822C;&#x4F1A;&#x6BD4;&#x521D;&#x59CB;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x7A0D;&#x957F;&#x4E00;&#x4E9B;&#xFF0C;&#x4F46;&#x8FDC;&#x6BD4;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x65F6;&#x95F4;&#x77ED;</p>
+</li>
+<li><p>&#x5E76;&#x53D1;&#x6E05;&#x7406; -&#x6E05;&#x9664;&#x7B97;&#x6CD5;&#xFF1B;</p>
+</li>
+</ol>
+<p> &#x6574;&#x4E2A;&#x8FC7;&#x7A0B;&#x4E2D;&#x8017;&#x65F6;&#x6700;&#x957F;&#x7684;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x548C;&#x5E76;&#x53D1;&#x6E05;&#x9664;&#x8FC7;&#x7A0B;&#x6536;&#x96C6;&#x5668;&#x7EBF;&#x7A0B;&#x90FD;&#x53EF;&#x4EE5;&#x4E0E;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4E00;&#x8D77;&#x5DE5;&#x4F5C;&#xFF0C;&#x6240;&#x4EE5;&#xFF0C;&#x4ECE;&#x603B;&#x4F53;&#x4E0A;&#x6765;&#x8BF4;&#xFF0C;CMS&#x6536;&#x96C6;&#x5668;&#x7684;&#x5185;&#x5B58;&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x662F;&#x4E0E;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4E00;&#x8D77;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x7684;&#x3002;</p>
+<p> &#x521D;&#x59CB;&#x6807;&#x8BB0;&#xFF1A;&#x4EC5;&#x4EC5;&#x662F;&#x6807;&#x8BB0;&#x4E00;&#x4E0B;GC roots &#x80FD;&#x76F4;&#x63A5;&#x5173;&#x8054;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x901F;&#x5EA6;&#x5F88;&#x5FEB;  (&#x4F55;&#x4E3A;GC roots :</p>
+<p> &#x5728;Java&#x8BED;&#x8A00;&#x4E2D;&#xFF0C;&#x53EF;&#x4F5C;&#x4E3A;GC Roots&#x7684;&#x5BF9;&#x8C61;&#x5305;&#x62EC;4&#x79CD;&#x60C5;&#x51B5;&#xFF1A;</p>
+<p> &#x2003;&#x2003;a) &#x865A;&#x62DF;&#x673A;&#x6808;&#x4E2D;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#xFF08;&#x6808;&#x5E27;&#x4E2D;&#x7684;&#x672C;&#x5730;&#x53D8;&#x91CF;&#x8868;&#xFF09;&#xFF1B;</p>
+<p> &#x2003;&#x2003;b) &#x65B9;&#x6CD5;&#x533A;&#x4E2D;&#x7C7B;&#x9759;&#x6001;&#x5C5E;&#x6027;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#xFF1B;</p>
+<p> &#x2003;&#x2003;c) &#x65B9;&#x6CD5;&#x533A;&#x4E2D;&#x5E38;&#x91CF;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#xFF1B;</p>
+<p> &#x2003;&#x2003;d) &#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6808;&#x4E2D;JNI&#xFF08;Native&#x65B9;&#x6CD5;&#xFF09;&#x5F15;&#x7528;&#x7684;&#x5BF9;&#x8C61;&#x3002;</p>
+<p> <strong>CMS&#x662F;&#x4E00;&#x6B3E;&#x4F18;&#x79C0;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5B83;&#x7684;&#x4E3B;&#x8981;&#x4F18;&#x70B9;&#x662F;&#xFF1A;&#x5E76;&#x53D1;&#x6536;&#x96C6;&#x3001;&#x4F4E;&#x505C;&#x987F;&#xFF0C;&#x4F46;&#x4ED6;&#x6709;&#x4EE5;&#x4E0B;3&#x4E2A;&#x660E;&#x663E;&#x7684;&#x7F3A;&#x70B9;&#xFF1A;</strong></p>
+<p> &#x4F18;&#x70B9;&#xFF1A;&#x5E76;&#x53D1;&#x6536;&#x96C6;&#xFF0C;&#x4F4E;&#x505C;&#x987F;</p>
+<p> &#x7406;&#x7531;&#xFF1A; &#x7531;&#x4E8E;&#x5728;&#x6574;&#x4E2A;&#x8FC7;&#x7A0B;&#x548C;&#x4E2D;&#x6700;&#x8017;&#x65F6;&#x7684;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x548C; &#x5E76;&#x53D1;&#x6E05;&#x9664;&#x8FC7;&#x7A0B;&#x6536;&#x96C6;&#x5668;&#x7A0B;&#x5E8F;&#x90FD;&#x53EF;&#x4EE5;&#x548C;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4E00;&#x8D77;&#x5DE5;&#x4F5C;&#xFF0C;&#x6240;&#x4EE5;&#x603B;&#x4F53;&#x6765;&#x8BF4;&#xFF0C;Cms&#x6536;&#x96C6;&#x5668;&#x7684;&#x5185;&#x5B58;&#x56DE;&#x6536;&#x8FC7;&#x7A0B;&#x662F;&#x4E0E;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4E00;&#x8D77;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x7684;</p>
+<p> &#x7F3A;&#x70B9;&#xFF1A;</p>
+<ol>
+<li>CMS&#x6536;&#x96C6;&#x5668;&#x5BF9;CPU&#x8D44;&#x6E90;&#x975E;&#x5E38;&#x654F;&#x611F;</li>
+</ol>
+<p> &#x5728;&#x5E76;&#x53D1;&#x9636;&#x6BB5;&#xFF0C;&#x867D;&#x7136;&#x4E0D;&#x4F1A;&#x5BFC;&#x81F4;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x505C;&#x987F;&#xFF0C;&#x4F46;&#x662F;&#x4F1A;&#x56E0;&#x4E3A;&#x5360;&#x7528;&#x4E86;&#x4E00;&#x90E8;&#x5206;&#x7EBF;&#x7A0B;&#x4F7F;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x53D8;&#x6162;&#xFF0C;&#x603B;&#x541E;&#x5410;&#x91CF;&#x4F1A;&#x964D;&#x4F4E;&#xFF0C;&#x4E3A;&#x4E86;&#x89E3;&#x51B3;&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x865A;&#x62DF;&#x673A;&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x79CD;&#x201C;&#x589E;&#x91CF;&#x5F0F;&#x5E76;&#x53D1;&#x6536;&#x96C6;&#x5668;&#x201D;&#x7684;CMS&#x6536;&#x96C6;&#x5668;&#x53D8;&#x79CD;&#xFF0C; &#x5C31;&#x662F;&#x5728;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x548C;&#x5E76;&#x53D1;&#x6E05;&#x9664;&#x7684;&#x65F6;&#x5019;&#x8BA9;GC&#x7EBF;&#x7A0B;&#x548C;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x4EA4;&#x66FF;&#x8FD0;&#x884C;&#xFF0C;&#x5C3D;&#x91CF;&#x51CF;&#x5C11;GC &#x7EBF;&#x7A0B;&#x72EC;&#x5360;&#x8D44;&#x6E90;&#x7684;&#x65F6;&#x95F4;&#xFF0C;&#x8FD9;&#x6837;&#x6574;&#x4E2A;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7684;&#x8FC7;&#x7A0B;&#x4F1A;&#x53D8;&#x957F;&#xFF0C;&#x4F46;&#x662F;&#x5BF9;&#x7528;&#x6237;&#x7A0B;&#x5E8F;&#x7684;&#x5F71;&#x54CD;&#x4F1A;&#x51CF;&#x5C11;&#x3002;&#xFF08;&#x6548;&#x679C;&#x4E0D;&#x660E;&#x663E;&#xFF0C;&#x4E0D;&#x63A8;&#x8350;&#xFF09;</p>
+<ol start="2">
+<li>CMS&#x5904;&#x7406;&#x5668;&#x65E0;&#x6CD5;&#x5904;&#x7406;&#x6D6E;&#x52A8;&#x5783;&#x573E;</li>
+</ol>
+<p>   CMS&#x5728;&#x5E76;&#x53D1;&#x6E05;&#x7406;&#x9636;&#x6BB5;&#x7EBF;&#x7A0B;&#x8FD8;&#x5728;&#x8FD0;&#x884C;&#xFF0C; &#x4F34;&#x968F;&#x7740;&#x7A0B;&#x5E8F;&#x7684;&#x8FD0;&#x884C;&#x81EA;&#x7136;&#x4E5F;&#x4F1A;&#x4EA7;&#x751F;&#x65B0;&#x7684;&#x5783;&#x573E;&#xFF0C;&#x8FD9;&#x4E00;&#x90E8;&#x5206;&#x5783;&#x573E;&#x4EA7;&#x751F;&#x5728;&#x6807;&#x8BB0;&#x8FC7;&#x7A0B;&#x4E4B;&#x540E;&#xFF0C;CMS&#x65E0;&#x6CD5;&#x518D;&#x5F53;&#x6B21;&#x8FC7;&#x7A0B;&#x4E2D;&#x5904;&#x7406;&#xFF0C;&#x6240;&#x4EE5;&#x53EA;&#x6709;&#x7B49;&#x5230;&#x4E0B;&#x6B21;gc&#x65F6;&#x5019;&#x5728;&#x6E05;&#x7406;&#x6389;&#xFF0C;&#x8FD9;&#x4E00;&#x90E8;&#x5206;&#x5783;&#x573E;&#x5C31;&#x79F0;&#x4F5C;&#x201C;&#x6D6E;&#x52A8;&#x5783;&#x573E;&#x201D; &#xFF0C;</p>
+<ol start="3">
+<li>CMS&#x662F;&#x57FA;&#x4E8E;&#x201C;&#x6807;&#x8BB0;&#x2013;&#x6E05;&#x9664;&#x201D;&#x7B97;&#x6CD5;&#x5B9E;&#x73B0;&#x7684;&#xFF0C;&#x6240;&#x4EE5;&#x5728;&#x6536;&#x96C6;&#x7ED3;&#x675F;&#x7684;&#x65F6;&#x5019;&#x4F1A;&#x6709;&#x5927;&#x91CF;&#x7684;&#x7A7A;&#x95F4;&#x788E;&#x7247;&#x4EA7;&#x751F;&#x3002;&#x7A7A;&#x95F4;&#x788E;&#x7247;&#x592A;&#x591A;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5C06;&#x4F1A;&#x7ED9;&#x5927;&#x5BF9;&#x8C61;&#x7684;&#x5206;&#x914D;&#x5E26;&#x6765;&#x5F88;&#x5927;&#x7684;&#x9EBB;&#x70E6;&#xFF0C;&#x5F80;&#x5F80;&#x4F1A;&#x51FA;&#x73B0;&#x8001;&#x5E74;&#x4EE3;&#x8FD8;&#x6709;&#x5F88;&#x5927;&#x7684;&#x7A7A;&#x95F4;&#x5269;&#x4F59;&#xFF0C;&#x4F46;&#x662F;&#x65E0;&#x6CD5;&#x627E;&#x5230;&#x8DB3;&#x591F;&#x5927;&#x7684;&#x8FDE;&#x7EED;&#x7A7A;&#x95F4;&#x6765;&#x5206;&#x914D;&#x5F53;&#x524D;&#x5BF9;&#x8C61;&#x7684;&#xFF0C;&#x53EA;&#x80FD;&#x63D0;&#x524D;&#x89E6;&#x53D1; full gc&#x3002;</li>
+</ol>
+<p>   &#x4E3A;&#x4E86;&#x89E3;&#x51B3;&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#xFF0C;CMS&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x4E2A;&#x5F00;&#x5173;&#x53C2;&#x6570;&#xFF0C;&#x7528;&#x4E8E;&#x5728;CMS&#x9876;&#x4E0D;&#x4F4F;&#x8981;&#x8FDB;&#x884C;full gc&#x7684;&#x65F6;&#x5019;&#x5F00;&#x542F;&#x5185;&#x5B58;&#x788E;&#x7247;&#x7684;&#x5408;&#x5E76;&#x6574;&#x7406;&#x8FC7;&#x7A0B;&#xFF0C;&#x5185;&#x5B58;&#x6574;&#x7406;&#x7684;&#x8FC7;&#x7A0B;&#x662F;&#x65E0;&#x6CD5;&#x5E76;&#x53D1;&#x7684;&#xFF0C;&#x7A7A;&#x95F4;&#x788E;&#x7247;&#x6CA1;&#x6709;&#x4E86;&#xFF0C;&#x4F46;&#x662F;&#x505C;&#x987F;&#x7684;&#x65F6;&#x95F4;&#x53D8;&#x957F;&#x4E86;  </p>
+<hr>
+<p>G1(Garbage First)&#x662F;&#x4E00;&#x6B3E;&#x9762;&#x5411;&#x670D;&#x52A1;&#x7AEF;&#x5E94;&#x7528;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#x3002;G1&#x5177;&#x5907;&#x5982;&#x4E0B;&#x7279;&#x70B9;&#xFF1A;</p>
+<p>5&#x3001;G1&#x8FD0;&#x4F5C;&#x6B65;&#x9AA4;&#xFF1A;</p>
+<p>1&#x3001;&#x521D;&#x59CB;&#x6807;&#x8BB0;(stop the world&#x4E8B;&#x4EF6; CPU&#x505C;&#x987F;&#x53EA;&#x5904;&#x7406;&#x5783;&#x573E;)&#xFF1B;</p>
+<p>2&#x3001;&#x5E76;&#x53D1;&#x6807;&#x8BB0;(&#x4E0E;&#x7528;&#x6237;&#x7EBF;&#x7A0B;&#x5E76;&#x53D1;&#x6267;&#x884C;)&#xFF1B;</p>
+<p>3&#x3001;&#x6700;&#x7EC8;&#x6807;&#x8BB0;(stop the world&#x4E8B;&#x4EF6; ,CPU&#x505C;&#x987F;&#x5904;&#x7406;&#x5783;&#x573E;)&#xFF1B;</p>
+<p>4&#x3001;&#x7B5B;&#x9009;&#x56DE;&#x6536;(stop the world&#x4E8B;&#x4EF6; &#x6839;&#x636E;&#x7528;&#x6237;&#x671F;&#x671B;&#x7684;GC&#x505C;&#x987F;&#x65F6;&#x95F4;&#x56DE;&#x6536;)(&#x6CE8;&#x610F;&#xFF1A;CMS &#x5728;&#x8FD9;&#x4E00;&#x6B65;&#x4E0D;&#x9700;&#x8981;stop the world)&#xFF08;&#x963F;&#x91CC;&#x95EE;&#x4E3A;&#x4F55;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#xFF0C;&#x53C2;&#x8003;&#xFF1A;<a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/8663872.html">G1 &#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#x67B6;&#x6784;&#x548C;&#x5982;&#x4F55;&#x505A;&#x5230;&#x53EF;&#x9884;&#x6D4B;&#x7684;&#x505C;&#x987F;(&#x963F;&#x91CC;)</a>&#xFF09;</p>
+<p>&#x4E0E;&#x5176;&#x4ED6;GC&#x6536;&#x96C6;&#x5668;&#x76F8;&#x6BD4;&#xFF0C;G1&#x5177;&#x5907;&#x5982;&#x4E0B;&#x7279;&#x70B9;&#xFF1A;</p>
+<p>1&#x3001;&#x5E76;&#x884C;&#x4E8E;&#x5E76;&#x53D1;&#xFF1A;G1&#x80FD;&#x5145;&#x5206;&#x5229;&#x7528;CPU&#x3001;&#x591A;&#x6838;&#x73AF;&#x5883;&#x4E0B;&#x7684;&#x786C;&#x4EF6;&#x4F18;&#x52BF;&#xFF0C;&#x4F7F;&#x7528;&#x591A;&#x4E2A;CPU&#xFF08;CPU&#x6216;&#x8005;CPU&#x6838;&#x5FC3;&#xFF09;&#x6765;&#x7F29;&#x77ED;stop-The-World&#x505C;&#x987F;&#x65F6;&#x95F4;&#x3002;&#x90E8;&#x5206;&#x5176;&#x4ED6;&#x6536;&#x96C6;&#x5668;&#x539F;&#x672C;&#x9700;&#x8981;&#x505C;&#x987F;Java&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x7684;GC&#x52A8;&#x4F5C;&#xFF0C;G1&#x6536;&#x96C6;&#x5668;&#x4ECD;&#x7136;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x5E76;&#x53D1;&#x7684;&#x65B9;&#x5F0F;&#x8BA9;java&#x7A0B;&#x5E8F;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x3002;</p>
+<p>2&#x3001;&#x5206;&#x4EE3;&#x6536;&#x96C6;&#xFF1A;&#x867D;&#x7136;G1&#x53EF;&#x4EE5;&#x4E0D;&#x9700;&#x8981;&#x5176;&#x4ED6;&#x6536;&#x96C6;&#x5668;&#x914D;&#x5408;&#x5C31;&#x80FD;&#x72EC;&#x7ACB;&#x7BA1;&#x7406;&#x6574;&#x4E2A;GC&#x5806;&#xFF0C;&#x4F46;&#x662F;&#x8FD8;&#x662F;&#x4FDD;&#x7559;&#x4E86;&#x5206;&#x4EE3;&#x7684;&#x6982;&#x5FF5;&#x3002;&#x5B83;&#x80FD;&#x591F;&#x91C7;&#x7528;&#x4E0D;&#x540C;&#x7684;&#x65B9;&#x5F0F;&#x53BB;&#x5904;&#x7406;&#x65B0;&#x521B;&#x5EFA;&#x7684;&#x5BF9;&#x8C61;&#x548C;&#x5DF2;&#x7ECF;&#x5B58;&#x6D3B;&#x4E86;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#xFF0C;&#x71AC;&#x8FC7;&#x591A;&#x6B21;GC&#x7684;&#x65E7;&#x5BF9;&#x8C61;&#x4EE5;&#x83B7;&#x53D6;&#x66F4;&#x597D;&#x7684;&#x6536;&#x96C6;&#x6548;&#x679C;&#x3002;</p>
+<p>3&#x3001;&#x7A7A;&#x95F4;&#x6574;&#x5408;&#xFF1A;&#x4E0E;CMS&#x7684;&#x201C;&#x6807;&#x8BB0;&#x2013;&#x6E05;&#x7406;&#x201D;&#x7B97;&#x6CD5;&#x4E0D;&#x540C;&#xFF0C;G1&#x4ECE;&#x6574;&#x4F53;&#x6765;&#x770B;&#x662F;&#x57FA;&#x4E8E;&#x201C;&#x6807;&#x8BB0;&#x6574;&#x7406;&#x201D;&#x7B97;&#x6CD5;&#x5B9E;&#x73B0;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF1B;&#x4ECE;&#x5C40;&#x90E8;&#x4E0A;&#x6765;&#x770B;&#x662F;&#x57FA;&#x4E8E;&#x201C;&#x590D;&#x5236;&#x201D;&#x7B97;&#x6CD5;&#x5B9E;&#x73B0;&#x7684;&#x3002;</p>
+<p>4&#x3001;&#x53EF;&#x9884;&#x6D4B;&#x7684;&#x505C;&#x987F;&#xFF1A;&#x8FD9;&#x662F;G1&#x76F8;&#x5BF9;&#x4E8E;CMS&#x7684;&#x53E6;&#x4E00;&#x4E2A;&#x5927;&#x4F18;&#x52BF;&#xFF0C;&#x964D;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x662F;G1&#x548C;&#xFF23;&#xFF2D;&#xFF33;&#x5171;&#x540C;&#x7684;&#x5173;&#x6CE8;&#x70B9;&#xFF0C;&#x4F46;&#xFF27;&#xFF11;&#x9664;&#x4E86;&#x8FFD;&#x6C42;&#x4F4E;&#x505C;&#x987F;&#x5916;&#xFF0C;&#x8FD8;&#x80FD;&#x5EFA;&#x7ACB;&#x53EF;&#x9884;&#x6D4B;&#x7684;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x6A21;&#x578B;&#xFF0C;&#x80FD;&#x8BA9;&#x4F7F;&#x7528;&#x8005;&#x660E;&#x786E;&#x6307;&#x5B9A;&#x5728;&#x4E00;&#x4E2A;&#x957F;&#x5EA6;&#x4E3A;M&#x6BEB;&#x79D2;&#x7684;&#x65F6;&#x95F4;&#x7247;&#x6BB5;&#x5185;&#xFF0C;</p>
+<p>&#x4E0A;&#x9762;&#x51E0;&#x4E2A;&#x6B65;&#x9AA4;&#x7684;&#x8FD0;&#x4F5C;&#x8FC7;&#x7A0B;&#x548C;CMS&#x6709;&#x5F88;&#x591A;&#x76F8;&#x4F3C;&#x4E4B;&#x5904;&#x3002;&#x521D;&#x59CB;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x4EC5;&#x4EC5;&#x53EA;&#x662F;&#x6807;&#x8BB0;&#x4E00;&#x4E0B;GC Roots&#x80FD;&#x76F4;&#x63A5;&#x5173;&#x8054;&#x5230;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x5E76;&#x4E14;&#x4FEE;&#x6539;TAMS&#x7684;&#x503C;&#xFF0C;&#x8BA9;&#x4E0B;&#x4E00;&#x4E2A;&#x9636;&#x6BB5;&#x7528;&#x6237;&#x7A0B;&#x5E8F;&#x5E76;&#x53D1;&#x8FD0;&#x884C;&#x65F6;&#xFF0C;&#x80FD;&#x5728;&#x6B63;&#x786E;&#x53EF;&#x7528;&#x7684;Region&#x4E2D;&#x521B;&#x5EFA;&#x65B0;&#x5BF9;&#x8C61;&#xFF0C;&#x8FD9;&#x4E00;&#x9636;&#x6BB5;&#x9700;&#x8981;&#x505C;&#x987F;&#x7EBF;&#x7A0B;&#xFF0C;&#x4F46;&#x662F;&#x8017;&#x65F6;&#x5F88;&#x77ED;&#xFF0C;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x662F;&#x4ECE;GC Root&#x5F00;&#x59CB;&#x5BF9;&#x5806;&#x4E2D;&#x5BF9;&#x8C61;&#x8FDB;&#x884C;&#x53EF;&#x8FBE;&#x6027;&#x5206;&#x6790;&#xFF0C;&#x627E;&#x51FA;&#x5B58;&#x6D3B;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x8FD9;&#x9636;&#x6BB5;&#x65F6;&#x8017;&#x65F6;&#x8F83;&#x957F;&#xFF0C;&#x4F46;&#x53EF;&#x4E0E;&#x7528;&#x6237;&#x7A0B;&#x5E8F;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x3002;&#x800C;&#x6700;&#x7EC8;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x5219;&#x662F;&#x4E3A;&#x4E86;&#x4FEE;&#x6B63;&#x5728;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x671F;&#x95F4;&#x56E0;&#x7528;&#x6237;&#x7A0B;&#x5E8F;&#x7EE7;&#x7EED;&#x8FD0;&#x4F5C;&#x800C;&#x5BFC;&#x81F4;&#x6807;&#x8BB0;&#x4EA7;&#x751F;&#x53D8;&#x52A8;&#x7684;&#x90A3;&#x4E00;&#x90E8;&#x5206;&#x6807;&#x8BB0;&#x8BB0;&#x5F55;&#xFF0C;&#x865A;&#x62DF;&#x673A;&#x5C06;&#x8FD9;&#x6BB5;&#x65F6;&#x95F4;&#x5BF9;&#x8C61;&#x53D8;&#x5316;&#x8BB0;&#x5F55;&#x5728;&#x7EBF;&#x7A0B;Remenbered Set Logs&#x91CC;&#x9762;&#xFF0C;&#x6700;&#x7EC8;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x9700;&#x8981;&#x628A;Remembered Set Logs&#x7684;&#x6570;&#x636E;&#x5408;&#x5E76;&#x5230;Remembered Set Logs&#x91CC;&#x9762;&#xFF0C;&#x6700;&#x7EC8;&#x6807;&#x8BB0;&#x9636;&#x6BB5;&#x9700;&#x8981;&#x628A;Remembered Set Logs&#x7684;&#x6570;&#x636E;&#x5408;&#x5E76;&#x5230;Remembered Set&#x4E2D;&#xFF0C;&#x8FD9;&#x4E00;&#x9636;&#x6BB5;&#x9700;&#x8981;&#x505C;&#x987F;&#x7EBF;&#x7A0B;&#xFF0C;&#x4F46;&#x662F;&#x53EF;&#x5E76;&#x884C;&#x6267;&#x884C;&#x3002;&#x6700;&#x540E;&#x5728;&#x7B5B;&#x9009;&#x56DE;&#x6536;&#x9636;&#x6BB5;&#x9996;&#x5148;&#x5BF9;&#x5404;&#x4E2A;Region&#x7684;&#x56DE;&#x6536;&#x4EF7;&#x503C;&#x548C;&#x6210;&#x672C;&#x8FDB;&#x884C;&#x6392;&#x5E8F;&#xFF0C;&#x6839;&#x636E;&#x7528;&#x6237;&#x6240;&#x671F;&#x671B;&#x7684;GC&#x505C;&#x987F;&#x65F6;&#x95F4;&#x6765;&#x5236;&#x5B9A;&#x56DE;&#x6536;&#x8BA1;&#x5212;&#x3002;</p>
+<h3 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/8663897.html">CMS&#x6536;&#x96C6;&#x5668;&#x548C;G1&#x6536;&#x96C6;&#x5668; &#x4ED6;&#x4EEC;&#x7684;&#x4F18;&#x7F3A;&#x70B9;&#x5BF9;&#x6BD4; G1&#x53EA;&#x6709;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x624D;&#x4E0D;&#x4F1A;stop-the-world &#x5176;&#x4ED6;&#x90FD;&#x4F1A;&#x505C;&#x4E0B;&#x6765;(&#x963F;&#x91CC;&#x591A;&#x6B21;&#x95EE;&#x5230;)</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CMS/" rel="tag">CMS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/G1/" rel="tag">G1</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/12/4.004.GC-Parallel-Scavenge%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            GC-Parallel-Scavenge原理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/12/4.005.GC-CMS%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">GC-CMS收集器原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

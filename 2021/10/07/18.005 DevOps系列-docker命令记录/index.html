@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>DevOps系列-docker命令记录 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.005 DevOps系列-docker命令记录"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  DevOps系列-docker命令记录
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/10/07/18.005%20DevOps%E7%B3%BB%E5%88%97-docker%E5%91%BD%E4%BB%A4%E8%AE%B0%E5%BD%95/" class="article-date">
+  <time datetime="2021-10-06T16:00:00.000Z" itemprop="datePublished">2021-10-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DevOps/">DevOps</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">722</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">4 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;docker&#x4E00;&#x4E9B;&#x91CD;&#x8981;&#x4E14;&#x5E38;&#x7528;&#x7684;&#x547D;&#x4EE4;</p>
+</blockquote>
+<span id="more"></span>
+<h3 id="&#x73AF;&#x5883;&#xFF1A;"><a href="#&#x73AF;&#x5883;&#xFF1A;" class="headerlink" title="&#x73AF;&#x5883;&#xFF1A;"></a>&#x73AF;&#x5883;&#xFF1A;</h3><ol>
+<li>Windows 10 &#x4E13;&#x4E1A;&#x7248;</li>
+<li>&#x5B89;&#x88C5;&#x4E86;<code>docker desktop for windows 4.0</code></li>
+</ol>
+<h3 id="1-docker-volume"><a href="#1-docker-volume" class="headerlink" title="1.docker volume"></a>1.docker volume</h3><blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8c22cdfc0ffd">https://www.jianshu.com/p/8c22cdfc0ffd</a><br><a target="_blank" rel="noopener" href="http://dockone.io/article/128">http://dockone.io/article/128</a></p>
+</blockquote>
+<h4 id="1-1-&#x521B;&#x5EFA;volume&#xFF1A;docker-volume-create-name-volumes&#x540D;&#x5B57;"><a href="#1-1-&#x521B;&#x5EFA;volume&#xFF1A;docker-volume-create-name-volumes&#x540D;&#x5B57;" class="headerlink" title="1.1 &#x521B;&#x5EFA;volume&#xFF1A;docker volume create --name [volumes&#x540D;&#x5B57;]"></a>1.1 &#x521B;&#x5EFA;volume&#xFF1A;<code>docker volume create --name [volumes&#x540D;&#x5B57;]</code></h4><p>&#x5982;&#xFF1A;<code>docker volume create --name haha</code><br><code>--name</code>&#x53EF;&#x4E0D;&#x5199;</p>
+<h4 id="1-2-&#x67E5;&#x770B;&#x5DF2;&#x6709;&#x7684;volume&#xFF1A;docker-volume-ls"><a href="#1-2-&#x67E5;&#x770B;&#x5DF2;&#x6709;&#x7684;volume&#xFF1A;docker-volume-ls" class="headerlink" title="1.2 &#x67E5;&#x770B;&#x5DF2;&#x6709;&#x7684;volume&#xFF1A;docker volume ls"></a>1.2 &#x67E5;&#x770B;&#x5DF2;&#x6709;&#x7684;volume&#xFF1A;<code>docker volume ls</code></h4><figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Users\ray&gt; docker <span class="keyword">volume</span><span class="language-bash"> <span class="built_in">ls</span></span></span><br><span class="line">DRIVER    <span class="keyword">VOLUME</span><span class="language-bash"> NAME</span></span><br><span class="line">local     <span class="number">2</span>efd954799b3877ca9acf8fee85127cd22915c86c51b5d115038623ac3b61e4a</span><br><span class="line">local     <span class="number">4</span>e659ff933d01397a368d0a7f1562560100b73143b01e6e3ce68cb28b040d688</span><br><span class="line">local     <span class="number">75</span>fadd1d1aa00e4ce9b47d3172d21cc7ab64e488fd70b414b681b6ac4967e3b5</span><br><span class="line">local     <span class="number">94</span>c3993da29d1e259630762e30ff5065ccf007ae83319b3eca42fe2f99c9ecae</span><br><span class="line">local     <span class="number">373</span>d339be00808803bfe6b759c2d27c399ea1f46ee765034ece87871783700ab</span><br><span class="line">local     <span class="number">441</span>baae89ecc5e3023745cb74d7ab119c3dab3188419b06debc71526f932e04d</span><br><span class="line">local     <span class="number">6753</span>a9414e4ba337a67fa05bac7aed2dab74a86237816f60ed9fb4b789331906</span><br><span class="line">local     <span class="number">55845</span>eacb53f68b1232f30bc1dcf89b0a2cde233eb135d0c1507f8cfcef0a3e1</span><br><span class="line">local     <span class="number">63093</span>bc41b436015ffb2779395f663ff57fa705f909b3c429035b81b4ea66b10</span><br><span class="line">local     <span class="number">166591</span>b96303a88c839dfacf9a157975dda328553cd11f09a66774ecad34f4cc</span><br><span class="line">local     <span class="number">748680</span>e42b4934bdde1fa1df350e79be0145d677649d75b4b718ac6aaea6899e</span><br><span class="line">local     <span class="number">40202308</span>e17449d0da54f4193e67ef1a2c7b41757d62b0a416e48388a2ded122</span><br><span class="line">local     a4df343e5e6cdaa3158541e44716541e646b84a9710061f2c0a9cf90b802f444</span><br><span class="line">local     b1b917c8b2db8e3301fce818f6434fa1b086f97ceb0d795c999e8756308c0e67</span><br><span class="line">local     b61a19d3ec49fea0bcc2a5de9bb60f2a8e863075170e39e67496a3420cc3921e</span><br><span class="line">local     d20ac00e749ec8fa656b6bb3b07a769fe3f6986bbbdf215c34f310e774488982</span><br><span class="line">local     dd89bd4ea446608115caaefbe20ec2a5b5cae74b64580e75998c8c2a4f8948ec</span><br><span class="line">local     ec5ad3023598a7f24793d8c1b3bcd0d22d05b8f0016b993203c42c832f1e582e</span><br><span class="line">local     haha</span><br></pre></td></tr></table></figure>
+<p>&#x770B;&#x5230;&#x4E0A;&#x56FE;&#x4E2D;&#x6709;volume&#x6709;&#x4E00;&#x4E9B;&#x662F;&#x81EA;&#x5DF1;&#x547D;&#x540D;&#x7684;&#x6709;&#x4E00;&#x4E9B;&#x662F;&#x4E00;&#x4E32;&#x6570;&#x5B57;&#xFF1A;</p>
+<ul>
+<li>&#x81EA;&#x5DF1;&#x547D;&#x540D;&#x7684;&#x662F;&#x4F7F;&#x7528;<code>docker volume create --name [volume name]</code>&#x521B;&#x5EFA;&#x7684;&#xFF0C;&#x6BD4;&#x5982;haha &#x662F;&#x4F7F;&#x7528;<code>docker volume create --name haha</code></li>
+<li>&#x6570;&#x5B57;Volume&#x662F;&#x5728;&#x521B;&#x5EFA;container&#x7684;&#x540C;&#x65F6;&#x521B;&#x5EFA;&#x7684;</li>
+</ul>
+<h4 id="1-3-&#x67E5;&#x770B;volume&#x5728;docker&#x865A;&#x62DF;&#x673A;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;&#xFF1A;docker-volume-inspect-volumes&#x540D;&#x5B57;"><a href="#1-3-&#x67E5;&#x770B;volume&#x5728;docker&#x865A;&#x62DF;&#x673A;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;&#xFF1A;docker-volume-inspect-volumes&#x540D;&#x5B57;" class="headerlink" title="1.3 &#x67E5;&#x770B;volume&#x5728;docker&#x865A;&#x62DF;&#x673A;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;&#xFF1A;docker volume inspect [volumes&#x540D;&#x5B57;]"></a>1.3 &#x67E5;&#x770B;volume&#x5728;docker&#x865A;&#x62DF;&#x673A;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;&#xFF1A;<code>docker volume inspect [volumes&#x540D;&#x5B57;]</code></h4><p>&#x5982;&#xFF1A;<code>docker volume inspect haha</code></p>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Users\ray&gt; docker <span class="keyword">volume</span><span class="language-bash"> inspect haha</span></span><br><span class="line">[</span><br><span class="line">    {</span><br><span class="line">        <span class="string">&quot;CreatedAt&quot;</span>: <span class="string">&quot;2021-09-28T13:32:42Z&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Driver&quot;</span>: <span class="string">&quot;local&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Labels&quot;</span>: {},</span><br><span class="line">        <span class="string">&quot;Mountpoint&quot;</span>: <span class="string">&quot;/var/lib/docker/volumes/haha/_data&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;haha&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Options&quot;</span>: {},</span><br><span class="line">        <span class="string">&quot;Scope&quot;</span>: <span class="string">&quot;local&quot;</span></span><br><span class="line">    }</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-4-&#x5220;&#x9664;volume&#xFF1A;docker-volume-rm-volumes&#x540D;&#x5B57;"><a href="#1-4-&#x5220;&#x9664;volume&#xFF1A;docker-volume-rm-volumes&#x540D;&#x5B57;" class="headerlink" title="1.4 &#x5220;&#x9664;volume&#xFF1A;docker volume rm [volumes&#x540D;&#x5B57;]"></a>1.4 &#x5220;&#x9664;volume&#xFF1A;<code>docker volume rm [volumes&#x540D;&#x5B57;]</code></h4><p>&#x5982;&#xFF1A;<code>docker volume rm haha</code></p>
+<h3 id="2-docker-network"><a href="#2-docker-network" class="headerlink" title="2.docker network"></a>2.docker network</h3><h4 id="2-1-docker-network-ls-&#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x5217;&#x8868;"><a href="#2-1-docker-network-ls-&#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x5217;&#x8868;" class="headerlink" title="2.1 docker network ls &#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x5217;&#x8868;"></a>2.1 docker network ls &#x67E5;&#x770B;&#x7F51;&#x7EDC;&#x5217;&#x8868;</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ docker]<span class="comment"># docker network ls</span></span><br><span class="line">NETWORK ID          NAME                DRIVER              SCOPE</span><br><span class="line">39bdcfa1603e        bridge              bridge              <span class="built_in">local</span></span><br><span class="line">50a4d5cbee08        docker_default      bridge              <span class="built_in">local</span></span><br><span class="line">b2a2984f4e6c        host                host                <span class="built_in">local</span></span><br><span class="line">eac719000b06        none                null                <span class="built_in">local</span></span><br><span class="line">eaee8bb10b11        zookeeper_network   bridge              <span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-docker-network-create&#x521B;&#x5EFA;&#x7F51;&#x7EDC;"><a href="#2-1-docker-network-create&#x521B;&#x5EFA;&#x7F51;&#x7EDC;" class="headerlink" title="2.1 docker network create&#x521B;&#x5EFA;&#x7F51;&#x7EDC;"></a>2.1 docker network create&#x521B;&#x5EFA;&#x7F51;&#x7EDC;</h4><p>&#x4E3A;zookeeper&#x521B;&#x5EFA;docker&#x7F51;&#x7EDC;: <code>docker network create zookeeper_network</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ docker]<span class="comment"># docker network create zookeeper_network</span></span><br><span class="line">eaee8bb10b114c664f0199ce88f1ff9a58d7e542d35281bf3f2cb09da1fe9691</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-docker-network&#x76F8;&#x5173;&#x547D;&#x4EE4;"><a href="#2-3-docker-network&#x76F8;&#x5173;&#x547D;&#x4EE4;" class="headerlink" title="2.3 docker network&#x76F8;&#x5173;&#x547D;&#x4EE4;"></a>2.3 docker network&#x76F8;&#x5173;&#x547D;&#x4EE4;</h4><table>
+<thead>
+<tr>
+<th>&#x547D;&#x4EE4;</th>
+<th>&#x8BF4;&#x660E;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docker network ls</code></td>
+<td>&#x5217;&#x51FA;&#x7F51;&#x7EDC;</td>
+</tr>
+<tr>
+<td><code>docker network create xx</code></td>
+<td>&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x7F51;&#x7EDC;xx</td>
+</tr>
+<tr>
+<td><code>docker network rm xx</code></td>
+<td>&#x5220;&#x9664;&#x4E00;&#x4E2A;&#x7F51;&#x7EDC;xx</td>
+</tr>
+<tr>
+<td><code>docker network inspect xx</code></td>
+<td>&#x663E;&#x793A;&#x7F51;&#x7EDC;xx&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;</td>
+</tr>
+</tbody></table>
+<h4 id="2-4-docker-run-&#x2013;network-x3D-xx-&#x4F7F;&#x7528;"><a href="#2-4-docker-run-&#x2013;network-x3D-xx-&#x4F7F;&#x7528;" class="headerlink" title="2.4 docker run &#x2013;network=xx &#x4F7F;&#x7528;"></a>2.4 docker run &#x2013;network=xx &#x4F7F;&#x7528;</h4><p>&#x542F;&#x52A8;&#x5BB9;&#x5668;&#x65F6;&#xFF0C;&#x4F7F;&#x7528;&#x2013;network&#x6807;&#x5FD7;&#x5C06;&#x5176;&#x8FDE;&#x63A5;&#x5230;&#x7F51;&#x7EDC;&#x3002; &#x6B64;&#x793A;&#x4F8B;&#x5C06;busybox&#x5BB9;&#x5668;&#x6DFB;&#x52A0;&#x5230;mynet&#x7F51;&#x7EDC;<br><code>docker run -itd --network=mynet busybox</code>    </p>
+<h4 id="2-5-docker-run-&#x2013;hostname-x3D-xx-&#x4F7F;&#x7528;"><a href="#2-5-docker-run-&#x2013;hostname-x3D-xx-&#x4F7F;&#x7528;" class="headerlink" title="2.5 docker run &#x2013;hostname=xx &#x4F7F;&#x7528;"></a>2.5 docker run &#x2013;hostname=xx &#x4F7F;&#x7528;</h4><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yangmingxianshen/p/10153508.html">https://www.cnblogs.com/yangmingxianshen/p/10153508.html</a></p>
+</blockquote>
+<p><code>docker run --hostname=xx</code> &#x6216; <code>docker run -h xx</code><br>-h HOSTNAME&#x6216;&#x2013;hostname=HOSTNAME&#x3002;&#x8BBE;&#x5B9A;&#x5BB9;&#x5668;&#x7684;&#x4E3B;&#x673A;&#x540D;&#xFF0C;&#x5B83;&#x4F1A;&#x88AB;&#x5199;&#x5230;&#x5BB9;&#x5668;&#x5185;&#x7684;/etc/hosts&#x548C;/etc/hostname&#x6587;&#x4EF6;&#x4E2D;&#x3002;<br>&#x4F46;&#x662F;&#x8FD9;&#x4E2A;&#x4E3B;&#x673A;&#x540D;&#x53EA;&#x6709;&#x5728;&#x5BB9;&#x5668;&#x5185;&#x624D;&#x80FD;&#x770B;&#x5230;&#xFF0C;&#x5728;&#x5BB9;&#x5668;&#x5916;&#x770B;&#x4E0D;&#x5230;&#xFF0C;&#x65E2;&#x4E0D;&#x4F1A;&#x5728;docker ps&#x4E2D;&#x663E;&#x793A;&#xFF0C;&#x4E5F;&#x4E0D;&#x4F1A;&#x5728;&#x5176;&#x5B83;&#x5BB9;&#x5668;&#x7684;/etc/hosts&#x4E2D;&#x770B;&#x5230;&#x3002;</p>
+<h3 id="3-docker-cp"><a href="#3-docker-cp" class="headerlink" title="3. docker cp"></a>3. docker cp</h3><p>&#x4F5C;&#x7528;&#xFF1A;&#x4ECE;&#x8FD0;&#x884C;&#x7684;&#x5BB9;&#x5668;&#x4E2D;&#xFF0C;&#x62F7;&#x8D1D;&#x76EE;&#x5F55;&#x548C;&#x6587;&#x4EF6;&#x5230;&#x5BBF;&#x4E3B;&#x673A;&#x7684;&#x547D;&#x4EE4;<br>&#x8BED;&#x6CD5;&#xFF1A;<code>docker cp {&#x5BB9;&#x5668;&#x540D;}:{&#x5BB9;&#x5668;&#x5185;&#x76EE;&#x5F55;&#x6216;&#x6587;&#x4EF6;} {&#x5BBF;&#x4E3B;&#x673A;&#x76EE;&#x5F55;&#x6216;&#x6587;&#x4EF6;}</code><br>&#x4F8B;&#x5B50;&#xFF1A;<br><code>docker cp myemqx:/opt/emqx/etc E:\dev\dockerdata\emqx\etc</code><br><code>docker cp myemqx:/opt/emqx/lib E:\dev\dockerdata\emqx\lib</code><br><code>docker cp myemqx:/opt/emqx/data E:\dev\dockerdata\emqx\data</code><br><code>docker cp myemqx:/opt/emqx/log E:\dev\dockerdata\emqx\log</code></p>
+<hr>
+<h3 id="1-docker-compose&#x547D;&#x4EE4;"><a href="#1-docker-compose&#x547D;&#x4EE4;" class="headerlink" title="1. docker-compose&#x547D;&#x4EE4;"></a>1. docker-compose&#x547D;&#x4EE4;</h3><h4 id="1-1-&#x542F;&#x52A8;&#x670D;&#x52A1;"><a href="#1-1-&#x542F;&#x52A8;&#x670D;&#x52A1;" class="headerlink" title="1.1 &#x542F;&#x52A8;&#x670D;&#x52A1;"></a>1.1 &#x542F;&#x52A8;&#x670D;&#x52A1;</h4><p><code>docker-compose -f docker-compose.yml up -d</code></p>
+<h4 id="1-2-&#x505C;&#x6B62;&#x670D;&#x52A1;"><a href="#1-2-&#x505C;&#x6B62;&#x670D;&#x52A1;" class="headerlink" title="1.2 &#x505C;&#x6B62;&#x670D;&#x52A1;"></a>1.2 &#x505C;&#x6B62;&#x670D;&#x52A1;</h4><p><code>docker-compose -f docker-compose.yml stop</code></p>
+<h4 id="1-3-&#x505C;&#x6B62;&#x5E76;&#x5220;&#x9664;&#x670D;&#x52A1;"><a href="#1-3-&#x505C;&#x6B62;&#x5E76;&#x5220;&#x9664;&#x670D;&#x52A1;" class="headerlink" title="1.3 &#x505C;&#x6B62;&#x5E76;&#x5220;&#x9664;&#x670D;&#x52A1;"></a>1.3 &#x505C;&#x6B62;&#x5E76;&#x5220;&#x9664;&#x670D;&#x52A1;</h4><p><code>docker-compose -f docker-compose.yml down</code></p>
+<h3 id="2-docker-compose-links&#x53CA;external-links"><a href="#2-docker-compose-links&#x53CA;external-links" class="headerlink" title="2.docker-compose links&#x53CA;external_links"></a>2.docker-compose links&#x53CA;external_links</h3><p>&#x4E00;&#x4E2A;&#x4F8B;&#x5B50;: <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/501cf75475ec">https://www.jianshu.com/p/501cf75475ec</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/10/07/18.004%20DevOps%E7%B3%BB%E5%88%97-win10%E4%BD%BF%E7%94%A8docker%E5%91%BD%E4%BB%A4%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            DevOps系列-win10使用docker命令安装中间件
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/10/07/18.006%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85docker%E5%92%8Cdocker-compose/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">DevOps系列-centos7.8安装docker和docker-compose</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

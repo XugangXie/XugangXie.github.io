@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title> xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      
+<section class="cover">
+    
+  <div class="cover-frame">
+    <div class="bg-box">
+      <img src="/images/cover1.jpg" alt="image frame" />
+    </div>
+    <div class="cover-inner text-center text-white">
+      <h1><a href="/">xugang.xie&#39;s blog</a></h1>
+      <div id="subtitle-box">
+        
+        <span id="subtitle"></span>
+        
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="cover-learn-more">
+    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
+  </div>
+</section>
+
+
+
+<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
+
+
+<!-- Subtitle -->
+
+  <script>
+    try {
+      var typed = new Typed("#subtitle", {
+        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        startDelay: 0,
+        typeSpeed: 200,
+        loop: true,
+        backSpeed: 100,
+        showCursor: true
+      });
+    } catch (err) {
+      console.log(err)
+    }
+  </script>
+  
+<div id="main">
+  <section class="outer">
+  
+  
+  
+
+<div class="notice" style="margin-top:50px">
+    <i class="ri-heart-fill"></i>
+    <div class="notice-content" id="broad"></div>
+</div>
+<script type="text/javascript">
+    fetch('https://v1.hitokoto.cn')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("broad").innerHTML = data.hitokoto;
+        })
+        .catch(console.error)
+</script>
+
+<style>
+    .notice {
+        padding: 20px;
+        border: 1px dashed #e6e6e6;
+        color: #969696;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        background: #fbfbfb50;
+        border-radius: 10px;
+    }
+
+    .notice i {
+        float: left;
+        color: #999;
+        font-size: 16px;
+        padding-right: 10px;
+        vertical-align: middle;
+        margin-top: -2px;
+    }
+
+    .notice-content {
+        display: initial;
+        vertical-align: middle;
+    }
+</style>
+  
+  <article class="articles">
+    
+    
+    
+    
+    <article
+  id="post-11B005.系统设计-均衡负载算法实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B005.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%9D%87%E8%A1%A1%E8%B4%9F%E8%BD%BD%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/"
+    >系统设计-均衡负载算法实现</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B005.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%9D%87%E8%A1%A1%E8%B4%9F%E8%BD%BD%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9D%87%E8%A1%A1%E8%B4%9F%E8%BD%BD/" rel="tag">均衡负载</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B006.系统设计-一致性哈希的原理与实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B006.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/"
+    >系统设计-一致性哈希的原理与实现</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B006.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C/" rel="tag">一致性哈希</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B008.系统设计-如何解决几百万消息持续积压几小时"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B008.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%87%A0%E7%99%BE%E4%B8%87%E6%B6%88%E6%81%AF%E6%8C%81%E7%BB%AD%E7%A7%AF%E5%8E%8B%E5%87%A0%E5%B0%8F%E6%97%B6/"
+    >系统设计-如何解决几百万消息持续积压几小时</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B008.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%87%A0%E7%99%BE%E4%B8%87%E6%B6%88%E6%81%AF%E6%8C%81%E7%BB%AD%E7%A7%AF%E5%8E%8B%E5%87%A0%E5%B0%8F%E6%97%B6/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B007.系统设计-限流算法与实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B007.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95%E4%B8%8E%E5%AE%9E%E7%8E%B0/"
+    >系统设计-限流算法与实现</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B007.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%99%90%E6%B5%81%E7%AE%97%E6%B3%95%E4%B8%8E%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%99%90%E6%B5%81/" rel="tag">限流</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B009.系统设计-MySQL数据迁移方案"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B009.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-MySQL%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/"
+    >系统设计-MySQL数据迁移方案</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B009.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-MySQL%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/" rel="tag">MySQL数据迁移</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B012.系统设计-高并发下的接口幂等性设计"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B012.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7%E8%AE%BE%E8%AE%A1/"
+    >系统设计-高并发下的接口幂等性设计</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B012.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%AB%98%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89/" rel="tag">接口幂等</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" rel="tag">高并发</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-11B013.系统设计-全链路追踪的实现"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/06/01/11B013.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%85%A8%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E7%9A%84%E5%AE%9E%E7%8E%B0/"
+    >系统设计-全链路追踪的实现</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/06/01/11B013.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%85%A8%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2022-05-31T16:00:00.000Z" itemprop="datePublished">2022-06-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%A8%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA/" rel="tag">全链路追踪</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-7B.001.中间件系列之zookeeper-zookeeper leader选举算法原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/26/7B.001.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bzookeeper-zookeeper%20leader%E9%80%89%E4%B8%BE%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/"
+    >中间件系列之zookeeper-zookeeper leader选举算法原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/26/7B.001.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bzookeeper-zookeeper%20leader%E9%80%89%E4%B8%BE%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-05-25T16:00:00.000Z" itemprop="datePublished">2022-05-26</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/zookeeper/" rel="tag">zookeeper</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-7C.001.中间件-Nginx-Nginx架构设计"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/26/7C.001.%E4%B8%AD%E9%97%B4%E4%BB%B6-Nginx-Nginx%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"
+    >中间件-Nginx-Nginx架构设计</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/26/7C.001.%E4%B8%AD%E9%97%B4%E4%BB%B6-Nginx-Nginx%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2022-05-25T16:00:00.000Z" itemprop="datePublished">2022-05-26</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.kancloud.cn/digest/sknginx/130029">https://www.kancloud.cn/digest/sknginx/130029</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/26/7C.001.%E4%B8%AD%E9%97%B4%E4%BB%B6-Nginx-Nginx%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.001.并发-synchronized加锁原理一、锁的膨胀过程、锁优化"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.001.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%80%E3%80%81%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B%E3%80%81%E9%94%81%E4%BC%98%E5%8C%96/"
+    >并发-synchronized加锁原理一、锁的膨胀过程、锁优化</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.001.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%80%E3%80%81%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B%E3%80%81%E9%94%81%E4%BC%98%E5%8C%96/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/javazejian/article/details/72828483#synchronized%E5%BA%95%E5%B1%82%E8%AF%AD%E4%B9%89%E5%8E%9F%E7%90%86">&#x6DF1;&#x5165;&#x7406;&#x89E3;Java&#x5E76;&#x53D1;&#x4E4B;synchronized&#x5B9E;&#x73B0;&#x539F;&#x7406;</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/20/5A.001.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%80%E3%80%81%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B%E3%80%81%E9%94%81%E4%BC%98%E5%8C%96/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E4%BC%98%E5%8C%96/" rel="tag">锁优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E8%86%A8%E8%83%80/" rel="tag">锁膨胀</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.003.并发-synchronized加锁原理三"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.003.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%89/"
+    >并发-synchronized加锁原理三</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.003.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%89/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/11705068.html">JAVA&#x9501;&#x7684;&#x81A8;&#x80C0;&#x8FC7;&#x7A0B;&#x548C;&#x4F18;&#x5316;(&#x963F;&#x91CC;)</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/20/5A.003.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%89/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E4%BC%98%E5%8C%96/" rel="tag">锁优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E8%86%A8%E8%83%80/" rel="tag">锁膨胀</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.002.并发-synchronized加锁原理二"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.002.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%BA%8C/"
+    >并发-synchronized加锁原理二</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.002.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/11470858.html">&#x6DF1;&#x5165;&#x5206;&#x6790;Synchronized&#x539F;&#x7406;(&#x963F;&#x91CC;&#x9762;&#x8BD5;&#x9898;)</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c5058b6fe8e5">JVM&#x6E90;&#x7801;&#x5206;&#x6790;&#x4E4B;synchronized&#x5B9E;&#x73B0;</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/fei33423/article/details/30316">&#x81EA;&#x65CB;&#x9501;&#x3001;&#x6392;&#x961F;&#x81EA;&#x65CB;&#x9501;&#x3001;MCS&#x9501;&#x3001;CLH&#x9501;</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/javazejian/article/details/72828483">&#x6DF1;&#x5165;&#x7406;&#x89E3;Java&#x5E76;&#x53D1;&#x4E4B;synchronized&#x5B9E;&#x73B0;&#x539F;&#x7406; </a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e62fa839aa41">&#x5543;&#x788E;&#x5E76;&#x53D1;&#xFF08;&#x4E03;&#xFF09;&#xFF1A;&#x6DF1;&#x5165;&#x5206;&#x6790;Synchronized&#x539F;&#x7406;</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1465413">&#x6DF1;&#x5165;&#x7406;&#x89E3;synchronized&#x5E95;&#x5C42;&#x539F;&#x7406;&#xFF0C;&#x4E00;&#x7BC7;&#x6587;&#x7AE0;&#x5C31;&#x591F;&#x4E86;&#xFF01;</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/heqiyoujing/p/11144649.html">synchronize&#x539F;&#x7406;</a></p>
+</blockquote>
+<p>&#x672C;&#x6587;&#x4E3B;&#x8981;&#x8BB2;&#x89E3;synchronized&#x7684;&#x57FA;&#x672C;&#x4F7F;&#x7528;&#x3001;&#x5B9E;&#x73B0;&#x673A;&#x5236;&#x3001;Java&#x662F;&#x5982;&#x4F55;&#x5BF9;&#x5B83;&#x8FDB;&#x884C;&#x4E86;&#x4F18;&#x5316;&#x3001;&#x9501;&#x4F18;&#x5316;&#x673A;&#x5236;&#x3001;&#x9501;&#x7684;&#x5B58;&#x50A8;&#x7ED3;&#x6784;&#x7B49;&#x5347;&#x7EA7;&#x8FC7;&#x7A0B;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/20/5A.002.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%BA%8C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E4%BC%98%E5%8C%96/" rel="tag">锁优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E8%86%A8%E8%83%80/" rel="tag">锁膨胀</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.004.并发-synchronized加锁原理四-锁的膨胀过程"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.004.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E5%9B%9B-%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B/"
+    >并发-synchronized加锁原理四-锁的膨胀过程</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.004.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E5%9B%9B-%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013568373/article/details/94486829">synchronized &#x9501;&#x4F18;&#x5316;&#xFF08;&#x4E8C;&#xFF09;&#xFF1A;&#x9501;&#x7684;&#x72B6;&#x6001;&#x53CA;&#x9501;&#x81A8;&#x80C0;</a></p>
+</blockquote>
+<p>&#x672C;&#x6587;&#x4E2D;&#x6240;&#x63D0;&#x53CA;&#x7684;&#x9501;&#x6307;&#x7684;&#x5747;&#x662F; JVM &#x63D0;&#x4F9B;&#x7684; synchronized.</p>
+<p>&#x5728;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x4E2D;&#xFF0C;synchronized &#x4E00;&#x76F4;&#x88AB;&#x79F0;&#x4E3A;&#x91CD;&#x91CF;&#x7EA7;&#x9501;&#xFF0C;&#x4F46;&#x662F;&#x968F;&#x7740; JDK1.6 &#x5BF9; synchronized &#x8FDB;&#x884C;&#x4E86;&#x5404;&#x79CD;&#x4F18;&#x5316;&#x4E4B;&#x540E;&#xFF0C;&#x6709;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#x5B83;&#x5C31;&#x5E76;&#x4E0D;&#x90A3;&#x4E48;&#x91CD;&#x4E86;&#x3002;&#x672C;&#x6587;&#x5C06;&#x4ECB;&#x7ECD;&#x4ECE; JDK1.6 &#x5F00;&#x59CB;&#x5F15;&#x5165;&#x7684;&#x65B0;&#x7684;&#x9501;&#x72B6;&#x6001;&#x7684;&#x6982;&#x5FF5;&#x4EE5;&#x53CA;&#x9501;&#x5347;&#x7EA7;&#x7684;&#x8FC7;&#x7A0B;&#xFF08;&#x5373;&#x6240;&#x8C13;&#x7684;&#x9501;&#x81A8;&#x80C0;&#xFF09;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/20/5A.004.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E5%9B%9B-%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E4%BC%98%E5%8C%96/" rel="tag">锁优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E8%86%A8%E8%83%80/" rel="tag">锁膨胀</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.005.并发-synchronized实现死锁代码例子"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.005.%E5%B9%B6%E5%8F%91-synchronized%E5%AE%9E%E7%8E%B0%E6%AD%BB%E9%94%81%E4%BB%A3%E7%A0%81%E4%BE%8B%E5%AD%90/"
+    >并发-synchronized实现死锁代码例子</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.005.%E5%B9%B6%E5%8F%91-synchronized%E5%AE%9E%E7%8E%B0%E6%AD%BB%E9%94%81%E4%BB%A3%E7%A0%81%E4%BE%8B%E5%AD%90/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x4E24;&#x4E2A;&#x7EBF;&#x7A0B;&#x4E92;&#x76F8;&#x5360;&#x6709;&#x5BF9;&#x65B9;&#x9700;&#x8981;&#x7684;&#x8D44;&#x6E90;&#x800C;&#x4E0D;&#x91CA;&#x653E;&#xFF0C;&#x4FBF;&#x5F62;&#x6210;&#x4E86;&#x6B7B;&#x9501;&#x3002;<br>&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</p> 
+      <a class="article-more-link" href="/2022/05/20/5A.005.%E5%B9%B6%E5%8F%91-synchronized%E5%AE%9E%E7%8E%B0%E6%AD%BB%E9%94%81%E4%BB%A3%E7%A0%81%E4%BE%8B%E5%AD%90/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E6%AD%BB%E9%94%81/" rel="tag">java死锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.006.并发-JAVA各种锁-可重入锁,可中断锁，公平锁，读写锁，自旋锁"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.006.%E5%B9%B6%E5%8F%91-JAVA%E5%90%84%E7%A7%8D%E9%94%81-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81,%E5%8F%AF%E4%B8%AD%E6%96%AD%E9%94%81%EF%BC%8C%E5%85%AC%E5%B9%B3%E9%94%81%EF%BC%8C%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%8C%E8%87%AA%E6%97%8B%E9%94%81/"
+    >并发-JAVA各种锁-可重入锁,可中断锁，公平锁，读写锁，自旋锁</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.006.%E5%B9%B6%E5%8F%91-JAVA%E5%90%84%E7%A7%8D%E9%94%81-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81,%E5%8F%AF%E4%B8%AD%E6%96%AD%E9%94%81%EF%BC%8C%E5%85%AC%E5%B9%B3%E9%94%81%EF%BC%8C%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%8C%E8%87%AA%E6%97%8B%E9%94%81/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5728;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x4E2D;&#xFF0C;&#x7ECF;&#x5E38;&#x9047;&#x5230;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x8BBF;&#x95EE;&#x540C;&#x4E00;&#x4E2A; &#x5171;&#x4EAB;&#x8D44;&#x6E90; &#xFF0C;&#x8FD9;&#x65F6;&#x5019;&#x4F5C;&#x4E3A;&#x5F00;&#x53D1;&#x8005;&#x5FC5;&#x987B;&#x8003;&#x8651;&#x5982;&#x4F55;&#x7EF4;&#x62A4;&#x6570;&#x636E;&#x4E00;&#x81F4;&#x6027;&#xFF0C;&#x5728;java&#x4E2D;synchronized&#x5173;&#x952E;&#x5B57;&#x88AB;&#x5E38;&#x7528;&#x4E8E;&#x7EF4;&#x62A4;&#x6570;&#x636E;&#x4E00;&#x81F4;&#x6027;&#x3002;synchronized&#x673A;&#x5236;&#x662F;&#x7ED9;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#x4E0A;&#x9501;&#xFF0C;&#x53EA;&#x6709;&#x62FF;&#x5230;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x624D;&#x53EF;&#x4EE5;&#x8BBF;&#x95EE;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x5F3A;&#x5236;&#x4F7F;&#x5F97;&#x5BF9;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#x7684;&#x8BBF;&#x95EE;&#x90FD;&#x662F;&#x987A;&#x5E8F;&#x7684;&#xFF0C;&#x56E0;&#x4E3A;&#x5BF9;&#x4E8E;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#x5C5E;&#x6027;&#x8BBF;&#x95EE;&#x662F;&#x5FC5;&#x8981;&#x4E5F;&#x662F;&#x5FC5;&#x987B;&#x7684;&#xFF0C;&#x4E0B;&#x6587;&#x4F1A;&#x6709;&#x5177;&#x4F53;&#x793A;&#x4F8B;&#x6F14;&#x793A;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/20/5A.006.%E5%B9%B6%E5%8F%91-JAVA%E5%90%84%E7%A7%8D%E9%94%81-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81,%E5%8F%AF%E4%B8%AD%E6%96%AD%E9%94%81%EF%BC%8C%E5%85%AC%E5%B9%B3%E9%94%81%EF%BC%8C%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%8C%E8%87%AA%E6%97%8B%E9%94%81/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java%E9%94%81/" rel="tag">java锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.101.并发-volatile底层实现原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.101.%E5%B9%B6%E5%8F%91-volatile%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"
+    >并发-volatile底层实现原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.101.%E5%B9%B6%E5%8F%91-volatile%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/jiyiqinlovexx/article/details/50989328">Java&#x5E76;&#x53D1;&#xFF1A;volatile&#x5185;&#x5B58;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x6307;&#x4EE4;&#x91CD;&#x6392;</a></p>
+</blockquote>
+<p>&#x4E00;&#x4E0A;&#x6765;&#x5148;&#x8BF4;&#x4E0B;&#x51E0;&#x4E2A;&#x603B;&#x7ED3;&#x548C;&#x5173;&#x952E;&#x672F;&#x8BED;&#xFF1A;</p>
+<ul>
+<li>&#x5DE5;&#x4F5C;&#x5185;&#x5B58;&#x548C;&#x4E3B;&#x5185;&#x5B58;</li>
+<li>&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#x548C;&#x987A;&#x5E8F;&#x6027;&#xFF0C;&#x4E0D;&#x80FD;&#x4FDD;&#x8BC1;&#x539F;&#x5B50;&#x6027;&#xFF1B;</li>
+<li>&#x4F7F;&#x7528;CPU&#x6307;&#x4EE4;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5185;&#x5B58;&#x5C4F;&#x969C;&#xFF0C;&#x6765;&#x9632;&#x6B62;&#x91CD;&#x6392;&#x4F18;&#x5316;&#xFF0C;&#x6216;&#x8005;&#x8BF4;&#x9632;&#x6B62;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x5E8F;&#xFF0C;&#x8FD9;&#x4F1A;&#x964D;&#x4F4E;&#x6027;&#x80FD;&#xFF0C;&#x4F46;&#x662F;&#x80FD;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;&#x548C;&#x53EF;&#x89C1;&#x6027;&#xFF1B;</li>
+<li><code>happens-before</code></li>
+<li><code>as-if-serial</code></li>
+</ul>
+<hr> 
+      <a class="article-more-link" href="/2022/05/20/5A.101.%E5%B9%B6%E5%8F%91-volatile%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/volatile/" rel="tag">volatile</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5A.102.并发-JMM8个原子操作"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5A.102.%E5%B9%B6%E5%8F%91-JMM8%E4%B8%AA%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/"
+    >并发-JMM8个原子操作</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5A.102.%E5%B9%B6%E5%8F%91-JMM8%E4%B8%AA%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>Java&#x5E76;&#x53D1;-JMM&#x7684;8&#x5927;&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#x53CA;&#x5E76;&#x53D1;3&#x4E4B;volatile&#x5173;&#x952E;&#x5B57;&#x53EF;&#x89C1;&#x6027;: <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000038974425">https://segmentfault.com/a/1190000038974425</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/20/5A.102.%E5%B9%B6%E5%8F%91-JMM8%E4%B8%AA%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/8%E4%B8%AA%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C/" rel="tag">8个原子操作</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5B.001.并发-AQS原理一"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5B.001.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%B8%80/"
+    >并发-AQS原理一</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5B.001.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%B8%80/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chengxiao/p/7141160.html">Java&#x5E76;&#x53D1;&#x5305;&#x57FA;&#x77F3;-AQS&#x8BE6;&#x89E3;</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/takumicx/p/9402021.html">&#x4ECE;&#x6E90;&#x7801;&#x89D2;&#x5EA6;&#x5F7B;&#x5E95;&#x7406;&#x89E3;ReentrantLock(&#x91CD;&#x5165;&#x9501;)</a></p>
+</blockquote>
+<h4 id="&#x57FA;&#x672C;&#x5B9E;&#x73B0;&#x539F;&#x7406;"><a href="#&#x57FA;&#x672C;&#x5B9E;&#x73B0;&#x539F;&#x7406;" class="headerlink" title="&#x57FA;&#x672C;&#x5B9E;&#x73B0;&#x539F;&#x7406;"></a>&#x57FA;&#x672C;&#x5B9E;&#x73B0;&#x539F;&#x7406;</h4><p>AQS&#x4F7F;&#x7528;&#x4E00;&#x4E2A;int&#x6210;&#x5458;&#x53D8;&#x91CF;&#x6765;&#x8868;&#x793A;&#x540C;&#x6B65;&#x72B6;&#x6001;&#xFF0C;&#x901A;&#x8FC7;&#x5185;&#x7F6E;&#x7684;FIFO&#x961F;&#x5217;&#x6765;&#x5B8C;&#x6210;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x7EBF;&#x7A0B;&#x7684;&#x6392;&#x961F;&#x5DE5;&#x4F5C;&#x3002;<br><code>private volatile int state;//&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#xFF0C;&#x4F7F;&#x7528;volatile&#x4FEE;&#x9970;&#x4FDD;&#x8BC1;&#x7EBF;&#x7A0B;&#x53EF;&#x89C1;&#x6027;</code></p>
+<p>AQS&#x7EF4;&#x62A4;&#x4E00;&#x4E2A;&#x5171;&#x4EAB;&#x8D44;&#x6E90;state&#xFF0C;&#x901A;&#x8FC7;&#x5185;&#x7F6E;&#x7684;FIFO&#x6765;&#x5B8C;&#x6210;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x7EBF;&#x7A0B;&#x7684;&#x6392;&#x961F;&#x5DE5;&#x4F5C;&#x3002;&#xFF08;&#x8FD9;&#x4E2A;&#x5185;&#x7F6E;&#x7684;&#x540C;&#x6B65;&#x961F;&#x5217;&#x79F0;&#x4E3A;&#x201D;CLH&#x201D;&#x961F;&#x5217;&#xFF09;&#x3002;</p>
+<p>&#x5F53;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x5931;&#x8D25;&#xFF08;&#x6BD4;&#x5982;tryAcquire&#x65F6;&#x8BD5;&#x56FE;&#x8BBE;&#x7F6E;state&#x72B6;&#x6001;&#x5931;&#x8D25;&#xFF09;&#xFF0C;&#x4F1A;&#x88AB;&#x6784;&#x9020;&#x6210;&#x4E00;&#x4E2A;&#x7ED3;&#x70B9;&#x52A0;&#x5165;CLH&#x961F;&#x5217;&#x4E2D;&#xFF0C;&#x540C;&#x65F6;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4F1A;&#x88AB;&#x963B;&#x585E;&#x5728;&#x961F;&#x5217;&#x4E2D;&#xFF08;&#x901A;&#x8FC7;LockSupport.park&#x5B9E;&#x73B0;&#xFF09;&#x3002;&#x5F53;&#x6301;&#x6709;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x7EBF;&#x7A0B;&#x91CA;&#x653E;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x65F6;&#xFF0C;&#x4F1A;&#x5524;&#x9192;&#x540E;&#x7EE7;&#x7ED3;&#x70B9;&#xFF0C;&#x7136;&#x540E;&#x6B64;&#x7ED3;&#x70B9;&#x7EBF;&#x7A0B;&#x7EE7;&#x7EED;&#x52A0;&#x5165;&#x5230;&#x5BF9;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x4E89;&#x593A;&#x4E2D;&#x3002;</p>
+<p>AQS&#x662F;JUC&#x4E2D;&#x5F88;&#x591A;&#x540C;&#x6B65;&#x7EC4;&#x4EF6;&#x7684;&#x6784;&#x5EFA;&#x57FA;&#x7840;&#xFF0C;&#x7B80;&#x5355;&#x6765;&#x8BB2;&#xFF0C;&#x5B83;&#x5185;&#x90E8;&#x5B9E;&#x73B0;&#x4E3B;&#x8981;&#x662F;&#x72B6;&#x6001;&#x53D8;&#x91CF;state&#x548C;&#x4E00;&#x4E2A;FIFO&#x961F;&#x5217;&#x6765;&#x5B8C;&#x6210;&#xFF0C;&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x5934;&#x7ED3;&#x70B9;&#x662F;&#x5F53;&#x524D;&#x83B7;&#x53D6;&#x5230;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x7ED3;&#x70B9;&#xFF0C;&#x83B7;&#x53D6;&#x540C;&#x6B65;&#x72B6;&#x6001;state&#x5931;&#x8D25;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x4F1A;&#x88AB;&#x6784;&#x9020;&#x6210;&#x4E00;&#x4E2A;&#x7ED3;&#x70B9;&#xFF08;&#x6216;&#x5171;&#x4EAB;&#x5F0F;&#x6216;&#x72EC;&#x5360;&#x5F0F;&#xFF09;&#x52A0;&#x5165;&#x5230;&#x540C;&#x6B65;&#x961F;&#x5217;&#x5C3E;&#x90E8;&#xFF08;&#x91C7;&#x7528;&#x81EA;&#x65CB;CAS&#x6765;&#x4FDD;&#x8BC1;&#x6B64;&#x64CD;&#x4F5C;&#x7684;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#xFF09;&#xFF0C;&#x968F;&#x540E;&#x7EBF;&#x7A0B;&#x4F1A;&#x963B;&#x585E;&#xFF1B;&#x91CA;&#x653E;&#x65F6;&#x5524;&#x9192;&#x5934;&#x7ED3;&#x70B9;&#x7684;&#x540E;&#x7EE7;&#x7ED3;&#x70B9;&#xFF0C;&#x4F7F;&#x5176;&#x52A0;&#x5165;&#x5BF9;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x4E89;&#x593A;&#x4E2D;&#x3002;</p>
+<h4 id="&#x8BBE;&#x8BA1;&#x601D;&#x60F3;"><a href="#&#x8BBE;&#x8BA1;&#x601D;&#x60F3;" class="headerlink" title="&#x8BBE;&#x8BA1;&#x601D;&#x60F3;"></a>&#x8BBE;&#x8BA1;&#x601D;&#x60F3;</h4><p>AQS&#x4E3A;&#x6211;&#x4EEC;&#x5B9A;&#x4E49;&#x597D;&#x4E86;&#x9876;&#x5C42;&#x7684;&#x5904;&#x7406;&#x5B9E;&#x73B0;&#x903B;&#x8F91;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x4F7F;&#x7528;AQS&#x6784;&#x5EFA;&#x7B26;&#x5408;&#x6211;&#x4EEC;&#x9700;&#x6C42;&#x7684;&#x540C;&#x6B65;&#x7EC4;&#x4EF6;&#x65F6;&#xFF0C;&#x53EA;&#x9700;&#x91CD;&#x5199;<code>tryAcquire</code>&#xFF0C;<code>tryAcquireShared</code>&#xFF0C;&#xFF0C;<code>tryReleaseShared</code> &#x51E0;&#x4E2A;&#x65B9;&#x6CD5;&#xFF0C;&#x6765;&#x51B3;&#x5B9A;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x91CA;&#x653E;&#x548C;&#x83B7;&#x53D6;&#x5373;&#x53EF;&#xFF0C;&#x81F3;&#x4E8E;&#x80CC;&#x540E;&#x590D;&#x6742;&#x7684;&#x7EBF;&#x7A0B;&#x6392;&#x961F;&#xFF0C;&#x7EBF;&#x7A0B;&#x963B;&#x585E;/&#x5524;&#x9192;&#xFF0C;&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#xFF0C;&#x90FD;&#x7531;AQS&#x4E3A;&#x6211;&#x4EEC;&#x5B8C;&#x6210;&#x4E86;&#xFF0C;&#x8FD9;&#x4E5F;&#x662F;&#x975E;&#x5E38;&#x5178;&#x578B;&#x7684;&#x6A21;&#x677F;&#x65B9;&#x6CD5;&#x7684;&#x5E94;&#x7528;&#x3002;AQS&#x5B9A;&#x4E49;&#x597D;&#x9876;&#x7EA7;&#x903B;&#x8F91;&#x7684;&#x9AA8;&#x67B6;&#xFF0C;&#x5E76;&#x63D0;&#x53D6;&#x51FA;&#x516C;&#x7528;&#x7684;&#x7EBF;&#x7A0B;&#x5165;&#x961F;&#x5217;/&#x51FA;&#x961F;&#x5217;&#xFF0C;&#x963B;&#x585E;/&#x5524;&#x9192;&#x7B49;&#x4E00;&#x7CFB;&#x5217;&#x590D;&#x6742;&#x903B;&#x8F91;&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x5C06;&#x90E8;&#x5206;&#x7B80;&#x5355;&#x7684;&#x53EF;&#x7531;&#x4F7F;&#x7528;&#x8005;&#x51B3;&#x5B9A;&#x7684;&#x64CD;&#x4F5C;&#x903B;&#x8F91;&#x5EF6;&#x8FDF;&#x5230;&#x5B50;&#x7C7B;&#x4E2D;&#x53BB;&#x5B9E;&#x73B0;&#x3002;&#x3000;</p>
+<hr>
+<blockquote>
+<p>AQS-&#x539F;&#x7406;&#x4E00;-&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x5165;&#x961F;&#x51FA;&#x961F;&#x3001;&#x963B;&#x585E;&#x5524;&#x9192;&#x539F;&#x7406;<br> <a target="_blank" rel="noopener" href="https://www.cnblogs.com/waterystone/p/4920797.html">https://www.cnblogs.com/waterystone/p/4920797.html</a></p>
+</blockquote>
+<h4 id="AQS&#x5185;&#x90E8;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x4E0E;&#x539F;&#x7406;"><a href="#AQS&#x5185;&#x90E8;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x4E0E;&#x539F;&#x7406;" class="headerlink" title="AQS&#x5185;&#x90E8;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x4E0E;&#x539F;&#x7406;"></a>AQS&#x5185;&#x90E8;&#x7684;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x4E0E;&#x539F;&#x7406;</h4><ul>
+<li><p>AQS&#x5185;&#x90E8;&#x5B9E;&#x73B0;&#x4E86;&#x4E24;&#x4E2A;&#x961F;&#x5217;&#xFF0C;&#x4E00;&#x4E2A;CLH/&#x540C;&#x6B65;&#x961F;&#x5217;&#xFF0C;&#x4E00;&#x4E2A;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x3002;</p>
+</li>
+<li><p>&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x4F5C;&#x7528;&#x662F;&#xFF1A;&#x5F53;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x5931;&#x8D25;&#x4E4B;&#x540E;&#xFF0C;&#x5C31;&#x8FDB;&#x5165;&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x5C3E;&#x90E8;&#x4FDD;&#x6301;&#x81EA;&#x65CB;&#x7B49;&#x5F85;&#xFF0C;&#x4E0D;&#x65AD;&#x5224;&#x65AD;&#x81EA;&#x5DF1;&#x662F;&#x5426;&#x662F;&#x94FE;&#x8868;&#x7684;&#x5934;&#x8282;&#x70B9;&#xFF0C;&#x5982;&#x679C;&#x662F;&#x5934;&#x8282;&#x70B9;&#xFF0C;&#x5C31;&#x4E0D;&#x65AD;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#xFF0C;&#x83B7;&#x53D6;&#x6210;&#x529F;&#x540E;&#x5219;&#x9000;&#x51FA;&#x540C;&#x6B65;&#x961F;&#x5217;&#x3002;</p>
+</li>
+<li><p>&#x7B49;&#x5F85;&#x961F;&#x5217;&#x662F;&#x4E3A;Lock&#x5B9E;&#x73B0;&#x7684;&#x4E00;&#x4E2A;&#x57FA;&#x7840;&#x540C;&#x6B65;&#x5668;&#xFF0C;&#x5E76;&#x4E14;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x53EF;&#x80FD;&#x4F1A;&#x6709;&#x591A;&#x4E2A;&#x7B49;&#x5F85;&#x961F;&#x5217;&#xFF0C;&#x53EA;&#x6709;&#x5728;&#x4F7F;&#x7528;&#x4E86;<code>Condition</code>&#x624D;&#x4F1A;&#x5B58;&#x5728;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x3002;</p>
+</li>
+<li><p>CLH/<code>&#x540C;&#x6B65;&#x961F;&#x5217;</code>&#x548C;<code>&#x7B49;&#x5F85;&#x961F;&#x5217;</code>&#x90FD;&#x662F;&#x7531;&#x4E00;&#x4E2A;&#x4E2A;Node&#x7EC4;&#x6210;&#x7684;&#x3002;AQS&#x5185;&#x90E8;&#x6709;&#x4E00;&#x4E2A;&#x9759;&#x6001;&#x5185;&#x90E8;&#x7C7B;Node&#x3002;</p>
+</li>
+</ul>
+<h4 id="&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x5165;&#x961F;-x2F-&#x51FA;&#x961F;&#x3001;&#x963B;&#x585E;-x2F-&#x5524;&#x9192;-&#x539F;&#x7406;"><a href="#&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x5165;&#x961F;-x2F-&#x51FA;&#x961F;&#x3001;&#x963B;&#x585E;-x2F-&#x5524;&#x9192;-&#x539F;&#x7406;" class="headerlink" title="&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x5165;&#x961F;/&#x51FA;&#x961F;&#x3001;&#x963B;&#x585E;/&#x5524;&#x9192; &#x539F;&#x7406;"></a>&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x7EBF;&#x7A0B;&#x7684;&#x5165;&#x961F;/&#x51FA;&#x961F;&#x3001;&#x963B;&#x585E;/&#x5524;&#x9192; &#x539F;&#x7406;</h4><p>&#x5B83;&#x5185;&#x90E8;&#x5B9E;&#x73B0;&#x4E3B;&#x8981;&#x662F;&#x72B6;&#x6001;&#x53D8;&#x91CF;state&#x548C;&#x4E00;&#x4E2A;FIFO&#x53CC;&#x5411;&#x961F;&#x5217;&#x6765;&#x5B8C;&#x6210;&#xFF0C;&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x5934;&#x7ED3;&#x70B9;&#x662F;&#x5F53;&#x524D;&#x83B7;&#x53D6;&#x5230;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x7ED3;&#x70B9;&#xFF0C;&#x83B7;&#x53D6;&#x540C;&#x6B65;&#x72B6;&#x6001;state&#x5931;&#x8D25;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x4F1A;&#x88AB;&#x6784;&#x9020;&#x6210;&#x4E00;&#x4E2A;&#x7ED3;&#x70B9;&#xFF08;&#x6216;&#x5171;&#x4EAB;&#x5F0F;&#x6216;&#x72EC;&#x5360;&#x5F0F;&#xFF09;&#x52A0;&#x5165;&#x5230;&#x540C;&#x6B65;&#x961F;&#x5217;&#x5C3E;&#x90E8;&#xFF08;&#x91C7;&#x7528;&#x81EA;&#x65CB;CAS&#x6765;&#x4FDD;&#x8BC1;&#x6B64;&#x64CD;&#x4F5C;&#x7684;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#xFF09;&#xFF0C;&#x968F;&#x540E;&#x7EBF;&#x7A0B;&#x4F1A;&#x963B;&#x585E;&#xFF1B;&#x91CA;&#x653E;&#x65F6;&#x5524;&#x9192;&#x5934;&#x7ED3;&#x70B9;(&#x5934;&#x8282;&#x70B9;&#x662F;&#x4E2A;&#x54E8;&#x5175;&#x8282;&#x70B9;)&#x7684;&#x540E;&#x7EE7;&#x7ED3;&#x70B9;&#xFF0C;&#x4F7F;&#x8FD9;&#x4E2A;&#x540E;&#x7EE7;&#x8282;&#x70B9;&#x52A0;&#x5165;&#x5BF9;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x4E89;&#x593A;&#x4E2D;&#x3002;</p>
+<h4 id="AQS&#x540C;&#x6B65;&#x961F;&#x5217;&#x67B6;&#x6784;&#x601D;&#x60F3;"><a href="#AQS&#x540C;&#x6B65;&#x961F;&#x5217;&#x67B6;&#x6784;&#x601D;&#x60F3;" class="headerlink" title="AQS&#x540C;&#x6B65;&#x961F;&#x5217;&#x67B6;&#x6784;&#x601D;&#x60F3;"></a>AQS&#x540C;&#x6B65;&#x961F;&#x5217;&#x67B6;&#x6784;&#x601D;&#x60F3;</h4><p>AQS&#x4E3A;&#x6211;&#x4EEC;&#x5B9A;&#x4E49;&#x597D;&#x4E86;&#x9876;&#x5C42;&#x7684;&#x5904;&#x7406;&#x5B9E;&#x73B0;&#x903B;&#x8F91;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x4F7F;&#x7528;AQS&#x6784;&#x5EFA;&#x7B26;&#x5408;&#x6211;&#x4EEC;&#x9700;&#x6C42;&#x7684;&#x540C;&#x6B65;&#x7EC4;&#x4EF6;&#x65F6;&#xFF0C;&#x53EA;&#x9700;&#x91CD;&#x5199;<code>tryAcquire</code>&#xFF0C;<code>tryAcquireShare</code>d&#xFF0C;<code>tryRelease</code>&#xFF0C;<code>tryReleaseShared</code>&#x51E0;&#x4E2A;&#x65B9;&#x6CD5;&#xFF0C;&#x6765;&#x51B3;&#x5B9A;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x7684;&#x91CA;&#x653E;&#x548C;&#x83B7;&#x53D6;&#x5373;&#x53EF;&#xFF0C;&#x81F3;&#x4E8E;&#x80CC;&#x540E;&#x590D;&#x6742;&#x7684;<strong>&#x7EBF;&#x7A0B;&#x6392;&#x961F;</strong>&#xFF0C;<strong>&#x7EBF;&#x7A0B;&#x963B;&#x585E;/&#x5524;&#x9192;</strong>&#xFF0C;<strong>&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;</strong>&#xFF0C;&#x90FD;&#x7531;AQS&#x4E3A;&#x6211;&#x4EEC;&#x5B8C;&#x6210;&#x4E86;&#xFF0C;&#x8FD9;&#x4E5F;&#x662F;&#x975E;&#x5E38;&#x5178;&#x578B;&#x7684;&#x6A21;&#x677F;&#x65B9;&#x6CD5;&#x7684;&#x5E94;&#x7528;&#x3002;AQS&#x5B9A;&#x4E49;&#x597D;&#x9876;&#x7EA7;&#x903B;&#x8F91;&#x7684;&#x9AA8;&#x67B6;&#xFF0C;&#x5E76;&#x63D0;&#x53D6;&#x51FA;&#x516C;&#x7528;&#x7684;&#x7EBF;&#x7A0B;&#x5165;&#x961F;&#x5217;/&#x51FA;&#x961F;&#x5217;&#xFF0C;&#x963B;&#x585E;/&#x5524;&#x9192;&#x7B49;&#x4E00;&#x7CFB;&#x5217;&#x590D;&#x6742;&#x903B;&#x8F91;&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x5C06;&#x90E8;&#x5206;&#x7B80;&#x5355;&#x7684;&#x53EF;&#x7531;&#x4F7F;&#x7528;&#x8005;&#x51B3;&#x5B9A;&#x7684;&#x64CD;&#x4F5C;&#x903B;&#x8F91;&#x5EF6;&#x8FDF;&#x5230;&#x5B50;&#x7C7B;&#x4E2D;&#x53BB;&#x5B9E;&#x73B0;&#x3002;&#x3000;</p>
+<h4 id="&#x72EC;&#x5360;&#x9501;&#xFF08;exclusive&#xFF09;&#x548C;&#x5171;&#x4EAB;&#x9501;-share"><a href="#&#x72EC;&#x5360;&#x9501;&#xFF08;exclusive&#xFF09;&#x548C;&#x5171;&#x4EAB;&#x9501;-share" class="headerlink" title="&#x72EC;&#x5360;&#x9501;&#xFF08;exclusive&#xFF09;&#x548C;&#x5171;&#x4EAB;&#x9501;(share)"></a>&#x72EC;&#x5360;&#x9501;&#xFF08;exclusive&#xFF09;&#x548C;&#x5171;&#x4EAB;&#x9501;(share)</h4><ul>
+<li>&#x72EC;&#x5360;&#x9501;&#xFF1A;&#x53EA;&#x80FD;&#x88AB;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x5230;(Reentrantlock)</li>
+<li>&#x5171;&#x4EAB;&#x9501;&#xFF1A;&#x53EF;&#x4EE5;&#x88AB;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x83B7;&#x53D6;(CountDownLatch,ReadWriteLock).</li>
+</ul>
+<p>&#x65E0;&#x8BBA;&#x662F;&#x72EC;&#x5360;&#x9501;&#x8FD8;&#x662F;&#x5171;&#x4EAB;&#x9501;&#xFF0C;&#x672C;&#x8D28;&#x4E0A;&#x90FD;&#x662F;&#x5BF9;AQS&#x5185;&#x90E8;&#x7684;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;state&#x7684;&#x83B7;&#x53D6;&#x3002;state&#x662F;&#x4E00;&#x4E2A;&#x539F;&#x5B50;&#x7684;int&#x53D8;&#x91CF;&#xFF0C;&#x7528;&#x6765;&#x8868;&#x793A;&#x9501;&#x72B6;&#x6001;&#x3001;&#x8D44;&#x6E90;&#x6570;&#x7B49;&#x3002;</p>
+<h4 id="&#x6E90;&#x7801;&#x8109;&#x8DEF;&#x5206;&#x6790;"><a href="#&#x6E90;&#x7801;&#x8109;&#x8DEF;&#x5206;&#x6790;" class="headerlink" title="&#x6E90;&#x7801;&#x8109;&#x8DEF;&#x5206;&#x6790;"></a>&#x6E90;&#x7801;&#x8109;&#x8DEF;&#x5206;&#x6790;</h4><p><strong>acquire(int)</strong> &#x6B64;&#x65B9;&#x6CD5;&#x662F;&#x72EC;&#x5360;&#x6A21;&#x5F0F;&#x4E0B;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#x7684;&#x9876;&#x5C42;&#x5165;&#x53E3;&#x3002;</p>
+<p>&#x51FD;&#x6570;&#x6D41;&#x7A0B;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p><strong>tryAcquire()</strong> &#x5C1D;&#x8BD5;&#x76F4;&#x63A5;&#x53BB;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#xFF0C;&#x5982;&#x679C;&#x6210;&#x529F;&#x5219;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#xFF08;&#x8FD9;&#x91CC;&#x4F53;&#x73B0;&#x4E86;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x9501;&#x65F6;&#x4F1A;&#x5C1D;&#x8BD5;&#x76F4;&#x63A5;&#x62A2;&#x5360;&#x52A0;&#x585E;&#x4E00;&#x6B21;&#xFF0C;&#x800C;CLH&#x961F;&#x5217;&#x4E2D;&#x53EF;&#x80FD;&#x8FD8;&#x6709;&#x522B;&#x7684;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;&#xFF09;&#xFF1B;<br><strong>addWaiter()</strong> &#x5C06;&#x8BE5;&#x7EBF;&#x7A0B;&#x52A0;&#x5165;CLH/&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x5C3E;&#x90E8;&#xFF0C;&#x5E76;&#x6807;&#x8BB0;&#x4E3A;&#x72EC;&#x5360;&#x6A21;&#x5F0F;&#xFF1B;<br><strong>acquireQueued()</strong> &#x4F7F;&#x7EBF;&#x7A0B;&#x963B;&#x585E;&#x5728;CLH/&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#xFF0C;&#x4E00;&#x76F4;&#x83B7;&#x53D6;&#x5230;&#x8D44;&#x6E90;&#x540E;&#x624D;&#x8FD4;&#x56DE;&#x3002;&#x5982;&#x679C;&#x5728;&#x6574;&#x4E2A;&#x7B49;&#x5F85;&#x8FC7;&#x7A0B;&#x4E2D;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#xFF0C;&#x5426;&#x5219;&#x8FD4;&#x56DE;false&#x3002;<br>&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;&#x8FC7;&#x7A0B;&#x4E2D;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;&#xFF0C;&#x5B83;&#x662F;&#x4E0D;&#x54CD;&#x5E94;&#x7684;&#x3002;&#x53EA;&#x662F;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x540E;&#x624D;&#x518D;&#x8FDB;&#x884C;&#x81EA;&#x6211;&#x4E2D;&#x65AD;selfInterrupt()&#xFF0C;&#x5C06;&#x4E2D;&#x65AD;&#x8865;&#x4E0A;&#x3002;</p>
+<p>&#x8BE6;&#x7EC6;&#xFF1A;<br><strong>addWaiter()</strong><br>&#x6B64;&#x65B9;&#x6CD5;&#x7528;&#x4E8E;&#x5C06;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x52A0;&#x5165;&#x5230;CLH&#x961F;&#x5217;&#x7684;&#x961F;&#x5C3E;&#xFF08;&#x91C7;&#x7528;for&#x81EA;&#x65CB;&#xFF09;&#xFF0C;&#x5E76;&#x8FD4;&#x56DE;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x6240;&#x5728;&#x7684;&#x7ED3;&#x70B9;&#x3002;</p>
+<p><strong>acquireQueued()</strong><br>&#x770B;&#x4E86;<code>shouldParkAfterFailedAcquire()</code>&#x548C;<code>parkAndCheckInterrupt()</code>&#xFF0C;&#x73B0;&#x5728;&#x8BA9;&#x6211;&#x4EEC;&#x518D;&#x56DE;&#x5230;<code>acquireQueued()</code>&#xFF0C;&#x603B;&#x7ED3;&#x4E0B;&#x8BE5;&#x51FD;&#x6570;&#x7684;&#x5177;&#x4F53;&#x6D41;&#x7A0B;&#xFF1A;</p>
+<ol>
+<li>&#x7ED3;&#x70B9;&#x8FDB;&#x5165;&#x961F;&#x5C3E;&#x540E;&#xFF0C;&#x68C0;&#x67E5;&#x72B6;&#x6001;&#xFF0C;&#x627E;&#x5230;&#x5B89;&#x5168;&#x4F11;&#x606F;&#x70B9;&#xFF1B;</li>
+<li>&#x8C03;&#x7528;park()&#x8FDB;&#x5165;waiting&#x72B6;&#x6001;&#xFF0C;&#x7B49;&#x5F85;unpark()&#x6216;interrupt()&#x5524;&#x9192;&#x81EA;&#x5DF1;&#xFF1B;</li>
+<li>&#x88AB;&#x5524;&#x9192;&#x540E;&#xFF0C;&#x770B;&#x81EA;&#x5DF1;&#x662F;&#x4E0D;&#x662F;&#x6709;&#x8D44;&#x683C;&#x80FD;&#x62FF;&#x5230;&#x53F7;&#x3002;&#x5982;&#x679C;&#x62FF;&#x5230;&#xFF0C;head&#x6307;&#x5411;&#x5F53;&#x524D;&#x7ED3;&#x70B9;&#xFF0C;&#x5E76;&#x8FD4;&#x56DE;&#x4ECE;&#x5165;&#x961F;&#x5230;&#x62FF;&#x5230;&#x53F7;&#x7684;&#x6574;&#x4E2A;&#x8FC7;&#x7A0B;&#x4E2D;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;&#xFF1B;&#x5982;&#x679C;&#x6CA1;&#x62FF;&#x5230;&#xFF0C;&#x7EE7;&#x7EED;&#x6D41;&#x7A0B;1&#x3002;</li>
+</ol>
+<p><code>acquireQueued()</code>&#x5206;&#x6790;&#x5B8C;&#x4E4B;&#x540E;&#xFF0C;&#x6211;&#x4EEC;&#x63A5;&#x4E0B;&#x6765;&#x518D;&#x56DE;&#x5230;<code>acquire()</code>&#xFF01;&#x518D;&#x8D34;&#x4E0A;&#x5B83;&#x7684;&#x6E90;&#x7801;&#x5427;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">     <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">         acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">         selfInterrupt();</span><br><span class="line"> }</span><br></pre></td></tr></table></figure>
+<p>&#x518D;&#x6765;&#x603B;&#x7ED3;&#x4E0B;&#x5B83;&#x7684;&#x6D41;&#x7A0B;&#x5427;&#xFF1A;</p>
+<ol>
+<li>&#x8C03;&#x7528;&#x81EA;&#x5B9A;&#x4E49;&#x540C;&#x6B65;&#x5668;&#x7684;tryAcquire()&#x5C1D;&#x8BD5;&#x76F4;&#x63A5;&#x53BB;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#xFF0C;&#x5982;&#x679C;&#x6210;&#x529F;&#x5219;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#xFF1B;</li>
+<li>&#x6CA1;&#x6210;&#x529F;&#xFF0C;&#x5219;addWaiter()&#x5C06;&#x8BE5;&#x7EBF;&#x7A0B;&#x52A0;&#x5165;CLH/&#x540C;&#x6B65;&#x961F;&#x5217;&#x7684;&#x5C3E;&#x90E8;&#xFF0C;&#x5E76;&#x6807;&#x8BB0;&#x4E3A;&#x72EC;&#x5360;&#x6A21;&#x5F0F;&#xFF1B;</li>
+<li>acquireQueued()&#x4F7F;&#x7EBF;&#x7A0B;&#x5728;CLH/&#x540C;&#x6B65;&#x961F;&#x5217;&#x4E2D;&#x4F11;&#x606F;&#xFF0C;&#x6709;&#x673A;&#x4F1A;&#x65F6;&#xFF08;&#x8F6E;&#x5230;&#x81EA;&#x5DF1;&#xFF0C;&#x4F1A;&#x88AB;unpark()&#xFF09;&#x4F1A;&#x53BB;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x3002;&#x83B7;&#x53D6;&#x5230;&#x8D44;&#x6E90;&#x540E;&#x624D;&#x8FD4;&#x56DE;&#x3002;&#x5982;&#x679C;&#x5728;&#x6574;&#x4E2A;&#x7B49;&#x5F85;&#x8FC7;&#x7A0B;&#x4E2D;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#xFF0C;&#x5426;&#x5219;&#x8FD4;&#x56DE;false&#x3002;</li>
+<li>&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;&#x8FC7;&#x7A0B;&#x4E2D;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;&#xFF0C;&#x5B83;&#x662F;&#x4E0D;&#x54CD;&#x5E94;&#x7684;&#x3002;&#x53EA;&#x662F;&#x83B7;&#x53D6;&#x8D44;&#x6E90;&#x540E;&#x624D;&#x518D;&#x8FDB;&#x884C;&#x81EA;&#x6211;&#x4E2D;&#x65AD;selfInterrupt()&#xFF0C;&#x5C06;&#x4E2D;&#x65AD;&#x8865;&#x4E0A;&#x3002;</li>
+</ol>
+<p>&#x81F3;&#x6B64;&#xFF0C;acquire()&#x7684;&#x6D41;&#x7A0B;&#x7EC8;&#x4E8E;&#x7B97;&#x662F;&#x544A;&#x4E00;&#x6BB5;&#x843D;&#x4E86;&#x3002;&#x8FD9;&#x4E5F;&#x5C31;&#x662F;ReentrantLock.lock()&#x7684;&#x6D41;&#x7A0B;&#xFF0C;&#x4E0D;&#x4FE1;&#x4F60;&#x53BB;&#x770B;&#x5176;lock()&#x6E90;&#x7801;&#x5427;&#xFF0C;&#x6574;&#x4E2A;&#x51FD;&#x6570;&#x5C31;&#x662F;&#x4E00;&#x6761;acquire(1)&#xFF01;&#xFF01;&#xFF01;</p>
+<hr>
+<blockquote>
+<p>AQS&#x72EC;&#x5360;&#x9501;&#x4E0E;&#x5171;&#x4EAB;&#x9501;</p>
+</blockquote>
+<p>AQS&#x5B9A;&#x4E49;&#x4E24;&#x79CD;&#x8D44;&#x6E90;&#x5171;&#x4EAB;&#x65B9;&#x5F0F;&#xFF1A;</p>
+<ul>
+<li>Exclusive&#xFF08;&#x72EC;&#x5360;&#xFF0C;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x80FD;&#x6267;&#x884C;&#xFF0C;&#x5982;ReentrantLock&#xFF09;</li>
+<li>Share&#xFF08;&#x5171;&#x4EAB;&#xFF0C;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x53EF;&#x540C;&#x65F6;&#x6267;&#x884C;&#xFF0C;&#x5982;Semaphore/CountDownLatch&#xFF09;</li>
+</ul>
+<p>AQS&#x7684;&#x6E90;&#x7801;&#x4E2D;&#x6D89;&#x53CA;&#x5230;&#x7684;&#x9501;&#x6709;&#x72EC;&#x5360;&#x9501;&#x4E0E;&#x5171;&#x4EAB;&#x9501;&#xFF0C;&#x72EC;&#x5360;&#x9501;&#x5C31;&#x662F;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5171;&#x4EAB;&#x9501;&#x5C31;&#x662F;&#x540C;&#x65F6;&#x53EF;&#x4EE5;&#x6709;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x9501;&#x3002;<br>&#x4EE3;&#x7801;&#x5C42;&#x4F53;&#x73B0;&#x4E0B;AQS&#x7684;state&#x5C5E;&#x6027;&#xFF0C;&#x4E3A;0&#xFF0C;&#x5219;&#x9501;&#x6CA1;&#x6709;&#x88AB;&#x7EBF;&#x7A0B;&#x6240;&#x6301;&#x6709;&#xFF0C;&#x72EC;&#x5360;&#x9501;&#x65F6;&#x4E3A;1&#xFF0C;&#x5171;&#x4EAB;&#x9501;&#x65F6;&#x5927;&#x4E8E;0&#xFF0C;&#x4EE3;&#x8868;&#x83B7;&#x53D6;&#x6B64;&#x9501;&#x7684;&#x73B0;&#x6210;&#x7684;&#x6570;&#x91CF;&#x3002;<br>AQS&#x7684;&#x5185;&#x90E8;&#x7C7B;Node&#x5B9A;&#x4E49;&#x4E86;&#x4E24;&#x4E2A;&#x5E38;&#x91CF;<code>SHARED</code>&#x548C;<code>EXCLUSIVE</code>&#xFF0C;&#x4ED6;&#x4EEC;&#x5206;&#x522B;&#x6807;&#x8BC6;AQS&#x961F;&#x5217;&#x4E2D;&#x7B49;&#x5F85;&#x7EBF;&#x7A0B;&#x7684;&#x9501;&#x7684;&#x83B7;&#x53D6;&#x6A21;&#x5F0F;&#x3002;</p>
+<p><strong>JUC&#x4E2D;ReentrantLock&#x4E0E;CyclicBarrier&#x4E3A;&#x72EC;&#x5360;&#x9501;&#xFF0C;CountDownLatch&#x4E0E;Semaphore&#x4E3A;&#x5171;&#x4EAB;&#x9501;&#x3002;</strong><br><strong>ReentrantReadWriteLock&#x4E2D;writeLock&#x4E3A;&#x72EC;&#x5360;&#x9501;&#xFF0C;ReadLock&#x4E3A;&#x5171;&#x4EAB;&#x9501;&#x3002;</strong><br><strong>ReentrantLock &#x662F;&#x628A;&#x72EC;&#x5360;&#x5F0F;&#x7684;&#x53EF;&#x91CD;&#x5165;&#x9501;</strong></p>
+<p>&#x72EC;&#x5360;&#x9501;&#x4E0E;&#x5171;&#x4EAB;&#x9501;&#x7684;&#x533A;&#x522B;&#xFF1A;</p>
+<p>&#x72EC;&#x5360;&#x529F;&#x80FD;<br>&#x5F53;&#x9501;&#x88AB;&#x5934;&#x8282;&#x70B9;&#x83B7;&#x53D6;&#x540E;&#xFF0C;&#x53EA;&#x6709;&#x5934;&#x8282;&#x70B9;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5176;&#x4F59;&#x8282;&#x70B9;&#x7684;&#x7EBF;&#x7A0B;&#x7EE7;&#x7EED;&#x6C89;&#x7761;&#xFF0C;&#x7B49;&#x5F85;&#x9501;&#x88AB;&#x91CA;&#x653E;&#x540E;&#xFF0C;&#x624D;&#x4F1A;&#x5524;&#x9192;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x7EBF;&#x7A0B;&#x3002;</p>
+<p>&#x5171;&#x4EAB;&#x529F;&#x80FD;<br>&#x53EA;&#x8981;&#x5934;&#x8282;&#x70B9;&#x83B7;&#x53D6;&#x9501;&#x6210;&#x529F;&#xFF0C;&#x5C31;&#x5728;&#x5524;&#x9192;&#x81EA;&#x8EAB;&#x8282;&#x70B9;&#x5BF9;&#x5E94;&#x7684;&#x7EBF;&#x7A0B;&#x7684;&#x540C;&#x65F6;&#xFF0C;&#x7EE7;&#x7EED;&#x5524;&#x9192;AQS&#x961F;&#x5217;&#x4E2D;&#x7684;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x6BCF;&#x4E2A;&#x8282;&#x70B9;&#x5728;&#x5524;&#x9192;&#x81EA;&#x8EAB;&#x7684;&#x540C;&#x65F6;&#x8FD8;&#x4F1A;&#x5524;&#x9192;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x5BF9;&#x5E94;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x4EE5;&#x5B9E;&#x73B0;&#x5171;&#x4EAB;&#x72B6;&#x6001;&#x7684;&#x201C;&#x5411;&#x540E;&#x4F20;&#x64AD;&#x201D;&#xFF0C;&#x4ECE;&#x800C;&#x5B9E;&#x73B0;&#x5171;&#x4EAB;&#x529F;</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AQS/" rel="tag">AQS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lock/" rel="tag">Lock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReadWriteLock/" rel="tag">ReadWriteLock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReadWriteReentrantLock/" rel="tag">ReadWriteReentrantLock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReentrantLock/" rel="tag">ReentrantLock</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5B.002.并发-AQS原理二"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5B.002.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%BA%8C/"
+    >并发-AQS原理二</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5B.002.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chengxiao/p/7141160.html">Java&#x5E76;&#x53D1;&#x5305;&#x57FA;&#x77F3;-AQS&#x8BE6;&#x89E3;</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/20/5B.002.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%BA%8C/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AQS/" rel="tag">AQS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lock/" rel="tag">Lock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReadWriteLock/" rel="tag">ReadWriteLock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReadWriteReentrantLock/" rel="tag">ReadWriteReentrantLock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReentrantLock/" rel="tag">ReentrantLock</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-5B.010.并发-ReentrantLock原理二-公平锁和非公平锁"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/"
+    >并发-ReentrantLock原理二-公平锁和非公平锁</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>AQS&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45305463">https://zhuanlan.zhihu.com/p/45305463</a></p>
+</blockquote>
+<p><strong>ReentrantLock &#x662F;&#x628A;&#x72EC;&#x5360;&#x5F0F;&#x7684;&#x53EF;&#x91CD;&#x5165;&#x9501;</strong></p>
+<h3 id="ReentrantLock-&#x7684;&#x516C;&#x5E73;&#x9501;"><a href="#ReentrantLock-&#x7684;&#x516C;&#x5E73;&#x9501;" class="headerlink" title="ReentrantLock &#x7684;&#x516C;&#x5E73;&#x9501;"></a>ReentrantLock &#x7684;&#x516C;&#x5E73;&#x9501;</h3><p>ReentrantLock &#x9ED8;&#x8BA4;&#x91C7;&#x7528;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x9664;&#x975E;&#x5728;&#x6784;&#x9020;&#x65B9;&#x6CD5;&#x4E2D;&#x4F20;&#x5165;&#x53C2;&#x6570; true &#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//&#x9ED8;&#x8BA4;</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">()</span> {</span><br><span class="line">    sync = <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br><span class="line"><span class="comment">//&#x4F20;&#x5165;true or false</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<p>&#x516C;&#x5E73;&#x9501;&#x7684; lock &#x65B9;&#x6CD5;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">FairSync</span> <span class="keyword">extends</span> <span class="title class_">Sync</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span> {</span><br><span class="line">        acquire(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// AbstractQueuedSynchronizer.acquire(int arg)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">        <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">            selfInterrupt();</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">        <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="number">0</span>) {</span><br><span class="line">            <span class="comment">// 1. &#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x76F8;&#x6BD4;&#xFF0C;&#x8FD9;&#x91CC;&#x591A;&#x4E86;&#x4E00;&#x4E2A;&#x5224;&#x65AD;&#xFF1A;&#x662F;&#x5426;&#x6709;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;</span></span><br><span class="line">            <span class="keyword">if</span> (!hasQueuedPredecessors() &amp;&amp;</span><br><span class="line">                compareAndSetState(<span class="number">0</span>, acquires)) {</span><br><span class="line">                setExclusiveOwnerThread(current);</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) {</span><br><span class="line">            <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">            <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;Maximum lock count exceeded&quot;</span>);</span><br><span class="line">            setState(nextc);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x5728;&#x6CE8;&#x91CA;1&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x6709;&#x4E2A;<code>!hasQueuedPredecessors()</code>&#x6761;&#x4EF6;&#xFF0C;&#x610F;&#x601D;&#x662F;&#x8BF4;<strong>&#x5F53;&#x524D;&#x540C;&#x6B65;&#x961F;&#x5217;&#x6CA1;&#x6709;&#x524D;&#x9A71;&#x8282;&#x70B9;&#xFF08;&#x4E5F;&#x5C31;&#x662F;&#x6CA1;&#x6709;&#x7EBF;&#x7A0B;&#x5728;&#x7B49;&#x5F85;&#xFF09;&#x65F6;&#x624D;&#x4F1A;&#x53BB;<code>compareAndSetState(0, acquires)</code>&#x4F7F;&#x7528;CAS&#x4FEE;&#x6539;&#x540C;&#x6B65;&#x72B6;&#x6001;&#x53D8;&#x91CF;</strong>&#x3002;&#x6240;&#x4EE5;&#x5C31;&#x5B9E;&#x73B0;&#x4E86;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x6839;&#x636E;&#x7EBF;&#x7A0B;&#x53D1;&#x51FA;&#x8BF7;&#x6C42;&#x7684;&#x987A;&#x5E8F;&#x83B7;&#x53D6;&#x9501;&#x3002;</p>
+<h3 id="&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;"><a href="#&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;" class="headerlink" title="&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;"></a>&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;lock&#x65B9;&#x6CD5;</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">NonfairSync</span> <span class="keyword">extends</span> <span class="title class_">Sync</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span> {</span><br><span class="line">        <span class="comment">// 2. &#x548C;&#x516C;&#x5E73;&#x9501;&#x76F8;&#x6BD4;&#xFF0C;&#x8FD9;&#x91CC;&#x4F1A;&#x76F4;&#x63A5;&#x5148;&#x8FDB;&#x884C;&#x4E00;&#x6B21;CAS&#xFF0C;&#x6210;&#x529F;&#x5C31;&#x8FD4;&#x56DE;&#x4E86;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, <span class="number">1</span>))</span><br><span class="line">            setExclusiveOwnerThread(Thread.currentThread());</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            acquire(<span class="number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// AbstractQueuedSynchronizer.acquire(int arg)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">        <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">            selfInterrupt();</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">        <span class="keyword">return</span> nonfairTryAcquire(acquires);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Performs non-fair tryLock.  tryAcquire is implemented in</span></span><br><span class="line"><span class="comment"> * subclasses, but both need nonfair try for trylock method.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">nonfairTryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">    <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) {</span><br><span class="line">        <span class="comment">//3.&#x8FD9;&#x91CC;&#x4E5F;&#x662F;&#x76F4;&#x63A5;CAS&#xFF0C;&#x6CA1;&#x6709;&#x5224;&#x65AD;&#x524D;&#x9762;&#x662F;&#x5426;&#x8FD8;&#x6709;&#x8282;&#x70B9;&#x3002;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) {</span><br><span class="line">            setExclusiveOwnerThread(current);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) {</span><br><span class="line">        <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">        <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;Maximum lock count exceeded&quot;</span>);</span><br><span class="line">        setState(nextc);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><strong>&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x5B9E;&#x73B0;&#x5728;&#x521A;&#x8FDB;&#x5165;lock&#x65B9;&#x6CD5;&#x65F6;&#x4F1A;&#x76F4;&#x63A5;&#x4F7F;&#x7528;&#x4E00;&#x6B21;CAS&#x53BB;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x4E0D;&#x6210;&#x529F;&#x624D;&#x4F1A;&#x5230;acquire&#x65B9;&#x6CD5;&#x4E2D;&#xFF0C;&#x5982;&#x6CE8;&#x91CA;2&#x3002;&#x800C;&#x5728;nonfairTryAcquire&#x65B9;&#x6CD5;&#x4E2D;&#x5E76;&#x6CA1;&#x6709;&#x5224;&#x65AD;&#x662F;&#x5426;&#x6709;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x5728;&#x7B49;&#x5F85;&#xFF0C;&#x76F4;&#x63A5;CAS&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5982;&#x6CE8;&#x91CA;3&#x3002;&#x7531;&#x6B64;&#x5B9E;&#x73B0;&#x4E86;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;</strong></p>
+<h3 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h3><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x548C;&#x516C;&#x5E73;&#x9501;&#x7684;&#x4E24;&#x5904;&#x4E0D;&#x540C;&#xFF1A;</p>
+<ol>
+<li><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x5728;&#x8C03;&#x7528; lock &#x540E;&#xFF0C;&#x9996;&#x5148;&#x5C31;&#x4F1A;&#x8C03;&#x7528; CAS &#x8FDB;&#x884C;&#x4E00;&#x6B21;&#x62A2;&#x9501;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x6070;&#x5DE7;&#x9501;&#x6CA1;&#x6709;&#x88AB;&#x5360;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x76F4;&#x63A5;&#x5C31;&#x83B7;&#x53D6;&#x5230;&#x9501;&#x8FD4;&#x56DE;&#x4E86;&#x3002;</p>
+</li>
+<li><p>&#x975E;&#x516C;&#x5E73;&#x9501;&#x5728; CAS &#x5931;&#x8D25;&#x540E;&#xFF0C;&#x548C;&#x516C;&#x5E73;&#x9501;&#x4E00;&#x6837;&#x90FD;&#x4F1A;&#x8FDB;&#x5165;&#x5230; tryAcquire &#x65B9;&#x6CD5;&#xFF0C;&#x5728; tryAcquire &#x65B9;&#x6CD5;&#x4E2D;&#xFF0C;&#x5982;&#x679C;&#x53D1;&#x73B0;&#x9501;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x88AB;&#x91CA;&#x653E;&#x4E86;&#xFF08;state == 0&#xFF09;&#xFF0C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x76F4;&#x63A5; CAS &#x62A2;&#x9501;&#xFF0C;&#x4F46;&#x662F;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x5224;&#x65AD;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x662F;&#x5426;&#x6709;&#x7EBF;&#x7A0B;&#x5904;&#x4E8E;&#x7B49;&#x5F85;&#x72B6;&#x6001;&#xFF0C;&#x5982;&#x679C;&#x6709;&#x5219;&#x4E0D;&#x53BB;&#x62A2;&#x9501;&#xFF0C;&#x4E56;&#x4E56;&#x6392;&#x5230;&#x540E;&#x9762;&#x3002;</p>
+</li>
+</ol>
+<p>&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x5C31;&#x8FD9;&#x4E24;&#x70B9;&#x533A;&#x522B;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E24;&#x6B21; CAS &#x90FD;&#x4E0D;&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;&#x540E;&#x9762;&#x975E;&#x516C;&#x5E73;&#x9501;&#x548C;&#x516C;&#x5E73;&#x9501;&#x662F;&#x4E00;&#x6837;&#x7684;&#xFF0C;&#x90FD;&#x8981;&#x8FDB;&#x5165;&#x5230;&#x963B;&#x585E;&#x961F;&#x5217;&#x7B49;&#x5F85;&#x5524;&#x9192;&#x3002;<br>&#x76F8;&#x5BF9;&#x6765;&#x8BF4;&#xFF0C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4F1A;&#x6709;&#x66F4;&#x597D;&#x7684;&#x6027;&#x80FD;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x7684;&#x541E;&#x5410;&#x91CF;&#x6BD4;&#x8F83;&#x5927;&#x3002;</p>
+<hr>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/279baac48960">https://www.jianshu.com/p/279baac48960</a></p>
+</blockquote>
+<h3 id="ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;"><a href="#ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;" class="headerlink" title="ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;"></a>ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;</h3><ol>
+<li>ReentrantLock&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;<br>ReentrantLock&#x628A;&#x6240;&#x6709;Lock&#x63A5;&#x53E3;&#x7684;&#x64CD;&#x4F5C;&#x90FD;&#x59D4;&#x6D3E;&#x5230;&#x4E00;&#x4E2A;Sync&#x7C7B;&#x4E0A;&#xFF0C;&#x8BE5;&#x7C7B;&#x7EE7;&#x627F;&#x4E86;AbstractQueuedSynchronizer&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static abstract class Sync extends AbstractQueuedSynchronizer  </span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>Sync&#x53C8;&#x6709;&#x4E24;&#x4E2A;&#x5B50;&#x7C7B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">final static class NonfairSync extends Sync  </span><br><span class="line">final static class FairSync extends Sync  </span><br></pre></td></tr></table></figure>
+
+<p>&#x663E;&#x7136;&#x662F;&#x4E3A;&#x4E86;&#x652F;&#x6301;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x800C;&#x5B9A;&#x4E49;&#xFF0C;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x4E3A;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;<br>&#x5148;&#x7406;&#x4E00;&#x4E0B;Reentrant.lock()&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;&#xFF08;&#x9ED8;&#x8BA4;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF09;&#xFF1A;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/4.png"></p>
+<p>ReentrantLock&#x53EF;&#x4EE5;&#x6709;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x4E0D;&#x540C;&#x5B9E;&#x73B0;,&#x53EA;&#x8981;&#x5728;&#x6784;&#x9020;&#x5B83;&#x7684;&#x65F6;&#x5019;&#x4F20;&#x5165;&#x4E0D;&#x540C;&#x7684;&#x5E03;&#x5C14;&#x503C;,&#x7EE7;&#x7EED;&#x8DDF;&#x8FDB;&#x4E0B;&#x6E90;&#x7801;&#x6211;&#x4EEC;&#x5C31;&#x80FD;&#x53D1;&#x73B0;,&#x5173;&#x952E;&#x5728;&#x4E8E;&#x5B9E;&#x4F8B;&#x5316;&#x5185;&#x90E8;&#x53D8;&#x91CF;sync&#x7684;&#x65B9;&#x5F0F;&#x4E0D;&#x540C;,&#x5982;&#x4E0B;&#x6240;&#x793A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Creates an instance of {<span class="doctag">@code</span> ReentrantLock} with the</span></span><br><span class="line"><span class="comment"> * given fairness policy.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> fair {<span class="doctag">@code</span> true} if this lock should use a fair ordering policy</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;FairSync,&#x975E;&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;NonfairSync&#x3002;&#x800C;&#x4E0D;&#x7BA1;&#x662F;FairSync&#x8FD8;&#x662F;NonfariSync,&#x90FD;&#x95F4;&#x63A5;&#x7EE7;&#x627F;&#x81EA;AbstractQueuedSynchronizer&#x8FD9;&#x4E2A;&#x62BD;&#x8C61;&#x7C7B;&#xFF0C;&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;</p>
+<ul>
+<li><p>NonfairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/1.png"></p>
+</li>
+<li><p>FairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/2.png"></p>
+</li>
+</ul>
+<p>&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x4E3A;&#x6211;&#x4EEC;&#x7684;&#x52A0;&#x9501;&#x548C;&#x89E3;&#x9501;&#x8FC7;&#x7A0B;&#x63D0;&#x4F9B;&#x4E86;&#x7EDF;&#x4E00;&#x7684;&#x6A21;&#x677F;&#x65B9;&#x6CD5;&#xFF0C;&#x53EA;&#x662F;&#x4E00;&#x4E9B;&#x7EC6;&#x8282;&#x7684;&#x5904;&#x7406;&#x7531;&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x7684;&#x5B9E;&#x73B0;&#x7C7B;&#x81EA;&#x5DF1;&#x51B3;&#x5B9A;&#x3002;&#x6240;&#x4EE5;&#x5728;&#x89E3;&#x8BFB;ReentrantLock(&#x91CD;&#x5165;&#x9501;)&#x7684;&#x6E90;&#x7801;&#x4E4B;&#x524D;,&#x6709;&#x5FC5;&#x8981;&#x4E86;&#x89E3;&#x4E0B;AbstractQueuedSynchronizer&#x3002;</p>
+<ol start="2">
+<li>&#x9501;&#x5B9E;&#x73B0;&#xFF08;&#x52A0;&#x9501;&#xFF09;<br>&#x7B80;&#x5355;&#x8BF4;&#x6765;&#xFF0C;AbstractQueuedSynchronizer&#x4F1A;&#x628A;&#x6240;&#x6709;&#x7684;&#x8BF7;&#x6C42;&#x7EBF;&#x7A0B;&#x6784;&#x6210;&#x4E00;&#x4E2A;CLH&#x961F;&#x5217;&#xFF0C;&#x5F53;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x5B8C;&#x6BD5;&#xFF08;lock.unlock()&#xFF09;&#x65F6;&#x4F1A;&#x6FC0;&#x6D3B;&#x81EA;&#x5DF1;&#x7684;&#x540E;&#x7EE7;&#x8282;&#x70B9;&#xFF0C;&#x4F46;&#x6B63;&#x5728;&#x6267;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#x5E76;&#x4E0D;&#x5728;&#x961F;&#x5217;&#x4E2D;&#xFF0C;&#x800C;&#x90A3;&#x4E9B;&#x7B49;&#x5F85;&#x6267;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#x5168;&#x90E8;&#x5904;&#x4E8E;&#x963B;&#x585E;&#x72B6;&#x6001;.</li>
+</ol>
+<blockquote>
+<p><strong>&#x7EBF;&#x7A0B;&#x7684;&#x663E;&#x5F0F;&#x963B;&#x585E;&#x662F;&#x901A;&#x8FC7;&#x8C03;&#x7528;LockSupport.park()&#x5B8C;&#x6210;&#xFF0C;&#x800C;LockSupport.park()&#x5219;&#x8C03;&#x7528;sun.misc.Unsafe.park()&#x672C;&#x5730;&#x65B9;&#x6CD5;&#xFF0C;&#x518D;&#x8FDB;&#x4E00;&#x6B65;&#xFF0C;HotSpot&#x5728;Linux&#x4E2D;&#x4E2D;&#x901A;&#x8FC7;&#x8C03;&#x7528;pthread_mutex_lock&#x51FD;&#x6570;&#x628A;&#x7EBF;&#x7A0B;&#x4EA4;&#x7ED9;&#x7CFB;&#x7EDF;&#x5185;&#x6838;&#x8FDB;&#x884C;&#x963B;&#x585E;&#x3002;</strong></p>
+</blockquote>
+<p>&#x5F53;&#x6709;&#x7EBF;&#x7A0B;&#x7ADE;&#x4E89;&#x9501;&#x65F6;&#xFF0C;&#x8BE5;&#x7EBF;&#x7A0B;&#x4F1A;&#x9996;&#x5148;&#x5C1D;&#x8BD5;&#x83B7;&#x5F97;&#x9501;&#xFF0C;&#x8FD9;&#x5BF9;&#x4E8E;&#x90A3;&#x4E9B;&#x5DF2;&#x7ECF;&#x5728;&#x961F;&#x5217;&#x4E2D;&#x6392;&#x961F;&#x7684;&#x7EBF;&#x7A0B;&#x6765;&#x8BF4;&#x663E;&#x5F97;&#x4E0D;&#x516C;&#x5E73;&#xFF0C;&#x8FD9;&#x662F;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x7531;&#x6765;&#x4E4B;&#x4E00;&#xFF0C;&#x4E0E;synchronized&#x5B9E;&#x73B0;&#x7C7B;&#x4F3C;&#xFF0C;&#x8FD9;&#x6837;&#x4F1A;&#x6781;&#x5927;&#x63D0;&#x9AD8;&#x541E;&#x5410;&#x91CF;&#x3002;</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReentrantLock/" rel="tag">ReentrantLock</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+  </article>
+  
+
+  
+  <nav class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/3/">上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/5/">下一页</a>
+  </nav>
+  
+</section>
+</div>
+
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

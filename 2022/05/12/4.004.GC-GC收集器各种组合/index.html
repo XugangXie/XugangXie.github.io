@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>GC-4.004.GC-GC收集器各种组合 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-4.004.GC-GC收集器各种组合"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  GC-4.004.GC-GC收集器各种组合
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/" class="article-date">
+  <time datetime="2022-05-11T16:00:00.000Z" itemprop="datePublished">2022-05-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>GC&#x6536;&#x96C6;&#x5668;&#x5404;&#x79CD;&#x7EC4;&#x5408;<br><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903929780666375">https://juejin.cn/post/6844903929780666375</a></p>
+</blockquote>
+<p>&#x5E74;&#x8F7B;&#x4EE3;&#xFF1A; <code>&#x4E32;&#x884C;&#x56DE;&#x6536;&#x5668;&#xFF08;Serial&#xFF09;</code>&#xFF0C;<code>&#x5E76;&#x884C;&#x56DE;&#x6536;&#x5668;(ParNew)</code>&#xFF0C; <code>&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x56DE;&#x6536;&#x5668;(Parallel Scavenge)</code><br>&#x5E74;&#x8001;&#x4EE3;&#xFF1A; <code>&#x4E32;&#x884C;&#x56DE;&#x6536;&#x5668;&#xFF08;Serial Old&#xFF09;</code>&#xFF0C;<code>&#x5E76;&#x884C;&#x56DE;&#x6536;&#x5668;(Parallel Old)</code>&#xFF0C; <code>CMS&#x6536;&#x96C6;&#x5668;&#xFF08;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x6E05;&#x9664;&#xFF09;</code></p>
+<span id="more"></span>
+<p>&#x5E74;&#x8F7B;&#x4EE3;&#x4E0E;&#x5E74;&#x8001;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#x7684;&#x7EC4;&#x5408;&#x56FE;&#xFF1A;&#x5C55;&#x793A;&#x4E86;7&#x79CD;&#x4F5C;&#x7528;&#x4E8E;&#x4E0D;&#x540C;&#x5206;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5982;&#x679C;&#x4E24;&#x4E2A;&#x6536;&#x96C6;&#x5668;&#x4E4B;&#x95F4;&#x5B58;&#x5728;&#x8FDE;&#x7EBF;&#xFF0C;&#x5C31;&#x8BF4;&#x660E;&#x5B83;&#x4EEC;&#x53EF;&#x4EE5;&#x642D;&#x914D;&#x4F7F;&#x7528;&#x3002;<br><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a1.png"></p>
+<p>&#x4EE5;&#x4E0B;&#x7ED3;&#x8BBA;&#xFF0C;&#x8BB0;&#x4F4F;&#x5373;&#x53EF;&#xFF1A;</p>
+<ul>
+<li><p>jdk1.7 &#x9ED8;&#x8BA4;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;Parallel Scavenge&#xFF08;&#x65B0;&#x751F;&#x4EE3;&#xFF09;+Parallel Old&#xFF08;&#x8001;&#x5E74;&#x4EE3;&#xFF09;</p>
+</li>
+<li><p>jdk1.8 &#x9ED8;&#x8BA4;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;Parallel Scavenge&#xFF08;&#x65B0;&#x751F;&#x4EE3;&#xFF09;+Parallel Old&#xFF08;&#x8001;&#x5E74;&#x4EE3;&#xFF09;</p>
+</li>
+<li><p>jdk1.9 &#x9ED8;&#x8BA4;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;G1</p>
+</li>
+</ul>
+<p>&#x5982;&#x4F55;&#x67E5;&#x770B;&#xFF1F; cmd&#x6267;&#x884C;&#x547D;&#x4EE4;&#xFF1A; java -XX:+PrintCommandLineFlags -version<br><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a2.png"></p>
+<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a3.png"></p>
+<hr>
+<h2 id="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"><a href="#6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;" class="headerlink" title="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"></a>6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;</h2><p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/1.png"></p>
+<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/2.png"></p>
+<h2 id="&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h2><p><strong>&#x6240;&#x6709;&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x90FD;&#x4F7F;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;&#x90FD;&#x4F1A;&#x53D1;&#x751F;stop-the-world</strong>&#x3002;&#x7531;&#x4E8E;&#x7EDD;&#x5927;&#x591A;&#x6570;&#x5BF9;&#x8C61;&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;&#x901A;&#x5E38;&#x6BD4;&#x8F83;&#x77ED;&#xFF0C;&#x5728;&#x65B0;&#x751F;&#x4EE3;&#x88AB;&#x56DE;&#x6536;&#x7684;&#x53EF;&#x80FD;&#x6027;&#x5F88;&#x5927;&#xFF0C;&#x65B0;&#x751F;&#x4EE3;&#x7684;&#x5783;&#x573E;&#x56DE;&#x6536;&#x901A;&#x5E38;&#x53EF;&#x4EE5;&#x56DE;&#x6536;&#x5927;&#x90E8;&#x5206;&#x5BF9;&#x8C61;&#xFF0C;&#x56E0;&#x6B64;&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#x6548;&#x7387;&#x66F4;&#x9AD8;&#x3002;</p>
+<h3 id="Serial"><a href="#Serial" class="headerlink" title="Serial"></a>Serial</h3><p><strong>&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x5355;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<blockquote>
+<p>&#x201C;Serial&#x201D; is a stop-the-world, copying collector which uses a single GC thread.</p>
+</blockquote>
+<h3 id="ParNew"><a href="#ParNew" class="headerlink" title="ParNew"></a>ParNew</h3><p><strong>&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x591A;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<p>ParNew &#x4E0E; Parallel Scavenge&#x7684;&#x4E00;&#x4E2A;&#x4E3B;&#x8981;&#x533A;&#x522B;&#x662F;&#xFF0C;ParNew&#x53EF;&#x4EE5;&#x4E0E;CMS&#x8FDB;&#x884C;&#x642D;&#x914D;&#x4F7F;&#x7528;&#x3002;</p>
+<blockquote>
+<p>&#x201C;ParNew&#x201D; is a stop-the-world, copying collector which uses multiple GC threads.<br>It differs from &#x201C;Parallel Scavenge&#x201D; in that it has enhancements that make it usable with CMS. For example, &#x201C;ParNew&#x201D; does the synchronization needed so that it can run during the concurrent phases of CMS.</p>
+</blockquote>
+<h3 id="Parallel-Scavenge"><a href="#Parallel-Scavenge" class="headerlink" title="Parallel Scavenge"></a>Parallel Scavenge</h3><p><strong>&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x591A;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<p>&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x53EF;&#x63A7;&#x5236;&#x6700;&#x5927;&#x5783;&#x573E;&#x6536;&#x96C6;&#x505C;&#x987F;&#x65F6;&#x95F4;&#xFF08;-XX:MaxGCPauseMillis&#xFF09;&#x4E0E;&#x541E;&#x5410;&#x91CF;&#x5927;&#x5C0F;&#xFF08;-XX:GCTimeRatio&#xFF09;&#xFF0C;&#x652F;&#x6301;GC&#x81EA;&#x9002;&#x5E94;&#x7684;&#x8C03;&#x8282;&#x7B56;&#x7565;&#xFF08;GC Ergonomics&#xFF0C;&#x5BF9;&#x5E94;&#x53C2;&#x6570;-XX:+UseAdaptiveSizePolicy&#xFF09;&#x3002;</p>
+<blockquote>
+<p>&#x201C;Parallel Scavenge&#x201D; is a stop-the-world, copying collector which uses multiple GC threads.</p>
+</blockquote>
+<h2 id="&#x8001;&#x5E74;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#&#x8001;&#x5E74;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="&#x8001;&#x5E74;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>&#x8001;&#x5E74;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h2><p><strong>&#x9664;&#x4E86;CMS&#xFF0C;&#x5176;&#x4ED6;&#x7684;&#x8001;&#x5E74;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;GC&#x65F6;&#x90FD;&#x662F;stop-the-world&#xFF0C;&#x90FD;&#x4F1A;&#x5728;&#x6E05;&#x7406;&#x5783;&#x573E;&#x4E4B;&#x540E;&#x8FDB;&#x884C;&#x538B;&#x7F29;&#x6574;&#x7406;&#x3002;</strong></p>
+<h3 id="Serial-Old"><a href="#Serial-Old" class="headerlink" title="Serial Old"></a>Serial Old</h3><p><strong>&#x91C7;&#x7528;&#x6807;&#x8BB0;&#x6574;&#x7406;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x5355;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<blockquote>
+<p>&#x201C;Serial Old&#x201D; is a stop-the-world, mark-sweep-compact collector that uses a single GC thread.</p>
+</blockquote>
+<h3 id="Parallel-Old"><a href="#Parallel-Old" class="headerlink" title="Parallel Old"></a>Parallel Old</h3><p><strong>&#x91C7;&#x7528;&#x6807;&#x8BB0;&#x6574;&#x7406;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x591A;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<blockquote>
+<p>&#x201C;Parallel Old&#x201D; is a compacting collector that uses multiple GC threads.</p>
+</blockquote>
+<h3 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h3><p><strong>CMS&#x91C7;&#x7528;&#x6807;&#x8BB0;&#x6E05;&#x7406;&#x7B97;&#x6CD5;&#xFF0C;&#x662F;&#x4E00;&#x4E2A;&#x4EE5;&#x4F4E;&#x6682;&#x505C;&#x65F6;&#x95F4;&#x4E3A;&#x76EE;&#x6807;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#x3002;GC&#x65F6;&#x5927;&#x90E8;&#x5206;&#x65F6;&#x95F4;&#x5E76;&#x53D1;&#x6267;&#x884C;&#xFF0C;&#x5176;&#x4E2D;&#x521D;&#x59CB;&#x5316;&#x6807;&#x8BB0;&#x548C;&#x91CD;&#x65B0;&#x6807;&#x8BB0;&#x4E24;&#x4E2A;&#x9636;&#x6BB5;&#x4ECD;&#x7136;&#x4F1A;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x5176;&#x4F59;&#x9636;&#x6BB5;&#x90FD;&#x662F;&#x5E76;&#x53D1;&#x6267;&#x884C;&#x3002;</strong></p>
+<blockquote>
+<p>&#x201C;CMS&#x201D; is a mostly concurrent, low-pause collector.</p>
+</blockquote>
+<h3 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h3><p>G1&#x5C06;&#x6574;&#x4E2A;&#x5806;&#x5212;&#x5206;&#x4E3A;&#x591A;&#x4E2A;&#x5927;&#x5C0F;&#x76F8;&#x7B49;&#x7684;&#x72EC;&#x7ACB;&#x533A;&#x57DF;&#xFF08;Region&#xFF09;&#xFF0C;&#x4FDD;&#x7559;&#x65B0;&#x751F;&#x4EE3;&#x548C;&#x8001;&#x5E74;&#x4EE3;&#x7684;&#x5206;&#x4EE3;&#x6982;&#x5FF5;&#xFF08;&#x4F46;&#x4E24;&#x8005;&#x4E0D;&#x518D;&#x662F;&#x7269;&#x7406;&#x9694;&#x79BB;&#x7684;&#xFF09;&#x3002;</p>
+<p>&#x4ECE;&#x6574;&#x4F53;&#x6765;&#x770B;&#x662F;&#x57FA;&#x4E8E;&#x6807;&#x8BB0;&#x6574;&#x7406;&#x7B97;&#x6CD5;&#xFF0C;&#x4ECE;&#x5C40;&#x90E8;&#xFF08;&#x4E24;&#x4E2A;Region&#x4E4B;&#x95F4;&#xFF09;&#x6765;&#x770B;&#x662F;&#x57FA;&#x4E8E;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x53EF;&#x4EE5;&#x907F;&#x514D;&#x4EA7;&#x751F;&#x5185;&#x5B58;&#x7A7A;&#x95F4;&#x788E;&#x7247;&#xFF0C;&#x9632;&#x6B62;&#x53D1;&#x751F;&#x5E76;&#x53D1;&#x6A21;&#x5F0F;&#x5931;&#x8D25;&#x3002;</p>
+<p>&#x4F7F;&#x7528;&#x591A;&#x4E2A;GC&#x7EBF;&#x7A0B;&#xFF0C;&#x6BCF;&#x6B21;&#x4F18;&#x5148;&#x56DE;&#x6536;&#x4EF7;&#x503C;&#x6700;&#x5927;&#x7684;Region&#x3002;</p>
+<p>&#x652F;&#x6301;<strong>&#x53EF;&#x9884;&#x6D4B;&#x7684;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x6A21;&#x578B;</strong>&#xFF0C;&#x4ECE;&#x800C;&#x63D0;&#x9AD8;&#x6536;&#x96C6;&#x6548;&#x7387;&#xFF0C;<strong>&#x964D;&#x4F4E;stop-the-world&#x7684;&#x65F6;&#x95F4;</strong>&#x3002;</p>
+<blockquote>
+<p>The Garbage First or G1 garbage collector is available in Java 7 and is designed to be the long term replacement for the CMS collector. The G1 collector is a parallel, concurrent, and incrementally compacting low-pause garbage collector that has quite a different layout from the other garbage collectors described previously.</p>
+</blockquote>
+<h2 id="&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;"><a href="#&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;" class="headerlink" title="&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;"></a>&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;</h2><h3 id="1-&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#1-&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="1.&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>1.&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h3><p>-XX:+UseConcMarkSweepGC&#xFF08;&#x8BE5;&#x53C2;&#x6570;&#x9690;&#x5F0F;&#x542F;&#x7528;-XX:+UseParNewGC&#xFF09;</p>
+<h3 id="2-&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#2-&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="2.&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>2.&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h3><p>-XX:+UseParallelOldGC&#xFF08;&#x8BE5;&#x53C2;&#x6570;&#x9690;&#x5F0F;&#x542F;&#x7528;-XX:+UseParallelGC&#xFF09;</p>
+<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/3.png"></p>
+<h2 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.breakyizhan.com/javamianshiti/2853.html">Java&#x865A;&#x62DF;&#x673A;&#xFF08;JVM&#xFF09;&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;Parallel Scavenge&#x6536;&#x96C6;&#x5668;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%94%B6%E9%9B%86%E5%99%A8%E7%BB%84%E5%90%88/" rel="tag">收集器组合</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/12/4.003.GC-MinorGC%E3%80%81MajorGC%E5%92%8CFullGC%E7%9A%84%E5%AF%B9%E6%AF%94/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            GC-MinorGC、MajorGC和FullGC的对比
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/12/4.004.GC-Parallel-Scavenge%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">GC-Parallel-Scavenge原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

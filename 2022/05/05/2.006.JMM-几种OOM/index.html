@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>JMM-几种OOM |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-2.006.JMM-几种OOM"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JMM-几种OOM
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/05/2.006.JMM-%E5%87%A0%E7%A7%8DOOM/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JMM/">JMM</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">24 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x51E0;&#x79CD;OOM:<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhuifeng523/p/11827992.html">https://www.cnblogs.com/zhuifeng523/p/11827992.html</a></p>
+</blockquote>
+<span id="more"></span>
+<h3 id="&#x5806;&#x6EA2;&#x51FA;"><a href="#&#x5806;&#x6EA2;&#x51FA;" class="headerlink" title="&#x5806;&#x6EA2;&#x51FA;"></a>&#x5806;&#x6EA2;&#x51FA;</h3><p>&#x8FD9;&#x79CD;&#x573A;&#x666F;&#x6700;&#x4E3A;&#x5E38;&#x89C1;&#xFF0C;&#x62A5;&#x9519;&#x4FE1;&#x606F;&#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError: Java heap space</p>
+</blockquote>
+<p>&#x539F;&#x56E0;<br>1&#x3001;&#x4EE3;&#x7801;&#x4E2D;&#x53EF;&#x80FD;&#x5B58;&#x5728;&#x5927;&#x5BF9;&#x8C61;&#x5206;&#x914D;<br>2&#x3001;&#x53EF;&#x80FD;&#x5B58;&#x5728;&#x5185;&#x5B58;&#x6CC4;&#x9732;&#xFF0C;&#x5BFC;&#x81F4;&#x5728;&#x591A;&#x6B21;GC&#x4E4B;&#x540E;&#xFF0C;&#x8FD8;&#x662F;&#x65E0;&#x6CD5;&#x627E;&#x5230;&#x4E00;&#x5757;&#x8DB3;&#x591F;&#x5927;&#x7684;&#x5185;&#x5B58;&#x5BB9;&#x7EB3;&#x5F53;&#x524D;&#x5BF9;&#x8C61;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x65B9;&#x6CD5;<br>1&#x3001;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;&#x5927;&#x5BF9;&#x8C61;&#x7684;&#x5206;&#x914D;&#xFF0C;&#x6700;&#x6709;&#x53EF;&#x80FD;&#x7684;&#x662F;&#x5927;&#x6570;&#x7EC4;&#x5206;&#x914D;<br>2&#x3001;&#x901A;&#x8FC7;jmap&#x547D;&#x4EE4;&#xFF0C;&#x628A;&#x5806;&#x5185;&#x5B58;dump&#x4E0B;&#x6765;&#xFF0C;&#x4F7F;&#x7528;mat&#x5DE5;&#x5177;&#x5206;&#x6790;&#x4E00;&#x4E0B;&#xFF0C;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;&#x5185;&#x5B58;&#x6CC4;&#x9732;&#x7684;&#x95EE;&#x9898;<br>3&#x3001;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x627E;&#x5230;&#x660E;&#x663E;&#x7684;&#x5185;&#x5B58;&#x6CC4;&#x9732;&#xFF0C;&#x4F7F;&#x7528; -Xmx &#x52A0;&#x5927;&#x5806;&#x5185;&#x5B58;<br>4&#x3001;&#x8FD8;&#x6709;&#x4E00;&#x70B9;&#x5BB9;&#x6613;&#x88AB;&#x5FFD;&#x7565;&#xFF0C;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x6709;&#x5927;&#x91CF;&#x7684;&#x81EA;&#x5B9A;&#x4E49;&#x7684; Finalizable &#x5BF9;&#x8C61;&#xFF0C;&#x4E5F;&#x6709;&#x53EF;&#x80FD;&#x662F;&#x6846;&#x67B6;&#x5185;&#x90E8;&#x63D0;&#x4F9B;&#x7684;&#xFF0C;&#x8003;&#x8651;&#x5176;&#x5B58;&#x5728;&#x7684;&#x5FC5;&#x8981;&#x6027;</p>
+<h3 id="&#x6C38;&#x4E45;&#x4EE3;-x2F-&#x5143;&#x7A7A;&#x95F4;&#x6EA2;&#x51FA;"><a href="#&#x6C38;&#x4E45;&#x4EE3;-x2F-&#x5143;&#x7A7A;&#x95F4;&#x6EA2;&#x51FA;" class="headerlink" title="&#x6C38;&#x4E45;&#x4EE3;/&#x5143;&#x7A7A;&#x95F4;&#x6EA2;&#x51FA;"></a>&#x6C38;&#x4E45;&#x4EE3;/&#x5143;&#x7A7A;&#x95F4;&#x6EA2;&#x51FA;</h3><p>&#x62A5;&#x9519;&#x4FE1;&#x606F;&#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError: PermGen spacejava.lang.OutOfMemoryError: Metaspace</p>
+</blockquote>
+<p>&#x539F;&#x56E0;<br>&#x6C38;&#x4E45;&#x4EE3;&#x662F; HotSot &#x865A;&#x62DF;&#x673A;&#x5BF9;&#x65B9;&#x6CD5;&#x533A;&#x7684;&#x5177;&#x4F53;&#x5B9E;&#x73B0;&#xFF0C;&#x5B58;&#x653E;&#x4E86;&#x88AB;&#x865A;&#x62DF;&#x673A;&#x52A0;&#x8F7D;&#x7684;&#x7C7B;&#x4FE1;&#x606F;&#x3001;&#x5E38;&#x91CF;&#x3001;&#x9759;&#x6001;&#x53D8;&#x91CF;&#x3001;JIT&#x7F16;&#x8BD1;&#x540E;&#x7684;&#x4EE3;&#x7801;&#x7B49;&#x3002;<br>JDK8&#x540E;&#xFF0C;&#x5143;&#x7A7A;&#x95F4;&#x66FF;&#x6362;&#x4E86;&#x6C38;&#x4E45;&#x4EE3;&#xFF0C;&#x5143;&#x7A7A;&#x95F4;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x672C;&#x5730;&#x5185;&#x5B58;&#xFF0C;&#x8FD8;&#x6709;&#x5176;&#x5B83;&#x7EC6;&#x8282;&#x53D8;&#x5316;&#xFF1A;</p>
+<ul>
+<li>&#x5B57;&#x7B26;&#x4E32;&#x5E38;&#x91CF;&#x7531;&#x6C38;&#x4E45;&#x4EE3;&#x8F6C;&#x79FB;&#x5230;&#x5806;&#x4E2D;</li>
+<li>&#x548C;&#x6C38;&#x4E45;&#x4EE3;&#x76F8;&#x5173;&#x7684;JVM&#x53C2;&#x6570;&#x5DF2;&#x79FB;&#x9664;<br>&#x53EF;&#x80FD;&#x539F;&#x56E0;&#x6709;&#x5982;&#x4E0B;&#x51E0;&#x79CD;&#xFF1A;<br>1&#x3001;&#x5728;Java7&#x4E4B;&#x524D;&#xFF0C;&#x9891;&#x7E41;&#x7684;&#x9519;&#x8BEF;&#x4F7F;&#x7528;String.intern()&#x65B9;&#x6CD5; 2&#x3001;&#x8FD0;&#x884C;&#x671F;&#x95F4;&#x751F;&#x6210;&#x4E86;&#x5927;&#x91CF;&#x7684;&#x4EE3;&#x7406;&#x7C7B;&#xFF0C;&#x5BFC;&#x81F4;&#x65B9;&#x6CD5;&#x533A;&#x88AB;&#x6491;&#x7206;&#xFF0C;&#x65E0;&#x6CD5;&#x5378;&#x8F7D; 3&#x3001;&#x5E94;&#x7528;&#x957F;&#x65F6;&#x95F4;&#x8FD0;&#x884C;&#xFF0C;&#x6CA1;&#x6709;&#x91CD;&#x542F;</li>
+</ul>
+<p>&#x89E3;&#x51B3;&#x65B9;&#x6CD5;<br>&#x56E0;&#x4E3A;&#x8BE5;OOM&#x539F;&#x56E0;&#x6BD4;&#x8F83;&#x7B80;&#x5355;&#xFF0C;&#x89E3;&#x51B3;&#x65B9;&#x6CD5;&#x6709;&#x5982;&#x4E0B;&#x51E0;&#x79CD;&#xFF1A;<br>1&#x3001;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x6C38;&#x4E45;&#x4EE3;&#x7A7A;&#x95F4;&#x6216;&#x8005;&#x5143;&#x7A7A;&#x95F4;&#x8BBE;&#x7F6E;&#x7684;&#x8FC7;&#x5C0F; 2&#x3001;&#x68C0;&#x67E5;&#x4EE3;&#x7801;&#x4E2D;&#x662F;&#x5426;&#x5B58;&#x5728;&#x5927;&#x91CF;&#x7684;&#x53CD;&#x5C04;&#x64CD;&#x4F5C; 3&#x3001;dump&#x4E4B;&#x540E;&#x901A;&#x8FC7;mat&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;&#x5927;&#x91CF;&#x7531;&#x4E8E;&#x53CD;&#x5C04;&#x751F;&#x6210;&#x7684;&#x4EE3;&#x7406;&#x7C7B; 4&#x3001;&#x653E;&#x5927;&#x62DB;&#xFF0C;&#x91CD;&#x542F;JVM</p>
+<h3 id="GC-overhead-limit-exceeded"><a href="#GC-overhead-limit-exceeded" class="headerlink" title="GC overhead limit exceeded"></a>GC overhead limit exceeded</h3><p>&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x6BD4;&#x8F83;&#x7684;&#x7F55;&#x89C1;&#xFF0C;&#x62A5;&#x9519;&#x4FE1;&#x606F;&#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError&#xFF1A;GC overhead limit exceeded</p>
+</blockquote>
+<p>&#x539F;&#x56E0;<br>&#x8FD9;&#x4E2A;&#x662F;JDK6&#x65B0;&#x52A0;&#x7684;&#x9519;&#x8BEF;&#x7C7B;&#x578B;&#xFF0C;&#x4E00;&#x822C;&#x90FD;&#x662F;&#x5806;&#x592A;&#x5C0F;&#x5BFC;&#x81F4;&#x7684;&#x3002;Sun &#x5B98;&#x65B9;&#x5BF9;&#x6B64;&#x7684;&#x5B9A;&#x4E49;&#xFF1A;&#x8D85;&#x8FC7;98%&#x7684;&#x65F6;&#x95F4;&#x7528;&#x6765;&#x505A;GC&#x5E76;&#x4E14;&#x56DE;&#x6536;&#x4E86;&#x4E0D;&#x5230;2%&#x7684;&#x5806;&#x5185;&#x5B58;&#x65F6;&#x4F1A;&#x629B;&#x51FA;&#x6B64;&#x5F02;&#x5E38;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x65B9;&#x6CD5;<br>1&#x3001;&#x68C0;&#x67E5;&#x9879;&#x76EE;&#x4E2D;&#x662F;&#x5426;&#x6709;&#x5927;&#x91CF;&#x7684;&#x6B7B;&#x5FAA;&#x73AF;&#x6216;&#x6709;&#x4F7F;&#x7528;&#x5927;&#x5185;&#x5B58;&#x7684;&#x4EE3;&#x7801;&#xFF0C;&#x4F18;&#x5316;&#x4EE3;&#x7801;&#x3002;<br>2&#x3001;&#x6DFB;&#x52A0;&#x53C2;&#x6570; -XX:-UseGCOverheadLimit &#x7981;&#x7528;&#x8FD9;&#x4E2A;&#x68C0;&#x67E5;&#xFF0C;&#x5176;&#x5B9E;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x89E3;&#x51B3;&#x4E0D;&#x4E86;&#x5185;&#x5B58;&#x95EE;&#x9898;&#xFF0C;&#x53EA;&#x662F;&#x628A;&#x9519;&#x8BEF;&#x7684;&#x4FE1;&#x606F;&#x5EF6;&#x540E;&#xFF0C;&#x6700;&#x7EC8;&#x51FA;&#x73B0; java.lang.OutOfMemoryError: Java heap space&#x3002;<br>3&#x3001;dump&#x5185;&#x5B58;&#xFF0C;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;&#x5185;&#x5B58;&#x6CC4;&#x9732;&#xFF0C;&#x5982;&#x679C;&#x6CA1;&#x6709;&#xFF0C;&#x52A0;&#x5927;&#x5185;&#x5B58;&#x3002;</p>
+<h3 id="&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;"><a href="#&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;" class="headerlink" title="&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;"></a>&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;</h3><p>&#x62A5;&#x9519;&#x4FE1;&#x606F;&#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError : unable to create new native Thread</p>
+</blockquote>
+<p>&#x539F;&#x56E0;<br>&#x51FA;&#x73B0;&#x8FD9;&#x79CD;&#x5F02;&#x5E38;&#xFF0C;&#x57FA;&#x672C;&#x4E0A;&#x90FD;&#x662F;&#x521B;&#x5EFA;&#x7684;&#x4E86;&#x5927;&#x91CF;&#x7684;&#x7EBF;&#x7A0B;&#x5BFC;&#x81F4;&#x7684;&#xFF0C;&#x4EE5;&#x524D;&#x78B0;&#x5230;&#x8FC7;&#x4E00;&#x6B21;&#xFF0C;&#x901A;&#x8FC7;jstack&#x51FA;&#x6765;&#x4E00;&#x5171;8000&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x65B9;&#x6CD5;<br>1&#x3001;&#x901A;&#x8FC7; -Xss &#x964D;&#x4F4E;&#x7684;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x6808;&#x5927;&#x5C0F;&#x7684;&#x5BB9;&#x91CF; 2&#x3001;&#x7EBF;&#x7A0B;&#x603B;&#x6570;&#x4E5F;&#x53D7;&#x5230;&#x7CFB;&#x7EDF;&#x7A7A;&#x95F2;&#x5185;&#x5B58;&#x548C;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x7684;&#x9650;&#x5236;&#xFF0C;&#x68C0;&#x67E5;&#x662F;&#x5426;&#x8BE5;&#x7CFB;&#x7EDF;&#x4E0B;&#x6709;&#x6B64;&#x9650;&#x5236;&#xFF1A;</p>
+<ul>
+<li>/proc/sys/kernel/pid_max</li>
+<li>/proc/sys/kernel/thread-max</li>
+<li>maxuserprocess&#xFF08;ulimit -u&#xFF09;</li>
+<li>/proc/sys/vm/maxmapcount</li>
+</ul>
+<h3 id="&#x5206;&#x914D;&#x8D85;&#x5927;&#x6570;&#x7EC4;"><a href="#&#x5206;&#x914D;&#x8D85;&#x5927;&#x6570;&#x7EC4;" class="headerlink" title="&#x5206;&#x914D;&#x8D85;&#x5927;&#x6570;&#x7EC4;"></a>&#x5206;&#x914D;&#x8D85;&#x5927;&#x6570;&#x7EC4;</h3><p>&#x62A5;&#x9519;&#x4FE1;&#x606F; &#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError: Requested array size exceeds VM limit</p>
+</blockquote>
+<p>&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x4E00;&#x822C;&#x662F;&#x7531;&#x4E8E;&#x4E0D;&#x5408;&#x7406;&#x7684;&#x6570;&#x7EC4;&#x5206;&#x914D;&#x8BF7;&#x6C42;&#x5BFC;&#x81F4;&#x7684;&#xFF0C;&#x5728;&#x4E3A;&#x6570;&#x7EC4;&#x5206;&#x914D;&#x5185;&#x5B58;&#x4E4B;&#x524D;&#xFF0C;JVM &#x4F1A;&#x6267;&#x884C;&#x4E00;&#x9879;&#x68C0;&#x67E5;&#x3002;&#x8981;&#x5206;&#x914D;&#x7684;&#x6570;&#x7EC4;&#x5728;&#x8BE5;&#x5E73;&#x53F0;&#x662F;&#x5426;&#x53EF;&#x4EE5;&#x5BFB;&#x5740;(addressable)&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x5BFB;&#x5740;(addressable)&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x9519;&#x8BEF;&#x3002;<br>&#x89E3;&#x51B3;&#x65B9;&#x6CD5;&#x5C31;&#x662F;&#x68C0;&#x67E5;&#x4F60;&#x7684;&#x4EE3;&#x7801;&#x4E2D;&#x662F;&#x5426;&#x6709;&#x521B;&#x5EFA;&#x8D85;&#x5927;&#x6570;&#x7EC4;&#x7684;&#x5730;&#x65B9;&#x3002;</p>
+<h3 id="swap&#x6EA2;&#x51FA;"><a href="#swap&#x6EA2;&#x51FA;" class="headerlink" title="swap&#x6EA2;&#x51FA;"></a>swap&#x6EA2;&#x51FA;</h3><p>&#x62A5;&#x9519;&#x4FE1;&#x606F; &#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError: Out of swap space</p>
+</blockquote>
+<p>&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x4E00;&#x822C;&#x662F;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x5BFC;&#x81F4;&#x7684;&#xFF0C;&#x53EF;&#x80FD;&#x7684;&#x539F;&#x56E0;&#x6709;&#xFF1A;<br>1&#x3001;swap &#x5206;&#x533A;&#x5927;&#x5C0F;&#x5206;&#x914D;&#x4E0D;&#x8DB3;&#xFF1B;<br>2&#x3001;&#x5176;&#x4ED6;&#x8FDB;&#x7A0B;&#x6D88;&#x8017;&#x4E86;&#x6240;&#x6709;&#x7684;&#x5185;&#x5B58;&#x3002;</p>
+<p>&#x89E3;&#x51B3;&#x65B9;&#x6848;&#xFF1A;<br>1&#x3001;&#x5176;&#x5B83;&#x670D;&#x52A1;&#x8FDB;&#x7A0B;&#x53EF;&#x4EE5;&#x9009;&#x62E9;&#x6027;&#x7684;&#x62C6;&#x5206;&#x51FA;&#x53BB; 2&#x3001;&#x52A0;&#x5927;swap&#x5206;&#x533A;&#x5927;&#x5C0F;&#xFF0C;&#x6216;&#x8005;&#x52A0;&#x5927;&#x673A;&#x5668;&#x5185;&#x5B58;&#x5927;&#x5C0F;</p>
+<h3 id="&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6EA2;&#x51FA;"><a href="#&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6EA2;&#x51FA;" class="headerlink" title="&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6EA2;&#x51FA;"></a>&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6EA2;&#x51FA;</h3><p>&#x62A5;&#x9519;&#x4FE1;&#x606F; &#xFF1A;</p>
+<blockquote>
+<p>java.lang.OutOfMemoryError: stack_trace_with_native_method</p>
+</blockquote>
+<p>&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x5728;&#x8FD0;&#x884C;&#x65F6;&#x51FA;&#x73B0;&#x4E86;&#x5185;&#x5B58;&#x5206;&#x914D;&#x5931;&#x8D25;&#xFF0C;&#x548C;&#x4E4B;&#x524D;&#x7684;&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;&#x4E0D;&#x540C;&#xFF0C;&#x65B9;&#x6CD5;&#x6808;&#x6EA2;&#x51FA;&#x53D1;&#x751F;&#x5728; JVM &#x4EE3;&#x7801;&#x5C42;&#x9762;&#xFF0C;&#x800C;&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x6EA2;&#x51FA;&#x53D1;&#x751F;&#x5728;JNI&#x4EE3;&#x7801;&#x6216;&#x672C;&#x5730;&#x65B9;&#x6CD5;&#x5904;&#x3002;<br>&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x51FA;&#x73B0;&#x7684;&#x6982;&#x7387;&#x6781;&#x4F4E;&#xFF0C;&#x53EA;&#x80FD;&#x901A;&#x8FC7;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x672C;&#x5730;&#x5DE5;&#x5177;&#x8FDB;&#x884C;&#x8BCA;&#x65AD;&#xFF0C;&#x96BE;&#x5EA6;&#x6709;&#x70B9;&#x5927;&#xFF0C;&#x8FD8;&#x662F;&#x653E;&#x5F03;&#x4E3A;&#x5999;&#x3002;</p>
+<hr>
+<blockquote>
+<p>JVM&#x4E2D;OOM&#x5E38;&#x89C1;&#x51E0;&#x79CD;&#x7C7B;&#x578B;:<br><a target="_blank" rel="noopener" href="https://www.jb51.cc/java/743437.html">https://www.jb51.cc/java/743437.html</a></p>
+</blockquote>
+<p>Java&#x4E2D;&#x7684;OOM</p>
+<ul>
+<li><p><code>java.lang.StackOverflowError</code></p>
+</li>
+<li><p><code>java.lang.OutMemoryError:Java heap space</code></p>
+</li>
+<li><p><code>java.lang.OutMemoryError:GC overhead limit exceeded</code>:GC&#x56DE;&#x6536;&#x65F6;&#x95F4;&#x8FC7;&#x957F;&#x4F1A;&#x53D1;&#x751F;outofmemoryerror,&#x8FC7;&#x957F;&#x7684;&#x5B9A;&#x4E49;&#x662F;&#xFF0C;&#x5982;&#x679C;&#x8D85;&#x8FC7;98%&#x7684;&#x65F6;&#x95F4;&#x6765;&#x505A;GC&#xFF0C;&#x5E76;&#x4E14;&#x56DE;&#x6536;&#x4E86;&#x4E0D;&#x5230;2%&#x7684;&#x5806;&#x5185;&#x5B58;&#xFF0C;&#x8FDE;&#x7EED;&#x591A;&#x6B21;&#x56DE;&#x6536;&#x4E0D;&#x5230;2%&#x7684;&#x60C5;&#x51B5;&#x4F1A;&#x8DD1;&#x51FA;&#xFF0C;&#x8D1F;&#x8D23;&#x5F62;&#x6210;&#x6076;&#x6027;&#x5FAA;&#x73AF;&#xFF0C;gc&#x6E05;&#x7406;&#x7684;&#x5185;&#x5B58;&#x518D;&#x6B21;&#x88AB;&#x586B;&#x6EE1;&#xFF0C;&#x8FEB;&#x4F7F;gc&#x518D;&#x6B21;&#x6267;&#x884C;&#x3002;<br>&#x4F8B;&#x5B50;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * -Xmx10m -Xms10m -XX:+PrintGCDetails -XX:MaxDirectMemorySize=5m</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">  List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) {</span><br><span class="line">      list.add(String.valueOf(<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(<span class="number">1111111</span>)).intern());</span><br><span class="line">    }</span><br><span class="line">  } <span class="keyword">catch</span> (Throwable e) {</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>java.lang.OutMemoryError:Direct buffer memory</code>&#xFF1A;&#x5199;NIO&#x7A0B;&#x5E8F;&#x4F7F;&#x7528;ByteBuffer&#x6765;&#x8BFB;&#x53D6;&#x6216;&#x8005;&#x5199;&#x5165;&#x6570;&#x636E;&#xFF0C;&#x8FD9;&#x662F;&#x57FA;&#x4E8E;&#x901A;&#x9053;&#xFF08;channel&#xFF09;&#x548C;&#x7F13;&#x51B2;&#x533A;&#xFF08;buffer&#xFF09;&#x7684;IO&#x65B9;&#x5F0F;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;Native&#x51FD;&#x6570;&#x5E93;&#x76F4;&#x63A5;&#x5206;&#x914D;&#x5806;&#x5185;&#x5B58;&#xFF0C;&#x7136;&#x540E;&#x901A;&#x8FC7;&#x4E00;&#x4E2A;&#x5B58;&#x50A8;&#x5728;Java&#x5806;&#x91CC;&#x9762;&#x7684;DirectByteBuffer&#x5BF9;&#x8C61;&#x4F5C;&#x4E3A;&#x8FD9;&#x5757;&#x5185;&#x5B58;&#x7684;&#x5F15;&#x7528;&#x8FDB;&#x884C;&#x64CD;&#x4F5C;&#xFF0C;&#x8FD9;&#x6837;&#x5728;&#x4E00;&#x4E9B;&#x573A;&#x666F;&#x4E2D;&#x80FD;&#x591F;&#x63D0;&#x9AD8;&#x6027;&#x80FD;&#xFF0C;&#x907F;&#x514D;&#x4E86;Java&#x5806;&#x548C;native&#x5806;&#x4E2D;&#x6765;&#x56DE;&#x590D;&#x5236;&#x6570;&#x636E;&#x3002;<br>ByteBuffer.allocate(capability)&#x7B2C;&#x4E00;&#x79CD;&#x65B9;&#x5F0F;&#x5206;&#x914D;JVM&#x5185;&#x5B58;&#xFF0C;&#x5C5E;&#x4E8E;GC&#x7BA1;&#x8F96;&#x8303;&#x56F4;&#xFF0C;&#x9700;&#x8981;&#x62F7;&#x8D1D;&#x6240;&#x4EE5;&#x901F;&#x5EA6;&#x76F8;&#x5BF9;&#x8F83;&#x6162;<br>ByteBuffer.allocateDirect(capability)&#x7B2C;&#x4E8C;&#x79CD;&#x65B9;&#x5F0F;&#x5206;&#x914D;OS&#x672C;&#x5730;&#x5185;&#x5B58;&#xFF0C;&#x4E0D;&#x5C5E;&#x4E8E;GC&#x7BA1;&#x8F96;&#x8303;&#x56F4;&#xFF0C;&#x7531;&#x4E8E;&#x4E0D;&#x9700;&#x8981;&#x5185;&#x5B58;&#x62F7;&#x8D1D;&#xFF0C;&#x6545;&#x800C;&#x901F;&#x5EA6;&#x8F83;&#x5FEB;</p>
+</li>
+<li><p><code>java.lang.OutMemoryError:unable to create new native thread</code>&#xFF1A;&#x5728;&#x9AD8;&#x5E76;&#x53D1;&#x8BF7;&#x6C42;&#x670D;&#x52A1;&#x5668;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4E00;&#x4E2A;&#x5E94;&#x7528;&#x8FDB;&#x7A0B;&#x521B;&#x5EFA;&#x592A;&#x591A;&#x7EBF;&#x7A0B;&#xFF0C;&#x8D85;&#x8FC7;&#x7CFB;&#x7EDF;&#x7684;&#x627F;&#x8F7D;&#x80FD;&#x529B;&#x3002;&#x4F60;&#x7684;&#x670D;&#x52A1;&#x5668;&#x4E0D;&#x5141;&#x8BB8;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x521B;&#x5EFA;&#x8FD9;&#x4E48;&#x591A;&#x7EBF;&#x7A0B;&#xFF0C;linux&#x7CFB;&#x7EDF;&#x9ED8;&#x8BA4;&#x4E00;&#x4E2A;&#x8FDB;&#x7A0B;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x6700;&#x591A;1024&#x4E2A;&#x7EBF;&#x7A0B;&#xFF08;&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#xFF1A;&#x51CF;&#x5C11;&#x7EBF;&#x7A0B;&#x521B;&#x5EFA;&#x6216;&#x8005;&#x4FEE;&#x6539;&#x9ED8;&#x8BA4;&#x670D;&#x52A1;&#x5668;&#x914D;&#x7F6E;&#xFF0C;&#x6269;&#x5927;&#x9ED8;&#x8BA4;&#x9650;&#x5236;)&#x3002;</p>
+</li>
+<li><p><code>java.lang.OutMemoryError:Metaspace</code>&#xFF1A;java8Metaspace&#x53D6;&#x4EE3;&#x6C38;&#x4E45;&#x4EE3;&#xFF0C;&#x4F7F;&#x7528;&#x672C;&#x5730;&#x5185;&#x5B58;&#x8FDB;&#x884C;&#x5B58;&#x50A8;&#x3002;Metaspace&#x662F;&#x65B9;&#x6CD5;&#x4E0E;&#x5728;HotSpot&#x4E2D;&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x5373;&#x5728;java8&#x4E2D;&#xFF0C;classe Metadata&#x88AB;&#x5B58;&#x50A8;&#x5728;Metaspace&#x7684;native memory&#xFF08;&#x6C38;&#x4E45;&#x4EE3;/Metaspace:&#x865A;&#x62DF;&#x673A;&#x52A0;&#x8F7D;&#x7684;&#x7C7B;&#x578B;&#x5B66;&#xFF0C;&#x5E38;&#x91CF;&#x6C60;&#xFF0C;&#x9759;&#x6001;&#x53D8;&#x91CF;&#xFF0C;&#x5373;&#x65F6;&#x7F16;&#x8BD1;&#x540E;&#x7684;&#x4EE3;&#x7801;&#xFF09;</p>
+</li>
+</ul>
+<hr>
+<blockquote>
+<p>Java OOM&#x90FD;&#x6709;&#x54EA;&#x4E9B;&#xFF0C;&#x8BF4;&#x51FA;&#x51E0;&#x79CD;&#xFF1F;:<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/fb7fcef2c223">https://www.jianshu.com/p/fb7fcef2c223</a></p>
+</blockquote>
+<ol>
+<li>StackOverflowError: &#x8C03;&#x7528;&#x6808;&#x8FC7;&#x6DF1;&#xFF0C;&#x5BFC;&#x81F4;&#x7EBF;&#x7A0B;&#x6808;&#x5360;&#x7528;&#x5927;&#x5C0F;&#x8D85;&#x8FC7;-Xss&#xFF08;&#x6216;&#x8005;&#x662F;-XX:ThreadStackSize&#xFF09;&#x7684;&#x9650;&#x5236;</li>
+<li>OutOfMemoryError: Java heap space&#xFF1A;&#x5806;&#x5185;&#x5B58;&#x4E0D;&#x591F;&#x7528;&#xFF0C;&#x65E0;&#x6CD5;&#x5206;&#x914D;&#x66F4;&#x591A;&#x5185;&#x5B58;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x3002;</li>
+<li>OutOfMemoryError: unable to create native thread&#xFF1A;&#x8FD9;&#x4E2A;&#x5728;&#x521B;&#x5EFA;&#x592A;&#x591A;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x8D85;&#x8FC7;&#x7CFB;&#x7EDF;&#x914D;&#x7F6E;&#x7684;&#x6781;&#x9650;&#x3002;&#x5982;Linux&#x9ED8;&#x8BA4;&#x5141;&#x8BB8;&#x5355;&#x4E2A;&#x8FDB;&#x7A0B;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x7684;&#x7EBF;&#x7A0B;&#x6570;&#x662F;1024&#x4E2A;&#x3002;</li>
+<li>OutOfMemoryError: GC Overhead limit exceeded&#xFF1A;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x7B49;&#x5806;&#x5185;&#x5B58;&#x8017;&#x5C3D;&#xFF0C;&#x624D;&#x4F1A;&#x62A5; OutOfMemoryError&#xFF0C;&#x800C;&#x662F;&#x5982;&#x679C; JVM &#x89C9;&#x5F97; GC &#x6548;&#x7387;&#x4E0D;&#x9AD8;&#xFF0C;&#x4E5F;&#x4F1A;&#x62A5;&#x8FD9;&#x4E2A;&#x9519;&#x8BEF;&#x3002;</li>
+<li>OutOfMemoryError: direct memory&#xFF1A;&#x8FD9;&#x4E2A;&#x662F;&#x5411;&#x7CFB;&#x7EDF;&#x7533;&#x8BF7;&#x76F4;&#x63A5;&#x5185;&#x5B58;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7CFB;&#x7EDF;&#x53EF;&#x7528;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;</li>
+<li>OutOfMemoryError: map failed&#xFF1A;&#x8FD9;&#x4E2A;&#x662F; File MMAP&#xFF08;&#x6587;&#x4EF6;&#x6620;&#x5C04;&#x5185;&#x5B58;&#xFF09;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7CFB;&#x7EDF;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;</li>
+<li>OutOfMemoryError: Requested array size exceeds VM limit&#xFF1A;&#x5F53;&#x7533;&#x8BF7;&#x7684;&#x6570;&#x7EC4;&#x5927;&#x5C0F;&#x8D85;&#x8FC7;&#x5806;&#x5185;&#x5B58;&#x9650;&#x5236;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x3002;</li>
+<li>OutOfMemoryError: Metaspace&#xFF1A;Metadata &#x5360;&#x7528;&#x7A7A;&#x95F4;&#x8D85;&#x9650;</li>
+<li>OutOfMemoryError: Compressed class space&#xFF1A;class space &#x5185;&#x5B58;&#x6EA2;&#x51FA;&#x5BFC;&#x81F4;&#x7684;</li>
+<li>OutOfMemoryError: reason stack_trace_with_native_method&#xFF1A;&#x8FD9;&#x4E2A;&#x53D1;&#x751F;&#x5728; JNI &#x8C03;&#x7528;&#x4E2D;&#xFF0C;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;</li>
+</ol>
+<h3 id="JVM-&#x5185;&#x5B58;&#x5360;&#x7528;&#x4E0E;&#x5206;&#x6790;"><a href="#JVM-&#x5185;&#x5B58;&#x5360;&#x7528;&#x4E0E;&#x5206;&#x6790;" class="headerlink" title="JVM &#x5185;&#x5B58;&#x5360;&#x7528;&#x4E0E;&#x5206;&#x6790;"></a>JVM &#x5185;&#x5B58;&#x5360;&#x7528;&#x4E0E;&#x5206;&#x6790;</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">Native Memory Tracking:</span><br><span class="line"></span><br><span class="line">Total: reserved=6308603KB, committed=4822083KB</span><br><span class="line">-                 Java Heap (reserved=4194304KB, committed=4194304KB)</span><br><span class="line">                            (mmap: reserved=4194304KB, committed=4194304KB)</span><br><span class="line"></span><br><span class="line">-                     Class (reserved=1161041KB, committed=126673KB)</span><br><span class="line">                            (classes #21662)</span><br><span class="line">                            (  instance classes #20542, array classes #1120)</span><br><span class="line">                            (malloc=3921KB #64030)</span><br><span class="line">                            (mmap: reserved=1157120KB, committed=122752KB)</span><br><span class="line">                            (  Metadata:   )</span><br><span class="line">                            (    reserved=108544KB, committed=107520KB)</span><br><span class="line">                            (    used=105411KB)</span><br><span class="line">                            (    free=2109KB)</span><br><span class="line">                            (    waste=0KB =0.00%)</span><br><span class="line">                            (  Class space:)</span><br><span class="line">                            (    reserved=1048576KB, committed=15232KB)</span><br><span class="line">                            (    used=13918KB)</span><br><span class="line">                            (    free=1314KB)</span><br><span class="line">                            (    waste=0KB =0.00%)</span><br><span class="line"></span><br><span class="line">-                    Thread (reserved=355251KB, committed=86023KB)</span><br><span class="line">                            (thread #673)</span><br><span class="line">                            (stack: reserved=353372KB, committed=84144KB)</span><br><span class="line">                            (malloc=1090KB #4039)</span><br><span class="line">                            (arena=789KB #1344)</span><br><span class="line"></span><br><span class="line">-                      Code (reserved=252395KB, committed=69471KB)</span><br><span class="line">                            (malloc=4707KB #17917)</span><br><span class="line">                            (mmap: reserved=247688KB, committed=64764KB)</span><br><span class="line"></span><br><span class="line">-                        GC (reserved=199635KB, committed=199635KB)</span><br><span class="line">                            (malloc=11079KB #29639)</span><br><span class="line">                            (mmap: reserved=188556KB, committed=188556KB)</span><br><span class="line"></span><br><span class="line">-                  Compiler (reserved=2605KB, committed=2605KB)</span><br><span class="line">                            (malloc=2474KB #2357)</span><br><span class="line">                            (arena=131KB #5)</span><br><span class="line"></span><br><span class="line">-                  Internal (reserved=3643KB, committed=3643KB)</span><br><span class="line">                            (malloc=3611KB #8683)</span><br><span class="line">                            (mmap: reserved=32KB, committed=32KB)</span><br><span class="line"></span><br><span class="line">-                     Other (reserved=67891KB, committed=67891KB)</span><br><span class="line">                            (malloc=67891KB #2859)</span><br><span class="line"></span><br><span class="line">-                    Symbol (reserved=26220KB, committed=26220KB)</span><br><span class="line">                            (malloc=22664KB #292684)</span><br><span class="line">                            (arena=3556KB #1)</span><br><span class="line"></span><br><span class="line">-    Native Memory Tracking (reserved=7616KB, committed=7616KB)</span><br><span class="line">                            (malloc=585KB #8238)</span><br><span class="line">                            (tracking overhead=7031KB)</span><br><span class="line"></span><br><span class="line">-               Arena Chunk (reserved=10911KB, committed=10911KB)</span><br><span class="line">                            (malloc=10911KB)</span><br><span class="line"></span><br><span class="line">-                   Tracing (reserved=25937KB, committed=25937KB)</span><br><span class="line">                            (malloc=25937KB #8666)</span><br><span class="line"></span><br><span class="line">-                   Logging (reserved=5KB, committed=5KB)</span><br><span class="line">                            (malloc=5KB #196)</span><br><span class="line"></span><br><span class="line">-                 Arguments (reserved=18KB, committed=18KB)</span><br><span class="line">                            (malloc=18KB #486)</span><br><span class="line"></span><br><span class="line">-                    Module (reserved=532KB, committed=532KB)</span><br><span class="line">                            (malloc=532KB #3579)</span><br><span class="line"></span><br><span class="line">-              Synchronizer (reserved=591KB, committed=591KB)</span><br><span class="line">                            (malloc=591KB #4777)</span><br><span class="line"></span><br><span class="line">-                 Safepoint (reserved=8KB, committed=8KB)</span><br><span class="line">                            (mmap: reserved=8KB, committed=8KB)</span><br></pre></td></tr></table></figure>
+
+<p>&#x53EF;&#x4EE5;&#x770B;&#x51FA;&#xFF0C;Java &#x8FDB;&#x7A0B;&#x5185;&#x5B58;&#x5305;&#x62EC;&#xFF1A;</p>
+<ul>
+<li>Java Heap: &#x5806;&#x5185;&#x5B58;&#xFF0C;&#x5373;-Xmx&#x9650;&#x5236;&#x7684;&#x6700;&#x5927;&#x5806;&#x5927;&#x5C0F;&#x7684;&#x5185;&#x5B58;&#x3002;</li>
+<li>Class&#xFF1A;&#x52A0;&#x8F7D;&#x7684;&#x7C7B;&#x4E0E;&#x65B9;&#x6CD5;&#x4FE1;&#x606F;&#xFF0C;&#x5176;&#x5B9E;&#x5C31;&#x662F; <strong>metaspace&#xFF0C;&#x5305;&#x542B;&#x4E24;&#x90E8;&#x5206;&#xFF1A; &#x4E00;&#x662F; metadata&#xFF0C;&#x88AB;-XX:MaxMetaspaceSize&#x9650;&#x5236;&#x6700;&#x5927;&#x5927;&#x5C0F;&#xFF0C;&#x53E6;&#x5916;&#x662F; class space&#xFF0C;&#x88AB;-XX:CompressedClassSpaceSize&#x9650;&#x5236;&#x6700;&#x5927;&#x5927;&#x5C0F;</strong></li>
+<li>Thread&#xFF1A;&#x7EBF;&#x7A0B;&#x4E0E;&#x7EBF;&#x7A0B;&#x6808;&#x5360;&#x7528;&#x5185;&#x5B58;&#xFF0C;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x6808;&#x5360;&#x7528;&#x5927;&#x5C0F;&#x53D7;-Xss&#x9650;&#x5236;&#xFF0C;&#x4F46;&#x662F;&#x603B;&#x5927;&#x5C0F;&#x6CA1;&#x6709;&#x9650;&#x5236;&#x3002;</li>
+<li>&#x2026;</li>
+</ul>
+<h3 id="&#x5404;&#x79CD;-StackOverflowError-&#x4E0E;-OutOfMemoryError-&#x573A;&#x666F;&#x4EE5;&#x53CA;&#x5B9A;&#x4F4D;&#x65B9;&#x5F0F;"><a href="#&#x5404;&#x79CD;-StackOverflowError-&#x4E0E;-OutOfMemoryError-&#x573A;&#x666F;&#x4EE5;&#x53CA;&#x5B9A;&#x4F4D;&#x65B9;&#x5F0F;" class="headerlink" title="&#x5404;&#x79CD; StackOverflowError &#x4E0E; OutOfMemoryError &#x573A;&#x666F;&#x4EE5;&#x53CA;&#x5B9A;&#x4F4D;&#x65B9;&#x5F0F;"></a>&#x5404;&#x79CD; StackOverflowError &#x4E0E; OutOfMemoryError &#x573A;&#x666F;&#x4EE5;&#x53CA;&#x5B9A;&#x4F4D;&#x65B9;&#x5F0F;</h3><ol>
+<li><strong>StackOverflowError</strong><br>&#x8C03;&#x7528;&#x6808;&#x8FC7;&#x6DF1;&#xFF0C;&#x5BFC;&#x81F4;&#x7EBF;&#x7A0B;&#x6808;&#x5360;&#x7528;&#x5927;&#x5C0F;&#x8D85;&#x8FC7;-Xss&#xFF08;&#x6216;&#x8005;&#x662F;-XX:ThreadStackSize&#xFF09;&#x7684;&#x9650;&#x5236;&#xFF0C;&#x5982;&#x679C;&#x6CA1;&#x6307;&#x5B9A;-Xss&#xFF0C;&#x5219;&#x6839;&#x636E;&#x4E0D;&#x540C;&#x7CFB;&#x7EDF;&#x786E;&#x5B9A;&#x9ED8;&#x8BA4;&#x6700;&#x5927;&#x5927;&#x5C0F;&#x3002;</li>
+</ol>
+<p>&#x786E;&#x5B9A;&#x9ED8;&#x8BA4;&#x5927;&#x5C0F;&#x7684;&#x4EE3;&#x7801;&#x8BF7;&#x53C2;&#x8003;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">windows&#xFF1A;os_windows.cpp*</span><br><span class="line">linux&#xFF1A;os_linux.cpp</span><br></pre></td></tr></table></figure>
+<p>&#x603B;&#x7ED3;&#x8D77;&#x6765;&#x5C31;&#x662F;&#xFF0C;32 &#x4F4D;&#x7684;&#x7CFB;&#x7EDF;&#x4E00;&#x822C;&#x662F; 512k&#xFF0C;64 &#x4E3A;&#x7684;&#x662F; 1024k</p>
+<p>&#x4E00;&#x822C;&#x62A5;&#x8FD9;&#x4E2A;&#x9519;&#x90FD;&#x662F;&#x56E0;&#x4E3A;&#x9012;&#x5F52;&#x6B7B;&#x5FAA;&#x73AF;&#xFF0C;&#x6216;&#x8005;&#x8C03;&#x7528;&#x6808;&#x771F;&#x7684;&#x592A;&#x6DF1;&#x800C;&#x7EBF;&#x7A0B;&#x6808;&#x5927;&#x5C0F;&#x4E0D;&#x8DB3;&#xFF0C;&#x6BD4;&#x5982;&#x90A3;&#x79CD;&#x56DE;&#x8C03;&#x80CC;&#x538B;&#x6A21;&#x578B;&#x7684;&#x6846;&#x67B6;&#xFF0C;netty + reactor &#x8FD9;&#x79CD;&#xFF0C;&#x4E00;&#x822C;&#x7EBF;&#x7A0B;&#x6808;&#x9700;&#x8981;&#x8C03;&#x5927;&#x4E00;&#x70B9;&#x3002;</p>
+<ol start="2">
+<li><strong>OutOfMemoryError: Java heap space</strong><br>&#x5806;&#x5185;&#x5B58;&#x4E0D;&#x591F;&#x7528;&#xFF0C;&#x65E0;&#x6CD5;&#x5206;&#x914D;&#x66F4;&#x591A;&#x5185;&#x5B58;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x3002;&#x4E00;&#x822C;&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x53D1;&#x751F;&#x540E;&#xFF0C;&#x9700;&#x8981;&#x67E5;&#x770B; heap dump&#xFF0C;&#x7EBF;&#x4E0A;&#x5E94;&#x7528;&#x4E00;&#x822C;&#x52A0;&#x4E0A;-XX: +<br><code>HeapDumpOnOutOfMemoryError</code>&#x5728;<code>OutOfMemoryError</code>&#x53D1;&#x751F;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8FDB;&#x884C; <code>heap dump</code>&#xFF0C;&#x4E4B;&#x540E;&#x8FDB;&#x884C;&#x5206;&#x6790;&#x3002;</li>
+</ol>
+<p>heap dump &#x67E5;&#x770B;&#x5DE5;&#x5177;&#x4E00;&#x822C;&#x901A;&#x8FC7; Memory Analyzer (MAT)</p>
+<ol start="3">
+<li><strong>OutOfMemoryError: unable to create native thread</strong><br>&#x8FD9;&#x4E2A;&#x5728;&#x521B;&#x5EFA;&#x592A;&#x591A;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x8D85;&#x8FC7;&#x7CFB;&#x7EDF;&#x914D;&#x7F6E;&#x7684;&#x6781;&#x9650;&#x3002;&#x5982;Linux&#x9ED8;&#x8BA4;&#x5141;&#x8BB8;&#x5355;&#x4E2A;&#x8FDB;&#x7A0B;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x7684;&#x7EBF;&#x7A0B;&#x6570;&#x662F;1024&#x4E2A;&#x3002;</li>
+</ol>
+<p>&#x4E00;&#x822C;&#x62A5;&#x8FD9;&#x4E2A;&#x9519;&#x9996;&#x5148;&#x8003;&#x8651;&#x4E0D;&#x8981;&#x521B;&#x5EFA;&#x90A3;&#x4E48;&#x591A;&#x7EBF;&#x7A0B;&#xFF0C;&#x7EBF;&#x7A0B;&#x6C60;&#x5316;&#x5E76;&#x6C60;&#x5B50;&#x5C3D;&#x91CF;&#x540C;&#x4E1A;&#x52A1;&#x590D;&#x7528;&#x3002;&#x5982;&#x679C;&#x5B9E;&#x5728;&#x8981;&#x521B;&#x5EFA;&#x90A3;&#x4E48;&#x591A;&#x7EBF;&#x7A0B;&#xFF0C;&#x5219;&#x8003;&#x8651;&#x4FEE;&#x6539;&#x670D;&#x52A1;&#x5668;&#x914D;&#x7F6E;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//&#x67E5;&#x770B;&#x9650;&#x5236;&#x4E2A;&#x6570;</span><br><span class="line">ulimit -u</span><br><span class="line"></span><br><span class="line">//&#x7F16;&#x8F91;&#x4FEE;&#x6539;</span><br><span class="line">vim /etc/security/limits.d/90-nproc.conf</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>OutOfMemoryError: GC Overhead limit exceeded</strong><br>&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x7B49;&#x5806;&#x5185;&#x5B58;&#x8017;&#x5C3D;&#xFF0C;&#x624D;&#x4F1A;&#x62A5; OutOfMemoryError&#xFF0C;&#x800C;&#x662F;&#x5982;&#x679C; JVM &#x89C9;&#x5F97; GC &#x6548;&#x7387;&#x4E0D;&#x9AD8;&#xFF0C;&#x4E5F;&#x4F1A;&#x62A5;&#x8FD9;&#x4E2A;&#x9519;&#x8BEF;&#x3002;</li>
+</ol>
+<p>&#x90A3;&#x4E48;&#x600E;&#x4E48;&#x8BC4;&#x4EF7; GC &#x6548;&#x7387;&#x4E0D;&#x9AD8;&#x5462;&#xFF1F;&#x6765;&#x770B;&#x4E0B;&#x6E90;&#x7801;&#xFF1A; &#x5462;&#xFF1F;&#x6765;&#x770B;&#x4E0B;&#x6E90;&#x7801;gcOverheadChecker.cpp&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">void GCOverheadChecker::check_gc_overhead_limit(GCOverheadTester* time_overhead,</span><br><span class="line">                                                GCOverheadTester* space_overhead,</span><br><span class="line">                                                bool is_full_gc,</span><br><span class="line">                                                GCCause::Cause gc_cause,</span><br><span class="line">                                                SoftRefPolicy* soft_ref_policy) {</span><br><span class="line"></span><br><span class="line">  // &#x5FFD;&#x7565;&#x663E;&#x5F0F;gc&#x547D;&#x4EE4;&#xFF0C;&#x6BD4;&#x5982;System.gc()&#xFF0C;&#x6216;&#x8005;&#x901A;&#x8FC7;JVMTI&#x547D;&#x4EE4;&#x7684;gc&#xFF0C;&#x6216;&#x8005;&#x901A;&#x8FC7;jcmd&#x547D;&#x4EE4;&#x7684;gc</span><br><span class="line">  if (GCCause::is_user_requested_gc(gc_cause) ||</span><br><span class="line">      GCCause::is_serviceability_requested_gc(gc_cause)) {</span><br><span class="line">    return;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  bool print_gc_overhead_limit_would_be_exceeded = false;</span><br><span class="line">  if (is_full_gc) {</span><br><span class="line">    //&#x5982;&#x679C;gc&#x65F6;&#x95F4;&#x8FC7;&#x957F;&#xFF0C;&#x5E76;&#x4E14;gc&#x56DE;&#x6536;&#x7684;&#x7A7A;&#x95F4;&#x8FD8;&#x662F;&#x4E0D;&#x591A;</span><br><span class="line">    //gc&#x65F6;&#x95F4;&#x5360;&#x7528;98%&#x4EE5;&#x4E0A;&#x4E3A;gc&#x65F6;&#x95F4;&#x8FC7;&#x957F;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; -XX:GCTimeLimit= &#x914D;&#x7F6E;&#xFF0C;&#x53C2;&#x8003;gc_globals.hpp: GCTimeLimit</span><br><span class="line">    //&#x56DE;&#x6536;&#x7A7A;&#x95F4;&#x5C0F;&#x4E8E;2%&#x4E3A;gc&#x56DE;&#x6536;&#x7A7A;&#x95F4;&#x4E0D;&#x591A;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;  -XX:GCHeapFreeLimit= &#x914D;&#x7F6E;&#xFF0C;&#x53C2;&#x8003;gc_globals.hpp: GCHeapFreeLimit</span><br><span class="line">    if (time_overhead-&gt;is_exceeded() &amp;&amp; space_overhead-&gt;is_exceeded()) {</span><br><span class="line">      _gc_overhead_limit_count++;</span><br><span class="line">      //&#x5982;&#x679C;UseGCOverheadLimit&#x8FD9;&#x4E2A;&#x72B6;&#x6001;&#x4F4D;&#x4E3A;&#x5F00;&#x542F;</span><br><span class="line">      //&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x662F;&#x5F00;&#x542F;&#x7684;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x542F;&#x52A8;&#x53C2;&#x6570;-XX:-UseGCOverheadLimit&#x5173;&#x95ED;&#xFF0C;&#x53C2;&#x8003;&#xFF1A;gc_globals.hpp: UseGCOverheadLimit</span><br><span class="line">      if (UseGCOverheadLimit) {</span><br><span class="line">        //&#x5982;&#x679C;&#x8D85;&#x8FC7;&#x89C4;&#x5B9A;&#x6B21;&#x6570;&#xFF0C;&#x8FD9;&#x4E2A;&#x6B21;&#x6570;&#x9ED8;&#x8BA4;&#x4E0D;&#x53EF;&#x914D;&#x7F6E;&#xFF0C;&#x5FC5;&#x987B;&#x5F00;&#x542F;develop&#x7F16;&#x8BD1;jdk&#x624D;&#x80FD;&#x914D;&#x7F6E;&#xFF0C;&#x53C2;&#x8003;gc_globals.hpp: GCOverheadLimitThreshold</span><br><span class="line">        if (_gc_overhead_limit_count &gt;= GCOverheadLimitThreshold){</span><br><span class="line">          //&#x8BBE;&#x7F6E;&#x72B6;&#x6001;&#x4F4D;&#xFF0C;&#x51C6;&#x5907;&#x629B;&#x51FA;OOM</span><br><span class="line">          set_gc_overhead_limit_exceeded(true);</span><br><span class="line">          //&#x6E05;&#x7A7A;&#x8BA1;&#x6570;</span><br><span class="line">          reset_gc_overhead_limit_count();</span><br><span class="line">        } else {</span><br><span class="line">          //&#x5982;&#x679C;&#x8FD8;&#x6CA1;&#x5230;&#x8FBE;&#x6B21;&#x6570;&#xFF0C;&#x4F46;&#x662F;&#x4E5F;&#x5FEB;&#x5230;&#x8FBE;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6E05;&#x7A7A;&#x6240;&#x6709;&#x7684;&#x8F6F;&#x5F15;&#x7528;</span><br><span class="line">          bool near_limit = gc_overhead_limit_near();</span><br><span class="line">          if (near_limit) {</span><br><span class="line">            soft_ref_policy-&gt;set_should_clear_all_soft_refs(true);</span><br><span class="line">            log_trace(gc, ergo)(&quot;Nearing GC overhead limit, will be clearing all SoftReference&quot;);</span><br><span class="line">          }</span><br><span class="line">        }</span><br><span class="line">      }</span><br><span class="line">      //&#x9700;&#x8981;&#x6253;&#x5370;&#x65E5;&#x5FD7;&#xFF0C;&#x63D0;&#x793A;GC&#x6548;&#x7387;&#x4E0D;&#x9AD8;</span><br><span class="line">      print_gc_overhead_limit_would_be_exceeded = true;</span><br><span class="line"></span><br><span class="line">    } else {</span><br><span class="line">      // Did not exceed overhead limits</span><br><span class="line">      reset_gc_overhead_limit_count();</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  if (UseGCOverheadLimit) {</span><br><span class="line">    if (gc_overhead_limit_exceeded()) {</span><br><span class="line">      log_trace(gc, ergo)(&quot;GC is exceeding overhead limit of &quot; UINTX_FORMAT &quot;%%&quot;, GCTimeLimit);</span><br><span class="line">      reset_gc_overhead_limit_count();</span><br><span class="line">    } else if (print_gc_overhead_limit_would_be_exceeded) {</span><br><span class="line">      assert(_gc_overhead_limit_count &gt; 0, &quot;Should not be printing&quot;);</span><br><span class="line">      log_trace(gc, ergo)(&quot;GC would exceed overhead limit of &quot; UINTX_FORMAT &quot;%% %d consecutive time(s)&quot;,</span><br><span class="line">                          GCTimeLimit, _gc_overhead_limit_count);</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x9ED8;&#x8BA4;&#x914D;&#x7F6E;&#xFF1A;gc_globals.hpp</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">product(bool, UseGCOverheadLimit, true,                                   \</span><br><span class="line">          &quot;Use policy to limit of proportion of time spent in GC &quot;          \</span><br><span class="line">          &quot;before an OutOfMemory error is thrown&quot;)                          \</span><br><span class="line">                                                                            \</span><br><span class="line">product(uintx, GCTimeLimit, 98,                                           \</span><br><span class="line">      &quot;Limit of the proportion of time spent in GC before &quot;             \</span><br><span class="line">      &quot;an OutOfMemoryError is thrown (used with GCHeapFreeLimit)&quot;)      \</span><br><span class="line">      range(0, 100)                                                     \</span><br><span class="line">                                                                        \</span><br><span class="line">product(uintx, GCHeapFreeLimit, 2,                                        \</span><br><span class="line">      &quot;Minimum percentage of free space after a full GC before an &quot;     \</span><br><span class="line">      &quot;OutOfMemoryError is thrown (used with GCTimeLimit)&quot;)             \</span><br><span class="line">      range(0, 100)                                                     \</span><br><span class="line">                                                                        \</span><br><span class="line">develop(uintx, GCOverheadLimitThreshold, 5,                               \</span><br><span class="line">      &quot;Number of consecutive collections before gc time limit fires&quot;)   \</span><br><span class="line">      range(1, max_uintx)                              </span><br></pre></td></tr></table></figure>
+
+<p>&#x53EF;&#x4EE5;&#x603B;&#x7ED3;&#x51FA;&#xFF1A;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x542F;&#x7528;&#x4E86; UseGCOverheadLimit&#xFF0C;&#x8FDE;&#x7EED; 5 &#x6B21;&#xFF0C;&#x78B0;&#x5230; GC &#x65F6;&#x95F4;&#x5360;&#x6BD4;&#x8D85;&#x8FC7; 98%&#xFF0C;GC &#x56DE;&#x6536;&#x7684;&#x5185;&#x5B58;&#x4E0D;&#x8DB3; 2% &#x65F6;&#xFF0C;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x3002;</p>
+<ol start="5">
+<li><p><strong>OutOfMemoryError: direct memory</strong><br>&#x8FD9;&#x4E2A;&#x662F;&#x5411;&#x7CFB;&#x7EDF;&#x7533;&#x8BF7;&#x76F4;&#x63A5;&#x5185;&#x5B58;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7CFB;&#x7EDF;&#x53EF;&#x7528;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;</p>
+</li>
+<li><p><strong>OutOfMemoryError: map failed</strong><br>&#x8FD9;&#x4E2A;&#x662F; File MMAP&#xFF08;&#x6587;&#x4EF6;&#x6620;&#x5C04;&#x5185;&#x5B58;&#xFF09;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7CFB;&#x7EDF;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;&#x6E90;&#x4EE3;&#x7801;&#x662F;&#xFF1A;</p>
+</li>
+</ol>
+<p>Windows&#xFF1A;FileDispatcherImpl.c* Linux&#xFF1A;FileDispatcherImpl.c<br>&#x4EE5; Linux &#x4E3A;&#x4F8B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">JNIEXPORT jlong JNICALL</span><br><span class="line">Java_sun_nio_ch_FileChannelImpl_map0(JNIEnv *env, jobject this,</span><br><span class="line">                                     jint prot, jlong off, jlong len)</span><br><span class="line">{</span><br><span class="line">    void *mapAddress = 0;</span><br><span class="line">    jobject fdo = (*env)-&gt;GetObjectField(env, this, chan_fd);</span><br><span class="line">    jint fd = fdval(env, fdo);</span><br><span class="line">    int protections = 0;</span><br><span class="line">    int flags = 0;</span><br><span class="line"></span><br><span class="line">    if (prot == sun_nio_ch_FileChannelImpl_MAP_RO) {</span><br><span class="line">        protections = PROT_READ;</span><br><span class="line">        flags = MAP_SHARED;</span><br><span class="line">    } else if (prot == sun_nio_ch_FileChannelImpl_MAP_RW) {</span><br><span class="line">        protections = PROT_WRITE | PROT_READ;</span><br><span class="line">        flags = MAP_SHARED;</span><br><span class="line">    } else if (prot == sun_nio_ch_FileChannelImpl_MAP_PV) {</span><br><span class="line">        protections =  PROT_WRITE | PROT_READ;</span><br><span class="line">        flags = MAP_PRIVATE;</span><br><span class="line">    }</span><br><span class="line">    //&#x8C03;&#x7528;mmap</span><br><span class="line">    mapAddress = mmap64(</span><br><span class="line">        0,                    /* Let OS decide location */</span><br><span class="line">        len,                  /* Number of bytes to map */</span><br><span class="line">        protections,          /* File permissions */</span><br><span class="line">        flags,                /* Changes are shared */</span><br><span class="line">        fd,                   /* File descriptor of mapped file */</span><br><span class="line">        off);                 /* Offset into file */</span><br><span class="line">    //&#x5185;&#x5B58;&#x4E0D;&#x8DB3;&#x65F6;&#xFF0C;&#x629B;&#x51FA;OutOfMemoryError</span><br><span class="line">    if (mapAddress == MAP_FAILED) {</span><br><span class="line">        if (errno == ENOMEM) {</span><br><span class="line">            JNU_ThrowOutOfMemoryError(env, &quot;Map failed&quot;);</span><br><span class="line">            return IOS_THROWN;</span><br><span class="line">        }</span><br><span class="line">        return handle(env, -1, &quot;Map failed&quot;);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    return ((jlong) (unsigned long) mapAddress);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x79CD;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x8003;&#x8651;&#xFF1A;</p>
+<ol>
+<li><p><strong>&#x589E;&#x52A0;&#x7CFB;&#x7EDF;&#x5185;&#x5B58;</strong></p>
+</li>
+<li><p><strong>&#x91C7;&#x7528;&#x6587;&#x4EF6;&#x5206;&#x5757;&#xFF0C;&#x4E0D;&#x8981;&#x4E00;&#x6B21; mmap &#x5F88;&#x5927;&#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x51CF;&#x5C11;&#x6BCF;&#x6B21; mmap &#x6587;&#x4EF6;&#x7684;&#x5927;&#x5C0F;</strong></p>
+</li>
+<li><p><strong>OutOfMemoryError: Requested array size exceeds VM limit</strong><br>&#x5F53;&#x7533;&#x8BF7;&#x7684;&#x6570;&#x7EC4;&#x5927;&#x5C0F;&#x8D85;&#x8FC7;&#x5806;&#x5185;&#x5B58;&#x9650;&#x5236;&#xFF0C;&#x5C31;&#x4F1A;&#x629B;&#x51FA;&#x8FD9;&#x4E2A;&#x5F02;&#x5E38;&#x3002;</p>
+</li>
+<li><p><strong>OutOfMemoryError: Metaspace</strong><br>Metadata &#x5360;&#x7528;&#x7A7A;&#x95F4;&#x8D85;&#x9650;&#xFF08;&#x53C2;&#x8003;&#x4E0A;&#x9762;&#x7B80;&#x8FF0; Java &#x5185;&#x5B58;&#x6784;&#x6210;&#xFF0C; class &#x8FD9;&#x4E00;&#x5757; &#x5305;&#x542B;&#x4E24;&#x79CD;&#xFF0C;&#x4E00;&#x79CD;&#x662F; metadata&#xFF0C;&#x4E00;&#x79CD;&#x662F; class space&#xFF09;</p>
+</li>
+<li><p><strong>OutOfMemoryError: Compressed class space<br>class space</strong> &#x5185;&#x5B58;&#x6EA2;&#x51FA;&#x5BFC;&#x81F4;&#x7684;&#xFF0C;&#x548C;&#x4E0A;&#x4E00;&#x4E2A;&#x5F02;&#x5E38;&#x7C7B;&#x4F3C;&#xFF0C;&#x9700;&#x8981;&#x67E5;&#x770B;&#x7C7B;&#x4FE1;&#x606F;&#x7EDF;&#x8BA1;&#x5B9A;&#x4F4D;&#x95EE;&#x9898;&#x3002;</p>
+</li>
+<li><p><strong>OutOfMemoryError: reason stack_trace_with_native_method</strong><br>&#x8FD9;&#x4E2A;&#x53D1;&#x751F;&#x5728; JNI &#x8C03;&#x7528;&#x4E2D;&#xFF0C;&#x5185;&#x5B58;&#x4E0D;&#x8DB3;</p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OOM/" rel="tag">OOM</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/05/2.005.JMM-%E6%96%B9%E6%B3%95%E5%8C%BA%E5%92%8C%E5%B8%B8%E9%87%8F%E6%B1%A0/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JMM-方法区和常量池
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/05/2.008.JMM-OOM%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JMM-OOM如何排查</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

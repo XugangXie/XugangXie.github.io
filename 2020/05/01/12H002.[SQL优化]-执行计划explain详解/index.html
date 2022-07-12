@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>12H002.[SQL优化]-执行计划explain详解 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-12H002.[SQL优化]-执行计划explain详解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  12H002.[SQL优化]-执行计划explain详解
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H002.%5BSQL%E4%BC%98%E5%8C%96%5D-%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92explain%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">430</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">2 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>MySQL&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x4E2A;explain&#x547D;&#x4EE4;, &#x5B83;&#x53EF;&#x4EE5;&#x5BF9;select&#x8BED;&#x53E5;&#x8FDB;&#x884C;&#x5206;&#x6790;, &#x5E76;&#x8F93;&#x51FA;select&#x6267;&#x884C;&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;, &#x4EE5;&#x4F9B;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x9488;&#x5BF9;&#x67E5;&#x8BE2;&#x6027;&#x80FD;&#x8FDB;&#x884C;&#x4F18;&#x5316;</p>
+<span id="more"></span>
+
+<hr>
+<p><strong>&#x8D44;&#x6599;1</strong></p>
+<h3 id="explain&#x5404;&#x5217;&#x8BE6;&#x89E3;"><a href="#explain&#x5404;&#x5217;&#x8BE6;&#x89E3;" class="headerlink" title="explain&#x5404;&#x5217;&#x8BE6;&#x89E3;"></a>explain&#x5404;&#x5217;&#x8BE6;&#x89E3;</h3><p>&#x4E00;&#x822C;12&#x4E2A;&#x5B57;&#x6BB5;(&#x5176;&#x4E2D;partitions&#x548C;filtered 5.5&#x7248;&#x672C;&#x666E;&#x901A;&#x6A21;&#x5F0F;&#x4E0B;&#x6CA1;&#x6709;&#xFF09;&#xFF0C;&#x4F1A;&#x5BF9;&#x91CD;&#x8981;&#x7684;&#x5B57;&#x6BB5;&#x5185;&#x5BB9;&#x8FDB;&#x884C;&#x5206;&#x6790;&#x8BF4;&#x660E;:</p>
+<table>
+<thead>
+<tr>
+<th>&#x5217;&#x540D;</th>
+<th>&#x8BF4;&#x660E;</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>&#x6267;&#x884C;&#x7F16;&#x53F7;&#xFF0C;&#x6807;&#x8BC6;select&#x6240;&#x5C5E;&#x7684;&#x884C;&#x3002;&#x5982;&#x679C;&#x5728;&#x8BED;&#x53E5;&#x4E2D;&#x6CA1;&#x5B50;&#x67E5;&#x8BE2;&#x6216;&#x5173;&#x8054;&#x67E5;&#x8BE2;&#xFF0C;&#x53EA;&#x6709;&#x552F;&#x4E00;&#x7684;select&#xFF0C;&#x6BCF;&#x884C;&#x90FD;&#x5C06;&#x663E;&#x793A;1&#x3002;&#x5426;&#x5219;&#xFF0C;&#x5185;&#x5C42;&#x7684;select&#x8BED;&#x53E5;&#x4E00;&#x822C;&#x4F1A;&#x987A;&#x5E8F;&#x7F16;&#x53F7;&#xFF0C;&#x5BF9;&#x5E94;&#x4E8E;&#x5176;&#x5728;&#x539F;&#x59CB;&#x8BED;&#x53E5;&#x4E2D;&#x7684;&#x4F4D;&#x7F6E;</td>
+</tr>
+<tr>
+<td>select_type</td>
+<td>&#x663E;&#x793A;&#x672C;&#x884C;&#x662F;&#x7B80;&#x5355;&#x6216;&#x590D;&#x6742;select&#x3002;&#x5982;&#x679C;&#x67E5;&#x8BE2;&#x6709;&#x4EFB;&#x4F55;&#x590D;&#x6742;&#x7684;&#x5B50;&#x67E5;&#x8BE2;&#xFF0C;&#x5219;&#x6700;&#x5916;&#x5C42;&#x6807;&#x8BB0;&#x4E3A;PRIMARY&#xFF08;DERIVED&#x3001;UNION&#x3001;UNION RESUlT&#xFF09;</td>
+</tr>
+<tr>
+<td>table</td>
+<td>&#x8BBF;&#x95EE;&#x5F15;&#x7528;&#x54EA;&#x4E2A;&#x8868;&#xFF08;&#x5F15;&#x7528;&#x67D0;&#x4E2A;&#x67E5;&#x8BE2;&#xFF0C;&#x5982;&#x201C;derived3&#x201D;&#xFF09;</td>
+</tr>
+<tr>
+<td>type</td>
+<td>&#x6570;&#x636E;&#x8BBF;&#x95EE;/&#x8BFB;&#x53D6;&#x64CD;&#x4F5C;&#x7C7B;&#x578B;&#xFF08;ALL&#x3001;index&#x3001;range&#x3001;ref&#x3001;eq_ref&#x3001;const/system&#x3001;NULL&#xFF09;</td>
+</tr>
+<tr>
+<td>key</td>
+<td>&#x663E;&#x793A;mysql&#x51B3;&#x5B9A;&#x91C7;&#x7528;&#x54EA;&#x4E2A;&#x7D22;&#x5F15;&#x6765;&#x4F18;&#x5316;&#x67E5;&#x8BE2;</td>
+</tr>
+<tr>
+<td>possible_keys</td>
+<td>&#x63ED;&#x793A;&#x54EA;&#x4E00;&#x4E9B;&#x7D22;&#x5F15;&#x53EF;&#x80FD;&#x6709;&#x5229;&#x4E8E;&#x9AD8;&#x6548;&#x7684;&#x67E5;&#x627E;</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>&#x663E;&#x793A;&#x4E86;&#x4E4B;&#x524D;&#x7684;&#x8868;&#x5728;key&#x5217;&#x8BB0;&#x5F55;&#x7684;&#x7D22;&#x5F15;&#x4E2D;&#x67E5;&#x627E;&#x503C;&#x6240;&#x7528;&#x7684;&#x5217;&#x6216;&#x5E38;&#x91CF;</td>
+</tr>
+<tr>
+<td>key_len</td>
+<td>&#x663E;&#x793A;mysql&#x5728;&#x7D22;&#x5F15;&#x91CC;&#x4F7F;&#x7528;&#x7684;&#x5B57;&#x8282;&#x6570;</td>
+</tr>
+<tr>
+<td>rows</td>
+<td>&#x4E3A;&#x4E86;&#x627E;&#x5230;&#x6240;&#x9700;&#x7684;&#x884C;&#x800C;&#x9700;&#x8981;&#x8BFB;&#x53D6;&#x7684;&#x884C;&#x6570;&#xFF0C;&#x4F30;&#x7B97;&#x503C;&#xFF0C;&#x4E0D;&#x7CBE;&#x786E;&#x3002;&#x901A;&#x8FC7;&#x628A;&#x6240;&#x6709;rows&#x5217;&#x503C;&#x76F8;&#x4E58;&#xFF0C;&#x53EF;&#x7C97;&#x7565;&#x4F30;&#x7B97;&#x6574;&#x4E2A;&#x67E5;&#x8BE2;&#x4F1A;&#x68C0;&#x67E5;&#x7684;&#x884C;&#x6570;</td>
+</tr>
+<tr>
+<td>Extra</td>
+<td>&#x989D;&#x5916;&#x4FE1;&#x606F;&#xFF0C;&#x5982;using index&#x3001;filesort&#x7B49;</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>&#x8D44;&#x6599;2</strong><br>TODO <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000008131735">https://segmentfault.com/a/1190000008131735</a></p>
+<hr>
+<p><strong>&#x8D44;&#x6599;3</strong><br>TODO<br>Explain&#x4E4B;key_len&#x957F;&#x5EA6;&#x8BA1;&#x7B97;&#xFF1A;<a target="_blank" rel="noopener" href="https://www.cnblogs.com/xuanzhi201111/p/4554769.html">https://www.cnblogs.com/xuanzhi201111/p/4554769.html</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/05/01/12H001.%5BSQL%E4%BC%98%E5%8C%96%5D-Cardinality%E5%80%BC%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E5%87%BA%E6%9D%A5%E7%9A%84/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            12H001.[SQL优化]-Cardinality值如何计算出来的
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/01/12H003.%5BSQL%E4%BC%98%E5%8C%96%5D-%E8%A1%A8%E8%BF%9E%E6%8E%A5%E4%BC%98%E5%8C%96%E3%80%81%E5%B0%8F%E8%A1%A8%E9%A9%B1%E5%8A%A8%E5%A4%A7%E8%A1%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">12H003.[SQL优化]-表连接优化、小表驱动大表</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

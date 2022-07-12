@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>框架-[spring-mybatis]-@MapperScan注解原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-9A4.002.框架-[spring-mybatis]-@MapperScan注解原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  框架-[spring-mybatis]-@MapperScan注解原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/03/22/9A4.002.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-@MapperScan%E6%B3%A8%E8%A7%A3%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">931</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="MapperScan&#x6CE8;&#x89E3;&#x539F;&#x7406;"><a href="#MapperScan&#x6CE8;&#x89E3;&#x539F;&#x7406;" class="headerlink" title="@MapperScan&#x6CE8;&#x89E3;&#x539F;&#x7406;"></a>@MapperScan&#x6CE8;&#x89E3;&#x539F;&#x7406;</h2><span id="more"></span>
+<h3 id="mapperScan&#x6CE8;&#x518C;MapperFactoryBean"><a href="#mapperScan&#x6CE8;&#x518C;MapperFactoryBean" class="headerlink" title="@mapperScan&#x6CE8;&#x518C;MapperFactoryBean"></a>@mapperScan&#x6CE8;&#x518C;MapperFactoryBean</h3><p><img src="/2020/03/22/9A4.002.%E6%A1%86%E6%9E%B6-[spring-mybatis]-@MapperScan%E6%B3%A8%E8%A7%A3%E5%8E%9F%E7%90%86/1.png"><br>&#x6CE8;&#x518C;&#x7684;&#x90A3;&#x4E9B;MapperFactoryBean(&#x662F;&#x4E00;&#x79CD;FactoryBean)&#x4F1A;&#x5728;spring&#x521D;&#x59CB;&#x5316;&#x65F6;&#x8C03;&#x7528;&#x5176;<code>getObject</code>&#x65B9;&#x6CD5;&#x751F;&#x6210;&#x5177;&#x4F53;Bean&#x3002;</p>
+<h3 id="MapperFactoryBean&#x521D;&#x59CB;&#x5316;"><a href="#MapperFactoryBean&#x521D;&#x59CB;&#x5316;" class="headerlink" title="MapperFactoryBean&#x521D;&#x59CB;&#x5316;"></a>MapperFactoryBean&#x521D;&#x59CB;&#x5316;</h3><p><img src="/2020/03/22/9A4.002.%E6%A1%86%E6%9E%B6-[spring-mybatis]-@MapperScan%E6%B3%A8%E8%A7%A3%E5%8E%9F%E7%90%86/2.png"><br><img src="/2020/03/22/9A4.002.%E6%A1%86%E6%9E%B6-[spring-mybatis]-@MapperScan%E6%B3%A8%E8%A7%A3%E5%8E%9F%E7%90%86/3.png"><br><img src="/2020/03/22/9A4.002.%E6%A1%86%E6%9E%B6-[spring-mybatis]-@MapperScan%E6%B3%A8%E8%A7%A3%E5%8E%9F%E7%90%86/4.png"></p>
+<p>&#x4F46;&#x5728;<code>MapperFactoryBean</code>&#x5B9E;&#x4F8B;&#x5316;&#x540E;&#xFF0C;&#x8C03;&#x7528;<code>getObject</code>&#x4E4B;&#x524D;&#xFF0C;&#x7531;&#x4E8E;<code>MapperFactoryBean</code>&#x672C;&#x8EAB;&#x4E5F;&#x662F;&#x4E2A;Bean&#xFF0C;spring&#x6846;&#x67B6;&#x4F1A;&#x8C03;&#x7528;<code>setSqlSessionFactory</code>&#x548C;<code>setSqlSessionTemplate</code>&#x8BBE;&#x7F6E;&#x5176;&#x5C5E;&#x6027;&#x3002;&#x4EE5;&#x4FBF;&#x4E4B;&#x540E;&#x7684;<code>getObject</code>&#x4F7F;&#x7528;&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SqlSessionDaoSupport.java</span></span><br><span class="line"><span class="comment">// MapperFactoryBean&#x7EE7;&#x627F;&#x4E86;SqlSessionDaoSupport</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x8BBE;&#x7F6E;sqlSessionFactory, &#x987A;&#x4FBF;&#x81EA;&#x52A8;&#x8BBE;&#x7F6E;sqlSessionTemplate&#x3002;&#x6240;&#x4EE5;&#x5982;&#x679C;&#x6CA1;&#x8BBE;&#x5B9A;sqlSessionTemplate&#x4E5F;&#x6CA1;&#x5173;&#x7CFB;&#x3002;</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setSqlSessionFactory</span><span class="params">(SqlSessionFactory sqlSessionFactory)</span> {</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.sqlSessionTemplate == <span class="literal">null</span> || sqlSessionFactory != <span class="built_in">this</span>.sqlSessionTemplate.getSqlSessionFactory()) {</span><br><span class="line">      <span class="built_in">this</span>.sqlSessionTemplate = createSqlSessionTemplate(sqlSessionFactory);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#x53EF;&#x4EE5;&#x624B;&#x52A8;&#x8BBE;&#x7F6E;</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setSqlSessionTemplate</span><span class="params">(SqlSessionTemplate sqlSessionTemplate)</span> {</span><br><span class="line">    <span class="built_in">this</span>.sqlSessionTemplate = sqlSessionTemplate;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;&#x4E4B;&#x540E;&#x7684;getObject&#x4E2D;&#xFF1A;</p>
+<ul>
+<li>getSqlSession&#x5C31;&#x7528;&#x5230;&#x4E86;&#x521A;&#x624D;&#x8BBE;&#x7F6E;&#x7684;sqlSessionTemplate&#x3002;</li>
+<li>getMapper(this.mapperInterface)&#xFF0C;&#x8BE5;&#x65B9;&#x6CD5;&#x6700;&#x7EC8;&#x4F1A;&#x8FD4;&#x56DE;Mapper&#x4EE3;&#x7406;&#x7C7B;&#x5BF9;&#x8C61;&#x3002;</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MapperFactoryBean.java</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> T <span class="title function_">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">    <span class="keyword">return</span> getSqlSession().getMapper(<span class="built_in">this</span>.mapperInterface);</span><br><span class="line">  }</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MapperFactoryBean.java</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> T <span class="title function_">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception {</span><br><span class="line">    <span class="keyword">return</span> getSqlSession().getMapper(<span class="built_in">this</span>.mapperInterface);</span><br><span class="line">  }</span><br></pre></td></tr></table></figure>
+
+<h3 id="getObject&#x7684;&#x8C03;&#x7528;"><a href="#getObject&#x7684;&#x8C03;&#x7528;" class="headerlink" title="getObject&#x7684;&#x8C03;&#x7528;"></a>getObject&#x7684;&#x8C03;&#x7528;</h3><p>&#x4F60;&#x53EF;&#x80FD;&#x4F1A;&#x95EE;&#xFF0C;&#x90A3;&#x8FD9;&#x4E2A;MapperFactoryBean.getObject&#x4F55;&#x65F6;&#x4F1A;&#x8C03;&#x7528;&#x5462;&#xFF1F;<br> &#x8FD8;&#x8BB0;&#x5F97;@mapperScan&#x6CE8;&#x518C;MapperFactoryBean&#x65F6;&#x7684;ClassPathMapperScanner.processBeanDefinitions&#x65B9;&#x6CD5;&#x5417;&#xFF1A;<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">processBeanDefinitions</span><span class="params">(Set&lt;BeanDefinitionHolder&gt; beanDefinitions)</span> {</span><br><span class="line">    GenericBeanDefinition definition;</span><br><span class="line">    <span class="keyword">for</span> (BeanDefinitionHolder holder : beanDefinitions) {</span><br><span class="line">      definition = (GenericBeanDefinition) holder.getBeanDefinition();</span><br><span class="line">      <span class="type">String</span> <span class="variable">beanClassName</span> <span class="operator">=</span> definition.getBeanClassName();</span><br><span class="line">      LOGGER.debug(() -&gt; <span class="string">&quot;Creating MapperFactoryBean with name &apos;&quot;</span> + holder.getBeanName()</span><br><span class="line">          + <span class="string">&quot;&apos; and &apos;&quot;</span> + beanClassName + <span class="string">&quot;&apos; mapperInterface&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// the mapper interface is the original class of the bean</span></span><br><span class="line">      <span class="comment">// but, the actual class of the bean is MapperFactoryBean</span></span><br><span class="line">      definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); <span class="comment">// issue #59</span></span><br><span class="line">      definition.setBeanClass(<span class="built_in">this</span>.mapperFactoryBeanClass);</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br></pre></td></tr></table></figure></p>
+<p> &#x7528;&#x9014;&#x6709;&#x4E24;&#x4E2A;&#xFF1A;</p>
+<ol>
+<li>&#x8FD9;&#x91CC;&#x4E3A;Bean&#x6CE8;&#x518C;&#x7684;&#x540D;&#x5B57;beanClassName&#x662F;<code>xx.xx.xxMapper</code>&#xFF0C;&#x4F46;&#x5B9E;&#x9645;&#x7684;Bean&#x662F;MapperFactoryBean&#x3002;<br>  &#x5728;springboot&#x521D;&#x59CB;&#x5316;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x4F1A;&#x5BF9;&#x6BCF;&#x4E2A;Bean&#x8C03;&#x7528;getBean&#x8FDB;&#x884C;&#x5B9E;&#x4F8B;&#x5316;&#xFF0C;&#x56E0;&#x6B64;MapperFactoryBean.getObject&#x4E5F;&#x4F1A;&#x88AB;&#x8C03;&#x7528;&#x3002;</li>
+<li>Service&#x521D;&#x59CB;&#x5316;&#x65F6;&#xFF0C;spring&#x4F1A;&#x5904;&#x7406;@Autowire&#x4E2D;&#x7684;Mapper&#xFF0C;&#x6839;&#x636E;&#x5176;&#x7C7B;&#x578B;&#x7684;&#x540D;&#x5B57;xx.xx.xxMapper&#x627E;Bean&#xFF0C;&#x7136;&#x540E;&#x8C03;&#x7528;<code>beanFactory.getBean(beanName);</code>&#x3002;&#x4F46;&#x6839;&#x636E;&#x8FD9;&#x4E2A;&#x540D;&#x5B57;&#x627E;&#x5230;&#x7684;&#x5176;&#x5B9E;&#x662F;&#x521A;&#x624D;&#x6CE8;&#x518C;&#x7684;MapperFactoryBean&#x3002;&#x7531;&#x4E8E;&#x5B83;&#x662F;FactoryBean&#xFF0C;&#x5BF9;&#x5176;&#x8C03;&#x7528;<code>getBean</code>&#x53EA;&#x4F1A;&#x89E6;&#x53D1;<code>getObject</code>&#xFF0C;&#x4ECE;&#x800C;&#x8FD4;&#x56DE;&#x4EE3;&#x7406;&#x7C7B;&#x5BF9;&#x8C61;&#x3002;</li>
+</ol>
+<h3 id="&#x8C03;&#x8BD5;-autowired&#x7684;Mapper&#x7684;&#x6CE8;&#x5165;"><a href="#&#x8C03;&#x8BD5;-autowired&#x7684;Mapper&#x7684;&#x6CE8;&#x5165;" class="headerlink" title="&#x8C03;&#x8BD5;@autowired&#x7684;Mapper&#x7684;&#x6CE8;&#x5165;"></a>&#x8C03;&#x8BD5;@autowired&#x7684;Mapper&#x7684;&#x6CE8;&#x5165;</h3><ol>
+<li><p>&#x5728;<code>AutowiredAnnotationBeanPostProcessor.inject</code>&#x4E2D;&#x7684;<code>Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);</code>&#x6253;&#x65AD;&#x70B9;&#x8C03;&#x8BD5;&#x3002;</p>
+</li>
+<li><p>&#x5F53;&#x53D8;&#x91CF;<code>beanName</code>&#x540D;&#x5B57;&#x662F;&#x5305;&#x542B;&#x4E86;Mapper&#x7684;Service&#x6216;Controller&#x65F6;&#xFF0C;&#x8FDB;&#x5165;&#x8BE5;&#x65B9;&#x6CD5;&#x3002;<br> &#x7136;&#x540E;&#x8DDF;&#x968F;&#x8FDB;&#x5165;<code>result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);</code><br> -&gt;<br> <code>instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);</code><br> -&gt;<br><code> beanFactory.getBean(beanName);</code>&#x3002;&#x8FDB;&#x5165;&#x8C03;&#x8BD5;&#x3002;&#x719F;&#x6089;BeanFactory.getBean&#x7684;&#x4EBA;&#x5E94;&#x8BE5;&#x4E0D;&#x7528;&#x8C03;&#x8BD5;&#x5C31;&#x77E5;&#x9053;&#xFF0C;&#x8FD9;&#x4E2A;&#x540D;&#x5B57;&#x5BF9;&#x5E94;&#x7684;Bean&#x662F;MapperBeanFactory&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x4E00;&#x4E2A;BeanFactory&#xFF0C;&#x6240;&#x4EE5;&#x6700;&#x7EC8;&#x8BE5;&#x65B9;&#x6CD5;<code>beanFactory.getBean(beanName);</code>&#x8FD4;&#x56DE;&#x7684;&#x662F;MapperFactoryBean&#x7684;getObject&#x7684;&#x8FD4;&#x56DE;&#x503C;&#x3002;&#x8FD9;&#x4E2A;getObject&#x5C31;&#x662F;&#x521A;&#x624D;&#x5206;&#x6790;&#x7684;&#x7528;&#x9014;&#x5566;&#xFF01;</p>
+</li>
+</ol>
+<h3 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h3><ol>
+<li><p>@MapperScan&#x626B;&#x63CF;&#x6307;&#x5B9A;&#x7684;&#x5305;&#xFF0C;&#x5BF9;&#x6BCF;&#x4E2A;Mapper&#xFF0C;&#x4EE5;&#x5B83;&#x7684;&#x540D;&#x5B57;&#x6CE8;&#x518C;&#x4E86;&#x5B9E;&#x9645;&#x7C7B;&#x578B;&#x662F;MapperFactoryBean&#x7684;Bean&#x5B9A;&#x4E49;&#x3002;</p>
+</li>
+<li><p>&#x6709;&#x4E86;&#x8FD9;&#x4E9B;Bean&#x5B9A;&#x4E49;&#xFF0C;&#x5728;spring&#x5B9E;&#x4F8B;&#x5316;Bean&#x65F6;&#xFF0C;&#x8FD9;&#x4E9B;MapperFactoryBean&#x4F1A;&#x88AB;&#x5B9E;&#x4F8B;&#x5316;&#x3001;&#x521D;&#x59CB;&#x5316;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;&#x65B9;&#x6CD5;&#x4E5F;&#x4F1A;&#x8BBE;&#x7F6E;</p>
+</li>
+<li><p>&#x5728;&#x5904;&#x7406;@autowired&#x6807;&#x6CE8;&#x7684;Mapper&#x65F6;&#xFF0C;&#x4F1A;&#x8FD4;&#x56DE;MapperFactoryBean.getObject&#x7684;&#x8C03;&#x7528;&#x7ED3;&#x679C;,&#x4E5F;&#x5C31;&#x662F;getSqlSession().getMapper(this.mapperInterface);&#x4E86;&#x3002;</p>
+</li>
+<li><p>&#x4E0A;&#x4E00;&#x6B65;&#x7684;&#x7ED3;&#x679C;&#x4F1A;&#x5BFC;&#x81F4;@Autowired SomeMapper mapper;&#x4E0A;&#x6CE8;&#x5165;&#x4E86;&#x4E00;&#x4E2A;Mapper&#x4EE3;&#x7406;&#x7C7B;&#xFF0C;&#x8BE5;&#x4EE3;&#x7406;&#x7C7B;&#x4F1A;&#x5C06;&#x6240;&#x6709;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x90FD;&#x79FB;&#x4EA4;&#x7ED9;&#x5E95;&#x5C42;&#x7684;SqlSession&#x64CD;&#x4F5C;&#x3002;</p>
+</li>
+<li><p>&#x4E0A;&#x4E00;&#x6B65;&#x4E2D;&#xFF0C;Mapper&#x79FB;&#x4EA4;&#x5230;&#x7684;sqlSession&#x5176;&#x5B9E;&#x662F;&#x4E2A;SqlSessionTemplate&#xFF0C;SqlSessionTemplate&#x53C8;&#x5C06;&#x4E00;&#x5207;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x79FB;&#x4EA4;&#x7ED9;sqlSessionProxy&#xFF0C;&#x800C;&#x540E;&#x8005;&#x662F;&#x57FA;&#x4E8E;SqlSessionInterceptor&#x521B;&#x5EFA;&#x7684;&#x4EE3;&#x7406;&#x7C7B;&#x3002;<br> &#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#xFF0C;SqlSessionTemplate&#x7684;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x4F1A;&#x88AB;SqlSessionInterceptor.invoke&#x6240;&#x62E6;&#x622A;&#x3002;</p>
+</li>
+<li><p>SqlSessionInterceptor.invoke&#x4E2D;&#x8C03;&#x7528;getSqlSession&#x65B9;&#x6CD5;&#xFF0C;&#x5176;&#x5185;&#x90E8;&#x5728;&#x9700;&#x8981;&#x7684;&#x65F6;&#x5019;&#x8C03;&#x7528;session = sessionFactory.openSession(executorType);&#x83B7;&#x53D6;&#x65B0;&#x7684;session&#xFF0C;&#x5176;&#x5B9E;&#x4E5F;&#x5C31;&#x5728;&#x5F00;&#x542F;&#x65B0;&#x7684;&#x8FDE;&#x63A5;&#x3002;<br> &#x4E5F;&#x5C31;&#x662F;&#x8BF4;SqlSessionTemplate&#x7684;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x4F1A;&#x88AB;SqlSessionInterceptor.invoke&#x6240;&#x62E6;&#x622A;&#xFF0C;&#x6BCF;&#x6B21;&#x64CD;&#x4F5C;&#x524D;&#x90FD;&#x8981;&#x83B7;&#x53D6;&#x5230;SqlSession(&#x5B9E;&#x9645;&#x7C7B;&#x578B;&#x662F;DefaultSqlSession)&#xFF0C;&#x8FD9;&#x4E2A;SqlSession&#xFF1A;</p>
+</li>
+</ol>
+<h3 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1437842">mybatis mapper&#x89E3;&#x6790;(&#x4E0B;) @mapperScan</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-mybatis/" rel="tag">spring-mybatis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/03/22/9A4.001.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            框架源码-[myatis]-spring整合mybatis源码
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/03/22/9A4.003.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-MapperFactroyBean%E5%A6%82%E4%BD%95%E5%88%9D%E5%A7%8B%E5%8C%96%E5%B9%B6%E6%B3%A8%E5%86%8C%E5%88%B0Spring%E5%AE%B9%E5%99%A8%E7%9A%84/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">框架-[spring-mybatis]-MapperFactroyBean如何初始化并注册到Spring容器的</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

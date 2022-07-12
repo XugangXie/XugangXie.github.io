@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>final用法 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-1A005.final用法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  final用法
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/" class="article-date">
+  <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">33 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>final&#x65E2;&#x7136;&#x662F;&#x4E00;&#x4E2A;&#x4FEE;&#x9970;&#x7B26;&#xFF0C;&#x5728;Java&#x4E2D;&#xFF0C;final &#x80FD;&#x4FEE;&#x9970;&#x54EA;&#x4E9B;&#x4E1C;&#x897F;&#x5462;&#xFF1F;&#x57FA;&#x672C;&#x4E0A;&#x53EF;&#x4EE5;&#x6982;&#x62EC;&#x7684;&#x8BF4;&#xFF0C;&#x5728;Java&#x4E2D;&#x57FA;&#x672C;&#x53EF;&#x4EE5;&#x4FEE;&#x9970;&#x9762;&#x5411;&#x5BF9;&#x8C61;&#x7684;&#x7EDD;&#x5927;&#x90E8;&#x5206;&#x5143;&#x7D20;&#x3002;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x5982;&#x4E0B;&#x7684;&#x4EE3;&#x7801;&#x6BB5;&#x6765;&#x770B;final&#x4FEE;&#x9970;&#x7684;&#x90E8;&#x5206;&#x3002;</p>
+<span id="more"></span>
+<ul>
+<li>1.&#x4FEE;&#x9970;&#x7C7B;&#xFF08;Class&#xFF09;<br><code>public final class SystemUtils {...} </code><br><code>public class OuterClass { final class InnerClass{...} }</code><br></li>
+<li>2.&#x4FEE;&#x9970;&#x65B9;&#x6CD5;&#xFF08;Method&#xFF09;<br><code>public final void foo() {...}</code><br></li>
+<li>3.&#x4FEE;&#x9970;&#x57DF;&#xFF08;Field&#xFF09;<br><code>public final int fee = 25; </code><br><code>private static final float POINT_X = 2.6f;</code><br><code>public void foo() { final int type = 3; }</code><br></li>
+<li>4.&#x4FEE;&#x9970;&#x65B9;&#x6CD5;&#x53C2;&#x6570;&#xFF08;Method Argument&#xFF09;<br><code>public void foo(final int x, final int y) {...}</code><br>
+&#x5176;&#x5B9E;&#xFF0C;&#x65E0;&#x8BBA;&#x662F;&#x5728;&#x5B98;&#x65B9;&#x6587;&#x6863;&#xFF0C;&#x8FD8;&#x662F;&#x4E00;&#x4E9B;blog&#x4E0A;&#xFF0C;&#x5BF9;&#x4E8E;final &#x7684;&#x4F7F;&#x7528;&#x90FD;&#x662F;&#x6709;&#x5F88;&#x591A;&#x72EC;&#x5230;&#x7684;&#x89C1;&#x89E3;&#xFF0C;&#x5E76;&#x4E14;&#x4E5F;&#x53EA;&#x662F;&#x6309;&#x7167;Class/Method/Field&#x6765;&#x5206;&#x7684;&#xFF0C;&#x6CA1;&#x6709;Method Argument&#x8FD9;&#x4E00;&#x4E2A;&#x5C42;&#x6B21;&#x3002;&#x8FD9;&#x4E2A;&#x540E;&#x9762;&#x6211;&#x4F1A;&#x5177;&#x4F53;&#x7684;&#x8BF4;&#x660E;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x8981;&#x5355;&#x72EC;&#x8BF4;&#x660E;Method Argument&#x3002;</li>
+</ul>
+<h3 id="&#x4E00;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF09;"><a href="#&#x4E00;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF09;" class="headerlink" title="&#x4E00;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF09;"></a>&#x4E00;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF09;</h3><blockquote>
+<p>Is that your final answer?<br>Most Java texts properly describe the usage and consequence of using the final keyword, but offer little in the way of the guidance as to when, and how often, to use final. In my experience, final is vastly overused for classes and methods(generally because developers mistakenly believe it will enhance performance), and underused where it will do the most good &#x2013; in declaring class instance variables.</p>
+<p><a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/java/library/j-jtp1029/index.html">http://www.ibm.com/developerworks/java/library/j-jtp1029/index.html</a><br>&#x8FD9;&#x662F;&#x6211;&#x8BA4;&#x4E3A;&#x8BF4;final&#x6700;&#x8D34;&#x5FC3;&#x7684;&#x4E00;&#x7BC7;&#x6587;&#x7AE0;&#x4E86;&#x3002;</p>
+</blockquote>
+<p>&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x8981;&#x8FD9;&#x91CC;&#x8D34;&#x51FA;&#x8FD9;&#x4E48;&#x4E00;&#x6BB5;&#x8BDD;&#xFF0C;&#x6211;&#x5E0C;&#x671B;&#x6211;&#x7684;&#x8FD9;&#x7BC7;&#x5206;&#x4EAB;&#x4E0D;&#x4F1A;&#x8BA9;&#x5927;&#x5BB6;&#x5BF9;final&#x6709;&#x8BEF;&#x89E3;&#x3002;&#x6CA1;&#x9519;&#xFF0C;final &#x786E;&#x5B9E;&#x53EF;&#x4EE5;&#x5728;&#x67D0;&#x4E9B;&#x60C5;&#x51B5;&#x4F7F;&#x7528;&#x7684;&#x5982;&#x6587;&#x4E2D;&#x63D0;&#x5230;&#x7684;&#x4E00;&#x6837;&#xFF0C;&#x4F46;&#x662F;&#x8FD9;&#x4E0D;&#x4EE3;&#x8868;&#x5B83;&#x53EF;&#x4EE5;&#x88AB;&#x968F;&#x610F;&#x4F7F;&#x7528;&#x6216;&#x8005;&#x6EE5;&#x7528;&#xFF0C;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x53EA;&#x9700;&#x8981;&#x77E5;&#x9053;&#x6216;&#x8005;&#x638C;&#x63E1;final&#x7684;&#x4F7F;&#x7528;&#x65B9;&#x6CD5;&#xFF0C;&#x800C;&#x5982;&#x4F55;&#x5728;&#x573A;&#x666F;&#x4E2D;&#x5408;&#x7406;&#x4F7F;&#x7528;&#x662F;&#x9700;&#x8981;&#x6211;&#x4EEC;&#x53C2;&#x8003;&#x4F18;&#x79C0;&#x7684;&#x4EE3;&#x7801;&#x6216;&#x8005;&#x4E30;&#x5BCC;&#x7684;&#x7ECF;&#x9A8C;&#x6765;&#x5B8C;&#x6210;final&#x7684;&#x4F7F;&#x7528;&#x3002;</p>
+<p>&#x597D;&#xFF0C;&#x6709;&#x4E86;&#x4E0A;&#x9762;&#x7684;&#x9884;&#x5148;&#x8BF4;&#x660E;&#xFF0C;&#x6211;&#x4EEC;&#x5F00;&#x59CB;&#x8BF4;&#x660E;final&#x7684;&#x7B2C;&#x4E00;&#x5C42;&#x7EA7;&#xFF0C;&#x5BF9;&#x4E8E;&#x7C7B;&#x7684;&#x4FEE;&#x9970;&#x3002;<br>final &#x662F;&#x4E00;&#x4E2A;&#x4FEE;&#x9970;&#x7B26;&#xFF08;Modifier&#xFF09;&#x53EF;&#x4EE5;&#x6765;&#x4FEE;&#x9970;&#x4E00;&#x4E2A;&#x7C7B;&#x3002; &#x300A;Thinking in Java&#x300B;&#x4E00;&#x4E66;&#x4E2D;&#x63D0;&#x5230;&#xFF0C;&#x6211;&#x4EEC;&#x5229;&#x7528;final&#x52A0;&#x4EE5;&#x4FEE;&#x9970;&#x5143;&#x7D20;&#xFF0C;&#x65E0;&#x5916;&#x4E4E;&#x4E24;&#x4E2A;&#x539F;&#x56E0;&#xFF0C;&#x4E00;&#x4E2A;&#x662F;&#x8BBE;&#x8BA1;&#xFF08;Design&#xFF09;&#x539F;&#x56E0;&#xFF0C;&#x4E00;&#x4E2A;&#x662F;&#x6548;&#x7387;&#xFF08;Efficiency&#xFF09;&#x539F;&#x56E0;&#xFF0C;&#x8FD9;&#x662F;&#x7531;&#x4E8E;&#x5728;&#x4E0D;&#x540C;&#x7684;&#x73AF;&#x5883;&#x4E0B;final &#x6709;&#x7740;&#x4E0D;&#x540C;&#x7684;&#x8BED;&#x4E49;&#xFF0C;&#x6240;&#x4EE5;&#x53EF;&#x80FD;&#x4F1A;&#x5E26;&#x6765;&#x5B83;&#x7684;&#x4E00;&#x4E9B;&#x8BEF;&#x89E3;&#x4E0E;&#x8BEF;&#x7528;&#x3002;</p>
+<br>
+
+<ul>
+<li>&#x8BBE;&#x8BA1;&#x539F;&#x56E0;&#xFF08;Design&#xFF09;<br>&#x4ECE;&#x8BBE;&#x8BA1;&#x7684;&#x89D2;&#x5EA6;&#x6765;&#x8003;&#x8651;&#x4E3A;final&#x7C7B;&#xFF0C;&#x6B64;&#x65F6;final &#x7684;&#x8BED;&#x4E49;&#x8868;&#x660E;&#x4E3A;&#xFF1A;&#x8FD9;&#x4E2A;&#x7C7B;&#x4E0D;&#x60F3;&#x5728;&#x5173;&#x7CFB;&#x7ED3;&#x6784;&#x4E0A;&#x505A;&#x51FA;&#x4EFB;&#x4F55;&#x7684;&#x6539;&#x53D8;&#xFF0C;&#x4E5F;&#x4E0D;&#x5E0C;&#x671B;&#x6709;&#x4EFB;&#x4F55;&#x4EBA;&#x53EF;&#x4EE5;&#x7EE7;&#x627F;&#x81EA;&#x8FD9;&#x4E2A;&#x7C7B;&#xFF0C;&#x9664;&#x6B64;&#x4E4B;&#x5916;&#xFF0C;&#x5C31;&#x6CA1;&#x6709;&#x66F4;&#x591A;&#x7684;&#x9650;&#x5236;&#x4E86;&#x3002; &#x4EE5;&#x4E0A;&#x662F;&#x6211;&#x4EEC;&#x4ECE;&#x7C7B;&#x7684;&#x8BBE;&#x8BA1;&#x89D2;&#x5EA6;&#x6765;&#x8003;&#x8651;&#x7C7B;&#x88AB;final &#x4FEE;&#x9970;&#x7684;&#x60C5;&#x51B5;&#x3002;&#x6B64;&#x65F6;&#xFF0C;&#x6211;&#x4EEC;&#x8FD8;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x4E00;&#x70B9;&#xFF0C;&#x4E00;&#x4E2A;&#x7C7B;&#x88AB;final&#x4E4B;&#x540E;&#xFF0C;&#x5B83;&#x5C31;&#x7981;&#x6B62;&#x4E86;&#x7EE7;&#x627F;&#x5173;&#x7CFB;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x7C7B;&#x4E2D;&#x7684;&#x6240;&#x6709;&#x65B9;&#x6CD5;&#x90FD;&#x662F;final&#x4FEE;&#x9970;&#x7684;&#xFF0C;&#x56E0;&#x4E3A;&#x4ED6;&#x4EEC;&#x4E0D;&#x4F1A;&#x518D;&#x88AB;&#x91CD;&#x5199;&#x4E86;&#xFF0C;&#x4F46;&#x662F;&#x7C7B;&#x4E2D;&#x7684;&#x57DF;&#x4E0D;&#x4F1A;&#x56E0;&#x6B64;&#x4E5F;&#x88AB;&#x4FEE;&#x9970;&#x4E3A;final&#x7684;&#xFF0C;&#x5927;&#x5BB6;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x8FD9;&#x4E00;&#x70B9;&#xFF0C;&#x4E0D;&#x8981;&#x8BEF;&#x89E3;&#x3002;</li>
+</ul>
+<br>
+
+<ul>
+<li>&#x6548;&#x7387;&#x539F;&#x56E0;&#xFF08;Efficiency&#xFF09;<br>&#x5728;&#x6211;&#x4EEC;&#x8BF4;&#x660E;final&#x5982;&#x4F55;&#x5728;&#x6548;&#x7387;&#x4E0A;&#x8D77;&#x5230;&#x4F5C;&#x7528;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6211;&#x4EEC;&#x9996;&#x5148;&#x9700;&#x8981;&#x638C;&#x63E1;&#x4E00;&#x4E2A;&#x77E5;&#x8BC6;&#x70B9;&#xFF0C;&#x5373;&#x65B9;&#x6CD5;&#x7684;&#x5185;&#x8054;&#xFF08;inline&#xFF09; &#x3002;&#x6211;&#x4EEC;&#x5728;&#x638C;&#x63E1;&#x4E86;&#x8FD9;&#x4E2A;&#x77E5;&#x8BC6;&#x70B9;&#x4E4B;&#x540E;&#xFF0C;&#x53EF;&#x80FD;&#x5BF9;&#x4E8E;&#x5BF9;&#x4E8E;final &#x4FEE;&#x9970;&#x65B9;&#x6CD5;&#x4E5F;&#x5C31;&#x4E00;&#x5E76;&#x638C;&#x63E1;&#x4E86;&#x3002;&#x6211;&#x4EEC;&#x8981;&#x8BF4;&#x660E;final&#x4E3A;&#x4E00;&#x4E2A;&#x7C7B;&#xFF08;Class&#xFF09;&#x5E26;&#x6765;&#x6548;&#x7387;&#x4E0A;&#x7684;&#x597D;&#x5904;&#xFF0C;&#x8FD8;&#x771F;&#x7684;&#x5F97;&#x7814;&#x7A76;&#x5230;&#x86EE;&#x6DF1;&#x5165;&#x7684;&#x5730;&#x6B65;&#xFF0C;&#x8FD9;&#x4E2A;&#x6DF1;&#x5165;&#x7684;&#x5730;&#x6B65;&#x53EF;&#x4EE5;&#x5230;JVM&#x5BF9;&#x4E8E;&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x5904;&#x7406;&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x6DF1;&#x5165;&#x5230;&#x5BC4;&#x5B58;&#x5668;&#x5982;&#x4F55;&#x5B58;&#x50A8;&#x6307;&#x4EE4;&#xFF0C;&#x5728;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x5C31;&#x4E00;&#x5207;&#x4ECE;&#x7B80;&#x7684;&#x8BF4;&#xFF0C;&#x53EA;&#x8981;&#x80FD;&#x628A;&#x610F;&#x601D;&#x8BF4;&#x901A;&#x5C31;&#x53EF;&#x4EE5;&#x4E86;&#xFF0C;&#x60F3;&#x6DF1;&#x5165;&#x7684;&#x7814;&#x7A76;&#x7684;&#x540C;&#x5B66;&#x53EF;&#x4EE5;&#x628A;JVM&#x7684;&#x77E5;&#x8BC6;&#x5B66;&#x8D77;&#x6765;&#xFF0C;&#x540C;&#x65F6;Wikipedia&#x4E0A;&#x4E5F;&#x63D0;&#x4F9B;&#x4E86;&#x597D;&#x591A;&#x53C2;&#x8003;&#x3002;</li>
+</ul>
+<p>&#x8A00;&#x5F52;&#x6B63;&#x4F20;&#xFF0C;<strong>&#x4E00;&#x4E2A;&#x7C7B;&#x88AB;final&#x4FEE;&#x9970;&#x540E;&#xFF0C;&#x5B83;&#x7684;&#x65B9;&#x6CD5;&#x9ED8;&#x8BA4;&#x88AB;&#x4FEE;&#x9970;&#x4E3A;final &#xFF0C;&#x8FD9;&#x65F6;&#x65B9;&#x6CD5;&#x7684;&#x5185;&#x8054;&#x8D77;&#x5230;&#x4F5C;&#x7528;&#x4E86;</strong>&#x3002;&#x5BF9;&#x4E8E;Java&#x8BED;&#x8A00;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#x6765;&#x8BF4;&#xFF0C;&#x4E0D;&#x540C;&#x4E8E;C/C++&#xFF0C;&#x6211;&#x4EEC;&#x65E0;&#x9700;&#x523B;&#x610F;&#x5730;&#x5229;&#x7528;&#x5185;&#x8054;&#x505A;&#x4EC0;&#x4E48;&#xFF0C;&#x4F8B;&#x5982;Java Hotspot Compiler&#x8FD9;&#x6837;&#x7684;&#x7F16;&#x8BD1;&#x5668;&#xFF0C;&#x4F1A;&#x81EA;&#x52A8;&#x5730;&#x8FDB;&#x884C;&#x51FD;&#x6570;&#x5185;&#x8054;&#x4F18;&#x5316;&#x3002;&#x90A3;&#x6211;&#x4EEC;&#x8BF4;&#x4E86;&#x4E00;&#x5806;&#xFF0C;What is the fucking inline?&#xFF08;&#x8FD9;&#x662F;&#x6211;&#x770B;&#x4E86;&#x51E0;&#x904D;&#x4E4B;&#x540E;&#x7684;&#x5FC3;&#x60C5;&#xFF01;&#xFF09;&#x73B0;&#x5728;&#x6211;&#x53EF;&#x4EE5;&#x6E05;&#x6DE1;&#x5982;&#x6C34;&#x7684;&#x8BF4;&#x4E00;&#x53E5;&#xFF1A; <strong>&#x5185;&#x8054;&#xFF08;inline&#xFF09;&#x5728;Java&#x4E2D;&#x5C31;&#x662F;&#x7F16;&#x8BD1;&#x5668;&#x4E3A;&#x7A0B;&#x5E8F;&#x505A;&#x7684;&#x4E00;&#x79CD;&#x4F18;&#x5316;&#x64CD;&#x4F5C;</strong>&#x3002; &#x8FD9;&#x53E5;&#x8BDD;&#x7B97;&#x6211;&#x770B;&#x4E86;10&#x51E0;&#x904D;&#x4E4B;&#x540E;&#x7684;&#x5230;&#x4E00;&#x4E2A;&#x6700;&#x7B80;&#x5355;&#x7684;&#x603B;&#x7ED3;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x60F3;&#x8981;&#x7406;&#x89E3;&#x5185;&#x8054;&#xFF08;inline&#xFF09; &#x5E26;&#x6765;&#x7684;&#x4F18;&#x5316;&#xFF0C;&#x6211;&#x4EEC;&#x8FD8;&#x8981;&#x5728;&#x8865;&#x5145;&#x4E00;&#x4E9B;&#x77E5;&#x8BC6;&#x3002;&#xFF08;&#x7406;&#x89E3;&#x5185;&#x8054;&#x771F;&#x7684;&#x9700;&#x8981;&#x5F88;&#x591A;&#x77E5;&#x8BC6;&#x70B9;&#x7684;&#x4E32;&#x8054;&#xFF09;&#xFF0C;&#x5C31;&#x662F;JVM&#x7684;&#x65B9;&#x6CD5;&#x8C03;&#x7528;&#x90E8;&#x5206;&#x7684;&#x77E5;&#x8BC6;&#x3002;&#x6211;&#x4EEC;&#x4E00;&#x5B9A;&#x8981;&#x660E;&#x767D;&#x4E00;&#x70B9;&#xFF0C;&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x548C;&#x65B9;&#x6CD5;&#x6267;&#x884C;&#x7EDD;&#x5BF9;&#x4E0D;&#x662F;&#x4E00;&#x56DE;&#x4E8B;&#xFF0C;&#x8FD9;&#x70B9;&#x5728;&#x6211;&#x53BB;&#x7406;&#x89E3;AspectJ&#x7684;call&#x548C;execution&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F53;&#x4F1A;&#x5C24;&#x4E3A;&#x6DF1;&#x523B;&#xFF0C;&#x73B0;&#x5728;&#x770B;&#x4E86;JVM&#x4E4B;&#x540E;&#xFF0C;&#x6709;&#x4E86;&#x8FDB;&#x4E00;&#x6B65;&#x7684;&#x4E86;&#x89E3;&#x3002;&#x201C;&#x65B9;&#x6CD5;&#x8C03;&#x7528;&#x9636;&#x6BB5;&#x552F;&#x4E00;&#x7684;&#x4EFB;&#x52A1;&#x5C31;&#x662F;&#x786E;&#x5B9A;&#x88AB;&#x8C03;&#x7528;&#x65B9;&#x6CD5;&#x7684;&#x7248;&#x672C;&#xFF0C;&#x4E0D;&#x4F1A;&#x6D89;&#x53CA;&#x65B9;&#x6CD5;&#x5185;&#x90E8;&#x7684;&#x5177;&#x4F53;&#x8FD0;&#x884C;&#x8FC7;&#x7A0B;&#x3002;&#x201D;&#xFF0C;&#x6211;&#x4EEC;&#x90FD;&#x975E;&#x5E38;&#x719F;&#x6089;&#x4E00;&#x4E2A;.java&#x6587;&#x4EF6;&#x5728;&#x88AB;&#x7F16;&#x8BD1;&#x5668;&#x7F16;&#x8BD1;&#x540E;&#x5F97;&#x5230;&#x4E86;&#x4E00;&#x4E2A;&#x5BF9;&#x5E94;&#x7684;.class&#x6587;&#x4EF6;&#xFF0C;&#x8FD9;&#x4E2A;&#x6587;&#x4EF6;&#x662F;&#x4E00;&#x4E2A;&#x4E8C;&#x8FDB;&#x5236;&#x6D41;&#x6587;&#x4EF6;&#xFF0C;&#x6211;&#x4EEC;&#x5728;&#x7C7B;&#x4E2D;&#x5B9A;&#x4E49;&#x7684;&#x65B9;&#x6CD5;&#x6B64;&#x65F6;&#x90FD;&#x88AB;&#x7FFB;&#x8BD1;&#x6210;&#x4E86;&#x5B57;&#x8282;&#x7801;&#x4FE1;&#x606F;&#x4FDD;&#x5B58;&#x4E86;&#x8D77;&#x6765;&#xFF0C;&#x800C;&#x65B9;&#x6CD5;&#x7684;&#x4FE1;&#x606F;&#x5BF9;&#x5E94;&#x5E38;&#x91CF;&#x6C60;&#x5165;&#x53E3;&#x5730;&#x5740;&#x90FD;&#x5B58;&#x5728;&#x5728;&#x4E00;&#x4E2A;method_info&#x8868;&#x4E2D;&#xFF0C;&#x540C;&#x65F6;&#x8FD9;&#x91CC;&#x4E5F;&#x5305;&#x542B;&#x4E86;access_flags&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x7F16;&#x8BD1;&#x5668;&#x5982;&#x4F55;&#x5BF9;final&#x4FEE;&#x9970;&#x7684;&#x5185;&#x5BB9;&#x8FDB;&#x884C;&#x68C0;&#x67E5;&#x3002;</p>
+<p><img src="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/1.png"></p>
+<p>&#x5728;<code>cp_info</code> <code>constant pool&#x548C;method_info</code>&#x5305;&#x542B;&#x4E86;&#x4E00;&#x4E2A;&#x7C7B;&#x4E2D;&#x65B9;&#x6CD5;&#x6240;&#x6709;&#x7684;&#x4FE1;&#x606F;&#xFF0C;&#x800C;&#x5728;&#x5E38;&#x91CF;&#x6C60;&#x4E2D;&#x7684;&#x65B9;&#x6CD5;&#x4FE1;&#x606F;&#x4FBF;&#x7EC4;&#x6210;&#x4E86;&#x4E00;&#x4E2A;<strong>&#x7B26;&#x53F7;&#x5F15;&#x7528;</strong>&#xFF0C;&#x4E5F;&#x662F;&#x5C31;&#x8BF4;&#x4E00;&#x4E2A;&#x7B26;&#x53F7;&#x5F15;&#x7528;&#x53EA;&#x662F;&#x63CF;&#x8FF0;&#x4E86;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x7684;&#x4FE1;&#x606F;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x5728;&#x5B9E;&#x9645;&#x8FD0;&#x884C;&#x65F6;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x5B9E;&#x9645;&#x7684;&#x5165;&#x53E3;&#x5730;&#x5740;&#xFF08;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#xFF09;&#xFF0C;&#x90A3;&#x4E48;&#x4E5F;&#x5C31;&#x8BF4;&#x6709;&#x4E00;&#x4E9B;&#x65B9;&#x6CD5;&#x9700;&#x8981;&#x5728;&#x8FD0;&#x884C;&#x65F6;&#x624D;&#x80FD;&#x77E5;&#x9053;&#x76EE;&#x6807;&#x65B9;&#x6CD5;&#x7684;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#x3002;</p>
+<p>&#x90A3;&#x4E48;&#x95EE;&#x9898;&#x5C31;&#x6765;&#x4E86;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x6240;&#x6709;&#x7684;&#x65B9;&#x6CD5;&#x90FD;&#x662F;&#x8FD9;&#x6837;&#x7684;&#x88C5;&#x8F7D;-&#x89E3;&#x6790;-&#x6267;&#x884C;&#x8FC7;&#x7A0B;&#x3002;&#x5728;&#x4E00;&#x4E2A;class&#x7684;&#x89E3;&#x6790;&#x9636;&#x6BB5;&#xFF0C;JVM&#x4F1A;&#x5B8C;&#x6210;&#x4E00;&#x4E2A;&#x4EFB;&#x52A1;&#xFF0C;&#x5C06;&#x90A3;&#x4E9B;&#x4E0D;&#x9700;&#x8981;&#x5728;&#x6267;&#x884C;&#x9636;&#x6BB5;&#x624D;&#x77E5;&#x9053;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#x7684;&#x65B9;&#x6CD5;&#xFF08;&#x5982;&#x591A;&#x6001;&#x6027;&#xFF09;&#x89E3;&#x6790;&#x51FA;&#x6765;&#xFF0C;&#x5373;&#x5C06;&#x5E38;&#x91CF;&#x6C60;&#x4E2D;&#x7684;&#x7B26;&#x53F7;&#x5F15;&#x7528;&#x8F6C;&#x6362;&#x4E3A;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#x3002;&#x6362;&#x53E5;&#x8BDD;&#x8BF4;&#xFF0C;&#x6211;&#x4EEC;&#x8981;&#x8C03;&#x7528;&#x7684;&#x76EE;&#x6807;&#x65B9;&#x6CD5;&#x5728;&#x7F16;&#x8BD1;&#x5668;&#x7F16;&#x8BD1;&#x7684;&#x65F6;&#x671F;&#x5C31;&#x8981;&#x786E;&#x5B9A;&#x597D;&#x662F;&#x8C01;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x52A8;&#x6001;&#x7684;&#x7B49;&#x5F85;&#x54EA;&#x4E2A;&#x65B9;&#x6CD5;&#x3002;&#x90A3;&#x8FD9;&#x8DDF;&#x5185;&#x8054;&#x6709;&#x4EC0;&#x4E48;&#x5173;&#x7CFB;&#x5462;&#xFF1F;&#x6211;&#x4EEC;&#x63A5;&#x7740;&#x5411;&#x4E0B;&#x5206;&#x6790;&#x3002;</p>
+<p>&#x5728;JVM&#x4E2D;&#xFF0C;&#x65B9;&#x6CD5;&#x88AB;&#x8C03;&#x7528;&#x7684;instruction&#xFF08;&#x6307;&#x4EE4;&#xFF09;&#x4E00;&#x5171;&#x6709;5&#x6761;&#xFF1A;</p>
+<blockquote>
+<p>invokestatic &#xFF1A;&#x8C03;&#x7528;&#x9759;&#x6001;&#x65B9;&#x6CD5;<br>invokespecial &#xFF1A;&#x8C03;&#x7528;&#x79C1;&#x6709;&#x65B9;&#x6CD5;&#x3001;&#x6784;&#x9020;&#x5668;&#x65B9;&#x6CD5;&#x3001;&#x7236;&#x7C7B;&#x65B9;&#x6CD5;<br>invokevirtual &#xFF1A;&#x8C03;&#x7528;&#x865A;&#x65B9;&#x6CD5;<br>invokeinterface &#xFF1A;&#x8C03;&#x7528;&#x63A5;&#x53E3;&#x65B9;&#x6CD5;<br>invokedynamic &#xFF1A;&#x5148;&#x5728;&#x8FD0;&#x884C;&#x65F6;&#x52A8;&#x6001;&#x89E3;&#x6790;&#x51FA;&#x8C03;&#x7528;&#x70B9;&#x9650;&#x5B9A;&#x7B26;&#x6240;&#x5F15;&#x7528;&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x6267;&#x884C;&#x8BE5;&#x65B9;&#x6CD5;</p>
+</blockquote>
+<p>&#x5728;&#x4E0A;&#x9762;&#x7684;&#x7ED9;&#x51FA;&#x7684;5&#x6761;&#x6307;&#x4EE4;&#x4E2D;&#xFF0C;JVM&#x5229;&#x7528;<code>invokevirtual</code>&#x6307;&#x4EE4;&#x8C03;&#x7528;&#x865A;&#x65B9;&#x6CD5;&#xFF0C;&#x4F46;&#x662F;&#x8FD9;&#x91CC;&#x9762;&#x6709;&#x4E00;&#x4E2A;&#x7279;&#x6B8A;&#x7684;&#x5C31;&#x662F;final&#x4FEE;&#x9970;&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x867D;&#x7136;&#x8C03;&#x7528;final&#x4FEE;&#x9970;&#x7684;&#x65B9;&#x6CD5;&#x4E5F;&#x662F;&#x5229;&#x7528;<code>invokevirtual</code>&#x8C03;&#x7528;&#x7684;&#xFF0C;&#x4F46;&#x662F;&#x7531;&#x4E8E;final&#x4FEE;&#x9970;&#x7684;&#x65B9;&#x6CD5;&#x65E0;&#x6CD5;&#x88AB;&#x8986;&#x76D6;&#xFF0C;&#x6240;&#x4EE5;&#x4E5F;&#x5C31;&#x65E0;&#x987B;&#x5BF9;&#x65B9;&#x6CD5;&#x63A5;&#x53D7;&#x8FDB;&#x884C;&#x591A;&#x6001;&#x9009;&#x62E9;&#x3002;&#x90A3;&#x4E48;final&#x65B9;&#x6CD5;&#x5C31;&#x548C;<code>invokestatic</code>&#x8C03;&#x7528;&#x7684;&#x9759;&#x6001;&#x65B9;&#x6CD5;&#x3001;<code>invokespecial</code>&#x8C03;&#x7528;&#x7684;&#x79C1;&#x6709;&#x65B9;&#x6CD5;&#x7B49;&#x4E00;&#x5E76;&#x5728;&#x89E3;&#x6790;&#x9636;&#x6BB5;&#x5C06;&#x7B26;&#x53F7;&#x5F15;&#x7528;&#x89E3;&#x6790;&#x4E3A;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#xFF0C;&#x6240;&#x751F;&#x6210;&#x7684;&#x76F4;&#x63A5;&#x5F15;&#x7528;&#x5C06;&#x5305;&#x542B;&#x4E00;&#x4E2A;&#x6307;&#x5411;&#x5B9E;&#x9645;&#x64CD;&#x4F5C;&#x7801;&#x7684;&#x6307;&#x9488;&#x3002;</p>
+<p>&#x90A3;&#x7ED5;&#x4E86;&#x4E00;&#x5927;&#x5708;&#xFF0C;&#x6211;&#x4EEC;&#x7EC8;&#x4E8E;&#x56DE;&#x5230;&#x4E86;&#x5185;&#x8054;&#xFF08;inline&#xFF09;&#x7684;&#x5206;&#x6790;&#x4E0A;&#xFF08;&#x8FD9;&#x91CC;&#x5199;&#x7684;&#x6709;&#x70B9;&#x5570;&#x55E6;&#x4E86;&#xFF09;&#xFF0C;&#x9996;&#x5148;&#x6211;&#x4EEC;&#x660E;&#x786E;&#x4E00;&#x70B9;&#xFF0C;&#x5185;&#x8054;&#x662F;&#x53D1;&#x751F;&#x5728;&#x7F16;&#x8BD1;&#x671F;&#x7684;&#x4E00;&#x4E2A;&#x4F18;&#x5316;&#x64CD;&#x4F5C;&#xFF0C;&#x6240;&#x505A;&#x7684;&#x4F18;&#x5316;&#x64CD;&#x4F5C;&#x7684;&#x610F;&#x4E49;&#x5728;&#x4E8E;&#x4E24;&#x4E2A;&#x5B57;&#xFF0C;&#x201C;&#x66FF;&#x6362;&#x201D; &#xFF0C;&#x8FD9;&#x79CD;&#x7B56;&#x7565;&#x5C31;&#x662F;&#x975E;&#x5E38;&#x5E38;&#x89C1;&#x7684;&#x4E00;&#x79CD;&#x5229;&#x7528;&#x7A7A;&#x95F4;&#x7F6E;&#x6362;&#x65F6;&#x95F4;&#x7684;&#x4E00;&#x4E2A;&#x7B56;&#x7565;&#x3002;&#x6211;&#x901A;&#x8FC7;&#x4E00;&#x4E2A;&#x4EE3;&#x7801;&#x6BB5;&#x6765;&#x8BF4;&#x660E;&#x5185;&#x8054;&#x5728;&#x505A;&#x4EC0;&#x4E48;&#x3002;</p>
+<p>&#x4F18;&#x5316;&#x524D;&#x7684;&#x539F;&#x59CB;&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Car</span> {</span><br><span class="line">    <span class="type">double</span> price;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">double</span> <span class="title function_">getPrice</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> price;</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">countDiscount</span><span class="params">()</span> {</span><br><span class="line">    y = car.getPrice();</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    z = car.getPrice();</span><br><span class="line">    discount = y - z;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5185;&#x8054;&#x540E;&#x7684;&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">countDiscount</span><span class="params">()</span> {</span><br><span class="line">    y = car.price;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    z = car.price;</span><br><span class="line">    discount = y - z;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x4ECE;&#x4EE5;&#x4E0A;&#x7684;&#x4EE3;&#x7801;&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x5C31;&#x53EF;&#x4EE5;&#x5F88;&#x5BB9;&#x5C31;&#x770B;&#x51FA;&#x6765;&#x5185;&#x8054;&#x7684;&#x542B;&#x4E49;&#x4E86;&#xFF0C;&#x4ECE;&#x4EE3;&#x7801;&#x7684;&#x53D8;&#x5316;&#x7ED3;&#x679C;&#x6765;&#x770B;&#x7F16;&#x8BD1;&#x5668;&#x6240;&#x505A;&#x7684;&#x4F18;&#x5316;&#x64CD;&#x4F5C;&#xFF0C;&#x4F9D;&#x7136;&#x90FD;&#x5728;public void countDiscount()&#x65B9;&#x6CD5;&#x4E2D;&#xFF0C;car&#x7684;&#x8C03;&#x7528;&#x4E0D;&#x518D;&#x662F;getPrice()&#x65B9;&#x6CD5;&#xFF0C;&#x800C;&#x662F;price&#x8FD9;&#x4E2A;&#x8FD4;&#x56DE;&#x7ED3;&#x679C;&#xFF0C;&#x65E0;&#x8BBA;&#x662F;y&#x6216;&#x8005;z&#xFF0C;&#x8C03;&#x7528;&#x90FD;&#x5B8C;&#x6210;&#x4E86;&#x7B80;&#x5316;&#xFF0C;&#x8FD9;&#x79CD;&#x7B80;&#x5316;&#x662F;&#x4F53;&#x73B0;&#x5728;&#x65B9;&#x6CD5;&#x7684;&#x7B80;&#x5316;&#xFF0C;&#x8FD9;&#x6837;&#x505A;&#x7684;&#x597D;&#x5904;&#x663E;&#x800C;&#x6613;&#x89C1;&#xFF0C;&#x6D88;&#x9664;&#x4E86;&#x66F4;&#x591A;&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#xFF0C;&#x8F83;&#x5C11;&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x5C31;&#x610F;&#x5473;&#x5728;&#x865A;&#x62DF;&#x673A;&#x6808;&#x4E2D;&#x6D88;&#x8017;&#x7684;&#x8D44;&#x6E90;&#x66F4;&#x5C11;&#xFF08;&#x5982;&#x4E0D;&#x4F1A;&#x521B;&#x5EFA;&#x65B0;&#x7684;StackFrame&#x6808;&#x5E27;&#xFF09;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x8C03;&#x7528;&#x90FD;&#x662F;&#x7531;&#x5185;&#x8054;&#x65B9;&#x6CD5;&#x81EA;&#x5DF1;&#x53D1;&#x8D77;&#xFF0C;&#x81EA;&#x5DF1;&#x5B8C;&#x6210;&#x5F39;&#x6808;&#x538B;&#x6808;&#x64CD;&#x4F5C;&#x3001;&#x6062;&#x590D;&#x5BC4;&#x5B58;&#x5668;&#xFF08;&#x6062;&#x590D;&#x6267;&#x884C;&#x4E0A;&#x4E0B;&#x6587;&#xFF09;&#x7B49;&#x3002;&#x5176;&#x5B9E;&#xFF0C;&#x671D;&#x7740;&#x7B80;&#x5355;&#x7684;&#x65B9;&#x5411;&#x7406;&#x89E3;&#xFF0C;&#x5185;&#x8054;&#x5C31;&#x662F;&#x5728;&#x6267;&#x884C;copy+replace&#x7684;&#x52A8;&#x4F5C;&#xFF0C;&#x4E3A;&#x4EC0;&#x4E48;&#x8FD9;&#x4E48;&#x8BF4;&#xFF1F;&#x56E0;&#x4E3A;&#x6211;&#x4EEC;&#x5728;&#x9ECF;&#x8D34;&#x522B;&#x4EBA;&#x7684;&#x6216;&#x8005;&#x91CD;&#x590D;&#x7684;&#x4EE3;&#x7801;&#x65F6;&#x5019;&#x4E5F;&#x5728;&#x6267;&#x884C;&#x8005;&#x4E00;&#x79CD;&#x7C7B;&#x4F3C;&#x4E8E;&#x5185;&#x8054;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x53EA;&#x4E0D;&#x8FC7;&#xFF0C;&#x6211;&#x4EEC;&#x6CA1;&#x6709;&#x505A;&#x5230;&#x4F18;&#x5316;&#x3002;&#x88AB;&#x6267;&#x884C;&#x5185;&#x8054;&#x7684;&#x65B9;&#x6CD5;&#x4F1A;&#x521B;&#x5EFA;&#x51FA;&#x5F88;&#x591A;&#x4E2A;&#x526F;&#x672C;&#xFF0C;&#x6BD4;&#x5982;&#x6211;&#x4EEC;&#x7684;countDiscount&#x65B9;&#x6CD5;&#x4E2D;&#x5C31;&#x6709;&#x4E24;&#x5904;&#xFF0C;&#x5982;&#x679C;&#x8FD8;&#x6709;&#x522B;&#x7684;&#x65B9;&#x6CD5;&#x6709;&#x8C03;&#x7528;&#x90A3;&#x4E48;&#x4F9D;&#x7136;&#x4F1A;&#x88AB;&#x526F;&#x672C;&#x66FF;&#x6362;&#x6389;&#x3002;&#x8FD9;&#x6837;&#x51CF;&#x5C11;&#x4E86;&#x989D;&#x5916;&#x7684;&#x8C03;&#x7528;&#xFF0C;&#x51CF;&#x5C11;&#x4E86;&#x7CFB;&#x7EDF;&#x5F00;&#x9500;&#xFF0C;&#x65F6;&#x95F4;&#x4E0A;&#x4F1A;&#x770B;&#x4F3C;&#x6216;&#x786E;&#x5B9A;&#x6709;&#x4E00;&#x5B9A;&#x7684;&#x7F29;&#x77ED;&#x3002;</p>
+<p>&#x4E4B;&#x6240;&#x4EE5;&#x6211;&#x4E5F;&#x6CA1;&#x6709;&#x7528;&#x786E;&#x5B9A;&#x7684;&#x8BED;&#x6C14;&#x8BF4;&#x5185;&#x8054;&#x4E00;&#x5B9A;&#x4F1A;&#x5E26;&#x6765;&#x4F18;&#x5316;&#x6548;&#x679C;&#xFF0C;&#x8FD9;&#x662F;&#x56E0;&#x4E3A;&#x7B56;&#x7565;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x5229;&#x7528;&#x7A7A;&#x95F4;&#x6362;&#x65F6;&#x95F4;&#xFF0C;&#x672C;&#x8EAB;&#x5C31;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x5E73;&#x8861;&#x70B9;&#xFF08;break-even&#xFF09;&#xFF0C;&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x8FC7;&#x4E8E;&#x5927;&#xFF0C;copy&#x7684;&#x526F;&#x672C;&#x6570;&#x91CF;&#x8FC7;&#x4E8E;&#x591A;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x6837;&#x7684;&#x5E73;&#x8861;&#x5C31;&#x4F1A;&#x88AB;&#x6253;&#x7834;&#xFF0C;&#x4F18;&#x5316;&#x7684;&#x76EE;&#x7684;&#x53CD;&#x800C;&#x5931;&#x53BB;&#x4E86;&#x610F;&#x4E49;&#x3002;&#x5BF9;&#x4E8E;&#x8FD9;&#x79CD;break-even&#x6211;&#x8FD8;&#x662F;&#x63A8;&#x8350;&#x4E24;&#x7BC7;&#x9605;&#x8BFB;&#x6750;&#x6599;&#x3002;</p>
+<ul>
+<li><p>1.Wikipedia&#x4E0A;&#x7684;&#x5173;&#x4E8E;&#x5185;&#x8054;&#x7684;&#x4ECB;&#x7ECD;<br><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Inline_expansion#Language_support">https://en.wikipedia.org/wiki/Inline_expansion#Language_support</a></p>
+</li>
+<li><p>2.IBM developerWorks&#x4E0A;&#x7684;&#x4E00;&#x4E2A;blog&#xFF0C;&#x5199;&#x7684;&#x5F88;&#x8D34;&#x5FC3;&#x3002;<br><a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/java/library/j-jtp1029/index.html">http://www.ibm.com/developerworks/java/library/j-jtp1029/index.html</a></p>
+</li>
+</ul>
+<p>&#x5C0F;&#x7ED3;</p>
+<p>&#x4E00;&#x5207;&#x4ECE;&#x7B80;&#xFF0C;&#x8FD9;&#x91CC;final&#x4FEE;&#x9970;&#x4E86;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF0C;&#x57FA;&#x672C;&#x4E0A;&#x53D9;&#x8FF0;&#x4E86;&#x4E00;&#x904D;&#xFF0C;&#x5206;&#x6790;&#x4E86;&#x4E00;&#x90E8;&#x5206;&#x539F;&#x7406;&#x3002;&#x5982;&#x6709;&#x7591;&#x95EE;&#xFF0C;&#x6B22;&#x8FCE;&#x5927;&#x5BB6;&#x5410;&#x69FD;&#x5E76;&#x6307;&#x6B63;&#xFF0C;thanks here!</p>
+<p>&#x5C0F;&#x7ED3;&#x5982;&#x4E0B;:</p>
+<ul>
+<li>final&#x4FEE;&#x9970;&#x7C7B;&#xFF0C;&#x66F4;&#x591A;&#x4ECE;&#x8BBE;&#x8BA1;&#xFF08;Design&#xFF09;&#x7684;&#x89D2;&#x5EA6;&#x53BB;&#x8003;&#x8651;&#x5427;&#xFF0C;&#x4E00;&#x4E2A;&#x88AB;final&#x4FEE;&#x9970;&#x7684;&#x7C7B;&#x65E0;&#x6CD5;&#x5B50;&#x7C7B;&#x5316;&#xFF0C;&#x5373;&#x4E0D;&#x80FD;&#x88AB;&#x7EE7;&#x627F;&#x3002;</li>
+<li>final&#x4FEE;&#x9970;&#x7C7B;&#xFF0C;&#x7C7B;&#x4E2D;&#x7684;&#x65B9;&#x6CD5;&#x9ED8;&#x8BA4;&#x90FD;&#x662F;final &#x4FEE;&#x9970;&#x7684;&#x3002;</li>
+<li>final&#x4FEE;&#x9970;&#x65B9;&#x6CD5;&#xFF0C;&#x5982;&#x679C;&#x4ECE;&#x8BBE;&#x8BA1;&#xFF08;Design&#xFF09;&#x7684;&#x89D2;&#x5EA6;&#x53BB;&#x8003;&#x8651;&#xFF0C;&#x5982;&#x679C;&#x7C7B;&#x4E4B;&#x95F4;&#x4F53;&#x73B0;&#x4E86;&#x7EE7;&#x627F;&#x5173;&#x7CFB;&#xFF0C;&#x90A3;&#x4E48;final &#x4FEE;&#x9970;&#x7684;&#x65B9;&#x6CD5;&#x5219;&#x4E0D;&#x80FD;&#x88AB;&#x5B50;&#x7C7B;&#x91CD;&#x5199;&#x6216;&#x8986;&#x76D6;&#x3002;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x4F53;&#x73B0;&#x7EE7;&#x627F;&#x5173;&#x7CFB;&#xFF0C;&#x5C31;&#x4ECE;&#x6548;&#x7387;&#x7684;&#x89D2;&#x5EA6;&#x8003;&#x8651;&#x5427;&#xFF0C;&#x4F46;&#x662F;&#x8BF7;&#x5207;&#x8BB0;&#xFF1A;&#x5BF9;&#x4E8E;Java&#x865A;&#x62DF;&#x673A;&#x6765;&#x8BF4;&#x7F16;&#x8BD1;&#x5668;&#x5728;&#x7F16;&#x8BD1;&#x671F;&#x95F4;&#x4F1A;&#x81EA;&#x52A8;&#x8FDB;&#x884C;&#x5185;&#x8054;&#x4F18;&#x5316;&#xFF0C;&#x8FD9;&#x662F;&#x7531;&#x7F16;&#x8BD1;&#x5668;&#x51B3;&#x5B9A;&#x7684;&#xFF0C;&#x5BF9;&#x4E8E;&#x6211;&#x4EEC;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x6765;&#x8BF4;&#xFF0C;&#x6211;&#x4EEC;&#x4E00;&#x5B9A;&#x8981;&#x8BBE;&#x8BA1;&#x597D;break-even&#x7684;&#x5E73;&#x8861;&#xFF0C;&#x4E0D;&#x8981;&#x6EE5;&#x7528;final&#x3002;</li>
+</ul>
+<h3 id="&#x4E8C;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x57DF;&#xFF09;"><a href="#&#x4E8C;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x57DF;&#xFF09;" class="headerlink" title="&#x4E8C;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x57DF;&#xFF09;"></a>&#x4E8C;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x57DF;&#xFF09;</h3><p>&#x76F8;&#x6BD4;&#x4E8E;&#x7C7B;&#x548C;&#x65B9;&#x6CD5;&#xFF0C;final&#x4FEE;&#x9970;&#x57DF;&#xFF08;Field&#xFF09;&#x6765;&#x8BF4;&#x5C31;&#x7B80;&#x5355;&#x591A;&#x4E86;&#xFF0C;&#x8FD9;&#x4E2A;&#x7B80;&#x5355;&#x4E0D;&#x662F;&#x539F;&#x7406;&#x7B80;&#x5355;&#xFF0C;&#x662F;&#x6CA1;&#x6709;&#x90A3;&#x4E48;&#x590D;&#x6742;&#x7684;&#x60C5;&#x51B5;&#x3002;<br>final&#x80FD;&#x4FEE;&#x9970;&#x7684;&#x57DF;&#x5728;&#x6211;&#x603B;&#x7ED3;&#x6765;&#x770B;&#xFF0C;2&#x79CD;&#x7C7B;&#x578B;&#x3002;</p>
+<ol>
+<li><p>&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;</p>
+</li>
+<li><p>&#x5F15;&#x7528;&#x7C7B;&#x578B;<br>&#x9996;&#x5148;&#x662F;&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;&#xFF0C;&#x8FD9;&#x4E2A;&#x662F;&#x6211;&#x4EEC;&#x5728;&#x5199;&#x4EE3;&#x7801;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6700;&#x5E38;&#x89C1;&#x7684;&#x4F7F;&#x7528;&#x65B9;&#x6CD5;&#x4E86;&#x3002;&#x7528;&#x6CD5;&#x5F88;&#x7B80;&#x5355;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">ORDER</span> <span class="operator">=</span> <span class="number">1</span>;  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">double</span> <span class="variable">fee</span> <span class="operator">=</span> <span class="number">25.62</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x7A0B;&#x5E8F;&#x7F16;&#x8BD1;&#x671F;&#x95F4;&#x7684;&#x5E38;&#x91CF;&#xFF0C;&#x5B83;&#x6C38;&#x8FDC;&#x4E0D;&#x4F1A;&#x53D8;&#x3002;</p>
+</li>
+<li><p>&#x5728;&#x8FD0;&#x884C;&#x671F;&#x95F4;&#x4E3A;&#x4E00;&#x4E2A;final&#x4FEE;&#x9970;&#x7684;&#x57DF;&#x521D;&#x59CB;&#x5316;&#x4E00;&#x4E2A;&#x503C;&#xFF0C;&#x4E0D;&#x5E0C;&#x671B;&#x5B83;&#x4F1A;&#x53D1;&#x751F;&#x53D8;&#x5316;&#x3002;</p>
+</li>
+</ol>
+<p>&#x90A3;&#x4E48;&#x8FD9;&#x4E24;&#x70B9;&#xFF0C;&#x5C31;&#x5BF9;&#x5E94;&#x8FD9;&#x6211;&#x4EEC;&#x4EE3;&#x7801;&#x4E2D;&#x7684;&#x7B2C;&#x4E00;&#x6761;&#x548C;&#x7B2C;&#x4E8C;&#x6761;&#x3002;&#x6211;&#x4EEC;&#x5148;&#x6765;&#x4E00;&#x4E2A;&#x56FE;&#x793A;&#x3002;</p>
+<p><img src="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/3.png"></p>
+<p>&#x5728;&#x7F16;&#x8BD1;&#x540E;&#x5F97;&#x5230;&#x7684;.class&#x6587;&#x4EF6;&#x4E2D;&#xFF0C;&#x6709;&#x8FD9;&#x4E48;&#x4E00;&#x5757;&#x5185;&#x5BB9;&#xFF0C;&#x53EB;&#x5E38;&#x91CF;&#x6C60;&#x3002;&#x6211;&#x4EEC;&#x5148;&#x4E0D;&#x8BF4;&#x8FD9;&#x91CC;&#x9762;&#x5305;&#x542B;&#x4E86;&#x5176;&#x4ED6;&#x4EC0;&#x4E48;&#x4E1C;&#x897F;&#xFF0C;&#x5149;&#x4ECE;&#x540D;&#x5B57;&#x4E0A;&#x6765;&#x770B;&#xFF0C;&#x5E38;&#x91CF;&#x6C60;&#x4E00;&#x5B9A;&#x8981;&#x5305;&#x542B;&#x5E38;&#x91CF;&#xFF01;&#x6CA1;&#x9519;&#xFF0C;&#x5E38;&#x91CF;&#x6C60;&#x4E2D;&#x7684;&#x786E;&#x5305;&#x542B;&#x4E86;&#x5E38;&#x91CF;&#xFF0C;&#x5F53;&#x7136;&#x8FD8;&#x6709;&#x5176;&#x4ED6;&#x7684;&#x5185;&#x5BB9;&#xFF0C;&#x6211;&#x4EEC;&#x4E5F;&#x4E0D;&#x9700;&#x8981;&#x5173;&#x5FC3;&#xFF0C;&#x90A3;&#x4E48;&#x4E00;&#x4E2A;&#x7C7B;&#x4E2D;&#x88AB;final&#x4FEE;&#x9970;&#x7684;&#x57DF;&#x5728;&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x5C31;&#x4F1A;&#x88AB;&#x653E;&#x5165;&#x8FD9;&#x4E2A;&#x5927;&#x6C60;&#x5B50;&#x4E2D;&#x3002;&#x81F3;&#x4E8E;&#x4E3A;&#x4EC0;&#x4E48;&#x8FD9;&#x4E48;&#x505A;&#xFF1F;&#x539F;&#x56E0;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x4E3A;&#x4E86;&#x6548;&#x7387;&#x3002; &#x5176;&#x5B9E;&#x5C06;&#x4E00;&#x4E2A;&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x4FEE;&#x9970;&#x4E3A;final&#x7684;&#x76EE;&#x7684;&#x6700;&#x5355;&#x7EAF;&#x6700;&#x7F8E;&#x597D;&#xFF0C;&#x5C31;&#x662F;&#x5E0C;&#x671B;&#x5B83;&#x4E0D;&#x8981;&#x53D8;&#x3002;&#x8FD9;&#x6837;&#x7CFB;&#x7EDF;&#x6709;&#x5C31;&#x53EF;&#x4EE5;&#x505A;&#x4E00;&#x4E9B;&#x4F18;&#x5316;&#x64CD;&#x4F5C;&#xFF0C;&#x5C06;&#x8FD9;&#x4E9B;&#x5E38;&#x91CF;&#x503C;&#x88C5;&#x5728;&#x9700;&#x8981;&#x8BA1;&#x7B97;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x8BA9;&#x5B83;&#x4EEC;&#x5145;&#x5F53;&#x7C7B;&#x4F3C;&#x4E8E;&#x5B8F;&#x7684;&#x8EAB;&#x4EFD;&#xFF0C;&#x6362;&#x53E5;&#x8BDD;&#x8BF4;&#xFF0C;&#x7F16;&#x8BD1;&#x5668;&#x53EF;&#x4EE5;&#x5728;&#x7F16;&#x8BD1;&#x671F;&#x95F4;&#x63D0;&#x524D;&#x5B8C;&#x6210;&#x4E00;&#x4E9B;&#x8BA1;&#x7B97;&#x5DE5;&#x4F5C;&#xFF0C;&#x7701;&#x53BB;&#x4E86;&#x5728;&#x8FD0;&#x884C;&#x65F6;&#x5BF9;&#x4E8E;&#x53D8;&#x91CF;&#x7684;&#x76F8;&#x5BF9;&#x590D;&#x6742;&#x7684;&#x64CD;&#x4F5C;&#x3002;&#x90A3;&#x4E48;&#x5230;&#x8FD9;&#x91CC;&#x5C31;&#x5B8C;&#x6210;&#x4E86;&#x4E48;&#xFF1F;&#x5176;&#x5B9E;&#x4E0D;&#x662F;&#x7684;&#xFF0C;&#x8FD9;&#x91CC;&#x8981;&#x8865;&#x5145;&#x7684;&#x4E00;&#x70B9;&#x5C31;&#x662F;&#x4E00;&#x4E2A;&#x7F16;&#x8BD1;&#x671F;&#x95F4;&#x7684;&#x7C7B;&#x6587;&#x4EF6;&#x4E2D;&#xFF0C;&#x5E38;&#x91CF;&#x6C60;&#x4E2D;&#x7684;&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E38;&#x91CF;&#x662F;&#x4E0D;&#x77E5;&#x9053;&#x5177;&#x4F53;&#x7684;&#x503C;&#x662F;&#x4EC0;&#x4E48;&#xFF0C;&#x6362;&#x53E5;&#x8BDD;&#x8BF4;&#xFF0C;&#x5728;&#x6587;&#x4EF6;&#x7F16;&#x8BD1;&#x8FC7;&#x540E;&#xFF0C;&#x867D;&#x7136;&#x77E5;&#x9053;&#x4E00;&#x4E2A;&#x57DF;&#x662F;&#x5E38;&#x91CF;&#xFF0C;&#x4F46;&#x662F;&#x81F3;&#x4E8E;&#x8FD9;&#x4E2A;&#x5E38;&#x91CF;&#x7684;&#x5177;&#x4F53;&#x5185;&#x5BB9;&#x662F;&#x4EC0;&#x4E48;&#xFF0C;&#x6B64;&#x65F6;&#x662F;&#x65E0;&#x4ECE;&#x77E5;&#x6653;&#x7684;&#x3002;&#x5177;&#x4F53;&#x539F;&#x56E0;&#x5728;&#x300A;Thinking in Java&#x300B;&#x4E2D;&#x6709;&#x8FD9;&#x6837;&#x7684;&#x56DE;&#x7B54;&#xFF1A;</p>
+<blockquote>
+<p>This difference shows up only when the values are initialized at run time, since the compile-time value are treated the same by the compiler.(And presumably optimized out of existence.)</p>
+</blockquote>
+<p>&#x53EA;&#x6709;&#x5F53;&#x8FD0;&#x884C;&#x65F6;&#xFF0C;&#x5E38;&#x91CF;&#x624D;&#x4F1A;&#x771F;&#x6B63;&#x7684;&#x88AB;&#x8D4B;&#x503C;&#xFF0C;&#x5BF9;&#x4E8E;static&#x548C;&#x6CA1;&#x6709;static&#x4FEE;&#x9970;&#x7684;&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x6765;&#x8BF4;&#xFF0C;&#x662F;&#x6709;&#x5DEE;&#x5F02;&#x7684;&#xFF0C;&#x5DEE;&#x5F02;&#x5C31;&#x5728;&#x4E8E;static&#x4FEE;&#x9970;&#x7684;&#x57DF;&#x662F;&#x5728;&#x7C7B;&#x8F7D;&#x5165;&#x7684;&#x65F6;&#x5019;&#x8FDB;&#x884C;&#x521D;&#x59CB;&#x5316;&#x7684;&#xFF0C;&#x6240;&#x6709;&#x5B9E;&#x4F8B;&#x5171;&#x4EAB;&#x540C;&#x4E00;&#x4E2A;&#x5E38;&#x91CF;&#xFF0C;&#x540C;&#x65F6;Java&#x865A;&#x62DF;&#x673A;&#x6CA1;&#x6709;&#x628A;&#x5B83;&#x5F53;&#x4F5C;&#x7C7B;&#x53D8;&#x91CF;&#xFF0C;&#x5728;&#x4F7F;&#x7528;&#x5B83;&#x7684;&#x4EFB;&#x4F55;&#x7C7B;&#x7684;&#x5E38;&#x91CF;&#x6C60;&#x6216;&#x8005;&#x5B57;&#x8282;&#x7801;&#x6D41;&#x4E2D;&#x76F4;&#x63A5;&#x5B58;&#x653E;&#x7684;&#x662F;&#x5B83;&#x8868;&#x793A;&#x7684;&#x5E38;&#x91CF;&#x503C;&#x3002;&#x8FD9;&#x4E5F;&#x5C31;&#x662F;&#x56FE;&#x793A;&#x4E2D;&#x4ECE;&#x6267;&#x884C;&#x5F15;&#x64CE;&#x6267;&#x884C;&#x5B57;&#x8282;&#x7801;&#x5F00;&#x59CB;&#x4E4B;&#x540E;&#xFF0C;&#x5BF9;&#x5E94;&#x7684;&#x5E38;&#x91CF;&#x88AB;&#x8D4B;&#x503C;&#xFF0C;&#x5B58;&#x653E;&#x4E8E;&#x5185;&#x5B58;&#x4E2D;&#x7684;&#x65B9;&#x6CD5;&#x533A;&#x5185;&#x3002;&#x5BF9;&#x4E86;&#xFF0C;&#x4E00;&#x822C;&#x60C5;&#x51B5;&#x4E0B;final&#x548C;static&#x4FEE;&#x9970;&#x7684;&#x5E38;&#x91CF;&#x8981;&#x5927;&#x5199;&#x3002;</p>
+<p>&#x57FA;&#x672C;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x7684;&#x5E38;&#x91CF;&#x521D;&#x59CB;&#x5316;&#x7684;&#x51E0;&#x4E2A;&#x65B9;&#x5F0F;&#xFF08;&#x5982;&#x6709;&#x9057;&#x6F0F;&#x8BF7;&#x8865;&#x5145;&#xFF09;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConstTest</span> {</span><br><span class="line">    <span class="comment">// &#x76F4;&#x63A5;&#x521D;&#x59CB;&#x5316;</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">fee</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">final</span> <span class="variable">ORDER</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    {</span><br><span class="line">        <span class="comment">// &#x5229;&#x7528;&#x521D;&#x59CB;&#x5316;&#x5757;&#x521D;&#x59CB;&#x5316;</span></span><br><span class="line">        fee = <span class="number">2</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> {</span><br><span class="line">        ORDER = <span class="number">2</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="comment">// &#x5728;&#x6784;&#x9020;&#x65B9;&#x6CD5;&#x4E2D;&#x521D;&#x59CB;&#x5316;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ConstTest</span><span class="params">()</span> {</span><br><span class="line">        fee = <span class="number">3</span>;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5BF9;&#x4E8E;&#x5F15;&#x7528;&#x7C7B;&#x578B;&#x6765;&#x8BF4;&#xFF0C;&#x5982;&#x679C;&#x6709;final&#x4FEE;&#x9970;&#x4E00;&#x4E2A;&#x5F15;&#x7528;&#x7C7B;&#x578B;&#x53D8;&#x91CF;&#xFF0C;&#x4E0D;&#x662F;&#x8BF4;&#x660E;&#x8FD9;&#x4E2A;&#x5F15;&#x7528;&#x7C7B;&#x578B;&#x6307;&#x5411;&#x7684;&#x5B9E;&#x9645;&#x5730;&#x5740;&#x7684;&#x5BF9;&#x8C61;&#x4E0D;&#x53EF;&#x53D8;&#xFF0C;&#x800C;&#x662F;&#x8BF4;&#x8FD9;&#x4E2A;&#x5F15;&#x7528;&#x4E0D;&#x80FD;&#x518D;&#x6307;&#x5411;&#x5176;&#x4ED6;&#x5730;&#x5740;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x800C;&#x5BF9;&#x8C61;&#x672C;&#x8EAB;&#x662F;&#x53EF;&#x4EE5;&#x6539;&#x53D8;&#x7684;&#x3002;&#x5982;&#x4E66;&#x4E0A;&#x8BF4;&#x5DEE;&#x4E0D;&#x591A;&#xFF0C;&#x8FD9;&#x786E;&#x5B9E;&#x6709;&#x70B9;&#x8FF7;&#x60D1;&#x3002;&#x4E0D;&#x8FC7;&#x95EE;&#x9898;&#x4E5F;&#x4E0D;&#x5927;&#xFF0C;&#x5C31;&#x8BF4;&#x660E;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x5F15;&#x7528;&#x4E0D;&#x80FD;&#x53D8;&#x800C;&#x5DF2;&#xFF0C;&#x88AB;&#x56FA;&#x5B9A;&#x4E86;&#x3002;&#x5BF9;&#x4E8E;&#x8FD9;&#x70B9;&#xFF0C;&#x6211;&#x5C31;&#x4E0D;&#x505A;&#x8FC7;&#x591A;&#x7684;&#x89E3;&#x91CA;&#x4E86;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x786E;&#x5B9E;&#x6CA1;&#x4EC0;&#x4E48;&#x5178;&#x578B;&#x7684;&#x4F8B;&#x5B50;&#x6211;&#x80FD;&#x60F3;&#x5230;&#x7684;&#xFF0C;&#x5982;&#x679C;&#x60A8;&#x6709;&#x597D;&#x7684;&#x5178;&#x578B;&#xFF0C;&#x4E5F;&#x8BF7;&#x5728;&#x8FD9;&#x91CC;&#x6279;&#x6CE8;&#x8865;&#x5145;&#x3002;</p>
+<h3 id="&#x4E09;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x5185;&#x90E8;&#x7C7B;&#xFF09;"><a href="#&#x4E09;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x5185;&#x90E8;&#x7C7B;&#xFF09;" class="headerlink" title="&#x4E09;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x5185;&#x90E8;&#x7C7B;&#xFF09;"></a>&#x4E09;&#x3001;&#x4F7F;&#x7528;&#xFF08;&#x5185;&#x90E8;&#x7C7B;&#xFF09;</h3><p>&#x5728;&#x6587;&#x7AE0;&#x5F00;&#x59CB;&#x5206;&#x7C7B;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6211;&#x4EEC;&#x7279;&#x610F;&#x628A;&#x8FD9;&#x4E2A;final&#x4FEE;&#x9970;&#x65B9;&#x6CD5;&#x7684;&#x53C2;&#x6570;&#x5355;&#x72EC;&#x62FF;&#x51FA;&#x6765;&#x5355;&#x72EC;&#x4F5C;&#x4E3A;&#x4E00;&#x4E2A;&#x5C0F;&#x7ED3;&#xFF0C;&#x4E4B;&#x6240;&#x4EE5;&#x8FD9;&#x4E48;&#x505A;&#xFF0C;&#x662F;&#x56E0;&#x4E3A;&#x8FD9;&#x91CC;&#x9762;&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x5185;&#x5BB9;&#x503C;&#x5F97;&#x6211;&#x4EEC;&#x5B66;&#x4E60;&#x7684;&#x3002;&#x5148;&#x4E0A;&#x4E00;&#x6BB5;&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Parcel</span> {</span><br><span class="line">    <span class="keyword">public</span> Destination <span class="title function_">destination</span><span class="params">(<span class="keyword">final</span> String dest)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Destination</span>() {</span><br><span class="line">            <span class="keyword">public</span> String <span class="title function_">readLabel</span><span class="params">()</span> {</span><br><span class="line">                <span class="keyword">return</span> dest;</span><br><span class="line">            }</span><br><span class="line">        };</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> {</span><br><span class="line">        <span class="type">Parcel</span> <span class="variable">p</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Parcel</span>();</span><br><span class="line">        <span class="type">Destination</span> <span class="variable">where</span> <span class="operator">=</span> p.destination(<span class="string">&quot;China&quot;</span>);</span><br><span class="line">        System.out.println(where.readLabel());</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x770B;&#x5230;&#x4E86;&#xFF0C;final&#x53C8;&#x51FA;&#x73B0;&#x4E86;&#xFF0C;&#x8FD9;&#x6B21;final&#x51FA;&#x73B0;&#x7684;&#x573A;&#x666F;&#x5728;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x7684;&#x5217;&#x8868;&#x4E2D;&#xFF0C;&#x5BF9;&#x4E8E;&#x51FA;&#x73B0;&#x65B9;&#x6CD5;&#x5217;&#x8868;&#x4E2D;&#x7684;final&#x6765;&#x8BF4;&#x4E00;&#x5171;&#x6709;&#x4E24;&#x4E2A;&#x542B;&#x4E49;&#xFF0C;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x5148;&#x7ED3;&#x5408;&#x65B9;&#x6CD5;&#x7684;&#x5185;&#x90E8;&#x7C7B;&#x6765;&#x8BF4;&#x660E;&#x3002;&#x9996;&#x5148;&#x5982;&#x679C;&#x4F7F;&#x7528;&#x7F16;&#x8BD1;&#x5668;&#x7F16;&#x5199;&#x8FD9;&#x6BB5;&#x4EE3;&#x7801;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5982;&#x679C;&#x6211;&#x4EEC;&#x4E0D;&#x5BF9;dest&#x589E;&#x52A0;final&#x53C2;&#x6570;&#xFF0C;&#x90A3;&#x4E48;&#x4E00;&#x4E2A;IDE&#x662F;&#x4F1A;&#x62A5;&#x9519;&#x3002;&#x4E3A;&#x4EC0;&#x4E48;&#x4F1A;&#x62A5;&#x9519;&#xFF0C;&#x6211;&#x4EEC;&#x5148;&#x4ECE;&#x65B9;&#x6CD5;&#x6267;&#x884C;&#x5165;&#x624B;&#x3002;</p>
+<p>&#x9996;&#x5148;&#xFF0C;&#x6211;&#x4EEC;&#x5B9A;&#x4E49;&#x4E86;&#x4E00;&#x4E2A;destination&#x65B9;&#x6CD5;&#xFF0C;&#x8FD4;&#x56DE;&#x4E00;&#x4E2A;Destination&#x7C7B;&#x578B;&#x7684;&#x5BF9;&#x8C61;&#xFF0C;&#x540C;&#x65F6;&#x4F20;&#x5165;&#x4E00;&#x4E2A;String&#x7C7B;&#x578B;&#x7684;dest&#x540D;&#x5B57;&#x7684;&#x53C2;&#x6570;&#xFF0C;&#x4F46;&#x662F;&#xFF0C;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x8981;&#x6C42;&#x5FC5;&#x987B;&#x4E3A;final&#xFF0C;&#x63A5;&#x4E0B;&#x6765;&#x5728;&#x65B9;&#x6CD5;&#x7684;&#x5185;&#x90E8;&#x5B8C;&#x6210;&#x4E86;&#x4E00;&#x4E2A;&#x521B;&#x5EFA;&#x548C;&#x8FD4;&#x56DE;&#x7684;&#x52A8;&#x4F5C;&#xFF0C;&#x521B;&#x5EFA;&#x4E86;Destination&#x5BF9;&#x8C61;&#xFF0C;&#x5E76;&#x8FD4;&#x56DE;&#xFF0C;&#x4F46;&#x662F;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x7ED9;&#x51FA;Destination&#x7684;&#x5177;&#x4F53;&#x5B9E;&#x73B0;&#xFF0C;&#x91CC;&#x9762;&#x9700;&#x8981;&#x5B9E;&#x73B0;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x5C31;&#x662F;readLabel&#xFF0C;&#x5B83;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x8FD4;&#x56DE;label&#x5C31;&#x7ED3;&#x675F;&#x4E86;&#x3002;&#x90A3;&#x4E48;&#x65B9;&#x6CD5;&#x5230;&#x4E86;return&#x8FD4;&#x56DE;&#x4E86;&#x7ED3;&#x679C;&#x610F;&#x5473;&#x7740;&#x7ED3;&#x675F;&#x3002;&#x4F46;&#x662F;&#xFF0C;&#x95EE;&#x9898;&#x6765;&#x4E86;&#xFF0C;readLabel&#x65B9;&#x6CD5;&#x5E76;&#x6CA1;&#x6709;&#x6267;&#x884C;&#x554A;&#xFF01; &#x4F46;&#x662F;&#x65B9;&#x6CD5;&#x7ED3;&#x675F;&#x540E;&#x8BE5;&#x65B9;&#x6CD5;&#x7684;&#x6808;&#x5E27;&#x5DF2;&#x7ECF;&#x88AB;&#x865A;&#x62DF;&#x673A;&#x6808;&#x5F39;&#x51FA;&#x4E86;&#xFF0C;&#x5982;&#x679C;&#x6309;&#x7167;&#x6211;&#x4EEC;&#x7684;&#x60F3;&#x8C61;&#xFF0C;label&#x8FD8;&#x6CA1;&#x7528;&#x5C31;&#x6CA1;&#x6709;&#x4E86;&#xFF0C;&#x8FD9;&#x5C31;&#x4E0D;&#x597D;&#x4E86;&#xFF01;<br>&#x663E;&#x7136;JVM&#x4E0D;&#x4F1A;&#x8FD9;&#x4E48;&#x505A;&#xFF0C;&#x5728;&#x4E34;&#x91CA;&#x653E;dest&#x4E4B;&#x524D;&#xFF0C;&#x5C31;&#x5C06;&#x8FD9;&#x4E2A;dest&#x53D8;&#x91CF;&#x505A;&#x4E86;&#x4E00;&#x6B21;&#x5907;&#x4EFD;&#x64CD;&#x4F5C;&#x3002;&#x5F53;&#x6211;&#x4EEC;&#x5728;&#x521B;&#x5EFA;Destination&#x7684;&#x5BF9;&#x8C61;&#x7684;&#x65F6;&#x5019;&#xFF0C;dest&#x5C31;&#x4F1A;&#x88AB;&#x5B58;&#x5165;Destination&#x5B9E;&#x4F8B;&#x4E2D;&#x4E00;&#x4E2A;&#x540D;&#x5B57;&#x4E3A;dest&#x7684;&#x53D8;&#x91CF;&#x4E2D;&#xFF0C;&#x7F16;&#x8BD1;&#x5668;&#x5FC5;&#x987B;&#x68C0;&#x6D4B;&#x5BF9;&#x5C40;&#x90E8;&#x53D8;&#x91CF;&#x7684;&#x8BBF;&#x95EE;&#xFF0C;&#x4E3A;&#x6BCF;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x5EFA;&#x7ACB;&#x5BF9;&#x5E94;&#x7684;&#x6570;&#x636E;&#x57DF;&#xFF0C;&#x5E76;&#x5C06;&#x5C40;&#x90E8;&#x53D8;&#x91CF;&#x62F7;&#x8D1D;&#x5230;&#x6784;&#x9020;&#x5668;&#x4E2D;&#xFF0C;&#x4EE5;&#x4FBF;&#x5C06;&#x8FD9;&#x4E9B;&#x6570;&#x636E;&#x57DF;&#x521D;&#x59CB;&#x5316;&#x4E3A;&#x5C40;&#x90E8;&#x53D8;&#x91CF;&#x7684;&#x526F;&#x672C;&#x3002;</p>
+<p>&#x90A3;&#x4E48;<strong>&#x6211;&#x4EEC;&#x5C06;&#x65B9;&#x6CD5;&#x53C2;&#x6570;&#x5217;&#x8868;&#x4E2D;&#x7684;&#x53D8;&#x91CF;&#x4FEE;&#x9970;&#x4E3A;final&#x7684;&#xFF0C;&#x9632;&#x6B62;&#x4E86;&#x8FD9;&#x4E2A;&#x53D8;&#x91CF;&#x5728;&#x65B9;&#x6CD5;&#x4E2D;&#x88AB;&#x4FEE;&#x6539;&#xFF0C;&#x56E0;&#x6B64;&#x5C31;&#x505A;&#x5230;&#x4E86;&#x5C40;&#x90E8;&#x53D8;&#x91CF;&#x4E0E;&#x5728;&#x5185;&#x90E8;&#x7C7B;&#x5EFA;&#x7ACB;&#x7684;&#x62F7;&#x8D1D;&#x526F;&#x672C;&#x4FDD;&#x6301;&#x4E86;&#x4E00;&#x81F4;</strong>&#x3002;</p>
+<h3 id="&#x89E3;&#x60D1;"><a href="#&#x89E3;&#x60D1;" class="headerlink" title="&#x89E3;&#x60D1;"></a>&#x89E3;&#x60D1;</h3><p>&#x6211;&#x4EEC;&#x6765;&#x6F5C;&#x6F5C;&#x5730;&#x5206;&#x6790;&#x4E00;&#x4E0B;&#x7F16;&#x8BD1;&#x5668;&#x662F;&#x5982;&#x4F55;&#x611F;&#x77E5;final&#x7684;&#x5B58;&#x5728;&#xFF0C;&#x540C;&#x65F6;&#x4F7F;&#x7528;&#x5B8C;&#x6210;&#x8BED;&#x4E49;&#x4E0A;&#x7684;&#x9650;&#x5236;&#x7684;&#xFF08;&#x5229;&#x7528;Class&#x6765;&#x4E3E;&#x4F8B;&#x5B50;&#xFF09;&#x3002;<br>&#x5728;Java&#x8BED;&#x8A00;&#x4E2D;&#xFF0C;final &#x662F;&#x4E00;&#x4E2A;&#x4FEE;&#x9970;&#x7B26;&#xFF0C;&#x662F;&#x4E00;&#x4E2A;Modifier&#xFF0C;&#x5176;&#x5B9E;&#x7F16;&#x8BD1;&#x5668;&#x6839;&#x672C;&#x4E0D;&#x77E5;&#x9053;&#x5B83;&#x7684;&#x540D;&#x5B57;&#x662F;&#x4EC0;&#x4E48;&#xFF0C;&#x5373;&#x4F7F;&#x77E5;&#x9053;&#x5B83;&#x53EB;final&#x4E5F;&#x6CA1;&#x4EC0;&#x4E48;&#x7528;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x4E0D;&#x611F;&#x5174;&#x8DA3;&#xFF0C;&#x5B83;&#x53EA;&#x5BF9;&#x6570;&#x5B57;&#x611F;&#x5174;&#x8DA3;&#x3002;&#x5C3D;&#x7BA1;&#x5B83;&#x4E0D;&#x611F;&#x5174;&#x8DA3;&#xFF0C;&#x4F46;&#x662F;Java LanguageTools&#x7684;&#x6E90;&#x7801;&#x4E2D;&#x8FD8;&#x662F;&#x5B9A;&#x4E49;&#x4E86;&#x4E00;&#x4E2A;&#x679A;&#x4E3E;&#x7C7B;Modifier.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// See JLS sections 8.1.1, 8.3.1, 8.4.3, 8.8.3, and 9.1.1.</span></span><br><span class="line"><span class="comment">// java.lang.reflect.Modifier includes INTERFACE, but that&apos;s a VMism.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> public} */</span>          PUBLIC,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> protected} */</span>       PROTECTED,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> private} */</span>         PRIVATE,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> abstract} */</span>        ABSTRACT,</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The modifier {<span class="doctag">@code</span> default}</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> DEFAULT,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> static} */</span>          STATIC,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> final} */</span>           FINAL,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> transient} */</span>       TRANSIENT,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> volatile} */</span>        VOLATILE,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> synchronized} */</span>    SYNCHRONIZED,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> native} */</span>          NATIVE,</span><br><span class="line"><span class="comment">/** The modifier {<span class="doctag">@code</span> strictfp} */</span>        STRICTFP;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns this modifier&apos;s name in lowercase.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> {</span><br><span class="line">    <span class="keyword">return</span> name().toLowerCase(java.util.Locale.US);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x7136;&#x800C;&#x5F04;&#x4E86;&#x679A;&#x4E3E;&#xFF0C;&#x7F16;&#x8BD1;&#x5668;&#x8FD8;&#x662F;&#x4E0D;&#x77E5;&#x9053;&#x4EC0;&#x4E48;&#x662F;&#x4EC0;&#x4E48;&#xFF0C;&#x4E3A;&#x6B64;&#xFF0C;tools&#x53C8;&#x5B9A;&#x4E49;&#x4E86;Flags&#x7C7B;&#xFF0C;&#x5B83;&#x5C31;&#x6709;&#x7528;&#x591A;&#x4E86;&#x3002;final&#x4FEE;&#x9970;&#x7B26;&#x5728;&#x8FD9;&#x91CC;&#x5B9A;&#x4E49;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> FINAL= <span class="number">1</span>&lt;&lt;<span class="number">4</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/03/07/1A005.final%E7%94%A8%E6%B3%95/2.png"></p>
+<p>Java&#x7684;&#x6C99;&#x7BB1;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x88C5;&#x8F7D;&#x7684;&#x7C7B;&#x6587;&#x4EF6;&#x7684;&#x5B89;&#x5168;&#x6027;&#xFF0C;&#x4F1A;&#x5728;&#x9A8C;&#x8BC1;&#x9636;&#x6BB5;&#x5BF9;&#x5B57;&#x8282;&#x7801;&#x6D41;&#x505A;&#x591A;&#x6B21;&#x7684;&#x9A8C;&#x8BC1;&#xFF0C;&#x90A3;&#x4E48;&#x5176;&#x4E2D;&#x5C31;&#x5305;&#x62EC;&#x5BF9;&#x5404;&#x4E2A;&#x7C7B;&#x4E4B;&#x95F4;&#x7684;&#x4E8C;&#x8FDB;&#x5236;&#x517C;&#x5BB9;&#x7684;&#x68C0;&#x67E5;&#xFF0C;&#x5176;&#x4E2D;&#x5C31;&#x5305;&#x62EC;&#xFF0C;</p>
+<p>&#x68C0;&#x67E5;final&#x7684;&#x7C7B;&#x4E0D;&#x80FD;&#x62E5;&#x6709;&#x5B50;&#x7C7B;<br>&#x68C0;&#x67E5;final&#x7684;&#x65B9;&#x6CD5;&#x4E0D;&#x80FD;&#x88AB;&#x8986;&#x76D6;<br>&#x81F3;&#x4E8E;&#x68C0;&#x67E5;&#x7684;&#x65B9;&#x6CD5;&#x5C31;&#x662F;&#x6839;&#x636E;Access_Flags&#x505A;&#x4F4D;&#x6821;&#x9A8C;&#x4E86;&#x3002;&#x5982;&#x679C;&#x6709;&#x4E0D;&#x6EE1;&#x8DB3;&#x7684;&#x8FD9;&#x91CC;&#x5C31;&#x4E0D;&#x6DF1;&#x5165;&#x8BF4;&#x4E86;&#xFF0C;&#x5185;&#x5BB9;&#x6BD4;&#x8F83;&#x5E9E;&#x6742;&#xFF0C;&#x6709;&#x5174;&#x8DA3;&#x7684;&#x540C;&#x5B66;&#x53EF;&#x4EE5;&#x53C2;&#x8003;&#x300A;&#x6DF1;&#x5165;Java&#x865A;&#x62DF;&#x673A;&#x300B;&#x4E00;&#x4E66;&#x3002;</p>
+<h3 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h3><ul>
+<li>final&#x53EF;&#x4EE5;&#x4FEE;&#x9970;&#x7C7B;&#xFF0C;&#x65B9;&#x6CD5;&#xFF0C;&#x57DF;&#x3002;</li>
+<li>final&#x7684;&#x4F7F;&#x7528;&#x5F88;&#x7B80;&#x5355;&#xFF0C;&#x5408;&#x7406;&#x4E14;&#x7CBE;&#x786E;&#x7684;&#x4F7F;&#x7528;final&#x9700;&#x8981;&#x4E9B;&#x7ECF;&#x9A8C;&#x548C;&#x539F;&#x7406;&#x652F;&#x6491;&#x3002;</li>
+<li>final&#x8981;&#x4ECE;&#x8BBE;&#x8BA1;&#x89D2;&#x5EA6;&#x548C;&#x6548;&#x7387;&#x89D2;&#x5EA6;&#x7EFC;&#x5408;&#x8003;&#x8651;&#xFF0C;&#x5BF9;&#x4E8E;&#x65B9;&#x6CD5;&#x548C;&#x7C7B;&#x6765;&#x8BF4;&#xFF0C;&#x5207;&#x52FF;&#x6EE5;&#x7528;final&#x3002;</li>
+<li>final&#x4FEE;&#x9970;&#x57DF;&#x8FD9;&#x662F;&#x5F88;&#x6709;&#x6548;&#x7684;&#x505A;&#x6CD5;&#xFF0C;&#x53EF;&#x4EE5;&#x9002;&#x5F53;&#x51CF;&#x8F7B;&#x7CFB;&#x7EDF;&#x8BA1;&#x7B97;&#x7684;&#x8D1F;&#x62C5;&#x3002;</li>
+</ul>
+<h3 id="&#x53C2;&#x8003;"><a href="#&#x53C2;&#x8003;" class="headerlink" title="&#x53C2;&#x8003;"></a>&#x53C2;&#x8003;</h3><ul>
+<li><a href></a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/final/" rel="tag">final</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/03/07/1A004.Thread%E7%B1%BB%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Thread类的几个方法
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/03/07/1A006.static%E7%94%A8%E6%B3%95%E5%92%8C%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">static用法和原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

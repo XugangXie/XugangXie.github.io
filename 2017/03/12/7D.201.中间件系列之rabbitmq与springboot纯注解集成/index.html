@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>中间件系列之rabbitmq与springboot纯注解集成 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-7D.201.中间件系列之rabbitmq与springboot纯注解集成"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  中间件系列之rabbitmq与springboot纯注解集成
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/03/12/7D.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Brabbitmq%E4%B8%8Espringboot%E7%BA%AF%E6%B3%A8%E8%A7%A3%E9%9B%86%E6%88%90/" class="article-date">
+  <time datetime="2017-03-11T16:00:00.000Z" itemprop="datePublished">2017-03-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">17 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;&#x4E0B;&#xFF0C;&#x5982;&#x4F55;&#x5728;<code>springboot</code>&#x73AF;&#x5883;&#x4E2D;&#xFF0C;&#x4F7F;&#x7528;&#x7EAF;&#x6CE8;&#x89E3;&#x7684;&#x65B9;&#x5F0F;&#xFF0C;&#x96C6;&#x6210;<code>rabbitmq</code>&#x3002;<br>&#x9996;&#x5148;&#xFF0C;&#x4E00;&#x4E0A;&#x6765;&#xFF0C;&#x5148;&#x7406;&#x89E3;&#x900F;rabbitmq&#x4E2D;&#x7684;5&#x4E2D;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;&#x539F;&#x7406;&#x4EE5;&#x53CA;&#x8FC7;&#x7A0B;&#xFF1B;&#x7136;&#x540E;&#x4EE3;&#x7801;&#x6F14;&#x793A;&#x5982;&#x4F55;&#x6A21;&#x62DF;&#x53D1;&#x9001;&#x6D88;&#x606F;&#xFF0C;&#x63A5;&#x53D7;&#x6D88;&#x606F;&#xFF1B;&#x6700;&#x540E;&#x8BB0;&#x5F55;&#x4E0B;&#xFF0C;&#x5728;&#x5B9E;&#x9645;&#x5F00;&#x53D1;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x9047;&#x5230;&#x7684;&#x5751;&#x662F;&#x5982;&#x4F55;&#x89E3;&#x51B3;&#x7684;&#x3002;</p>
+<span id="more"></span>
+<h3 id="rabbitmq&#x4E2D;&#x7684;5&#x4E2D;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;"><a href="#rabbitmq&#x4E2D;&#x7684;5&#x4E2D;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;" class="headerlink" title="rabbitmq&#x4E2D;&#x7684;5&#x4E2D;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;"></a>rabbitmq&#x4E2D;&#x7684;5&#x4E2D;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;</h3><blockquote>
+<p>RabbitMQ&#x7684;&#x6D88;&#x606F;&#x6A21;&#x578B;&#x4E2D;&#x7684;&#x4E00;&#x4E2A;&#x6838;&#x5FC3;&#x601D;&#x60F3;&#x662F;&#xFF0C;&#x751F;&#x4EA7;&#x8005;&#x7EDD;&#x4E0D;&#x4F1A;&#x5C06;&#x6D88;&#x606F;&#x76F4;&#x63A5;&#x53D1;&#x9001;&#x5230;&#x961F;&#x5217;&#x4E2D;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#xFF0C;&#x5728;&#x5927;&#x90E8;&#x5206;&#x573A;&#x666F;&#x4E2D;&#x751F;&#x4EA7;&#x8005;&#x6839;&#x672C;&#x4E0D;&#x77E5;&#x9053;&#x6D88;&#x606F;&#x4F1A;&#x53D1;&#x9001;&#x5230;&#x54EA;&#x4E9B;&#x961F;&#x5217;&#x4E2D;&#x3002;</p>
+</blockquote>
+<!-- More -->
+
+<ol>
+<li><p>&#x751F;&#x4EA7;&#x8005;&#x548C;&#x6D88;&#x8D39;&#x8005;&#x76F4;&#x8FDE;&#x53D1;&#x9001;&#x548C;&#x6D88;&#x8D39;&#x3002;</p>
+<ul>
+<li>&#x4E00;&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#x9996;&#x5148;: a.&#x58F0;&#x660E;&#x4E00;&#x4E2A;&#x9ED8;&#x8BA4;&#x7684;&#x533F;&#x540D;&#x7684;exchange; b.&#x4E3A;exchange&#x8BBE;&#x7F6E;routingKey&#xFF0C;&#x5C31;&#x662F;&#x961F;&#x5217;&#x7684;&#x540D;&#x79F0; ; c.&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;&#x6307;&#x5B9A;&#x540D;&#x79F0;&#x7684;&#x961F;&#x5217;&#x4E0A;;</li>
+<li>&#x4E00;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x76F4;&#x63A5;&#x4ECE;&#x6307;&#x5B9A;&#x961F;&#x5217;&#x4E0A;&#x83B7;&#x53D6;&#x6D88;&#x606F;&#xFF1B;</li>
+<li>&#x8FD9;&#x79CD;&#x6A21;&#x5F0F;&#xFF0C;&#x903B;&#x8F91;&#x4E0A;&#x5FFD;&#x7565;&#x4E86;exchange&#x548C;routingKey,&#x8868;&#x9762;&#x4E0A;&#x770B;&#xFF0C;&#x5C31;&#x662F;&#x4E00;&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#x76F4;&#x63A5;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;&#x6307;&#x5B9A;&#x540D;&#x79F0;&#x7684;&#x961F;&#x5217;&#x4E0A;&#xFF1B;&#x7136;&#x540E;&#x6D88;&#x8D39;&#x8005;&#x4ECE;&#x6307;&#x5B9A;&#x7684;&#x961F;&#x5217;&#x4E0A;&#x6D88;&#x8D39;&#x6D88;&#x606F;&#xFF1B;</li>
+</ul>
+</li>
+<li><p>&#x591A;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x4F9D;&#x6B21;&#x6D88;&#x8D39;&#xFF08;&#x6682;&#x65F6;&#x7565;&#xFF09;</p>
+</li>
+<li><p>exchange&#x7684;&#x56DB;&#x79CD;&#x6A21;&#x5F0F;&#xFF1A;fanout,direcit,topic,header&#x3002;header&#x6A21;&#x5F0F;&#x5B9E;&#x9645;&#x7528;&#x7684;&#x5F88;&#x5C11;&#xFF0C;&#x6682;&#x65F6;&#x4E0D;&#x7814;&#x7A76;&#x3002;&#x8FD9;&#x91CC;&#x5148;&#x8BF4;&#x4E0B;exchange:fanout&#x7684;&#x4F7F;&#x7528;&#x539F;&#x7406;&#x548C;&#x73B0;&#x8C61;&#xFF1A;&#x6D88;&#x606F;&#x7CFB;&#x7EDF;&#x662F;&#x4EE5;&#x5E7F;&#x64AD;&#x7684;&#x5F62;&#x5F0F;&#x4F20;&#x9012;&#x7ED9;&#x6240;&#x6709;&#x7684;&#x6D88;&#x8D39;&#x8005;&#x3002;</p>
+<ul>
+<li>&#x4E00;&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#x9996;&#x5148;a.&#x58F0;&#x660E;&#x4E00;&#x4E2A;fanout&#x7C7B;&#x578B;&#x7684;exchange&#xFF0C;routingKey&#x8BBE;&#x7F6E;&#x4E3A;&#x201C;&#x201D;&#xFF08;&#x5B9E;&#x9645;&#x4E0A;&#xFF0C;&#x8FD9;&#x79CD;&#x6A21;&#x5F0F;&#x4E0B;&#xFF0C;routingKey&#x662F;&#x5FFD;&#x7565;&#x7684;&#xFF09;,b.&#x4E0D;&#x9700;&#x8981;&#x58F0;&#x660E;&#x4EFB;&#x4F55;&#x961F;&#x5217;&#x4EE5;&#x53CA;&#x540D;&#x79F0;&#xFF0C;&#x751F;&#x4EA7;&#x8005;&#x76F4;&#x63A5;&#x628A;&#x6D88;&#x8D39;&#x53D1;&#x5E03;&#x5230;exchange&#x4E0A;&#x3002;</li>
+<li>&#x591A;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x5404;&#x81EA;&#x968F;&#x4FBF;&#x6307;&#x5B9A;&#x4E0D;&#x540C;&#x7684;&#x961F;&#x5217;&#x540D;&#x79F0;&#xFF0C;&#x7136;&#x540E;&#x58F0;&#x660E;fanout&#x7C7B;&#x578B;&#x7684;exchange&#x3002;&#x6548;&#x679C;&#x5C31;&#x662F;&#x591A;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x90FD;&#x4F1A;&#x540C;&#x65F6;&#x6D88;&#x8D39;&#x5230;&#x6D88;&#x606F;&#x3002;<br>&#x8FD9;&#x79CD;&#x6A21;&#x5F0F;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#x5C31;&#x662F;&#x53D1;&#x5E03;&#x8BA2;&#x9605;&#x6A21;&#x5F0F;&#xFF0C;&#x6216;&#x8005;&#x8BF4;&#xFF0C;&#x662F;&#x6D88;&#x606F;&#x7684;&#x5E7F;&#x64AD;&#x6A21;&#x5F0F;&#xFF0C;&#x751F;&#x4EA7;&#x8005;&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x4EE5;&#x5E7F;&#x64AD;&#x7684;&#x5F62;&#x5F0F;&#xFF0C;&#x88AB;&#x6240;&#x6709;&#x7684;&#x6D88;&#x8D39;&#x8005;&#x6D88;&#x8D39;&#x6D88;&#x606F;&#x3002;</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>exchange: direct&#x6A21;&#x5F0F;&#xFF1A;<br>fanout &#x5E7F;&#x64AD;&#x662F;&#x5F0F;&#x4EA4;&#x6362;&#x5668;&#xFF0C;&#x4E0D;&#x7BA1;&#x6D88;&#x606F;&#x7684;ROUTING_KEY&#x8BBE;&#x7F6E;&#x4E3A;&#x4EC0;&#x4E48;&#xFF0C;Exchange&#x90FD;&#x4F1A;&#x5C06;&#x6D88;&#x606F;&#x8F6C;&#x53D1;&#x7ED9;&#x6240;&#x6709;&#x7ED1;&#x5B9A;&#x7684;Queue&#x3002;</p>
+</blockquote>
+<blockquote>
+<p>exchange: direct&#x6A21;&#x5F0F;&#xFF1A;<br>Direct &#x76F4;&#x63A5;&#x4EA4;&#x6362;&#x5668;&#xFF0C;&#x5DE5;&#x4F5C;&#x65B9;&#x5F0F;&#x7C7B;&#x4F3C;&#x4E8E;&#x5355;&#x64AD;&#xFF0C;Exchange&#x4F1A;&#x5C06;&#x6D88;&#x606F;&#x53D1;&#x9001;&#x5B8C;&#x5168;&#x5339;&#x914D;ROUTING_KEY&#x7684;Queue;</p>
+</blockquote>
+<blockquote>
+<p>exchange: topic&#x6A21;&#x5F0F;&#xFF1A;<br>topic &#x4E3B;&#x9898;&#x4EA4;&#x6362;&#x5668;&#xFF0C;&#x5DE5;&#x4F5C;&#x65B9;&#x5F0F;&#x7C7B;&#x4F3C;&#x4E8E;&#x7EC4;&#x64AD;&#xFF0C;Exchange&#x4F1A;&#x5C06;&#x6D88;&#x606F;&#x8F6C;&#x53D1;&#x548C;ROUTING_KEY&#x5339;&#x914D;&#x6A21;&#x5F0F;&#x76F8;&#x540C;&#x7684;&#x6240;&#x6709;&#x961F;&#x5217;&#xFF0C;&#x6BD4;&#x5982;&#xFF0C;ROUTING_KEY&#x4E3A;user.stock&#x7684;Message&#x4F1A;&#x8F6C;&#x53D1;&#x7ED9;&#x7ED1;&#x5B9A;&#x5339;&#x914D;&#x6A21;&#x5F0F;&#x4E3A; * .stock,user.stock&#xFF0C; * . * &#x548C;#.user.stock.#&#x7684;&#x961F;&#x5217;&#x3002;&#xFF08; * &#x8868;&#x662F;&#x5339;&#x914D;&#x4E00;&#x4E2A;&#x4EFB;&#x610F;&#x8BCD;&#x7EC4;&#xFF0C;#&#x8868;&#x793A;&#x5339;&#x914D;0&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x8BCD;&#x7EC4;&#xFF09;</p>
+<p>exchange:topic&#x6A21;&#x5F0F;&#xFF0C;&#x662F;&#x529F;&#x80FD;&#x6700;&#x4E30;&#x5BCC;&#x7684;&#x3002;exchange&#xFF1A;topic&#x6A21;&#x5F0F;&#xFF0C;&#x7075;&#x6D3B;&#x7EC4;&#x5408;&#x5E76;&#x4F7F;&#x7528;routingKey&#xFF0C;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;exchange:fanout&#x548C;exchange:direct&#x7684;&#x6A21;&#x5F0F;&#x3002;&#x53E6;&#x4E00;&#x79CD;&#x89D2;&#x5EA6;&#x8BF4;&#xFF0C;exchange:fanout&#x548C;exchange:direct&#x662F;exchange:topic&#x7684;&#x4E00;&#x79CD;&#x5B50;&#x96C6;&#x60C5;&#x51B5;&#x3002;</p>
+</blockquote>
+<h3 id="&#x4F7F;&#x7528;&#x8FA8;&#x6790;"><a href="#&#x4F7F;&#x7528;&#x8FA8;&#x6790;" class="headerlink" title="&#x4F7F;&#x7528;&#x8FA8;&#x6790;"></a>&#x4F7F;&#x7528;&#x8FA8;&#x6790;</h3><p>&#x573A;&#x666F;&#x4E3E;&#x4F8B;&#xFF1A;</p>
+<ol>
+<li>&#x4F7F;&#x7528;exchange:fanout&#x6A21;&#x5F0F;&#xFF0C;1&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#xFF0C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;</li>
+</ol>
+<p>&#x751F;&#x4EA7;&#x8005;1&#x4EE3;&#x7801;&#xFF1A;&#x7533;&#x660E;&#x4E00;&#x4E2A;fanout&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">FanoutExchange fanoutExchange = new FanoutExchange(&quot;exchange.fanout&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(fanoutExchange);</span><br><span class="line">// rabbitTemplate.setRoutingKey(&quot;&quot;);</span><br><span class="line">// setExchange&#x4E00;&#x5B9A;&#x8981;&#x8BBE;&#x7F6E;</span><br><span class="line">rabbitTemplate.setExchange(fanoutExchange.getName());</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;1&#x4EE3;&#x7801;: &#x7533;&#x660E;&#x4E00;&#x4E2A;fanout&#x7C7B;&#x578B;&#x7684;exchange&#xFF0C;&#x8BBE;&#x7F6E;routingKey=&#x201D;&#x201D;,&#x5B9A;&#x4E49;&#x4E00;&#x4E2A;&#x961F;&#x5217;&#xFF0C;&#x540D;&#x79F0;&#x4E3A;&#xFF1A;test.fanout.xxx&#xFF0C;&#x4F7F;&#x7528;&#x8BE5;&#x961F;&#x5217;&#x53BB;&#x83B7;&#x53D6;exchange&#x8DEF;&#x7531;&#x51FA;&#x6765;&#x7684;&#x6D88;&#x606F;&#x6570;&#x636E;&#xFF1B;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">	@QueueBinding(	value = @Queue(value = &quot;test.fanout.xxx&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">					exchange = @Exchange(value = &quot;exchange.fanout&quot;, type=&quot;fanout&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">					key = &quot;&quot;)</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;2&#x4EE3;&#x7801;: &#x7533;&#x660E;&#x4E00;&#x4E2A;fanout&#x7C7B;&#x578B;&#x7684;exchange&#xFF0C;&#x8BBE;&#x7F6E;routingKey=&#x201D;&#x201D;,&#x5B9A;&#x4E49;&#x4E00;&#x4E2A;&#x961F;&#x5217;&#xFF0C;&#x540D;&#x79F0;&#x4E3A;&#xFF1A;test.fanout.yyy&#xFF0C;&#x4F7F;&#x7528;&#x8BE5;&#x961F;&#x5217;&#x53BB;&#x83B7;&#x53D6;exchange&#x8DEF;&#x7531;&#x51FA;&#x6765;&#x7684;&#x6D88;&#x606F;&#x6570;&#x636E;&#xFF1B;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">	@QueueBinding(	value = @Queue(value = &quot;test.fanout.yyy&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">					exchange = @Exchange(value = &quot;exchange.fanout&quot;, type=&quot;fanout&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">					key = &quot;&quot;)</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+
+<p>&#x540C;&#x65F6;&#x8FD0;&#x884C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x4E00;&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#x53D1;&#x9001;&#x6D88;&#x606F;&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x8FD9;&#x4E24;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x90FD;&#x4F1A;&#x6D88;&#x8D39;&#x5230;&#x6D88;&#x606F;&#x3002;<br>&#x6CE8;&#x610F;&#xFF1A;&#x8FD9;&#x91CC;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x5B9A;&#x4E49;&#x7684;&#x961F;&#x5217;&#x540D;&#x79F0;&#x90FD;&#x8981;&#x4E0D;&#x4E00;&#x6837;&#xFF08;&#x961F;&#x5217;&#x53EF;&#x4EE5;&#x5F62;&#x8C61;&#x7684;&#x7406;&#x89E3;&#x4E3A;&#x7BEE;&#x5B50;&#xFF0C;&#x6BCF;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x90FD;&#x8981;&#x5404;&#x81EA;&#x5B9A;&#x4E49;&#x4E00;&#x4E2A;&#x7BEE;&#x5B50;&#x53BB;&#x63A5;&#x6570;&#x636E;&#xFF0C;&#x4E0D;&#x80FD;&#x7528;&#x540C;&#x4E00;&#x4E2A;&#x7BEE;&#x5B50;&#x63A5;&#x6570;&#x636E;&#xFF09;&#xFF0C;&#x8FD9;&#x6837;&#x8FD9;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x90FD;&#x80FD;&#x6D88;&#x8D39;&#x5230;&#x6570;&#x636E;&#x3002;&#x5982;&#x679C;&#x8FD9;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x5B9A;&#x4E49;&#x7684;&#x961F;&#x5217;&#x540D;&#x79F0;&#x90FD;&#x4E00;&#x6837;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x540C;&#x65F6;&#x53EA;&#x80FD;&#x6709;1&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x80FD;&#x6D88;&#x8D39;&#x5230;&#x6D88;&#x606F;&#xFF0C;&#x53E6;1&#x4E2A;&#x6D88;&#x8D39;&#x65E0;&#x6CD5;&#x6D88;&#x8D39;&#x6D88;&#x606F;&#x3002;</p>
+<ol start="2">
+<li>&#x4F7F;&#x7528;exchange:direct&#x6A21;&#x5F0F;&#xFF0C;3&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#xFF0C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;</li>
+</ol>
+<p>&#x751F;&#x4EA7;&#x8005;1&#x4EE3;&#x7801;&#xFF1A; &#x7533;&#x660E;&#x4E00;&#x4E2A;direct&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;log.error&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DirectExchange directExchange = new DirectExchange(&quot;test.direct&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(directExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(directExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;log.error&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x751F;&#x4EA7;&#x8005;2&#x4EE3;&#x7801;&#xFF1A;&#x7533;&#x660E;&#x4E00;&#x4E2A;direct&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;log.info&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DirectExchange directExchange = new DirectExchange(&quot;test.direct&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(directExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(directExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;log.error&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x751F;&#x4EA7;&#x8005;3&#x4EE3;&#x7801;&#xFF1A; &#x7533;&#x660E;&#x4E00;&#x4E2A;direct&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;log.warn&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;&#x3002;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DirectExchange directExchange = new DirectExchange(&quot;test.direct&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(directExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(directExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;log.warn&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;1&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.direct.xxx&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.direct&quot;, type=&quot;direct&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;log.error&quot;)</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;2&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.direct.aaa&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.direct&quot;, type=&quot;direct&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;log.info&quot;),</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.direct.bbb&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.direct&quot;, type=&quot;direct&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;log.warn&quot;),</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.direct.ccc&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.direct&quot;, type=&quot;direct&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;log.error&quot;)</span><br><span class="line">})</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>a.&#x540C;&#x65F6;&#x8FD0;&#x884C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;1&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;1&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;&#x6D88;&#x8D39;&#x8005;1&#x548C;&#x6D88;&#x8D39;&#x8005;2&#x540C;&#x65F6;&#x6D88;&#x8D39;&#x3002;&#x6CE8;&#x610F;&#xFF0C;&#x8FD9;&#x91CC;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x81EA;&#x5B9A;&#x4E49;&#x7684;&#x961F;&#x5217;&#x540D;&#x79F0;&#x8981;&#x4E0D;&#x4E00;&#x6837;&#xFF0C;&#x5426;&#x5219;2&#x4E2A;&#x961F;&#x5217;&#x540D;&#x79F0;&#x76F8;&#x540C;&#xFF0C;&#x76F8;&#x5F53;&#x4E8E;&#x516C;&#x7528;&#x4E00;&#x4E2A;&#x7BEE;&#x5B50;&#xFF0C;&#x6D88;&#x606F;&#x53EA;&#x80FD;&#x88AB;&#x5176;&#x4E2D;&#x4E00;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x6D88;&#x8D39;&#xFF1B;<br>b.&#x540C;&#x65F6;&#x8FD0;&#x884C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;2&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;2&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;&#x6D88;&#x8D39;&#x8005;2&#x6D88;&#x8D39;&#xFF1B;<br>c.&#x540C;&#x65F6;&#x8FD0;&#x884C;2&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;3&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;3&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;&#x6D88;&#x8D39;&#x8005;2&#x6D88;&#x8D39;&#xFF1B;</p>
+<ol start="3">
+<li>&#x4F7F;&#x7528;exchange:topic&#x6A21;&#x5F0F;&#xFF0C;3&#x4E2A;&#x751F;&#x4EA7;&#x8005;&#xFF0C;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;</li>
+</ol>
+<p>&#x751F;&#x4EA7;&#x8005;1&#x4EE3;&#x7801;&#xFF1A; &#x7533;&#x660E;&#x4E00;&#x4E2A;<code>topic</code>&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;fast.orange.horse&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TopicExchange topicExchange = new TopicExchange(&quot;exchange.topic&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(topicExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(topicExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;fast.orange.horse&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x751F;&#x4EA7;&#x8005;2&#x4EE3;&#x7801;&#xFF1A; &#x7533;&#x660E;&#x4E00;&#x4E2A;<code>topic</code>&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;fast.white.rabbit&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TopicExchange topicExchange = new TopicExchange(&quot;exchange.topic&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(topicExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(topicExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;fast.white.rabbit&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x751F;&#x4EA7;&#x8005;3&#x4EE3;&#x7801;&#xFF1A; &#x7533;&#x660E;&#x4E00;&#x4E2A;<code>topic</code>&#x7C7B;&#x578B;&#x7684;exchange,&#x8BBE;&#x7F6E;routingKey=&#x201D;lazy.gray.kaola&#x201D;&#xFF0C;&#x7136;&#x540E;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x5230;exchange&#x4E0A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TopicExchange topicExchange = new TopicExchange(&quot;exchange.topic&quot;, true, false);</span><br><span class="line">rabbitAdmin.declareExchange(topicExchange);</span><br><span class="line"></span><br><span class="line">rabbitTemplate.setExchange(topicExchange.getName());</span><br><span class="line">rabbitTemplate.setRoutingKey(&quot;lazy.gray.kaola&quot;);</span><br><span class="line">rabbitTemplate.convertAndSend(log);</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;1&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.111&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;*.orange.*&quot;),</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.222&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;*.*.rabbit&quot;),</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.333&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;lazy.#&quot;)</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;2&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.444&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;*.orange.*&quot;),</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.555&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;lazy.#&quot;)</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+
+<p>&#x6D88;&#x8D39;&#x8005;3&#x4EE3;&#x7801;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@RabbitListener(bindings = {</span><br><span class="line">		@QueueBinding(	value = @Queue(value = &quot;test.topic.666&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						exchange = @Exchange(value = &quot;exchange.topic&quot;, type=&quot;topic&quot;, durable = &quot;true&quot;, autoDelete = &quot;false&quot;),</span><br><span class="line">						key = &quot;*.#&quot;),</span><br><span class="line">})</span><br></pre></td></tr></table></figure>
+<p>a.&#x540C;&#x65F6;&#x8FD0;&#x884C;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;1&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;1&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x540C;&#x65F6;&#x6D88;&#x8D39;&#x3002;&#x6CE8;&#x610F;&#xFF0C;&#x8FD9;&#x91CC;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x81EA;&#x5B9A;&#x4E49;&#x7684;&#x961F;&#x5217;&#x540D;&#x79F0;&#x8981;&#x4E0D;&#x4E00;&#x6837;&#xFF0C;&#x5426;&#x5219;3&#x4E2A;&#x961F;&#x5217;&#x540D;&#x79F0;&#x76F8;&#x540C;&#xFF0C;&#x76F8;&#x5F53;&#x4E8E;&#x516C;&#x7528;&#x4E00;&#x4E2A;&#x7BEE;&#x5B50;&#xFF0C;&#x6D88;&#x606F;&#x53EA;&#x80FD;&#x88AB;&#x5176;&#x4E2D;&#x4E00;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x6D88;&#x8D39;&#xFF1B;<br>b.&#x540C;&#x65F6;&#x8FD0;&#x884C;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;2&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;1&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;&#x6D88;&#x8D39;&#x8005;1&#x548C;&#x6D88;&#x8D39;&#x8005;3&#x6D88;&#x8D39;&#xFF1B;<br>c.&#x540C;&#x65F6;&#x8FD0;&#x884C;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x8FD0;&#x884C;&#x751F;&#x4EA7;&#x8005;3&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x751F;&#x4EA7;&#x8005;1&#x7684;&#x6D88;&#x606F;&#xFF0C;&#x88AB;3&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x540C;&#x65F6;&#x6D88;&#x8D39;&#xFF1B;</p>
+<p><img src="/2017/03/12/7D.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Brabbitmq%E4%B8%8Espringboot%E7%BA%AF%E6%B3%A8%E8%A7%A3%E9%9B%86%E6%88%90/"></p>
+<h3 id="&#x4EE3;&#x7801;&#x6F14;&#x793A;"><a href="#&#x4EE3;&#x7801;&#x6F14;&#x793A;" class="headerlink" title="&#x4EE3;&#x7801;&#x6F14;&#x793A;"></a>&#x4EE3;&#x7801;&#x6F14;&#x793A;</h3><ul>
+<li>&#x7565;</li>
+</ul>
+<h3 id="&#x9047;&#x5751;&#x8BB0;&#x5F55;"><a href="#&#x9047;&#x5751;&#x8BB0;&#x5F55;" class="headerlink" title="&#x9047;&#x5751;&#x8BB0;&#x5F55;"></a>&#x9047;&#x5751;&#x8BB0;&#x5F55;</h3><ol>
+<li>&#x751F;&#x4EA7;&#x8005;&#x8C03;&#x7528;&#x5B8C;<code>rabbitTemplate.convertAndSend(object)</code>&#x65B9;&#x6CD5;&#x540E;&#xFF0C;&#x6D88;&#x8D39;&#x8005;&#x53CD;&#x5E8F;&#x5217;&#x5316;&#x5BF9;&#x8C61;&#x65F6;&#xFF0C;&#x4F1A;&#x51FA;&#x73B0;&#x5E8F;&#x5217;&#x5316;&#x5931;&#x8D25;&#xFF0C;&#x539F;&#x56E0;&#x5C31;&#x662F;&#x751F;&#x4EA7;&#x8005;&#x4F1A;&#x5728;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x65F6;&#xFF0C;header&#x5934;&#x90E8;&#x4F1A;&#x5E26;&#x4E0A;<code>__TypeId__</code>&#xFF0C;&#x4E3A;&#x4E86;&#x80FD;&#x591F;&#x6D88;&#x8D39;&#x8005;&#x6210;&#x529F;&#x53CD;&#x5E8F;&#x5217;&#x5316;&#x5BF9;&#x8C61;&#xFF0C;&#x53EF;&#x4EE5;2&#x79CD;&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#xFF1A;</li>
+</ol>
+<p>&#x751F;&#x4EA7;&#x8005;&#x7AEF;&#x5904;&#x7406;&#xFF0C;&#x751F;&#x4EA7;&#x8005;&#x5728;&#x53D1;&#x9001;&#x6D88;&#x606F;&#x4E4B;&#x524D;&#xFF0C;&#x53BB;&#x6389;header&#x91CC;&#x9762;&#x7684;<code>__TypeId__</code>&#xFF0C;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">rabbitTemplate.setBeforePublishPostProcessors(new MessagePostProcessor() {</span><br><span class="line">@Override</span><br><span class="line">public Message postProcessMessage(Message message) throws AmqpException {</span><br><span class="line">  message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);</span><br><span class="line">  message.getMessageProperties().setContentEncoding(&quot;UTF-8&quot;);</span><br><span class="line">  message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);</span><br><span class="line">  message.getMessageProperties().getHeaders().remove(&quot;__TypeId__&quot;);</span><br><span class="line">  return message;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+<p>&#x6216;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// lambda&#x5199;&#x6CD5;</span><br><span class="line">// &#x53C2;&#x8003;: https://stackoverflow.com/questions/39443850/spring-amqp-sender-and-receiving-messages</span><br><span class="line">rabbitTemplate.setBeforePublishPostProcessors( message -&gt; {</span><br><span class="line">message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);</span><br><span class="line">message.getMessageProperties().setContentEncoding(&quot;UTF-8&quot;);</span><br><span class="line">message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);</span><br><span class="line">message.getMessageProperties().getHeaders().remove(&quot;__TypeId__&quot;);</span><br><span class="line">return message;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>&#x6D88;&#x8D39;&#x8005;&#x7AEF;&#x5904;&#x7406;&#xFF0C;&#x4EE3;&#x7801;&#x5982;&#x4E0B;&#xFF1A;</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">jackson2JsonMessageConverter.setClassMapper(new ClassMapper() {</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void fromClass(Class&lt;?&gt; clazz, MessageProperties properties) {</span><br><span class="line">  //throw new UnsupportedOperationException(&quot;this mapper is only for outbound, do not use for receive message&quot;);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public Class&lt;?&gt; toClass(MessageProperties properties) {</span><br><span class="line">  return Object.class;//&#x5173;&#x952E;&#x5728;&#x8FD9;&#x91CC;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">});</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rabbitmq/" rel="tag">rabbitmq</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/03/12/7D.105.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8BRabbitMQ-%E5%88%9B%E5%BB%BA%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%87%E7%A8%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            中间件系列之RabbitMQ-创建连接的过程
+          
+        </div>
+      </a>
+    
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

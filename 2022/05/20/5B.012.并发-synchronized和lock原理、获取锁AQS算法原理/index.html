@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>并发-synchronized和lock原理、获取锁AQS算法原理 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-5B.012.并发-synchronized和lock原理、获取锁AQS算法原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  并发-synchronized和lock原理、获取锁AQS算法原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Concurrency-%E5%B9%B6%E5%8F%91/">Concurrency-并发</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">8.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">52 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x4E00;&#x5B9A;&#x8981;&#x770B;&#x540E;&#x9762;&#x7684;&#x6587;&#x7AE0;&#xFF0C;&#x5148;&#x8BF4;&#x7ED3;&#x8BBA;&#xFF1A;</p>
+<p><strong>&#x975E;&#x516C;&#x5E73;&#x9501;tryAcquire&#x7684;&#x6D41;&#x7A0B;&#x662F;&#xFF1A;&#x68C0;&#x67E5;state&#x5B57;&#x6BB5;&#xFF0C;&#x82E5;&#x4E3A;0&#xFF0C;&#x8868;&#x793A;&#x9501;&#x672A;&#x88AB;&#x5360;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x5C1D;&#x8BD5;&#x5360;&#x7528;&#xFF0C;&#x82E5;&#x4E0D;&#x4E3A;0&#xFF0C;&#x68C0;&#x67E5;&#x5F53;&#x524D;&#x9501;&#x662F;&#x5426;&#x88AB;&#x81EA;&#x5DF1;&#x5360;&#x7528;&#xFF0C;&#x82E5;&#x88AB;&#x81EA;&#x5DF1;&#x5360;&#x7528;&#xFF0C;&#x5219;&#x66F4;&#x65B0;state&#x5B57;&#x6BB5;&#xFF0C;&#x8868;&#x793A;&#x91CD;&#x5165;&#x9501;&#x7684;&#x6B21;&#x6570;&#x3002;&#x5982;&#x679C;&#x4EE5;&#x4E0A;&#x4E24;&#x70B9;&#x90FD;&#x6CA1;&#x6709;&#x6210;&#x529F;&#xFF0C;&#x5219;&#x83B7;&#x53D6;&#x9501;&#x5931;&#x8D25;&#xFF0C;&#x8FD4;&#x56DE;false&#x3002;</strong></p>
+<span id="more"></span>
+<p>&#x8FD9;&#x91CC;&#x5BF9;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;synchronized&#x548C;lock&#x505A;&#x4E2A;&#x7CFB;&#x7EDF;&#x7684;&#x603B;&#x7ED3;&#xFF1A;</p>
+<p>&#x89E3;&#x51B3;&#x591A;&#x7EBF;&#x7A0B;&#x7684;&#x5E76;&#x53D1;&#x5B89;&#x5168;&#x95EE;&#x9898;&#xFF0C;java&#x65E0;&#x975E;&#x5C31;&#x662F;&#x52A0;&#x9501;&#xFF0C;&#x5177;&#x4F53;&#x5C31;&#x662F;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;</p>
+<ul>
+<li><p>(1) Synchronized(java&#x81EA;&#x5E26;&#x7684;&#x5173;&#x952E;&#x5B57;)</p>
+</li>
+<li><p>(2) lock &#x53EF;&#x91CD;&#x5165;&#x9501; (&#x53EF;&#x91CD;&#x5165;&#x9501;&#x8FD9;&#x4E2A;&#x5305;java.util.concurrent.locks &#x5E95;&#x4E0B;&#x6709;&#x4E24;&#x4E2A;&#x63A5;&#x53E3;&#xFF0C;&#x5206;&#x522B;&#x5BF9;&#x5E94;&#x4E24;&#x4E2A;&#x7C7B;&#x5B9E;&#x73B0;&#x4E86;&#x8FD9;&#x4E2A;&#x4E24;&#x4E2A;&#x63A5;&#x53E3;&#xFF1A;</p>
+<ul>
+<li>(a)lock&#x63A5;&#x53E3;, &#x5B9E;&#x73B0;&#x7684;&#x7C7B;&#x4E3A;&#xFF1A;ReentrantLock&#x7C7B; &#x53EF;&#x91CD;&#x5165;&#x9501;;</li>
+<li>(b)readwritelock&#x63A5;&#x53E3;&#xFF0C;&#x5B9E;&#x73B0;&#x7C7B;&#x4E3A;&#xFF1A;ReentrantReadWriteLock &#x8BFB;&#x5199;&#x9501;)</li>
+</ul>
+</li>
+</ul>
+<p>&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#x6709;&#x4E09;&#x79CD;&#xFF1A;</p>
+<p>&#xFF08;1&#xFF09;synchronized &#x662F;&#x4E92;&#x65A5;&#x9501;&#xFF1B;</p>
+<p>&#xFF08;2&#xFF09;ReentrantLock &#x987E;&#x540D;&#x601D;&#x4E49; &#xFF1A;&#x53EF;&#x91CD;&#x5165;&#x9501;</p>
+<p>&#xFF08;3&#xFF09;ReentrantReadWriteLock :&#x8BFB;&#x5199;&#x9501;</p>
+<p><strong>&#x8BFB;&#x5199;&#x9501;&#x7279;&#x70B9;&#xFF1A;</strong></p>
+<p><strong>a&#xFF09;&#x591A;&#x4E2A;&#x8BFB;&#x8005;&#x53EF;&#x4EE5;&#x540C;&#x65F6;&#x8FDB;&#x884C;&#x8BFB;</strong><br><strong>b&#xFF09;&#x5199;&#x8005;&#x5FC5;&#x987B;&#x4E92;&#x65A5;&#xFF08;&#x53EA;&#x5141;&#x8BB8;&#x4E00;&#x4E2A;&#x5199;&#x8005;&#x5199;&#xFF0C;&#x4E5F;&#x4E0D;&#x80FD;&#x8BFB;&#x8005;&#x5199;&#x8005;&#x540C;&#x65F6;&#x8FDB;&#x884C;&#xFF09;</strong><br><strong>c&#xFF09;&#x5199;&#x8005;&#x4F18;&#x5148;&#x4E8E;&#x8BFB;&#x8005;&#xFF08;&#x4E00;&#x65E6;&#x6709;&#x5199;&#x8005;&#xFF0C;&#x5219;&#x540E;&#x7EED;&#x8BFB;&#x8005;&#x5FC5;&#x987B;&#x7B49;&#x5F85;&#xFF0C;&#x5524;&#x9192;&#x65F6;&#x4F18;&#x5148;&#x8003;&#x8651;&#x5199;&#x8005;&#xFF09;</strong></p>
+<p>&#x603B;&#x7ED3;&#x6765;&#x8BF4;&#xFF0C;<strong>Lock&#x548C;synchronized&#x6709;&#x4EE5;&#x4E0B;&#x51E0;&#x70B9;&#x4E0D;&#x540C;</strong>&#xFF1A;</p>
+<ol>
+<li>Lock&#x662F;&#x4E00;&#x4E2A;&#x63A5;&#x53E3;&#xFF0C;&#x800C;synchronized&#x662F;Java&#x4E2D;&#x7684;&#x5173;&#x952E;&#x5B57;&#xFF0C;synchronized&#x662F;&#x5185;&#x7F6E;&#x7684;&#x8BED;&#x8A00;&#x5B9E;&#x73B0;&#xFF1B;</li>
+<li>&#x5F53;synchronized&#x5757;&#x7ED3;&#x675F;&#x65F6;&#xFF0C;&#x4F1A;&#x81EA;&#x52A8;&#x91CA;&#x653E;&#x9501;&#xFF0C;lock&#x4E00;&#x822C;&#x9700;&#x8981;&#x5728;finally&#x4E2D;&#x81EA;&#x5DF1;&#x91CA;&#x653E;&#x3002;synchronized&#x5728;&#x53D1;&#x751F;&#x5F02;&#x5E38;&#x65F6;&#xFF0C;&#x4F1A;&#x81EA;&#x52A8;&#x91CA;&#x653E;&#x7EBF;&#x7A0B;&#x5360;&#x6709;&#x7684;&#x9501;&#xFF0C;&#x56E0;&#x6B64;&#x4E0D;&#x4F1A;&#x5BFC;&#x81F4;&#x6B7B;&#x9501;&#x73B0;&#x8C61;&#x53D1;&#x751F;&#xFF1B;&#x800C;Lock&#x5728;&#x53D1;&#x751F;&#x5F02;&#x5E38;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x4E3B;&#x52A8;&#x901A;&#x8FC7;unLock()&#x53BB;&#x91CA;&#x653E;&#x9501;&#xFF0C;&#x5219;&#x5F88;&#x53EF;&#x80FD;&#x9020;&#x6210;&#x6B7B;&#x9501;&#x73B0;&#x8C61;&#xFF0C;&#x56E0;&#x6B64;&#x4F7F;&#x7528;Lock&#x65F6;&#x9700;&#x8981;&#x5728;finally&#x5757;&#x4E2D;&#x91CA;&#x653E;&#x9501;&#xFF1B;</li>
+<li>lock&#x7B49;&#x5F85;&#x9501;&#x8FC7;&#x7A0B;&#x4E2D;&#x53EF;&#x4EE5;&#x7528;interrupt&#x6765;&#x7EC8;&#x7AEF;&#x7B49;&#x5F85;&#xFF0C;&#x800C;synchronized&#x53EA;&#x80FD;&#x7B49;&#x5F85;&#x9501;&#x7684;&#x91CA;&#x653E;&#xFF0C;&#x4E0D;&#x80FD;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x3002;</li>
+<li>ock&#x53EF;&#x4EE5;&#x901A;&#x8FC7;trylock&#x6765;&#x77E5;&#x9053;&#x6709;&#x6CA1;&#x6709;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x800C;synchronized&#x4E0D;&#x80FD;&#xFF1B;</li>
+<li>&#x5F53;synchronized&#x5757;&#x6267;&#x884C;&#x65F6;&#xFF0C;&#x53EA;&#x80FD;&#x4F7F;&#x7528;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x65E0;&#x6CD5;&#x5B9E;&#x73B0;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x800C;lock&#x53EF;&#x4EE5;&#x901A;&#x8FC7;new ReentrantLock(true)&#x8BBE;&#x7F6E;&#x4E3A;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x4ECE;&#x800C;&#x5728;&#x67D0;&#x4E9B;&#x573A;&#x666F;&#x4E0B;&#x63D0;&#x9AD8;&#x6548;&#x7387;&#x3002;</li>
+<li>LLock&#x53EF;&#x4EE5;&#x63D0;&#x9AD8;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x8FDB;&#x884C;&#x8BFB;&#x64CD;&#x4F5C;&#x7684;&#x6548;&#x7387;&#x3002;&#xFF08;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;readwritelock&#x5B9E;&#x73B0;&#x8BFB;&#x5199;&#x5206;&#x79BB;&#xFF09;</li>
+<li>synchronized &#x9501;&#x7C7B;&#x578B; &#x53EF;&#x91CD;&#x5165; &#x4E0D;&#x53EF;&#x4E2D;&#x65AD; &#x975E;&#x516C;&#x5E73; &#x800C; lock &#x662F;&#xFF1A; &#x53EF;&#x91CD;&#x5165; &#x53EF;&#x5224;&#x65AD; &#x53EF;&#x516C;&#x5E73;&#xFF08;&#x4E24;&#x8005;&#x7686;&#x53EF;&#xFF09;<br>&#x5728;&#x6027;&#x80FD;&#x4E0A;&#x6765;&#x8BF4;&#xFF0C;&#x5982;&#x679C;&#x7ADE;&#x4E89;&#x8D44;&#x6E90;&#x4E0D;&#x6FC0;&#x70C8;&#xFF0C;&#x4E24;&#x8005;&#x7684;&#x6027;&#x80FD;&#x662F;&#x5DEE;&#x4E0D;&#x591A;&#x7684;&#xFF0C;&#x800C;&#x5F53;&#x7ADE;&#x4E89;&#x8D44;&#x6E90;&#x975E;&#x5E38;&#x6FC0;&#x70C8;&#x65F6;&#xFF08;&#x5373;&#x6709;&#x5927;&#x91CF;&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x7ADE;&#x4E89;&#xFF09;&#xFF0C;&#x6B64;&#x65F6;Lock&#x7684;&#x6027;&#x80FD;&#x8981;&#x8FDC;&#x8FDC;&#x4F18;&#x4E8E;synchronized&#x3002;&#x6240;&#x4EE5;&#x8BF4;&#xFF0C;&#x5728;&#x5177;&#x4F53;&#x4F7F;&#x7528;&#x65F6;&#x8981;&#x6839;&#x636E;&#x9002;&#x5F53;&#x60C5;&#x51B5;&#x9009;&#x62E9;&#x3002;</li>
+</ol>
+<p>&#x9996;&#x5148;&#x770B;&#x4E00;&#x4E0B;Synchronized&#x7684;&#x539F;&#x7406;&#xFF1A;</p>
+<h3 id="1&#x3001;synchronized"><a href="#1&#x3001;synchronized" class="headerlink" title="1&#x3001;synchronized"></a>1&#x3001;synchronized</h3><p>&#x628A;&#x4EE3;&#x7801;&#x5757;&#x58F0;&#x660E;&#x4E3A; synchronized&#xFF0C;&#x6709;&#x4E24;&#x4E2A;&#x91CD;&#x8981;&#x540E;&#x679C;&#xFF0C;&#x901A;&#x5E38;&#x662F;&#x6307;&#x8BE5;&#x4EE3;&#x7801;&#x5177;&#x6709; &#x539F;&#x5B50;&#x6027;&#xFF08;atomicity&#xFF09;&#x548C; &#x53EF;&#x89C1;&#x6027;&#xFF08;visibility&#xFF09;&#x3002;</p>
+<p>&#x5B9E;&#x73B0;&#x539F;&#x5B50;&#x6027;&#x7684;&#x7B97;&#x8303;&#x4E3A;CAS(Compare and Swap) &#x53C2;&#x8003;&#xFF1A;Java&#x591A;&#x7EBF;&#x7A0B;&#x7CFB;&#x5217;&#x2014;&#x2014;&#x539F;&#x5B50;&#x7C7B;&#x7684;&#x5B9E;&#x73B0;&#xFF08;CAS&#x7B97;&#x6CD5;&#xFF09;</p>
+<p>&#xFF08;1&#xFF09; &#x539F;&#x5B50;&#x6027;</p>
+<p>&#x539F;&#x5B50;&#x6027;&#x610F;&#x5473;&#x7740;&#x4E2A;&#x65F6;&#x523B;&#xFF0C;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x80FD;&#x591F;&#x6267;&#x884C;&#x4E00;&#x6BB5;&#x4EE3;&#x7801;&#xFF0C;&#x8FD9;&#x6BB5;&#x4EE3;&#x7801;&#x901A;&#x8FC7;&#x4E00;&#x4E2A;monitor object&#x4FDD;&#x62A4;&#x3002;&#x4ECE;&#x800C;&#x9632;&#x6B62;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x5728;&#x66F4;&#x65B0;&#x5171;&#x4EAB;&#x72B6;&#x6001;&#x65F6;&#x76F8;&#x4E92;&#x51B2;&#x7A81;&#x3002;</p>
+<p> (2)  &#x53EF;&#x89C1;&#x6027;</p>
+<p>&#x53EF;&#x89C1;&#x6027;&#x5219;&#x66F4;&#x4E3A;&#x5FAE;&#x5999;&#xFF0C;&#x5B83;&#x8981;&#x5BF9;&#x4ED8;&#x5185;&#x5B58;&#x7F13;&#x5B58;&#x548C;&#x7F16;&#x8BD1;&#x5668;&#x4F18;&#x5316;&#x7684;&#x5404;&#x79CD;&#x53CD;&#x5E38;&#x884C;&#x4E3A;&#x3002;&#x5565;&#x662F;&#x53EF;&#x89C1;&#x6027;&#x5462;&#xFF1F;</p>
+<p>&#x7B54;&#xFF1A;<strong>&#x5B83;&#x5FC5;&#x987B;&#x786E;&#x4FDD;&#x91CA;&#x653E;&#x9501;&#x4E4B;&#x524D;&#x5BF9;&#x5171;&#x4EAB;&#x6570;&#x636E;&#x505A;&#x51FA;&#x7684;&#x66F4;&#x6539;&#x5BF9;&#x4E8E;&#x968F;&#x540E;&#x83B7;&#x5F97;&#x8BE5;&#x9501;&#x7684;&#x53E6;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x662F;&#x53EF;&#x89C1;&#x7684; &#x3002;</strong></p>
+<p>&#x4F5C;&#x7528;&#xFF1A;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x540C;&#x6B65;&#x673A;&#x5236;&#x63D0;&#x4F9B;&#x7684;&#x8FD9;&#x79CD;&#x53EF;&#x89C1;&#x6027;&#x4FDD;&#x8BC1;&#xFF0C;&#x7EBF;&#x7A0B;&#x770B;&#x5230;&#x7684;&#x5171;&#x4EAB;&#x53D8;&#x91CF;&#x53EF;&#x80FD;&#x662F;&#x4FEE;&#x6539;&#x524D;&#x7684;&#x503C;&#x6216;&#x4E0D;&#x4E00;&#x81F4;&#x7684;&#x503C;&#xFF0C;&#x8FD9;&#x5C06;&#x5F15;&#x53D1;&#x8BB8;&#x591A;&#x4E25;&#x91CD;&#x95EE;&#x9898;&#x3002;</p>
+<p>&#x4E00;&#x822C;&#x6765;&#x8BF4;&#xFF0C;&#x7EBF;&#x7A0B;&#x4EE5;&#x67D0;&#x79CD;&#x4E0D;&#x5FC5;&#x8BA9;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x7ACB;&#x5373;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x7684;&#x65B9;&#x5F0F;&#xFF08;&#x4E0D;&#x7BA1;&#x8FD9;&#x4E9B;&#x7EBF;&#x7A0B;&#x5728;&#x5BC4;&#x5B58;&#x5668;&#x4E2D;&#x3001;&#x5728;&#x5904;&#x7406;&#x5668;&#x7279;&#x5B9A;&#x7684;&#x7F13;&#x5B58;&#x4E2D;&#xFF0C;&#x8FD8;&#x662F;&#x901A;&#x8FC7;&#x6307;&#x4EE4;&#x91CD;&#x6392;&#x6216;&#x8005;&#x5176;&#x4ED6;&#x7F16;&#x8BD1;&#x5668;&#x4F18;&#x5316;&#xFF09;&#xFF0C;&#x4E0D;&#x53D7;&#x7F13;&#x5B58;&#x53D8;&#x91CF;&#x503C;&#x7684;&#x7EA6;&#x675F;&#xFF0C;&#x4F46;&#x662F;&#x5982;&#x679C;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x4F7F;&#x7528;&#x4E86;&#x540C;&#x6B65;&#xFF0C;&#x90A3;&#x4E48;&#x8FD0;&#x884C;&#x5E93;&#x5C06;&#x786E;&#x4FDD;&#x67D0;&#x4E00;&#x7EBF;&#x7A0B;&#x5BF9;&#x53D8;&#x91CF;&#x6240;&#x505A;&#x7684;&#x66F4;&#x65B0;&#x5148;&#x4E8E;&#x5BF9;&#x73B0;&#x6709;synchronized &#x5757;&#x6240;&#x8FDB;&#x884C;&#x7684;&#x66F4;&#x65B0;&#xFF0C;&#x5F53;&#x8FDB;&#x5165;&#x7531;&#x540C;&#x4E00;&#x76D1;&#x63A7;&#x5668;&#xFF08;lock&#xFF09;&#x4FDD;&#x62A4;&#x7684;&#x53E6;&#x4E00;&#x4E2A;synchronized &#x5757;&#x65F6;&#xFF0C;&#x5C06;&#x7ACB;&#x523B;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x8FD9;&#x4E9B;&#x5BF9;&#x53D8;&#x91CF;&#x6240;&#x505A;&#x7684;&#x66F4;&#x65B0;&#x3002;&#x7C7B;&#x4F3C;&#x7684;&#x89C4;&#x5219;&#x4E5F;&#x5B58;&#x5728;&#x4E8E;volatile&#x53D8;&#x91CF;&#x4E0A;&#x3002;</p>
+<p>&#x2014;&#x2014;<strong>volatile&#x53EA;&#x4FDD;&#x8BC1;&#x53EF;&#x89C1;&#x6027;&#xFF0C;&#x4E0D;&#x4FDD;&#x8BC1;&#x539F;&#x5B50;&#x6027;&#xFF01;</strong></p>
+<p>(3)synchronize&#x7684;&#x9650;&#x5236;&#xFF1A;</p>
+<p>&#x5F53;&#x7EBF;&#x7A0B;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5982;&#x679C;&#x83B7;&#x53D6;&#x4E0D;&#x5230;&#x9501;&#x4F1A;&#x4E00;&#x76F4;&#x963B;&#x585E;, &#x5B83;&#x65E0;&#x6CD5;&#x4E2D;&#x65AD;&#x4E00;&#x4E2A;&#x6B63;&#x5728;&#x7B49;&#x5019;&#x83B7;&#x5F97;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#xFF1B;<br>&#x5982;&#x679C;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x8FDB;&#x5165;&#x4F11;&#x7720;&#x6216;&#x8005;&#x963B;&#x585E;&#xFF0C;&#x9664;&#x975E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5F02;&#x5E38;&#xFF0C;&#x5426;&#x5219;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#x5FC5;&#x987B;&#x4E00;&#x76F4;&#x7B49;&#x5F85;,&#x4E5F;&#x65E0;&#x6CD5;&#x901A;&#x8FC7;&#x6295;&#x7968;&#x5F97;&#x5230;&#x9501;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x60F3;&#x7B49;&#x4E0B;&#x53BB;&#xFF0C;&#x4E5F;&#x5C31;&#x6CA1;&#x6CD5;&#x5F97;&#x5230;&#x9501;&#x3002;</p>
+<h3 id="2&#x3001;ReentrantLock-&#x53EF;&#x91CD;&#x5165;&#x9501;"><a href="#2&#x3001;ReentrantLock-&#x53EF;&#x91CD;&#x5165;&#x9501;" class="headerlink" title="2&#x3001;ReentrantLock (&#x53EF;&#x91CD;&#x5165;&#x9501;)"></a>2&#x3001;ReentrantLock (&#x53EF;&#x91CD;&#x5165;&#x9501;)</h3><p>&#x53EF;&#x91CD;&#x5165;&#x7684;&#x610F;&#x601D;&#x662F;&#x67D0;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x53EF;&#x591A;&#x6B21;&#x83B7;&#x5F97;&#x4E00;&#x4E2A;&#x9501;&#xFF0C;&#x5728;&#x7EE7;&#x627F;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x7684;&#xFF0C;&#x90A3;&#x5C31;&#x5F62;&#x6210;&#x6B7B;&#x9501;&#x4E86;,&#x6BD4;&#x5982;&#x9012;&#x5F52;&#x8C03;&#x7528;&#x81EA;&#x5DF1;&#x7684;&#x65F6;&#x5019;;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x53EF;&#x91CD;&#x5165;&#xFF0C;&#x6BCF;&#x6B21;&#x90FD;&#x83B7;&#x53D6;&#x9501;&#x4E0D;&#x5408;&#x9002;&#xFF0C;&#x6BD4;&#x5982;synchronized&#x5C31;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x7684;&#xFF0C;ReentrantLock&#x4E5F;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x7684;</p>
+<p>&#x9501;&#x7684;&#x6982;&#x5FF5;&#x5C31;&#x4E0D;&#x7528;&#x591A;&#x89E3;&#x91CA;&#x4E86;,&#x5F53;&#x67D0;&#x4E2A;&#x7EBF;&#x7A0B;A&#x5DF2;&#x7ECF;&#x6301;&#x6709;&#x4E86;&#x4E00;&#x4E2A;&#x9501;,&#x5F53;&#x7EBF;&#x7A0B;B&#x5C1D;&#x8BD5;&#x8FDB;&#x5165;&#x88AB;&#x8FD9;&#x4E2A;&#x9501;&#x4FDD;&#x62A4;&#x7684;&#x4EE3;&#x7801;&#x6BB5;&#x7684;&#x65F6;&#x5019;.&#x5C31;&#x4F1A;&#x88AB;&#x963B;&#x585E;.&#x800C;&#x9501;&#x7684;&#x64CD;&#x4F5C;&#x7C92;&#x5EA6;&#x662F;&#x201D;&#x7EBF;&#x7A0B;&#x201D;,&#x800C;&#x4E0D;&#x662F;&#x8C03;&#x7528;(&#x81F3;&#x4E8E;&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x8FD9;&#x6837;,&#x4E0B;&#x9762;&#x89E3;&#x91CA;).&#x540C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x518D;&#x6B21;&#x8FDB;&#x5165;&#x540C;&#x6B65;&#x4EE3;&#x7801;&#x7684;&#x65F6;&#x5019;.&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x81EA;&#x5DF1;&#x5DF2;&#x7ECF;&#x83B7;&#x53D6;&#x5230;&#x7684;&#x9501;,&#x8FD9;&#x5C31;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x9501;java&#x91CC;&#x9762;&#x5185;&#x7F6E;&#x9501;(synchronize)&#x548C;Lock(ReentrantLock)&#x90FD;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x7684;</p>
+<p>&#x6211;&#x81EA;&#x5DF1;&#x5199;&#x4E86;&#x4E2A;&#x4F8B;&#x5B50;&#xFF1A;  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> entrantlock_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">parent</span> {</span><br><span class="line"></span><br><span class="line">     <span class="keyword">protected</span> Lock lock=<span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"></span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>{</span><br><span class="line">         lock.lock();</span><br><span class="line">         <span class="keyword">try</span>{</span><br><span class="line">             System.out.println(<span class="string">&quot;Parent&quot;</span>);</span><br><span class="line">         }<span class="keyword">finally</span>{</span><br><span class="line">             lock.unlock();</span><br><span class="line">         }</span><br><span class="line">     }</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sub</span> <span class="keyword">extends</span> <span class="title class_">parent</span>{</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span> {</span><br><span class="line">        <span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span>{</span><br><span class="line">        <span class="built_in">super</span>.test();</span><br><span class="line">        System.out.println(<span class="string">&quot;Sub&quot;</span>);</span><br><span class="line"></span><br><span class="line">        }<span class="keyword">finally</span>{</span><br><span class="line">            lock.unlock();</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LockTest</span>{</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>{</span><br><span class="line"></span><br><span class="line">        Sub s=<span class="keyword">new</span> <span class="title class_">Sub</span>();</span><br><span class="line">        s.test();</span><br><span class="line"></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x53EF;&#x91CD;&#x5165;"><a href="#2-1-&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x53EF;&#x91CD;&#x5165;" class="headerlink" title="2.1 . &#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x53EF;&#x91CD;&#x5165;"></a>2.1 . &#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x53EF;&#x91CD;&#x5165;</h4><p>&#x5982;&#x679C;&#x7EBF;&#x7A0B;A&#x7EE7;&#x7EED;&#x518D;&#x6B21;&#x83B7;&#x5F97;&#x8FD9;&#x4E2A;&#x9501;&#x5462;?&#x6BD4;&#x5982;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#x662F;synchronized,&#x9012;&#x5F52;&#x8C03;&#x7528;&#x81EA;&#x5DF1;,&#x90A3;&#x4E48;&#x7B2C;&#x4E00;&#x6B21;&#x5DF2;&#x7ECF;&#x83B7;&#x5F97;&#x4E86;&#x9501;,&#x7B2C;&#x4E8C;&#x6B21;&#x8C03;&#x7528;&#x7684;&#x65F6;&#x5019;&#x8FD8;&#x80FD;&#x8FDB;&#x5165;&#x5417;? &#x76F4;&#x89C2;&#x4E0A;&#x5F53;&#x7136;&#x9700;&#x8981;&#x80FD;&#x8FDB;&#x5165;.&#x8FD9;&#x5C31;&#x8981;&#x6C42;&#x5FC5;&#x987B;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x7684;.&#x53EF;&#x91CD;&#x5165;&#x9501;&#x53C8;&#x53EB;&#x505A;&#x9012;&#x5F52;&#x9501;,&#x4E0D;&#x7136;&#x5C31;&#x6B7B;&#x9501;&#x4E86;&#x3002;</p>
+<p>&#x5B83;&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;&#x662F;&#xFF1A;</p>
+<p>&#x4E3A;&#x6BCF;&#x4E2A;&#x9501;&#x5173;&#x8054;&#x4E00;&#x4E2A;&#x83B7;&#x53D6;&#x8BA1;&#x6570;&#x5668;&#x548C;&#x4E00;&#x4E2A;&#x6240;&#x6709;&#x8005;&#x7EBF;&#x7A0B;,&#x5F53;&#x8BA1;&#x6570;&#x503C;&#x4E3A;0&#x7684;&#x65F6;&#x5019;,&#x8FD9;&#x4E2A;&#x6240;&#x5C31;&#x6CA1;&#x6709;&#x88AB;&#x4EFB;&#x4F55;&#x7EBF;&#x7A0B;&#x6301;&#x6709;.&#x5F53;&#x7EBF;&#x7A0B;&#x8BF7;&#x6C42;&#x4E00;&#x4E2A;&#x672A;&#x88AB;&#x6301;&#x6709;&#x7684;&#x9501;&#x65F6;,JVM&#x5C06;&#x8BB0;&#x4E0B;&#x9501;&#x7684;&#x6301;&#x6709;&#x8005;,&#x5E76;&#x4E14;&#x5C06;&#x83B7;&#x53D6;&#x8BA1;&#x6570;&#x503C;&#x7F6E;&#x4E3A;1,&#x5982;&#x679C;&#x540C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x518D;&#x6B21;&#x83B7;&#x53D6;&#x8FD9;&#x4E2A;&#x9501;,&#x8BA1;&#x6570;&#x503C;&#x5C06;&#x9012;&#x589E;,&#x9000;&#x51FA;&#x4E00;&#x6B21;&#x540C;&#x6B65;&#x4EE3;&#x7801;&#x5757;,&#x8BA1;&#x7B97;&#x503C;&#x9012;&#x51CF;,&#x5F53;&#x8BA1;&#x6570;&#x503C;&#x4E3A;0&#x65F6;,&#x8FD9;&#x4E2A;&#x9501;&#x5C31;&#x88AB;&#x91CA;&#x653E;.ReentrantLock&#x91CC;&#x9762;&#x6709;&#x5B9E;&#x73B0;</p>
+<p>&#x5176;&#x5B9E;&#x4E5F;&#x6709;&#x4E0D;&#x53EF;&#x91CD;&#x5165;&#x9501;&#xFF1A;&#x8FD9;&#x4E2A;&#x8FD8;&#x771F;&#x6709;.Linux&#x4E0B;&#x7684;pthread_mutex_t&#x9501;&#x662F;&#x9ED8;&#x8BA4;&#x662F;&#x975E;&#x9012;&#x5F52;&#x7684;&#x3002;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x8BBE;&#x7F6E;PTHREAD_MUTEX_RECURSIVE&#x5C5E;&#x6027;&#xFF0C;&#x5C06;pthread_mutex_t&#x9501;&#x8BBE;&#x7F6E;&#x4E3A;&#x9012;&#x5F52;&#x9501;&#x3002;&#x5982;&#x679C;&#x8981;&#x81EA;&#x5DF1;&#x5B9E;&#x73B0;&#x4E0D;&#x53EF;&#x91CD;&#x5165;&#x9501;,&#x540C;&#x53EF;&#x91CD;&#x5165;&#x9501;,&#x8FD9;&#x4E2A;&#x8BA1;&#x6570;&#x5668;&#x53EA;&#x80FD;&#x4E3A;1.&#x6216;&#x8005;0,&#x518D;&#x6B21;&#x8FDB;&#x5165;&#x7684;&#x65F6;&#x5019;,&#x53D1;&#x73B0;&#x5DF2;&#x7ECF;&#x662F;1&#x4E86;,&#x5C31;&#x8FDB;&#x884C;&#x963B;&#x585E;.jdk&#x91CC;&#x9762;&#x6CA1;&#x6709;&#x9ED8;&#x8BA4;&#x7684;&#x5B9E;&#x73B0;&#x7C7B;.</p>
+<p>Java.util.concurrent.lock &#x4E2D;&#x7684;Lock &#x6846;&#x67B6;&#x662F;&#x9501;&#x5B9A;&#x7684;&#x4E00;&#x4E2A;&#x62BD;&#x8C61;&#xFF0C;Lock&#x5F25;&#x8865;&#x4E86;synchronized&#x7684;&#x5C40;&#x9650;&#xFF0C;&#x63D0;&#x4F9B;&#x4E86;&#x66F4;&#x52A0;&#x7EC6;&#x7C92;&#x5EA6;&#x7684;&#x52A0;&#x9501;&#x529F;&#x80FD;&#x3002;  </p>
+<p>ReentrantLock &#x7C7B;&#x662F;&#x552F;&#x4E00;&#x5B9E;&#x73B0;&#x4E86;Lock&#x7684;&#x7C7B; &#xFF0C;&#x5B83;&#x62E5;&#x6709;&#x4E0E;synchronized &#x76F8;&#x540C;&#x7684;&#x5E76;&#x53D1;&#x6027;&#x548C;&#x5185;&#x5B58;&#x8BED;&#x4E49;&#xFF0C;&#x4F46;&#x662F;&#x6DFB;&#x52A0;&#x4E86;&#x7C7B;&#x4F3C;&#x9501;&#x6295;&#x7968;&#x3001;&#x5B9A;&#x65F6;&#x9501;&#x7B49;&#x5019;&#x548C;&#x53EF;&#x4E2D;&#x65AD;&#x9501;&#x7B49;&#x5019;&#x7684;&#x4E00;&#x4E9B;&#x7279;&#x6027;&#x3002;&#x6B64;&#x5916;&#xFF0C;&#x5B83;&#x8FD8;&#x63D0;&#x4F9B;&#x4E86;&#x5728;&#x6FC0;&#x70C8;&#x4E89;&#x7528;&#x60C5;&#x51B5;&#x4E0B;&#x66F4;&#x4F73;&#x7684;&#x6027;&#x80FD;&#x3002;&#xFF08;&#x6362;&#x53E5;&#x8BDD;&#x8BF4;&#xFF0C;&#x5F53;&#x8BB8;&#x591A;&#x7EBF;&#x7A0B;&#x90FD;&#x60F3;&#x8BBF;&#x95EE;&#x5171;&#x4EAB;&#x8D44;&#x6E90;&#x65F6;&#xFF0C;JVM &#x53EF;&#x4EE5;&#x82B1;&#x66F4;&#x5C11;&#x7684;&#x65F6;&#x5019;&#x6765;&#x8C03;&#x5EA6;&#x7EBF;&#x7A0B;&#xFF0C;&#x628A;&#x66F4;&#x591A;&#x65F6;&#x95F4;&#x7528;&#x5728;&#x6267;&#x884C;&#x7EBF;&#x7A0B;&#x4E0A;&#x3002;&#xFF09;  </p>
+<p>&#x7528;sychronized&#x4FEE;&#x9970;&#x7684;&#x65B9;&#x6CD5;&#x6216;&#x8005;&#x8BED;&#x53E5;&#x5757;&#x5728;&#x4EE3;&#x7801;&#x6267;&#x884C;&#x5B8C;&#x4E4B;&#x540E;&#x9501;&#x81EA;&#x52A8;&#x91CA;&#x653E;&#xFF0C;&#x800C;&#x662F;&#x7528;Lock&#x9700;&#x8981;&#x6211;&#x4EEC;&#x624B;&#x52A8;&#x91CA;&#x653E;&#x9501;&#xFF0C;&#x6240;&#x4EE5;&#x4E3A;&#x4E86;&#x4FDD;&#x8BC1;&#x9501;&#x6700;&#x7EC8;&#x88AB;&#x91CA;&#x653E;(&#x53D1;&#x751F;&#x5F02;&#x5E38;&#x60C5;&#x51B5;)&#xFF0C;&#x8981;&#x628A;&#x4E92;&#x65A5;&#x533A;&#x653E;&#x5728;try&#x5185;&#xFF0C;&#x91CA;&#x653E;&#x9501;&#x653E;&#x5728;finally&#x5185;&#xFF01;&#xFF01;  </p>
+<p>Lock &#x63A5;&#x53E3;api&#x5982;&#x4E0B;  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Lock</span> {</span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span>;</span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">lockInterruptibly</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException;</span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">()</span>;</span><br><span class="line">  <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">(<span class="type">long</span> time, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException;</span><br><span class="line">  <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span>;</span><br><span class="line">  Condition <span class="title function_">newCondition</span><span class="params">()</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>lock()&#x3001;tryLock()&#x3001;tryLock(long time, TimeUnit unit)&#x548C;lockInterruptibly()&#x662F;&#x7528;&#x6765;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x3002;</p>
+<p>unLock()&#x65B9;&#x6CD5;&#x662F;&#x7528;&#x6765;&#x91CA;&#x653E;&#x9501;&#x7684;&#x3002;<br>&#x5728;Lock&#x4E2D;&#x58F0;&#x660E;&#x4E86;&#x56DB;&#x4E2A;&#x65B9;&#x6CD5;&#x6765;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x56DB;&#x4E2A;&#x65B9;&#x6CD5;&#x6709;&#x4F55;&#x533A;&#x522B;&#x5462;&#xFF1F;</p>
+<p>&#x9996;&#x5148;lock()&#x65B9;&#x6CD5;&#x662F;&#x5E73;&#x5E38;&#x4F7F;&#x7528;&#x5F97;&#x6700;&#x591A;&#x7684;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;&#xFF0C;&#x5C31;&#x662F;&#x7528;&#x6765;&#x83B7;&#x53D6;&#x9501;&#x3002;&#x5982;&#x679C;&#x9501;&#x5DF2;&#x88AB;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#xFF0C;&#x5219;&#x8FDB;&#x884C;&#x7B49;&#x5F85;&#x3002;</p>
+<p>&#x7531;&#x4E8E;&#x5728;&#x524D;&#x9762;&#x8BB2;&#x5230;&#x5982;&#x679C;&#x91C7;&#x7528;Lock&#xFF0C;&#x5FC5;&#x987B;&#x4E3B;&#x52A8;&#x53BB;&#x91CA;&#x653E;&#x9501;&#xFF0C;&#x5E76;&#x4E14;&#x5728;&#x53D1;&#x751F;&#x5F02;&#x5E38;&#x65F6;&#xFF0C;&#x4E0D;&#x4F1A;&#x81EA;&#x52A8;&#x91CA;&#x653E;&#x9501;&#x3002;&#x56E0;&#x6B64;&#x4E00;&#x822C;&#x6765;&#x8BF4;&#xFF0C;&#x4F7F;&#x7528;Lock&#x5FC5;&#x987B;&#x5728;try{}catch{}&#x5757;&#x4E2D;&#x8FDB;&#x884C;&#xFF0C;&#x5E76;&#x4E14;&#x5C06;&#x91CA;&#x653E;&#x9501;&#x7684;&#x64CD;&#x4F5C;&#x653E;&#x5728;finally&#x5757;&#x4E2D;&#x8FDB;&#x884C;&#xFF0C;&#x4EE5;&#x4FDD;&#x8BC1;&#x9501;&#x4E00;&#x5B9A;&#x88AB;&#x88AB;&#x91CA;&#x653E;&#xFF0C;&#x9632;&#x6B62;&#x6B7B;&#x9501;&#x7684;&#x53D1;&#x751F;&#x3002;&#x901A;&#x5E38;&#x4F7F;&#x7528;Lock&#x6765;&#x8FDB;&#x884C;&#x540C;&#x6B65;&#x7684;&#x8BDD;&#xFF0C;&#x662F;&#x4EE5;&#x4E0B;&#x9762;&#x8FD9;&#x79CD;&#x5F62;&#x5F0F;&#x53BB;&#x4F7F;&#x7528;&#x7684;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Lock</span> <span class="variable">lock</span> <span class="operator">=</span> ...;</span><br><span class="line">lock.lock();</span><br><span class="line"><span class="keyword">try</span>{</span><br><span class="line"><span class="comment">//&#x5904;&#x7406;&#x4EFB;&#x52A1;</span></span><br><span class="line">}<span class="keyword">catch</span>(Exception ex){</span><br><span class="line"></span><br><span class="line">}<span class="keyword">finally</span>{</span><br><span class="line">lock.unlock(); <span class="comment">//&#x91CA;&#x653E;&#x9501;</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>tryLock()&#x65B9;&#x6CD5;&#x662F;&#x6709;&#x8FD4;&#x56DE;&#x503C;&#x7684;&#xFF0C;&#x5B83;&#x8868;&#x793A;&#x7528;&#x6765;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5982;&#x679C;&#x83B7;&#x53D6;&#x6210;&#x529F;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#xFF0C;&#x5982;&#x679C;&#x83B7;&#x53D6;&#x5931;&#x8D25;&#xFF08;&#x5373;&#x9501;&#x5DF2;&#x88AB;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#xFF09;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;false&#xFF0C;&#x4E5F;&#x5C31;&#x8BF4;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x65E0;&#x8BBA;&#x5982;&#x4F55;&#x90FD;&#x4F1A;&#x7ACB;&#x5373;&#x8FD4;&#x56DE;&#x3002;&#x5728;&#x62FF;&#x4E0D;&#x5230;&#x9501;&#x65F6;&#x4E0D;&#x4F1A;&#x4E00;&#x76F4;&#x5728;&#x90A3;&#x7B49;&#x5F85;&#x3002;</p>
+<p>tryLock(long time, TimeUnit unit)&#x65B9;&#x6CD5;&#x548C;tryLock()&#x65B9;&#x6CD5;&#x662F;&#x7C7B;&#x4F3C;&#x7684;&#xFF0C;&#x53EA;&#x4E0D;&#x8FC7;&#x533A;&#x522B;&#x5728;&#x4E8E;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x5728;&#x62FF;&#x4E0D;&#x5230;&#x9501;&#x65F6;&#x4F1A;&#x7B49;&#x5F85;&#x4E00;&#x5B9A;&#x7684;&#x65F6;&#x95F4;&#xFF0C;&#x5728;&#x65F6;&#x95F4;&#x671F;&#x9650;&#x4E4B;&#x5185;&#x5982;&#x679C;&#x8FD8;&#x62FF;&#x4E0D;&#x5230;&#x9501;&#xFF0C;&#x5C31;&#x8FD4;&#x56DE;false&#x3002;&#x5982;&#x679C;&#x5982;&#x679C;&#x4E00;&#x5F00;&#x59CB;&#x62FF;&#x5230;&#x9501;&#x6216;&#x8005;&#x5728;&#x7B49;&#x5F85;&#x671F;&#x95F4;&#x5185;&#x62FF;&#x5230;&#x4E86;&#x9501;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#x3002;</p>
+<p>&#x6240;&#x4EE5;&#xFF0C;&#x4E00;&#x822C;&#x60C5;&#x51B5;&#x4E0B;&#x901A;&#x8FC7;tryLock&#x6765;&#x83B7;&#x53D6;&#x9501;&#x65F6;&#x662F;&#x8FD9;&#x6837;&#x4F7F;&#x7528;&#x7684;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Lock</span> <span class="variable">lock</span> <span class="operator">=</span> ...;</span><br><span class="line"><span class="keyword">if</span>(lock.tryLock()) {</span><br><span class="line"><span class="keyword">try</span>{</span><br><span class="line"><span class="comment">//&#x5904;&#x7406;&#x4EFB;&#x52A1;</span></span><br><span class="line">}<span class="keyword">catch</span>(Exception ex){</span><br><span class="line"></span><br><span class="line">}<span class="keyword">finally</span>{</span><br><span class="line">lock.unlock(); <span class="comment">//&#x91CA;&#x653E;&#x9501;</span></span><br><span class="line">}</span><br><span class="line">}<span class="keyword">else</span> {</span><br><span class="line"><span class="comment">//&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5219;&#x76F4;&#x63A5;&#x505A;&#x5176;&#x4ED6;&#x4E8B;&#x60C5;</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>lockInterruptibly()&#x65B9;&#x6CD5;&#x6BD4;&#x8F83;&#x7279;&#x6B8A;&#xFF0C;&#x5F53;&#x901A;&#x8FC7;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x53BB;&#x83B7;&#x53D6;&#x9501;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x6B63;&#x5728;&#x7B49;&#x5F85;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x5219;&#x8FD9;&#x4E2A;&#x7EBF;&#x7A0B;&#x80FD;&#x591F;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#xFF0C;&#x5373;&#x4E2D;&#x65AD;&#x7EBF;&#x7A0B;&#x7684;&#x7B49;&#x5F85;&#x72B6;&#x6001;&#x3002;&#x4E5F;&#x5C31;&#x4F7F;&#x8BF4;&#xFF0C;&#x5F53;&#x4E24;&#x4E2A;&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x901A;&#x8FC7;lock.lockInterruptibly()&#x60F3;&#x83B7;&#x53D6;&#x67D0;&#x4E2A;&#x9501;&#x65F6;&#xFF0C;&#x5047;&#x82E5;&#x6B64;&#x65F6;&#x7EBF;&#x7A0B;A&#x83B7;&#x53D6;&#x5230;&#x4E86;&#x9501;&#xFF0C;&#x800C;&#x7EBF;&#x7A0B;B&#x53EA;&#x6709;&#x5728;&#x7B49;&#x5F85;&#xFF0C;&#x90A3;&#x4E48;&#x5BF9;&#x7EBF;&#x7A0B;B&#x8C03;&#x7528;threadB.interrupt()&#x65B9;&#x6CD5;&#x80FD;&#x591F;&#x4E2D;&#x65AD;&#x7EBF;&#x7A0B;B&#x7684;&#x7B49;&#x5F85;&#x8FC7;&#x7A0B;&#x3002;</p>
+<p>&#x7531;&#x4E8E;lockInterruptibly()&#x7684;&#x58F0;&#x660E;&#x4E2D;&#x629B;&#x51FA;&#x4E86;&#x5F02;&#x5E38;&#xFF0C;&#x6240;&#x4EE5;lock.lockInterruptibly()&#x5FC5;&#x987B;&#x653E;&#x5728;try&#x5757;&#x4E2D;&#x6216;&#x8005;&#x5728;&#x8C03;&#x7528;lockInterruptibly()&#x7684;&#x65B9;&#x6CD5;&#x5916;&#x58F0;&#x660E;&#x629B;&#x51FA;InterruptedException&#x3002;</p>
+<p>&#x56E0;&#x6B64;lockInterruptibly()&#x4E00;&#x822C;&#x7684;&#x4F7F;&#x7528;&#x5F62;&#x5F0F;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">lock.lockInterruptibly();</span><br><span class="line"><span class="keyword">try</span> {</span><br><span class="line"><span class="comment">//.....</span></span><br><span class="line">}</span><br><span class="line"><span class="keyword">finally</span> {</span><br><span class="line">lock.unlock();</span><br><span class="line">}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x6CE8;&#x610F;&#xFF0C;&#x5F53;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x4E86;&#x9501;&#x4E4B;&#x540E;&#xFF0C;&#x662F;&#x4E0D;&#x4F1A;&#x88AB;interrupt()&#x65B9;&#x6CD5;&#x4E2D;&#x65AD;&#x7684;&#x3002;&#x5355;&#x72EC;&#x8C03;&#x7528;interrupt()&#x65B9;&#x6CD5;&#x4E0D;&#x80FD;&#x4E2D;&#x65AD;&#x6B63;&#x5728;&#x8FD0;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x53EA;&#x80FD;&#x4E2D;&#x65AD;&#x963B;&#x585E;&#x8FC7;&#x7A0B;&#x4E2D;&#x7684;&#x7EBF;&#x7A0B;&#x3002;</p>
+<p>&#x56E0;&#x6B64;&#x5F53;&#x901A;&#x8FC7;lockInterruptibly()&#x65B9;&#x6CD5;&#x83B7;&#x53D6;&#x67D0;&#x4E2A;&#x9501;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x83B7;&#x53D6;&#x5230;&#xFF0C;&#x53EA;&#x6709;&#x8FDB;&#x884C;&#x7B49;&#x5F85;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x662F;&#x53EF;&#x4EE5;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x7684;&#x3002;</p>
+<p>&#x800C;&#x7528;synchronized&#x4FEE;&#x9970;&#x7684;&#x8BDD;&#xFF0C;&#x5F53;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5904;&#x4E8E;&#x7B49;&#x5F85;&#x67D0;&#x4E2A;&#x9501;&#x7684;&#x72B6;&#x6001;&#xFF0C;&#x662F;&#x65E0;&#x6CD5;&#x88AB;&#x4E2D;&#x65AD;&#x7684;&#xFF0C;&#x53EA;&#x6709;&#x4E00;&#x76F4;&#x7B49;&#x5F85;&#x4E0B;&#x53BB;&#x3002;</p>
+<h2 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h2><p>AbstractQueuedSynchronizer&#x7B80;&#x79F0;AQS&#xFF0C;&#x662F;&#x4E00;&#x4E2A;&#x7528;&#x4E8E;&#x6784;&#x5EFA;&#x9501;&#x548C;&#x540C;&#x6B65;&#x5BB9;&#x5668;&#x7684;&#x6846;&#x67B6;&#x3002;&#x4E8B;&#x5B9E;&#x4E0A;concurrent&#x5305;&#x5185;&#x8BB8;&#x591A;&#x7C7B;&#x90FD;&#x662F;&#x57FA;&#x4E8E;AQS&#x6784;&#x5EFA;&#xFF0C;&#x4F8B;&#x5982;<strong>ReentrantLock</strong>&#xFF0C;Semaphore&#xFF0C;CountDownLatch&#xFF0C;<strong>ReentrantReadWriteLock</strong>&#xFF0C;FutureTask&#x7B49;&#x3002;AQS&#x89E3;&#x51B3;&#x4E86;&#x5728;&#x5B9E;&#x73B0;&#x540C;&#x6B65;&#x5BB9;&#x5668;&#x65F6;&#x8BBE;&#x8BA1;&#x7684;&#x5927;&#x91CF;&#x7EC6;&#x8282;&#x95EE;&#x9898;&#x3002;</p>
+<p><strong>AQS&#x4F7F;&#x7528;&#x4E00;&#x4E2A;FIFO&#x7684;&#x961F;&#x5217;&#x8868;&#x793A;&#x6392;&#x961F;&#x7B49;&#x5F85;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x5B83;&#x7EF4;&#x62A4;&#x4E00;&#x4E2A;status&#x7684;&#x53D8;&#x91CF;&#xFF0C;&#x6BCF;&#x4E2A;&#x8282;&#x70B9;&#x7EF4;&#x62A4;&#x4E00;&#x4E2A;waitstatus&#x7684;&#x53D8;&#x91CF;&#xFF0C;&#x5F53;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x5230;&#x9501;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x961F;&#x5217;&#x7684;status&#x7F6E;&#x4E3A;1&#xFF0C;&#x6B64;&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x5B8C;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x7684;waitstatus&#x4E3A;-1&#xFF1B;&#x961F;&#x5217;&#x5934;&#x90E8;&#x7684;&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x5B8C;&#x6BD5;&#x4E4B;&#x540E;&#xFF0C;&#x5B83;&#x4F1A;&#x8C03;&#x7528;&#x5B83;&#x7684;&#x540E;&#x7EE7;&#x7684;&#x7EBF;&#x7A0B;(&#x767E;&#x5EA6;&#x9762;&#x8BD5;)&#x3002;</strong></p>
+<p>&#x961F;&#x5217;&#x5934;&#x8282;&#x70B9;&#x79F0;&#x4F5C;&#x201C;&#x54E8;&#x5175;&#x8282;&#x70B9;&#x201D;&#x6216;&#x8005;&#x201C;&#x54D1;&#x8282;&#x70B9;&#x201D;&#xFF0C;&#x5B83;&#x4E0D;&#x4E0E;&#x4EFB;&#x4F55;&#x7EBF;&#x7A0B;&#x5173;&#x8054;&#x3002;&#x5176;&#x4ED6;&#x7684;&#x8282;&#x70B9;&#x4E0E;&#x7B49;&#x5F85;&#x7EBF;&#x7A0B;&#x5173;&#x8054;&#xFF0C;&#x6BCF;&#x4E2A;&#x8282;&#x70B9;&#x7EF4;&#x62A4;&#x4E00;&#x4E2A;&#x7B49;&#x5F85;&#x72B6;&#x6001;waitStatus&#x3002;&#x5982;&#x56FE;<br><img src="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/1.png"></p>
+<p><strong>AQS&#x4E2D;&#x8FD8;&#x6709;&#x4E00;&#x4E2A;&#x8868;&#x793A;&#x72B6;&#x6001;&#x7684;&#x5B57;&#x6BB5;state&#xFF0C;&#x4F8B;&#x5982;ReentrantLocky&#x7528;&#x5B83;&#x8868;&#x793A;&#x7EBF;&#x7A0B;&#x91CD;&#x5165;&#x9501;&#x7684;&#x6B21;&#x6570;</strong>&#xFF0C;Semaphore&#x7528;&#x5B83;&#x8868;&#x793A;&#x5269;&#x4F59;&#x7684;&#x8BB8;&#x53EF;&#x6570;&#x91CF;&#xFF0C;FutureTask&#x7528;&#x5B83;&#x8868;&#x793A;&#x4EFB;&#x52A1;&#x7684;&#x72B6;&#x6001;&#x3002;&#x5BF9;state&#x53D8;&#x91CF;&#x503C;&#x7684;&#x66F4;&#x65B0;&#x90FD;&#x91C7;&#x7528;CAS&#x64CD;&#x4F5C;&#x4FDD;&#x8BC1;&#x66F4;&#x65B0;&#x64CD;&#x4F5C;&#x7684;&#x539F;&#x5B50;&#x6027;&#x3002;</p>
+<p><strong>AbstractQueuedSynchronizer&#x7EE7;&#x627F;&#x4E86;AbstractOwnableSynchronizer&#xFF0C;&#x8FD9;&#x4E2A;&#x7C7B;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#xFF1A;exclusiveOwnerThread</strong>&#xFF0C;&#x8868;&#x793A;&#x5F53;&#x524D;&#x5360;&#x7528;&#x8BE5;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x5E76;&#x4E14;&#x63D0;&#x4F9B;&#x4E86;&#x76F8;&#x5E94;&#x7684;get&#xFF0C;set&#x65B9;&#x6CD5;&#x3002;</p>
+<p>&#x7406;&#x89E3;AQS&#x53EF;&#x4EE5;&#x5E2E;&#x52A9;&#x6211;&#x4EEC;&#x66F4;&#x597D;&#x7684;&#x7406;&#x89E3;JCU&#x5305;&#x4E2D;&#x7684;&#x540C;&#x6B65;&#x5BB9;&#x5668;&#x3002;</p>
+<h3 id="lock-&#x4E0E;unlock-&#x5B9E;&#x73B0;&#x539F;&#x7406;"><a href="#lock-&#x4E0E;unlock-&#x5B9E;&#x73B0;&#x539F;&#x7406;" class="headerlink" title="lock()&#x4E0E;unlock()&#x5B9E;&#x73B0;&#x539F;&#x7406;"></a>lock()&#x4E0E;unlock()&#x5B9E;&#x73B0;&#x539F;&#x7406;</h3><p>ReentrantLock&#x662F;Lock&#x7684;&#x9ED8;&#x8BA4;&#x5B9E;&#x73B0;&#x4E4B;&#x4E00;&#x3002;&#x90A3;&#x4E48;lock()&#x548C;unlock()&#x662F;&#x600E;&#x4E48;&#x5B9E;&#x73B0;&#x7684;&#x5462;&#xFF1F;&#x9996;&#x5148;&#x6211;&#x4EEC;&#x8981;&#x5F04;&#x6E05;&#x695A;&#x51E0;&#x4E2A;&#x6982;&#x5FF5;</p>
+<ul>
+<li>&#x53EF;&#x91CD;&#x5165;&#x9501;&#x3002;&#x53EF;&#x91CD;&#x5165;&#x9501;&#x662F;&#x6307;&#x540C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x591A;&#x6B21;&#x83B7;&#x53D6;&#x540C;&#x4E00;&#x628A;&#x9501;&#x3002;ReentrantLock&#x548C;synchronized&#x90FD;&#x662F;&#x53EF;&#x91CD;&#x5165;&#x9501;&#x3002;</li>
+<li><strong>&#x53EF;&#x4E2D;&#x65AD;&#x9501;&#x3002;&#x53EF;&#x4E2D;&#x65AD;&#x9501;&#x662F;&#x6307;&#x7EBF;&#x7A0B;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x662F;&#x5426;&#x53EF;&#x4EE5;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x3002;synchronized&#x662F;&#x4E0D;&#x53EF;&#x4E2D;&#x65AD;&#x9501;&#xFF0C;&#x800C;ReentrantLock&#x5219;&#x63D0;&#x4F9B;&#x4E86;&#x4E2D;&#x65AD;&#x529F;&#x80FD;&#x3002;</strong></li>
+<li>&#x516C;&#x5E73;&#x9501;&#x4E0E;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;&#x516C;&#x5E73;&#x9501;&#x662F;&#x6307;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x540C;&#x4E00;&#x628A;&#x9501;&#x65F6;&#xFF0C;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x987A;&#x5E8F;&#x6309;&#x7167;&#x7EBF;&#x7A0B;&#x8FBE;&#x5230;&#x7684;&#x987A;&#x5E8F;&#xFF0C;&#x800C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x5219;&#x5141;&#x8BB8;&#x7EBF;&#x7A0B;&#x201C;&#x63D2;&#x961F;&#x201D;&#x3002;synchronized&#x662F;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x800C;ReentrantLock&#x7684;&#x9ED8;&#x8BA4;&#x5B9E;&#x73B0;&#x662F;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x4F46;&#x662F;&#x4E5F;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#x4E3A;&#x516C;&#x5E73;&#x9501;&#x3002;</li>
+<li>CAS&#x64CD;&#x4F5C;(CompareAndSwap)&#x3002;CAS&#x64CD;&#x4F5C;&#x7B80;&#x5355;&#x7684;&#x8BF4;&#x5C31;&#x662F;&#x6BD4;&#x8F83;&#x5E76;&#x4EA4;&#x6362;&#x3002;CAS &#x64CD;&#x4F5C;&#x5305;&#x542B;&#x4E09;&#x4E2A;&#x64CD;&#x4F5C;&#x6570; &#x2014;&#x2014; &#x5185;&#x5B58;&#x4F4D;&#x7F6E;&#xFF08;V&#xFF09;&#x3001;&#x9884;&#x671F;&#x539F;&#x503C;&#xFF08;A&#xFF09;&#x548C;&#x65B0;&#x503C;(B)&#x3002;&#x5982;&#x679C;&#x5185;&#x5B58;&#x4F4D;&#x7F6E;&#x7684;&#x503C;&#x4E0E;&#x9884;&#x671F;&#x539F;&#x503C;&#x76F8;&#x5339;&#x914D;&#xFF0C;&#x90A3;&#x4E48;&#x5904;&#x7406;&#x5668;&#x4F1A;&#x81EA;&#x52A8;&#x5C06;&#x8BE5;&#x4F4D;&#x7F6E;&#x503C;&#x66F4;&#x65B0;&#x4E3A;&#x65B0;&#x503C;&#x3002;&#x5426;&#x5219;&#xFF0C;&#x5904;&#x7406;&#x5668;&#x4E0D;&#x505A;&#x4EFB;&#x4F55;&#x64CD;&#x4F5C;&#x3002;&#x65E0;&#x8BBA;&#x54EA;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x5B83;&#x90FD;&#x4F1A;&#x5728; CAS &#x6307;&#x4EE4;&#x4E4B;&#x524D;&#x8FD4;&#x56DE;&#x8BE5;&#x4F4D;&#x7F6E;&#x7684;&#x503C;&#x3002;CAS &#x6709;&#x6548;&#x5730;&#x8BF4;&#x660E;&#x4E86;&#x201C;&#x6211;&#x8BA4;&#x4E3A;&#x4F4D;&#x7F6E; V &#x5E94;&#x8BE5;&#x5305;&#x542B;&#x503C; A&#xFF1B;&#x5982;&#x679C;&#x5305;&#x542B;&#x8BE5;&#x503C;&#xFF0C;&#x5219;&#x5C06; B &#x653E;&#x5230;&#x8FD9;&#x4E2A;&#x4F4D;&#x7F6E;&#xFF1B;&#x5426;&#x5219;&#xFF0C;&#x4E0D;&#x8981;&#x66F4;&#x6539;&#x8BE5;&#x4F4D;&#x7F6E;&#xFF0C;&#x53EA;&#x544A;&#x8BC9;&#x6211;&#x8FD9;&#x4E2A;&#x4F4D;&#x7F6E;&#x73B0;&#x5728;&#x7684;&#x503C;&#x5373;&#x53EF;&#x3002;&#x201D; Java&#x5E76;&#x53D1;&#x5305;(java.util.concurrent)&#x4E2D;&#x5927;&#x91CF;&#x4F7F;&#x7528;&#x4E86;CAS&#x64CD;&#x4F5C;,&#x6D89;&#x53CA;&#x5230;&#x5E76;&#x53D1;&#x7684;&#x5730;&#x65B9;&#x90FD;&#x8C03;&#x7528;&#x4E86;sun.misc.Unsafe&#x7C7B;&#x65B9;&#x6CD5;&#x8FDB;&#x884C;CAS&#x64CD;&#x4F5C;&#x3002;</li>
+</ul>
+<p>ReentrantLock&#x63D0;&#x4F9B;&#x4E86;&#x4E24;&#x4E2A;&#x6784;&#x9020;&#x5668;&#xFF0C;&#x5206;&#x522B;&#x662F;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">()</span> {</span><br><span class="line">    sync = <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x9ED8;&#x8BA4;&#x6784;&#x9020;&#x5668;&#x521D;&#x59CB;&#x5316;&#x4E3A;NonfairSync&#x5BF9;&#x8C61;&#xFF0C;&#x5373;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF0C;&#x800C;&#x5E26;&#x53C2;&#x6570;&#x7684;&#x6784;&#x9020;&#x5668;&#x53EF;&#x4EE5;&#x6307;&#x5B9A;&#x4F7F;&#x7528;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;&#x7531;lock()&#x548C;unlock&#x7684;&#x6E90;&#x7801;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x5B83;&#x4EEC;&#x53EA;&#x662F;&#x5206;&#x522B;&#x8C03;&#x7528;&#x4E86;sync&#x5BF9;&#x8C61;&#x7684;lock()&#x548C;release(1)&#x65B9;&#x6CD5;&#x3002;</p>
+<p>Sync&#x662F;ReentrantLock&#x7684;&#x5185;&#x90E8;&#x7C7B;&#xFF0C;&#x5B83;&#x7684;&#x7ED3;&#x6784;&#x5982;&#x4E0B;</p>
+<p><img src="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/2.png"></p>
+<p> &#x53EF;&#x4EE5;&#x770B;&#x5230;Sync&#x6269;&#x5C55;&#x4E86;AbstractQueuedSynchronizer&#x3002;</p>
+<h4 id="NonfairSync"><a href="#NonfairSync" class="headerlink" title="NonfairSync"></a>NonfairSync</h4><p>&#x6211;&#x4EEC;&#x4ECE;&#x6E90;&#x4EE3;&#x7801;&#x51FA;&#x53D1;&#xFF0C;&#x5206;&#x6790;&#x975E;&#x516C;&#x5E73;&#x9501;&#x83B7;&#x53D6;&#x9501;&#x548C;&#x91CA;&#x653E;&#x9501;&#x7684;&#x8FC7;&#x7A0B;&#x3002;</p>
+<h5 id="lock"><a href="#lock" class="headerlink" title="lock()"></a>lock()</h5><p>lock()&#x6E90;&#x7801;&#x5982;&#x4E0B;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">lock</span><span class="params">()</span> {</span><br><span class="line">    <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, <span class="number">1</span>))</span><br><span class="line">        setExclusiveOwnerThread(Thread.currentThread());</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        acquire(<span class="number">1</span>);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x9996;&#x5148;&#x7528;&#x4E00;&#x4E2A;CAS&#x64CD;&#x4F5C;&#xFF0C;&#x5224;&#x65AD;state&#x662F;&#x5426;&#x662F;0&#xFF08;&#x8868;&#x793A;&#x5F53;&#x524D;&#x9501;&#x672A;&#x88AB;&#x5360;&#x7528;&#xFF09;&#xFF0C;&#x5982;&#x679C;&#x662F;0&#x5219;&#x628A;&#x5B83;&#x7F6E;&#x4E3A;1&#xFF0C;&#x5E76;&#x4E14;&#x8BBE;&#x7F6E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x4E3A;&#x8BE5;&#x9501;&#x7684;&#x72EC;&#x5360;&#x7EBF;&#x7A0B;&#xFF0C;&#x8868;&#x793A;&#x83B7;&#x53D6;&#x9501;&#x6210;&#x529F;&#x3002;&#x5F53;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x5C1D;&#x8BD5;&#x5360;&#x7528;&#x540C;&#x4E00;&#x4E2A;&#x9501;&#x65F6;&#xFF0C;CAS&#x64CD;&#x4F5C;&#x53EA;&#x80FD;&#x4FDD;&#x8BC1;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x64CD;&#x4F5C;&#x6210;&#x529F;&#xFF0C;&#x5269;&#x4E0B;&#x7684;&#x53EA;&#x80FD;&#x4E56;&#x4E56;&#x7684;&#x53BB;&#x6392;&#x961F;&#x5566;&#x3002;</p>
+<p><strong>&#x201C;&#x975E;&#x516C;&#x5E73;&#x201D;&#x5373;&#x4F53;&#x73B0;&#x5728;&#x8FD9;&#x91CC;&#xFF0C;&#x5982;&#x679C;&#x5360;&#x7528;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x521A;&#x91CA;&#x653E;&#x9501;&#xFF0C;state&#x7F6E;&#x4E3A;0&#xFF0C;&#x800C;&#x6392;&#x961F;&#x7B49;&#x5F85;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x8FD8;&#x672A;&#x5524;&#x9192;&#x65F6;&#xFF0C;&#x65B0;&#x6765;&#x7684;&#x7EBF;&#x7A0B;&#x5C31;&#x76F4;&#x63A5;&#x62A2;&#x5360;&#x4E86;&#x8BE5;&#x9501;&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x201C;&#x63D2;&#x961F;&#x201D;&#x4E86;(&#x8BF7;&#x6CE8;&#x610F;&#x6B64;&#x5904;&#x7684;&#x975E;&#x516C;&#x5E73;&#x9501;&#x662F;&#x6307;&#x65B0;&#x6765;&#x7684;&#x7EBF;&#x7A0B;&#x8DDF;&#x961F;&#x5217;&#x5934;&#x90E8;&#x7684;&#x7EBF;&#x7A0B;&#x7ADE;&#x4E89;&#x9501;&#xFF0C;&#x961F;&#x5217;&#x5176;&#x4ED6;&#x7684;&#x7EBF;&#x7A0B;&#x8FD8;&#x662F;&#x6B63;&#x5E38;&#x6392;&#x961F;&#xFF0C;&#x767E;&#x5EA6;&#x9762;&#x8BD5;&#x9898;)&#x3002;</strong></p>
+<p>&#x82E5;&#x5F53;&#x524D;&#x6709;&#x4E09;&#x4E2A;&#x7EBF;&#x7A0B;&#x53BB;&#x7ADE;&#x4E89;&#x9501;&#xFF0C;&#x5047;&#x8BBE;&#x7EBF;&#x7A0B;A&#x7684;CAS&#x64CD;&#x4F5C;&#x6210;&#x529F;&#x4E86;&#xFF0C;&#x62FF;&#x5230;&#x4E86;&#x9501;&#x5F00;&#x5F00;&#x5FC3;&#x5FC3;&#x7684;&#x8FD4;&#x56DE;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x7EBF;&#x7A0B;B&#x548C;C&#x5219;&#x8BBE;&#x7F6E;state&#x5931;&#x8D25;&#xFF0C;&#x8D70;&#x5230;&#x4E86;else&#x91CC;&#x9762;&#x3002;&#x6211;&#x4EEC;&#x5F80;&#x4E0B;&#x770B;acquire&#x3002;</p>
+<p>acquire(arg)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">acquire</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">    <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">        selfInterrupt();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x4EE3;&#x7801;&#x975E;&#x5E38;&#x7B80;&#x6D01;&#xFF0C;&#x4F46;&#x662F;&#x80CC;&#x540E;&#x7684;&#x903B;&#x8F91;&#x5374;&#x975E;&#x5E38;&#x590D;&#x6742;&#xFF0C;&#x53EF;&#x89C1;Doug Lea&#x5927;&#x795E;&#x7684;&#x7F16;&#x7A0B;&#x529F;&#x529B;&#x3002;</p>
+<ol>
+<li>&#x7B2C;&#x4E00;&#x6B65;&#x3002;&#x5C1D;&#x8BD5;&#x53BB;&#x83B7;&#x53D6;&#x9501;&#x3002;&#x5982;&#x679C;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#x6210;&#x529F;&#xFF0C;&#x65B9;&#x6CD5;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#x3002;</li>
+</ol>
+<p>tryAcquire(arg)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">nonfairTryAcquire</span><span class="params">(<span class="type">int</span> acquires)</span> {</span><br><span class="line">    <span class="comment">//&#x83B7;&#x53D6;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">    <span class="comment">//&#x83B7;&#x53D6;state&#x53D8;&#x91CF;&#x503C;</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState();</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) { <span class="comment">//&#x6CA1;&#x6709;&#x7EBF;&#x7A0B;&#x5360;&#x7528;&#x9501;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) {</span><br><span class="line">            <span class="comment">//&#x5360;&#x7528;&#x9501;&#x6210;&#x529F;,&#x8BBE;&#x7F6E;&#x72EC;&#x5360;&#x7EBF;&#x7A0B;&#x4E3A;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;</span></span><br><span class="line">            setExclusiveOwnerThread(current);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">    } <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) { <span class="comment">//&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x5360;&#x7528;&#x8BE5;&#x9501;</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">nextc</span> <span class="operator">=</span> c + acquires;</span><br><span class="line">        <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;Maximum lock count exceeded&quot;</span>);</span><br><span class="line">        <span class="comment">// &#x66F4;&#x65B0;state&#x503C;&#x4E3A;&#x65B0;&#x7684;&#x91CD;&#x5165;&#x6B21;&#x6570;</span></span><br><span class="line">        setState(nextc);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">//&#x83B7;&#x53D6;&#x9501;&#x5931;&#x8D25;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><strong>&#x975E;&#x516C;&#x5E73;&#x9501;tryAcquire&#x7684;&#x6D41;&#x7A0B;&#x662F;&#xFF1A;&#x68C0;&#x67E5;state&#x5B57;&#x6BB5;&#xFF0C;&#x82E5;&#x4E3A;0&#xFF0C;&#x8868;&#x793A;&#x9501;&#x672A;&#x88AB;&#x5360;&#x7528;&#xFF0C;&#x90A3;&#x4E48;&#x5C1D;&#x8BD5;&#x5360;&#x7528;&#xFF0C;&#x82E5;&#x4E0D;&#x4E3A;0&#xFF0C;&#x68C0;&#x67E5;&#x5F53;&#x524D;&#x9501;&#x662F;&#x5426;&#x88AB;&#x81EA;&#x5DF1;&#x5360;&#x7528;&#xFF0C;&#x82E5;&#x88AB;&#x81EA;&#x5DF1;&#x5360;&#x7528;&#xFF0C;&#x5219;&#x66F4;&#x65B0;state&#x5B57;&#x6BB5;&#xFF0C;&#x8868;&#x793A;&#x91CD;&#x5165;&#x9501;&#x7684;&#x6B21;&#x6570;&#x3002;&#x5982;&#x679C;&#x4EE5;&#x4E0A;&#x4E24;&#x70B9;&#x90FD;&#x6CA1;&#x6709;&#x6210;&#x529F;&#xFF0C;&#x5219;&#x83B7;&#x53D6;&#x9501;&#x5931;&#x8D25;&#xFF0C;&#x8FD4;&#x56DE;false&#x3002;</strong></p>
+<ol start="2">
+<li>&#x7B2C;&#x4E8C;&#x6B65;&#xFF0C;&#x5165;&#x961F;&#x3002;&#x7531;&#x4E8E;&#x4E0A;&#x6587;&#x4E2D;&#x63D0;&#x5230;&#x7EBF;&#x7A0B;A&#x5DF2;&#x7ECF;&#x5360;&#x7528;&#x4E86;&#x9501;&#xFF0C;&#x6240;&#x4EE5;B&#x548C;C&#x6267;&#x884C;tryAcquire&#x5931;&#x8D25;&#xFF0C;&#x5E76;&#x4E14;&#x5165;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x3002;&#x5982;&#x679C;&#x7EBF;&#x7A0B;A&#x62FF;&#x7740;&#x9501;&#x6B7B;&#x6B7B;&#x4E0D;&#x653E;&#xFF0C;&#x90A3;&#x4E48;B&#x548C;C&#x5C31;&#x4F1A;&#x88AB;&#x6302;&#x8D77;&#x3002;</li>
+</ol>
+<p>&#x5148;&#x770B;&#x4E0B;&#x5165;&#x961F;&#x7684;&#x8FC7;&#x7A0B;&#x3002;</p>
+<p>&#x5148;&#x770B;addWaiter(Node.EXCLUSIVE)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x5C06;&#x65B0;&#x8282;&#x70B9;&#x548C;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5173;&#x8054;&#x5E76;&#x4E14;&#x5165;&#x961F;&#x5217;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> mode &#x72EC;&#x5360;/&#x5171;&#x4EAB;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#x65B0;&#x8282;&#x70B9;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> Node <span class="title function_">addWaiter</span><span class="params">(Node mode)</span> {</span><br><span class="line">    <span class="comment">//&#x521D;&#x59CB;&#x5316;&#x8282;&#x70B9;,&#x8BBE;&#x7F6E;&#x5173;&#x8054;&#x7EBF;&#x7A0B;&#x548C;&#x6A21;&#x5F0F;(&#x72EC;&#x5360; or &#x5171;&#x4EAB;)</span></span><br><span class="line">    <span class="type">Node</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Node</span>(Thread.currentThread(), mode);</span><br><span class="line">    <span class="comment">// &#x83B7;&#x53D6;&#x5C3E;&#x8282;&#x70B9;&#x5F15;&#x7528;</span></span><br><span class="line">    <span class="type">Node</span> <span class="variable">pred</span> <span class="operator">=</span> tail;</span><br><span class="line">    <span class="comment">// &#x5C3E;&#x8282;&#x70B9;&#x4E0D;&#x4E3A;&#x7A7A;,&#x8BF4;&#x660E;&#x961F;&#x5217;&#x5DF2;&#x7ECF;&#x521D;&#x59CB;&#x5316;&#x8FC7;</span></span><br><span class="line">    <span class="keyword">if</span> (pred != <span class="literal">null</span>) {</span><br><span class="line">        node.prev = pred;</span><br><span class="line">        <span class="comment">// &#x8BBE;&#x7F6E;&#x65B0;&#x8282;&#x70B9;&#x4E3A;&#x5C3E;&#x8282;&#x70B9;</span></span><br><span class="line">        <span class="keyword">if</span> (compareAndSetTail(pred, node)) {</span><br><span class="line">            pred.next = node;</span><br><span class="line">            <span class="keyword">return</span> node;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// &#x5C3E;&#x8282;&#x70B9;&#x4E3A;&#x7A7A;,&#x8BF4;&#x660E;&#x961F;&#x5217;&#x8FD8;&#x672A;&#x521D;&#x59CB;&#x5316;,&#x9700;&#x8981;&#x521D;&#x59CB;&#x5316;head&#x8282;&#x70B9;&#x5E76;&#x5165;&#x961F;&#x65B0;&#x8282;&#x70B9;</span></span><br><span class="line">    enq(node);</span><br><span class="line">    <span class="keyword">return</span> node;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>B&#x3001;C&#x7EBF;&#x7A0B;&#x540C;&#x65F6;&#x5C1D;&#x8BD5;&#x5165;&#x961F;&#x5217;&#xFF0C;&#x7531;&#x4E8E;&#x961F;&#x5217;&#x5C1A;&#x672A;&#x521D;&#x59CB;&#x5316;&#xFF0C;tail==null&#xFF0C;&#x6545;&#x81F3;&#x5C11;&#x4F1A;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x4F1A;&#x8D70;&#x5230;enq(node)&#x3002;&#x6211;&#x4EEC;&#x5047;&#x8BBE;&#x540C;&#x65F6;&#x8D70;&#x5230;&#x4E86;enq(node)&#x91CC;&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x521D;&#x59CB;&#x5316;&#x961F;&#x5217;&#x5E76;&#x4E14;&#x5165;&#x961F;&#x65B0;&#x8282;&#x70B9;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> Node <span class="title function_">enq</span><span class="params">(<span class="keyword">final</span> Node node)</span> {</span><br><span class="line">    <span class="comment">//&#x5F00;&#x59CB;&#x81EA;&#x65CB;</span></span><br><span class="line">    <span class="keyword">for</span> (;;) {</span><br><span class="line">        <span class="type">Node</span> <span class="variable">t</span> <span class="operator">=</span> tail;</span><br><span class="line">        <span class="keyword">if</span> (t == <span class="literal">null</span>) { <span class="comment">// Must initialize</span></span><br><span class="line">            <span class="comment">// &#x5982;&#x679C;tail&#x4E3A;&#x7A7A;,&#x5219;&#x65B0;&#x5EFA;&#x4E00;&#x4E2A;head&#x8282;&#x70B9;,&#x5E76;&#x4E14;tail&#x6307;&#x5411;head</span></span><br><span class="line">            <span class="keyword">if</span> (compareAndSetHead(<span class="keyword">new</span> <span class="title class_">Node</span>()))</span><br><span class="line">                tail = head;</span><br><span class="line">        } <span class="keyword">else</span> {</span><br><span class="line">            node.prev = t;</span><br><span class="line">            <span class="comment">// tail&#x4E0D;&#x4E3A;&#x7A7A;,&#x5C06;&#x65B0;&#x8282;&#x70B9;&#x5165;&#x961F;</span></span><br><span class="line">            <span class="keyword">if</span> (compareAndSetTail(t, node)) {</span><br><span class="line">                t.next = node;</span><br><span class="line">                <span class="keyword">return</span> t;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x91CC;&#x4F53;&#x73B0;&#x4E86;&#x7ECF;&#x5178;&#x7684;&#x81EA;&#x65CB;+CAS&#x7EC4;&#x5408;&#x6765;&#x5B9E;&#x73B0;&#x975E;&#x963B;&#x585E;&#x7684;&#x539F;&#x5B50;&#x64CD;&#x4F5C;&#x3002;&#x7531;&#x4E8E;compareAndSetHead&#x7684;&#x5B9E;&#x73B0;&#x4F7F;&#x7528;&#x4E86;unsafe&#x7C7B;&#x63D0;&#x4F9B;&#x7684;CAS&#x64CD;&#x4F5C;&#xFF0C;&#x6240;&#x4EE5;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x4F1A;&#x521B;&#x5EFA;head&#x8282;&#x70B9;&#x6210;&#x529F;&#x3002;&#x5047;&#x8BBE;&#x7EBF;&#x7A0B;B&#x6210;&#x529F;&#xFF0C;&#x4E4B;&#x540E;B&#x3001;C&#x5F00;&#x59CB;&#x7B2C;&#x4E8C;&#x8F6E;&#x5FAA;&#x73AF;&#xFF0C;&#x6B64;&#x65F6;tail&#x5DF2;&#x7ECF;&#x4E0D;&#x4E3A;&#x7A7A;&#xFF0C;&#x4E24;&#x4E2A;&#x7EBF;&#x7A0B;&#x90FD;&#x8D70;&#x5230;else&#x91CC;&#x9762;&#x3002;&#x5047;&#x8BBE;B&#x7EBF;&#x7A0B;compareAndSetTail&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;B&#x5C31;&#x53EF;&#x4EE5;&#x8FD4;&#x56DE;&#x4E86;&#xFF0C;C&#x7531;&#x4E8E;&#x5165;&#x961F;&#x5931;&#x8D25;&#x8FD8;&#x9700;&#x8981;&#x7B2C;&#x4E09;&#x8F6E;&#x5FAA;&#x73AF;&#x3002;&#x6700;&#x7EC8;&#x6240;&#x6709;&#x7EBF;&#x7A0B;&#x90FD;&#x53EF;&#x4EE5;&#x6210;&#x529F;&#x5165;&#x961F;&#x3002;</p>
+<p>&#x5F53;B&#x3001;C&#x5165;&#x7B49;&#x5F85;&#x961F;&#x5217;&#x540E;&#xFF0C;&#x6B64;&#x65F6;AQS&#x961F;&#x5217;&#x5982;&#x4E0B;&#xFF1A;<br><img src="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/3.png"></p>
+<ol start="3">
+<li>&#x7B2C;&#x4E09;&#x6B65;&#xFF0C;&#x6302;&#x8D77;&#x3002;B&#x548C;C&#x76F8;&#x7EE7;&#x6267;&#x884C;acquireQueued(final Node node, int arg)&#x3002;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x8BA9;&#x5DF2;&#x7ECF;&#x5165;&#x961F;&#x7684;&#x7EBF;&#x7A0B;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x82E5;&#x5931;&#x8D25;&#x5219;&#x4F1A;&#x88AB;&#x6302;&#x8D77;&#x3002;<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x5DF2;&#x7ECF;&#x5165;&#x961F;&#x7684;&#x7EBF;&#x7A0B;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="type">int</span> arg)</span> {</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">failed</span> <span class="operator">=</span> <span class="literal">true</span>; <span class="comment">//&#x6807;&#x8BB0;&#x662F;&#x5426;&#x6210;&#x529F;&#x83B7;&#x53D6;&#x9501;</span></span><br><span class="line">    <span class="keyword">try</span> {</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">interrupted</span> <span class="operator">=</span> <span class="literal">false</span>; <span class="comment">//&#x6807;&#x8BB0;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;</span></span><br><span class="line">        <span class="keyword">for</span> (;;) {</span><br><span class="line">            <span class="keyword">final</span> <span class="type">Node</span> <span class="variable">p</span> <span class="operator">=</span> node.predecessor(); <span class="comment">//&#x83B7;&#x53D6;&#x524D;&#x9A71;&#x8282;&#x70B9;</span></span><br><span class="line">            <span class="comment">//&#x5982;&#x679C;&#x524D;&#x9A71;&#x662F;head,&#x5373;&#x8BE5;&#x7ED3;&#x70B9;&#x5DF2;&#x6210;&#x8001;&#x4E8C;&#xFF0C;&#x90A3;&#x4E48;&#x4FBF;&#x6709;&#x8D44;&#x683C;&#x53BB;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;</span></span><br><span class="line">            <span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) {</span><br><span class="line">                setHead(node); <span class="comment">// &#x83B7;&#x53D6;&#x6210;&#x529F;,&#x5C06;&#x5F53;&#x524D;&#x8282;&#x70B9;&#x8BBE;&#x7F6E;&#x4E3A;head&#x8282;&#x70B9;</span></span><br><span class="line">                p.next = <span class="literal">null</span>; <span class="comment">// &#x539F;head&#x8282;&#x70B9;&#x51FA;&#x961F;,&#x5728;&#x67D0;&#x4E2A;&#x65F6;&#x95F4;&#x70B9;&#x88AB;GC&#x56DE;&#x6536;</span></span><br><span class="line">                failed = <span class="literal">false</span>; <span class="comment">//&#x83B7;&#x53D6;&#x6210;&#x529F;</span></span><br><span class="line">                <span class="keyword">return</span> interrupted; <span class="comment">//&#x8FD4;&#x56DE;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#x8FC7;</span></span><br><span class="line">            }</span><br><span class="line">            <span class="comment">// &#x5224;&#x65AD;&#x83B7;&#x53D6;&#x5931;&#x8D25;&#x540E;&#x662F;&#x5426;&#x53EF;&#x4EE5;&#x6302;&#x8D77;,&#x82E5;&#x53EF;&#x4EE5;&#x5219;&#x6302;&#x8D77;</span></span><br><span class="line">            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">                    parkAndCheckInterrupt())</span><br><span class="line">                <span class="comment">// &#x7EBF;&#x7A0B;&#x82E5;&#x88AB;&#x4E2D;&#x65AD;,&#x8BBE;&#x7F6E;interrupted&#x4E3A;true</span></span><br><span class="line">                interrupted = <span class="literal">true</span>;</span><br><span class="line">        }</span><br><span class="line">    } <span class="keyword">finally</span> {</span><br><span class="line">        <span class="keyword">if</span> (failed)</span><br><span class="line">            cancelAcquire(node);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>code&#x91CC;&#x7684;&#x6CE8;&#x91CA;&#x5DF2;&#x7ECF;&#x5F88;&#x6E05;&#x6670;&#x7684;&#x8BF4;&#x660E;&#x4E86;acquireQueued&#x7684;&#x6267;&#x884C;&#x6D41;&#x7A0B;&#x3002;&#x5047;&#x8BBE;B&#x548C;C&#x5728;&#x7ADE;&#x4E89;&#x9501;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;A&#x4E00;&#x76F4;&#x6301;&#x6709;&#x9501;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x4EEC;&#x7684;tryAcquire&#x64CD;&#x4F5C;&#x90FD;&#x4F1A;&#x5931;&#x8D25;&#xFF0C;&#x56E0;&#x6B64;&#x4F1A;&#x8D70;&#x5230;&#x7B2C;2&#x4E2A;if&#x8BED;&#x53E5;&#x4E2D;&#x3002;&#x6211;&#x4EEC;&#x518D;&#x770B;&#x4E0B;shouldParkAfterFailedAcquire&#x548C;parkAndCheckInterrupt&#x90FD;&#x505A;&#x4E86;&#x54EA;&#x4E9B;&#x4E8B;&#x5427;&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x5224;&#x65AD;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x83B7;&#x53D6;&#x9501;&#x5931;&#x8D25;&#x4E4B;&#x540E;&#x662F;&#x5426;&#x9700;&#x8981;&#x6302;&#x8D77;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">shouldParkAfterFailedAcquire</span><span class="params">(Node pred, Node node)</span> {</span><br><span class="line">    <span class="comment">//&#x524D;&#x9A71;&#x8282;&#x70B9;&#x7684;&#x72B6;&#x6001;</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">ws</span> <span class="operator">=</span> pred.waitStatus;</span><br><span class="line">    <span class="keyword">if</span> (ws == Node.SIGNAL)</span><br><span class="line">        <span class="comment">// &#x524D;&#x9A71;&#x8282;&#x70B9;&#x72B6;&#x6001;&#x4E3A;signal,&#x8FD4;&#x56DE;true</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// &#x524D;&#x9A71;&#x8282;&#x70B9;&#x72B6;&#x6001;&#x4E3A;CANCELLED</span></span><br><span class="line">    <span class="keyword">if</span> (ws &gt; <span class="number">0</span>) {</span><br><span class="line">        <span class="comment">// &#x4ECE;&#x961F;&#x5C3E;&#x5411;&#x524D;&#x5BFB;&#x627E;&#x7B2C;&#x4E00;&#x4E2A;&#x72B6;&#x6001;&#x4E0D;&#x4E3A;CANCELLED&#x7684;&#x8282;&#x70B9;</span></span><br><span class="line">        <span class="keyword">do</span> {</span><br><span class="line">            node.prev = pred = pred.prev;</span><br><span class="line">        } <span class="keyword">while</span> (pred.waitStatus &gt; <span class="number">0</span>);</span><br><span class="line">        pred.next = node;</span><br><span class="line">    } <span class="keyword">else</span> {</span><br><span class="line">        <span class="comment">// &#x5C06;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x7684;&#x72B6;&#x6001;&#x8BBE;&#x7F6E;&#x4E3A;SIGNAL</span></span><br><span class="line">        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x6302;&#x8D77;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;,&#x8FD4;&#x56DE;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x72B6;&#x6001;&#x5E76;&#x91CD;&#x7F6E;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">parkAndCheckInterrupt</span><span class="params">()</span> {</span><br><span class="line">    LockSupport.park(<span class="built_in">this</span>);</span><br><span class="line">    <span class="keyword">return</span> Thread.interrupted();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p><strong>&#x7EBF;&#x7A0B;&#x5165;&#x961F;&#x540E;&#x80FD;&#x591F;&#x6302;&#x8D77;&#x7684;&#x524D;&#x63D0;&#x662F;&#xFF0C;&#x5B83;&#x7684;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x7684;&#x72B6;&#x6001;&#x4E3A;SIGNAL&#xFF0C;&#x5B83;&#x7684;&#x542B;&#x4E49;&#x662F;&#x201C;Hi&#xFF0C;&#x524D;&#x9762;&#x7684;&#x5144;&#x5F1F;&#xFF0C;&#x5982;&#x679C;&#x4F60;&#x83B7;&#x53D6;&#x9501;&#x5E76;&#x4E14;&#x51FA;&#x961F;&#x540E;&#xFF0C;&#x8BB0;&#x5F97;&#x628A;&#x6211;&#x5524;&#x9192;&#xFF01;&#x201D;&#x3002;&#x6240;&#x4EE5;shouldParkAfterFailedAcquire&#x4F1A;&#x5148;&#x5224;&#x65AD;&#x5F53;&#x524D;&#x8282;&#x70B9;&#x7684;&#x524D;&#x9A71;&#x662F;&#x5426;&#x72B6;&#x6001;&#x7B26;&#x5408;&#x8981;&#x6C42;&#xFF0C;&#x82E5;&#x7B26;&#x5408;&#x5219;&#x8FD4;&#x56DE;true&#xFF0C;&#x7136;&#x540E;&#x8C03;&#x7528;parkAndCheckInterrupt&#xFF0C;&#x5C06;&#x81EA;&#x5DF1;&#x6302;&#x8D77;&#x3002;&#x5982;&#x679C;&#x4E0D;&#x7B26;&#x5408;&#xFF0C;&#x518D;&#x770B;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x662F;&#x5426;&gt;0(CANCELLED)&#xFF0C;&#x82E5;&#x662F;&#x90A3;&#x4E48;&#x5411;&#x524D;&#x904D;&#x5386;&#x76F4;&#x5230;&#x627E;&#x5230;&#x7B2C;&#x4E00;&#x4E2A;&#x7B26;&#x5408;&#x8981;&#x6C42;&#x7684;&#x524D;&#x9A71;&#xFF0C;&#x82E5;&#x4E0D;&#x662F;&#x5219;&#x5C06;&#x524D;&#x9A71;&#x8282;&#x70B9;&#x7684;&#x72B6;&#x6001;&#x8BBE;&#x7F6E;&#x4E3A;SIGNAL&#x3002;</strong></p>
+<p><strong>&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#x5F53;&#x961F;&#x5217;&#x5934;&#x90E8;&#x7684;&#x7EBF;&#x7A0B;&#x6267;&#x884C;&#x5B8C;&#x4E86;&#x4E4B;&#x540E;&#xFF0C;&#x8FD9;&#x4E2A;&#x7EBF;&#x7A0B;&#x4F1A;&#x8C03;&#x7528;&#x540E;&#x9762;&#x7684;&#x961F;&#x5217;&#x7684;&#x7B2C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;(&#x767E;&#x5EA6;&#x9762;&#x8BD5;)&#x3002;</strong></p>
+<p>&#x6574;&#x4E2A;&#x6D41;&#x7A0B;&#x4E2D;&#xFF0C;&#x5982;&#x679C;&#x524D;&#x9A71;&#x7ED3;&#x70B9;&#x7684;&#x72B6;&#x6001;&#x4E0D;&#x662F;SIGNAL&#xFF0C;&#x90A3;&#x4E48;&#x81EA;&#x5DF1;&#x5C31;&#x4E0D;&#x80FD;&#x5B89;&#x5FC3;&#x6302;&#x8D77;&#xFF0C;&#x9700;&#x8981;&#x53BB;&#x627E;&#x4E2A;&#x5B89;&#x5FC3;&#x7684;&#x6302;&#x8D77;&#x70B9;&#xFF0C;&#x540C;&#x65F6;&#x53EF;&#x4EE5;&#x518D;&#x5C1D;&#x8BD5;&#x4E0B;&#x770B;&#x6709;&#x6CA1;&#x6709;&#x673A;&#x4F1A;&#x53BB;&#x5C1D;&#x8BD5;&#x7ADE;&#x4E89;&#x9501;&#x3002;</p>
+<p>&#x6700;&#x7EC8;&#x961F;&#x5217;&#x53EF;&#x80FD;&#x4F1A;&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;<br><img src="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/4.png"></p>
+<h5 id="unlock"><a href="#unlock" class="headerlink" title="unlock()"></a>unlock()</h5><p>unlock&#x76F8;&#x5BF9;&#x4E8E;lock&#x5C31;&#x7B80;&#x5355;&#x5F88;&#x591A;&#x3002;&#x6E90;&#x7801;&#x5982;&#x4E0B;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unlock</span><span class="params">()</span> {</span><br><span class="line">    sync.release(<span class="number">1</span>);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">release</span><span class="params">(<span class="type">int</span> arg)</span> {</span><br><span class="line">    <span class="keyword">if</span> (tryRelease(arg)) {</span><br><span class="line">        <span class="type">Node</span> <span class="variable">h</span> <span class="operator">=</span> head;</span><br><span class="line">        <span class="keyword">if</span> (h != <span class="literal">null</span> &amp;&amp; h.waitStatus != <span class="number">0</span>)</span><br><span class="line">            unparkSuccessor(h);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5982;&#x679C;&#x7406;&#x89E3;&#x4E86;&#x52A0;&#x9501;&#x7684;&#x8FC7;&#x7A0B;&#xFF0C;&#x90A3;&#x4E48;&#x89E3;&#x9501;&#x770B;&#x8D77;&#x6765;&#x5C31;&#x5BB9;&#x6613;&#x591A;&#x4E86;&#x3002;&#x6D41;&#x7A0B;&#x5927;&#x81F4;&#x4E3A;&#x5148;&#x5C1D;&#x8BD5;&#x91CA;&#x653E;&#x9501;&#xFF0C;&#x82E5;&#x91CA;&#x653E;&#x6210;&#x529F;&#xFF0C;&#x90A3;&#x4E48;&#x67E5;&#x770B;&#x5934;&#x7ED3;&#x70B9;&#x7684;&#x72B6;&#x6001;&#x662F;&#x5426;&#x4E3A;SIGNAL&#xFF0C;&#x5982;&#x679C;&#x662F;&#x5219;&#x5524;&#x9192;&#x5934;&#x7ED3;&#x70B9;&#x7684;&#x4E0B;&#x4E2A;&#x8282;&#x70B9;&#x5173;&#x8054;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x5982;&#x679C;&#x91CA;&#x653E;&#x5931;&#x8D25;&#x90A3;&#x4E48;&#x8FD4;&#x56DE;false&#x8868;&#x793A;&#x89E3;&#x9501;&#x5931;&#x8D25;&#x3002;<strong>&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x4E5F;&#x53D1;&#x73B0;&#x4E86;&#xFF0C;&#x6BCF;&#x6B21;&#x90FD;&#x53EA;&#x5524;&#x8D77;&#x5934;&#x7ED3;&#x70B9;&#x7684;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x5173;&#x8054;&#x7684;&#x7EBF;&#x7A0B;&#x3002;</strong></p>
+<p>&#x6700;&#x540E;&#x6211;&#x4EEC;&#x518D;&#x770B;&#x4E0B;tryRelease&#x7684;&#x6267;&#x884C;&#x8FC7;&#x7A0B;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x91CA;&#x653E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5360;&#x7528;&#x7684;&#x9501;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> releases</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#x662F;&#x5426;&#x91CA;&#x653E;&#x6210;&#x529F;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryRelease</span><span class="params">(<span class="type">int</span> releases)</span> {</span><br><span class="line">    <span class="comment">// &#x8BA1;&#x7B97;&#x91CA;&#x653E;&#x540E;state&#x503C;</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> getState() - releases;</span><br><span class="line">    <span class="comment">// &#x5982;&#x679C;&#x4E0D;&#x662F;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5360;&#x7528;&#x9501;,&#x90A3;&#x4E48;&#x629B;&#x51FA;&#x5F02;&#x5E38;</span></span><br><span class="line">    <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalMonitorStateException</span>();</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">free</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) {</span><br><span class="line">        <span class="comment">// &#x9501;&#x88AB;&#x91CD;&#x5165;&#x6B21;&#x6570;&#x4E3A;0,&#x8868;&#x793A;&#x91CA;&#x653E;&#x6210;&#x529F;</span></span><br><span class="line">        free = <span class="literal">true</span>;</span><br><span class="line">        <span class="comment">// &#x6E05;&#x7A7A;&#x72EC;&#x5360;&#x7EBF;&#x7A0B;</span></span><br><span class="line">        setExclusiveOwnerThread(<span class="literal">null</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">// &#x66F4;&#x65B0;state&#x503C;</span></span><br><span class="line">    setState(c);</span><br><span class="line">    <span class="keyword">return</span> free;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x91CC;&#x5165;&#x53C2;&#x4E3A;1&#x3002;tryRelease&#x7684;&#x8FC7;&#x7A0B;&#x4E3A;&#xFF1A;&#x5F53;&#x524D;&#x91CA;&#x653E;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x82E5;&#x4E0D;&#x6301;&#x6709;&#x9501;&#xFF0C;&#x5219;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#x3002;&#x82E5;&#x6301;&#x6709;&#x9501;&#xFF0C;&#x8BA1;&#x7B97;&#x91CA;&#x653E;&#x540E;&#x7684;state&#x503C;&#x662F;&#x5426;&#x4E3A;0&#xFF0C;&#x82E5;&#x4E3A;0&#x8868;&#x793A;&#x9501;&#x5DF2;&#x7ECF;&#x88AB;&#x6210;&#x529F;&#x91CA;&#x653E;&#xFF0C;&#x5E76;&#x4E14;&#x5219;&#x6E05;&#x7A7A;&#x72EC;&#x5360;&#x7EBF;&#x7A0B;&#xFF0C;&#x6700;&#x540E;&#x66F4;&#x65B0;state&#x503C;&#xFF0C;&#x8FD4;&#x56DE;free&#x3002;</p>
+<h5 id="&#x5C0F;&#x7ED3;"><a href="#&#x5C0F;&#x7ED3;" class="headerlink" title="&#x5C0F;&#x7ED3;"></a>&#x5C0F;&#x7ED3;</h5><p>&#x7528;&#x4E00;&#x5F20;&#x6D41;&#x7A0B;&#x56FE;&#x603B;&#x7ED3;&#x4E00;&#x4E0B;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x8FC7;&#x7A0B;&#x3002;</p>
+<p><img src="/2022/05/20/5B.012.%E5%B9%B6%E5%8F%91-synchronized%E5%92%8Clock%E5%8E%9F%E7%90%86%E3%80%81%E8%8E%B7%E5%8F%96%E9%94%81AQS%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/5.png"></p>
+<h4 id="FairSync"><a href="#FairSync" class="headerlink" title="FairSync"></a>FairSync</h4><p>&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4E0D;&#x540C;&#x4E4B;&#x5904;&#x5728;&#x4E8E;&#xFF0C;&#x516C;&#x5E73;&#x9501;&#x5728;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4E0D;&#x4F1A;&#x5148;&#x53BB;&#x68C0;&#x67E5;state&#x72B6;&#x6001;&#xFF0C;&#x800C;&#x662F;&#x76F4;&#x63A5;&#x6267;&#x884C;aqcuire(1)&#xFF0C;&#x8FD9;&#x91CC;&#x4E0D;&#x518D;&#x8D58;&#x8FF0;&#x3002;</p>
+<h4 id="&#x8D85;&#x65F6;&#x673A;&#x5236;"><a href="#&#x8D85;&#x65F6;&#x673A;&#x5236;" class="headerlink" title="&#x8D85;&#x65F6;&#x673A;&#x5236;"></a>&#x8D85;&#x65F6;&#x673A;&#x5236;</h4><p>&#x5728;ReetrantLock&#x7684;tryLock(long timeout, TimeUnit unit) &#x63D0;&#x4F9B;&#x4E86;&#x8D85;&#x65F6;&#x83B7;&#x53D6;&#x9501;&#x7684;&#x529F;&#x80FD;&#x3002;&#x5B83;&#x7684;&#x8BED;&#x4E49;&#x662F;&#x5728;&#x6307;&#x5B9A;&#x7684;&#x65F6;&#x95F4;&#x5185;&#x5982;&#x679C;&#x83B7;&#x53D6;&#x5230;&#x9501;&#x5C31;&#x8FD4;&#x56DE;true&#xFF0C;&#x83B7;&#x53D6;&#x4E0D;&#x5230;&#x5219;&#x8FD4;&#x56DE;false&#x3002;&#x8FD9;&#x79CD;&#x673A;&#x5236;&#x907F;&#x514D;&#x4E86;&#x7EBF;&#x7A0B;&#x65E0;&#x9650;&#x671F;&#x7684;&#x7B49;&#x5F85;&#x9501;&#x91CA;&#x653E;&#x3002;&#x90A3;&#x4E48;&#x8D85;&#x65F6;&#x7684;&#x529F;&#x80FD;&#x662F;&#x600E;&#x4E48;&#x5B9E;&#x73B0;&#x7684;&#x5462;&#xFF1F;&#x6211;&#x4EEC;&#x8FD8;&#x662F;&#x7528;&#x975E;&#x516C;&#x5E73;&#x9501;&#x4E3A;&#x4F8B;&#x6765;&#x4E00;&#x63A2;&#x7A76;&#x7ADF;&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">tryLock</span><span class="params">(<span class="type">long</span> timeout, TimeUnit unit)</span></span><br><span class="line">        <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">    <span class="keyword">return</span> sync.tryAcquireNanos(<span class="number">1</span>, unit.toNanos(timeout));</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD8;&#x662F;&#x8C03;&#x7528;&#x4E86;&#x5185;&#x90E8;&#x7C7B;&#x91CC;&#x9762;&#x7684;&#x65B9;&#x6CD5;&#x3002;&#x6211;&#x4EEC;&#x7EE7;&#x7EED;&#x5411;&#x524D;&#x63A2;&#x7A76;  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="title function_">tryAcquireNanos</span><span class="params">(<span class="type">int</span> arg, <span class="type">long</span> nanosTimeout)</span></span><br><span class="line">        <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">    <span class="keyword">if</span> (Thread.interrupted())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InterruptedException</span>();</span><br><span class="line">    <span class="keyword">return</span> tryAcquire(arg) ||</span><br><span class="line">        doAcquireNanos(arg, nanosTimeout);</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x91CC;&#x7684;&#x8BED;&#x4E49;&#x662F;&#xFF1A;&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x88AB;&#x4E2D;&#x65AD;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x76F4;&#x63A5;&#x629B;&#x51FA;InterruptedException&#x3002;&#x5982;&#x679C;&#x672A;&#x4E2D;&#x65AD;&#xFF0C;&#x5148;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x83B7;&#x53D6;&#x6210;&#x529F;&#x5C31;&#x76F4;&#x63A5;&#x8FD4;&#x56DE;&#xFF0C;&#x83B7;&#x53D6;&#x5931;&#x8D25;&#x5219;&#x8FDB;&#x5165;doAcquireNanos&#x3002;tryAcquire&#x6211;&#x4EEC;&#x5DF2;&#x7ECF;&#x770B;&#x8FC7;&#xFF0C;&#x8FD9;&#x91CC;&#x91CD;&#x70B9;&#x770B;&#x4E00;&#x4E0B;doAcquireNanos&#x505A;&#x4E86;&#x4EC0;&#x4E48;&#x3002;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &#x5728;&#x6709;&#x9650;&#x7684;&#x65F6;&#x95F4;&#x5185;&#x53BB;&#x7ADE;&#x4E89;&#x9501;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#x662F;&#x5426;&#x83B7;&#x53D6;&#x6210;&#x529F;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">doAcquireNanos</span><span class="params">(<span class="type">int</span> arg, <span class="type">long</span> nanosTimeout)</span></span><br><span class="line">        <span class="keyword">throws</span> InterruptedException {</span><br><span class="line">    <span class="comment">// &#x8D77;&#x59CB;&#x65F6;&#x95F4;</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">lastTime</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">    <span class="comment">// &#x7EBF;&#x7A0B;&#x5165;&#x961F;</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">Node</span> <span class="variable">node</span> <span class="operator">=</span> addWaiter(Node.EXCLUSIVE);</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">failed</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">try</span> {</span><br><span class="line">        <span class="comment">// &#x53C8;&#x662F;&#x81EA;&#x65CB;!</span></span><br><span class="line">        <span class="keyword">for</span> (;;) {</span><br><span class="line">            <span class="comment">// &#x83B7;&#x53D6;&#x524D;&#x9A71;&#x8282;&#x70B9;</span></span><br><span class="line">            <span class="keyword">final</span> <span class="type">Node</span> <span class="variable">p</span> <span class="operator">=</span> node.predecessor();</span><br><span class="line">            <span class="comment">// &#x5982;&#x679C;&#x524D;&#x9A71;&#x662F;&#x5934;&#x8282;&#x70B9;&#x5E76;&#x4E14;&#x5360;&#x7528;&#x9501;&#x6210;&#x529F;,&#x5219;&#x5C06;&#x5F53;&#x524D;&#x8282;&#x70B9;&#x53D8;&#x6210;&#x5934;&#x7ED3;&#x70B9;</span></span><br><span class="line">            <span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) {</span><br><span class="line">                setHead(node);</span><br><span class="line">                p.next = <span class="literal">null</span>; <span class="comment">// help GC</span></span><br><span class="line">                failed = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            }</span><br><span class="line">            <span class="comment">// &#x5982;&#x679C;&#x5DF2;&#x7ECF;&#x8D85;&#x65F6;,&#x8FD4;&#x56DE;false</span></span><br><span class="line">            <span class="keyword">if</span> (nanosTimeout &lt;= <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            <span class="comment">// &#x8D85;&#x65F6;&#x65F6;&#x95F4;&#x672A;&#x5230;,&#x4E14;&#x9700;&#x8981;&#x6302;&#x8D77;</span></span><br><span class="line">            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">                    nanosTimeout &gt; spinForTimeoutThreshold)</span><br><span class="line">                <span class="comment">// &#x963B;&#x585E;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x76F4;&#x5230;&#x8D85;&#x65F6;&#x65F6;&#x95F4;&#x5230;&#x671F;</span></span><br><span class="line">                LockSupport.parkNanos(<span class="built_in">this</span>, nanosTimeout);</span><br><span class="line">            <span class="type">long</span> <span class="variable">now</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="comment">// &#x66F4;&#x65B0;nanosTimeout</span></span><br><span class="line">            nanosTimeout -= now - lastTime;</span><br><span class="line">            lastTime = now;</span><br><span class="line">            <span class="keyword">if</span> (Thread.interrupted())</span><br><span class="line">                <span class="comment">//&#x76F8;&#x5E94;&#x4E2D;&#x65AD;</span></span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InterruptedException</span>();</span><br><span class="line">        }</span><br><span class="line">    } <span class="keyword">finally</span> {</span><br><span class="line">        <span class="keyword">if</span> (failed)</span><br><span class="line">            cancelAcquire(node);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>doAcquireNanos&#x7684;&#x6D41;&#x7A0B;&#x7B80;&#x8FF0;&#x4E3A;&#xFF1A;&#x7EBF;&#x7A0B;&#x5148;&#x5165;&#x7B49;&#x5F85;&#x961F;&#x5217;&#xFF0C;&#x7136;&#x540E;&#x5F00;&#x59CB;&#x81EA;&#x65CB;&#xFF0C;&#x5C1D;&#x8BD5;&#x83B7;&#x53D6;&#x9501;&#xFF0C;&#x83B7;&#x53D6;&#x6210;&#x529F;&#x5C31;&#x8FD4;&#x56DE;&#xFF0C;&#x5931;&#x8D25;&#x5219;&#x5728;&#x961F;&#x5217;&#x91CC;&#x627E;&#x4E00;&#x4E2A;&#x5B89;&#x5168;&#x70B9;&#x628A;&#x81EA;&#x5DF1;&#x6302;&#x8D77;&#x76F4;&#x5230;&#x8D85;&#x65F6;&#x65F6;&#x95F4;&#x8FC7;&#x671F;&#x3002;&#x8FD9;&#x91CC;&#x4E3A;&#x4EC0;&#x4E48;&#x8FD8;&#x9700;&#x8981;&#x5FAA;&#x73AF;&#x5462;&#xFF1F;&#x56E0;&#x4E3A;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x8282;&#x70B9;&#x7684;&#x524D;&#x9A71;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4E0D;&#x662F;SIGNAL&#xFF0C;&#x90A3;&#x4E48;&#x5728;&#x5F53;&#x524D;&#x8FD9;&#x4E00;&#x8F6E;&#x5FAA;&#x73AF;&#x4E2D;&#x7EBF;&#x7A0B;&#x4E0D;&#x4F1A;&#x88AB;&#x6302;&#x8D77;&#xFF0C;&#x7136;&#x540E;&#x66F4;&#x65B0;&#x8D85;&#x65F6;&#x65F6;&#x95F4;&#xFF0C;&#x5F00;&#x59CB;&#x65B0;&#x4E00;&#x8F6E;&#x7684;&#x5C1D;&#x8BD5;</p>
+<h4 id="&#x8BFB;&#x5199;&#x9501;ReentrantReadWriteLock"><a href="#&#x8BFB;&#x5199;&#x9501;ReentrantReadWriteLock" class="headerlink" title="&#x8BFB;&#x5199;&#x9501;ReentrantReadWriteLock"></a>&#x8BFB;&#x5199;&#x9501;ReentrantReadWriteLock</h4><p>&#x63A5;&#x53E3; ReadWriteLock&#xFF0C;&#x6709;&#x4E2A;&#x5B9E;&#x73B0;&#x7C7B;&#x662F;ReentrantReadWriteLock</p>
+<p>&#x8BFB;&#x8BFB;&#x4E92;&#x4E0D;&#x5E72;&#x6270;&#xFF0C;&#x5199;&#x5199;&#x4E92;&#x65A5;&#xFF0C;&#x5982;&#x679C;&#x6709;&#x8BFB;&#x4E5F;&#x6709;&#x5199;&#xFF0C;&#x90A3;&#x4E48;&#x5199;&#x7EBF;&#x7A0B;&#x8981;&#x4F18;&#x5148;&#x8BFB;&#x7EBF;&#x7A0B;</p>
+<p>&#x5BF9;&#xFF01;&#x8BFB;&#x53D6;&#x7EBF;&#x7A0B;&#x4E0D;&#x5E94;&#x8BE5;&#x4E92;&#x65A5;&#xFF01;</p>
+<p>&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x7528;&#x8BFB;&#x5199;&#x9501;ReadWriteLock&#x5B9E;&#x73B0;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReadWriteLock;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantReadWriteLock;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Data</span> {        </span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> data;<span class="comment">// &#x5171;&#x4EAB;&#x6570;&#x636E;    </span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">ReadWriteLock</span> <span class="variable">rwl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantReadWriteLock</span>();       </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(<span class="type">int</span> data)</span> {    </span><br><span class="line">        rwl.writeLock().lock();<span class="comment">// &#x53D6;&#x5230;&#x5199;&#x9501;    </span></span><br><span class="line">        <span class="keyword">try</span> {    </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">&quot;&#x51C6;&#x5907;&#x5199;&#x5165;&#x6570;&#x636E;&quot;</span>);    </span><br><span class="line">            <span class="keyword">try</span> {    </span><br><span class="line">                Thread.sleep(<span class="number">20</span>);    </span><br><span class="line">            } <span class="keyword">catch</span> (InterruptedException e) {    </span><br><span class="line">                e.printStackTrace();    </span><br><span class="line">            }    </span><br><span class="line">            <span class="built_in">this</span>.data = data;    </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">&quot;&#x5199;&#x5165;&quot;</span> + <span class="built_in">this</span>.data);    </span><br><span class="line">        } <span class="keyword">finally</span> {    </span><br><span class="line">            rwl.writeLock().unlock();<span class="comment">// &#x91CA;&#x653E;&#x5199;&#x9501;    </span></span><br><span class="line">        }    </span><br><span class="line">    }       </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">get</span><span class="params">()</span> {    </span><br><span class="line">        rwl.readLock().lock();<span class="comment">// &#x53D6;&#x5230;&#x8BFB;&#x9501;    </span></span><br><span class="line">        <span class="keyword">try</span> {    </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">&quot;&#x51C6;&#x5907;&#x8BFB;&#x53D6;&#x6570;&#x636E;&quot;</span>);    </span><br><span class="line">            <span class="keyword">try</span> {    </span><br><span class="line">                Thread.sleep(<span class="number">20</span>);    </span><br><span class="line">            } <span class="keyword">catch</span> (InterruptedException e) {    </span><br><span class="line">                e.printStackTrace();    </span><br><span class="line">            }    </span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">&quot;&#x8BFB;&#x53D6;&quot;</span> + <span class="built_in">this</span>.data);    </span><br><span class="line">        } <span class="keyword">finally</span> {    </span><br><span class="line">            rwl.readLock().unlock();<span class="comment">// &#x91CA;&#x653E;&#x8BFB;&#x9501;    </span></span><br><span class="line">        }    </span><br><span class="line">    }    </span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<p>&#x4E0E;&#x4E92;&#x65A5;&#x9501;&#x5B9A;&#x76F8;&#x6BD4;&#xFF0C;&#x8BFB;-&#x5199;&#x9501;&#x5B9A;&#x5141;&#x8BB8;&#x5BF9;&#x5171;&#x4EAB;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x66F4;&#x9AD8;&#x7EA7;&#x522B;&#x7684;&#x5E76;&#x53D1;&#x8BBF;&#x95EE;&#x3002;&#x867D;&#x7136;&#x4E00;&#x6B21;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#xFF08;writer &#x7EBF;&#x7A0B;&#xFF09;&#x53EF;&#x4EE5;&#x4FEE;&#x6539;&#x5171;&#x4EAB;&#x6570;&#x636E;&#xFF0C;&#x4F46;&#x5728;&#x8BB8;&#x591A;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x4EFB;&#x4F55;&#x6570;&#x91CF;&#x7684;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x540C;&#x65F6;&#x8BFB;&#x53D6;&#x5171;&#x4EAB;&#x6570;&#x636E;&#xFF08;reader &#x7EBF;&#x7A0B;&#xFF09;</p>
+<p>&#x4ECE;&#x7406;&#x8BBA;&#x4E0A;&#x8BB2;&#xFF0C;&#x4E0E;&#x4E92;&#x65A5;&#x9501;&#x5B9A;&#x76F8;&#x6BD4;&#xFF0C;&#x4F7F;&#x7528;&#x8BFB;-&#x5199;&#x9501;&#x5B9A;&#x6240;&#x5141;&#x8BB8;&#x7684;&#x5E76;&#x53D1;&#x6027;&#x589E;&#x5F3A;&#x5C06;&#x5E26;&#x6765;&#x66F4;&#x5927;&#x7684;&#x6027;&#x80FD;&#x63D0;&#x9AD8;&#x3002;</p>
+<p>&#x5728;&#x5B9E;&#x8DF5;&#x4E2D;&#xFF0C;&#x53EA;&#x6709;&#x5728;&#x591A;&#x5904;&#x7406;&#x5668;&#x4E0A;&#x5E76;&#x4E14;&#x53EA;&#x5728;&#x8BBF;&#x95EE;&#x6A21;&#x5F0F;&#x9002;&#x7528;&#x4E8E;&#x5171;&#x4EAB;&#x6570;&#x636E;&#x65F6;&#xFF0C;&#x624D;&#x80FD;&#x5B8C;&#x5168;&#x5B9E;&#x73B0;&#x5E76;&#x53D1;&#x6027;&#x589E;&#x5F3A;&#x3002;&#x2014;&#x2014;&#x4F8B;&#x5982;&#xFF0C;&#x67D0;&#x4E2A;&#x6700;&#x521D;&#x7528;&#x6570;&#x636E;&#x586B;&#x5145;&#x5E76;&#x4E14;&#x4E4B;&#x540E;&#x4E0D;&#x7ECF;&#x5E38;&#x5BF9;&#x5176;&#x8FDB;&#x884C;&#x4FEE;&#x6539;&#x7684; collection&#xFF0C;&#x56E0;&#x4E3A;&#x7ECF;&#x5E38;&#x5BF9;&#x5176;&#x8FDB;&#x884C;&#x641C;&#x7D22;&#xFF08;&#x6BD4;&#x5982;&#x641C;&#x7D22;&#x67D0;&#x79CD;&#x76EE;&#x5F55;&#xFF09;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x6837;&#x7684; collection &#x662F;&#x4F7F;&#x7528;&#x8BFB;-&#x5199;&#x9501;&#x5B9A;&#x7684;&#x7406;&#x60F3;&#x5019;&#x9009;&#x8005;&#x3002;</p>
+<h4 id="&#x7EBF;&#x7A0B;&#x95F4;&#x901A;&#x4FE1;Condition"><a href="#&#x7EBF;&#x7A0B;&#x95F4;&#x901A;&#x4FE1;Condition" class="headerlink" title="&#x7EBF;&#x7A0B;&#x95F4;&#x901A;&#x4FE1;Condition"></a>&#x7EBF;&#x7A0B;&#x95F4;&#x901A;&#x4FE1;Condition</h4><p>Condition&#x53EF;&#x4EE5;&#x66FF;&#x4EE3;&#x4F20;&#x7EDF;&#x7684;&#x7EBF;&#x7A0B;&#x95F4;&#x901A;&#x4FE1;&#xFF0C;&#x7528;await()&#x66FF;&#x6362;wait()&#xFF0C;&#x7528;signal()&#x66FF;&#x6362;notify()&#xFF0C;&#x7528;signalAll()&#x66FF;&#x6362;notifyAll()&#x3002;</p>
+<p>&#x2014;&#x2014;&#x4E3A;&#x4EC0;&#x4E48;&#x65B9;&#x6CD5;&#x540D;&#x4E0D;&#x76F4;&#x63A5;&#x53EB;wait()/notify()/nofityAll()&#xFF1F;&#x56E0;&#x4E3A;Object&#x7684;&#x8FD9;&#x51E0;&#x4E2A;&#x65B9;&#x6CD5;&#x662F;final&#x7684;&#xFF0C;&#x4E0D;&#x53EF;&#x91CD;&#x5199;&#xFF01;</p>
+<p>&#x4F20;&#x7EDF;&#x7EBF;&#x7A0B;&#x7684;&#x901A;&#x4FE1;&#x65B9;&#x5F0F;&#xFF0C;Condition&#x90FD;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x3002;</p>
+<p>&#x6CE8;&#x610F;&#xFF0C;Condition&#x662F;&#x88AB;&#x7ED1;&#x5B9A;&#x5230;Lock&#x4E0A;&#x7684;&#xFF0C;&#x8981;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;Lock&#x7684;Condition&#x5FC5;&#x987B;&#x7528;newCondition()&#x65B9;&#x6CD5;&#x3002;</p>
+<p>Condition&#x7684;&#x5F3A;&#x5927;&#x4E4B;&#x5904;&#x5728;&#x4E8E;&#x5B83;&#x53EF;&#x4EE5;&#x4E3A;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x95F4;&#x5EFA;&#x7ACB;&#x4E0D;&#x540C;&#x7684;Condition</p>
+<p>&#x770B;JDK&#x6587;&#x6863;&#x4E2D;&#x7684;&#x4E00;&#x4E2A;&#x4F8B;&#x5B50;&#xFF1A;&#x5047;&#x5B9A;&#x6709;&#x4E00;&#x4E2A;&#x7ED1;&#x5B9A;&#x7684;&#x7F13;&#x51B2;&#x533A;&#xFF0C;&#x5B83;&#x652F;&#x6301; put &#x548C; take &#x65B9;&#x6CD5;&#x3002;&#x5982;&#x679C;&#x8BD5;&#x56FE;&#x5728;&#x7A7A;&#x7684;&#x7F13;&#x51B2;&#x533A;&#x4E0A;&#x6267;&#x884C;take &#x64CD;&#x4F5C;&#xFF0C;&#x5219;&#x5728;&#x67D0;&#x4E00;&#x4E2A;&#x9879;&#x53D8;&#x5F97;&#x53EF;&#x7528;&#x4E4B;&#x524D;&#xFF0C;&#x7EBF;&#x7A0B;&#x5C06;&#x4E00;&#x76F4;&#x963B;&#x585E;&#xFF1B;&#x5982;&#x679C;&#x8BD5;&#x56FE;&#x5728;&#x6EE1;&#x7684;&#x7F13;&#x51B2;&#x533A;&#x4E0A;&#x6267;&#x884C; put &#x64CD;&#x4F5C;&#xFF0C;&#x5219;&#x5728;&#x6709;&#x7A7A;&#x95F4;&#x53D8;&#x5F97;&#x53EF;&#x7528;&#x4E4B;&#x524D;&#xFF0C;&#x7EBF;&#x7A0B;&#x5C06;&#x4E00;&#x76F4;&#x963B;&#x585E;&#x3002;&#x6211;&#x4EEC;&#x559C;&#x6B22;&#x5728;&#x5355;&#x72EC;&#x7684;&#x7B49;&#x5F85; set &#x4E2D;&#x4FDD;&#x5B58;put &#x7EBF;&#x7A0B;&#x548C;take &#x7EBF;&#x7A0B;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x5728;&#x7F13;&#x51B2;&#x533A;&#x4E2D;&#x7684;&#x9879;&#x6216;&#x7A7A;&#x95F4;&#x53D8;&#x5F97;&#x53EF;&#x7528;&#x65F6;&#x5229;&#x7528;&#x6700;&#x4F73;&#x89C4;&#x5212;&#xFF0C;&#x4E00;&#x6B21;&#x53EA;&#x901A;&#x77E5;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x3002;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x4E24;&#x4E2A;Condition &#x5B9E;&#x4F8B;&#x6765;&#x505A;&#x5230;&#x8FD9;&#x4E00;&#x70B9;&#x3002;</p>
+<p>&#x2014;&#x2014;&#x5176;&#x5B9E;&#x5C31;&#x662F;java.util.concurrent.ArrayBlockingQueue&#x7684;&#x529F;&#x80FD;</p>
+<p>&#x4F18;&#x70B9;&#xFF1A;<br>&#x5047;&#x8BBE;&#x7F13;&#x5B58;&#x961F;&#x5217;&#x4E2D;&#x5DF2;&#x7ECF;&#x5B58;&#x6EE1;&#xFF0C;&#x90A3;&#x4E48;&#x963B;&#x585E;&#x7684;&#x80AF;&#x5B9A;&#x662F;&#x5199;&#x7EBF;&#x7A0B;&#xFF0C;&#x5524;&#x9192;&#x7684;&#x80AF;&#x5B9A;&#x662F;&#x8BFB;&#x7EBF;&#x7A0B;&#xFF0C;&#x76F8;&#x53CD;&#xFF0C;&#x963B;&#x585E;&#x7684;&#x80AF;&#x5B9A;&#x662F;&#x8BFB;&#x7EBF;&#x7A0B;&#xFF0C;&#x5524;&#x9192;&#x7684;&#x80AF;&#x5B9A;&#x662F;&#x5199;&#x7EBF;&#x7A0B;&#x3002;</p>
+<p>&#x5982;&#x679C;&#x60F3;&#x67E5;&#x770B; &#x7EBF;&#x7A0B;5&#x4E2A;&#x72B6;&#x6001; &#x8BF7;&#x53C2;&#x8003;&#xFF1A;Java&#x7EBF;&#x7A0B;&#x7684; <a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/8900276.html">5&#x79CD;&#x72B6;&#x6001;&#x53CA;&#x5207;&#x6362;(&#x900F;&#x5F7B;&#x8BB2;&#x89E3;)-&#x4EAC;&#x4E1C;&#x9762;&#x8BD5;</a></p>
+<p>&#x4EE5;&#x4E0B;&#x662F;&#x8865;&#x5145;&#x7684;&#x77E5;&#x8BC6;&#x70B9;&#xFF1A;</p>
+<p>1&#x3001;&#x7EBF;&#x7A0B;&#x4E0E;&#x8FDB;&#x7A0B;&#xFF1A;</p>
+<p>&#x5728;&#x5F00;&#x59CB;&#x4E4B;&#x524D;&#x5148;&#x628A;&#x8FDB;&#x7A0B;&#x4E0E;&#x7EBF;&#x7A0B;&#x8FDB;&#x884C;&#x533A;&#x5206;&#x4E00;&#x4E0B;&#xFF0C;&#x4E00;&#x4E2A;&#x7A0B;&#x5E8F;&#x6700;&#x5C11;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x8FDB;&#x7A0B;&#xFF0C;&#x800C;&#x4E00;&#x4E2A;&#x8FDB;&#x7A0B;&#x6700;&#x5C11;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x3002;</p>
+<p>&#x7EBF;&#x7A0B;&#x662F;&#x7A0B;&#x5E8F;&#x6267;&#x884C;&#x6D41;&#x7684;&#x6700;&#x5C0F;&#x5355;&#x4F4D;&#xFF0C;&#x800C;&#x8FDB;&#x7A0B;&#x662F;&#x7CFB;&#x7EDF;&#x8FDB;&#x884C;&#x8D44;&#x6E90;&#x5206;&#x914D;&#x548C;&#x8C03;&#x5EA6;&#x7684;&#x4E00;&#x4E2A;&#x72EC;&#x7ACB;&#x5355;&#x4F4D;&#x3002;  </p>
+<p>2.java.util.concurrent.locks&#x5305;&#x5E38;&#x7528;&#x7C7B;  </p>
+<p>2.2 ReentrantLock<br>&#x3000;&#x3000;ReentrantLock&#xFF0C;&#x610F;&#x601D;&#x662F;&#x201C;&#x53EF;&#x91CD;&#x5165;&#x9501;&#x201D;&#xFF0C;ReentrantLock&#x662F;&#x552F;&#x4E00;&#x5B9E;&#x73B0;&#x4E86;Lock&#x63A5;&#x53E3;&#x7684;&#x7C7B;&#xFF0C;&#x5E76;&#x4E14;ReentrantLock&#x63D0;&#x4F9B;&#x4E86;&#x66F4;&#x591A;&#x7684;&#x65B9;&#x6CD5;&#x3002;<br>&#x8BE6;&#x89C1;&#xFF1A;java.util.concurrent.locks.ReentrantLock &#xFF0C;&#x4E0D;&#x518D;&#x5217;&#x4E3E;&#x4E86;&#x3002;</p>
+<p>2.3 ReadWriteLock<br>&#x63A5;&#x53E3;&#xFF0C;&#x53EA;&#x5B9A;&#x4E49;&#x4E86;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;&#xFF1A;</p>
+<p>Lock readLock();<br>Lock writeLock();<br>&#x4E00;&#x4E2A;&#x7528;&#x6765;&#x83B7;&#x53D6;&#x8BFB;&#x9501;&#xFF0C;&#x4E00;&#x4E2A;&#x7528;&#x6765;&#x83B7;&#x53D6;&#x5199;&#x9501;&#x3002;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#x5C06;&#x6587;&#x4EF6;&#x7684;&#x8BFB;&#x5199;&#x64CD;&#x4F5C;&#x5206;&#x5F00;&#xFF0C;&#x5206;&#x6210;2&#x4E2A;&#x9501;&#x6765;&#x5206;&#x914D;&#x7ED9;&#x7EBF;&#x7A0B;&#xFF0C;&#x4ECE;&#x800C;&#x4F7F;&#x5F97;&#x591A;&#x4E2A;&#x7EBF;&#x7A0B;&#x53EF;&#x4EE5;&#x540C;&#x65F6;&#x8FDB;&#x884C;&#x8BFB;&#x64CD;&#x4F5C;&#x3002;</p>
+<p>2.4 ReentrantReadWriteLock<br>&#x5B9E;&#x73B0;&#x4E86;ReadWriteLock&#x63A5;&#x53E3;&#x3002;</p>
+<p>&#x4E0B;&#x9762;&#x5C1D;&#x8BD5;&#x5199;&#x4E2A;&#x4F8B;&#x5B50;&#xFF0C;&#x8868;&#x793A;ReadWriteLock&#x548C;&#x4F7F;&#x7528;synchronized&#x7684;&#x533A;&#x522B;&#x3002;</p>
+<p>1.&#x5982;&#x679C;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x5360;&#x7528;&#x4E86;&#x8BFB;&#x9501;&#xFF0C;&#x5219;&#x6B64;&#x65F6;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x5982;&#x679C;&#x8981;&#x7533;&#x8BF7;&#x5199;&#x9501;&#xFF0C;&#x5219;&#x7533;&#x8BF7;&#x5199;&#x9501;&#x7684;&#x7EBF;&#x7A0B;&#x4F1A;&#x4E00;&#x76F4;&#x7B49;&#x5F85;&#x91CA;&#x653E;&#x8BFB;&#x9501;&#x3002;</p>
+<p>2.&#x5982;&#x679C;&#x6709;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x5360;&#x7528;&#x4E86;&#x5199;&#x9501;&#xFF0C;&#x5219;&#x6B64;&#x65F6;&#x5176;&#x4ED6;&#x7EBF;&#x7A0B;&#x5982;&#x679C;&#x7533;&#x8BF7;&#x5199;&#x9501;&#x6216;&#x8005;&#x8BFB;&#x9501;&#xFF0C;&#x5219;&#x7533;&#x8BF7;&#x7684;&#x7EBF;&#x7A0B;&#x4F1A;&#x4E00;&#x76F4;&#x7B49;&#x5F85;&#x91CA;&#x653E;&#x5199;&#x9501;&#x3002;</p>
+<h3 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/8657681.html">&#x89E3;&#x51B3;&#x591A;&#x7EBF;&#x7A0B;&#x5B89;&#x5168;&#x95EE;&#x9898;-&#x65E0;&#x975E;&#x4E24;&#x4E2A;&#x65B9;&#x6CD5;synchronized&#x548C;lock &#x5177;&#x4F53;&#x539F;&#x7406;&#x4EE5;&#x53CA;&#x5982;&#x4F55; &#x83B7;&#x53D6;&#x9501;AQS&#x7B97;&#x6CD5; (&#x767E;&#x5EA6;-&#x7F8E;&#x56E2;)</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lock%E5%8E%9F%E7%90%86/" rel="tag">lock原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/05/20/5B.011.%E5%B9%B6%E5%8F%91-Lock%E4%B8%8ESynchronized%E5%8C%BA%E5%88%AB/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            并发-Lock与Synchronized区别
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/05/20/5B.101.%E5%B9%B6%E5%8F%91-Condition.await%E5%92%8Csignal%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">并发-Condition.await和signal原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

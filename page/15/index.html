@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title> xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      
+<section class="cover">
+    
+  <div class="cover-frame">
+    <div class="bg-box">
+      <img src="/images/cover1.jpg" alt="image frame" />
+    </div>
+    <div class="cover-inner text-center text-white">
+      <h1><a href="/">xugang.xie&#39;s blog</a></h1>
+      <div id="subtitle-box">
+        
+        <span id="subtitle"></span>
+        
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="cover-learn-more">
+    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
+  </div>
+</section>
+
+
+
+<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
+
+
+<!-- Subtitle -->
+
+  <script>
+    try {
+      var typed = new Typed("#subtitle", {
+        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        startDelay: 0,
+        typeSpeed: 200,
+        loop: true,
+        backSpeed: 100,
+        showCursor: true
+      });
+    } catch (err) {
+      console.log(err)
+    }
+  </script>
+  
+<div id="main">
+  <section class="outer">
+  
+  
+  
+
+<div class="notice" style="margin-top:50px">
+    <i class="ri-heart-fill"></i>
+    <div class="notice-content" id="broad"></div>
+</div>
+<script type="text/javascript">
+    fetch('https://v1.hitokoto.cn')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("broad").innerHTML = data.hitokoto;
+        })
+        .catch(console.error)
+</script>
+
+<style>
+    .notice {
+        padding: 20px;
+        border: 1px dashed #e6e6e6;
+        color: #969696;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        background: #fbfbfb50;
+        border-radius: 10px;
+    }
+
+    .notice i {
+        float: left;
+        color: #999;
+        font-size: 16px;
+        padding-right: 10px;
+        vertical-align: middle;
+        margin-top: -2px;
+    }
+
+    .notice-content {
+        display: initial;
+        vertical-align: middle;
+    }
+</style>
+  
+  <article class="articles">
+    
+    
+    
+    
+    <article
+  id="post-12B016.[底层原理]-Merge Insert Buffer系列-深入理解Merge Insert Buffer"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/"
+    >12B016.[底层原理]-Merge Insert Buffer系列-深入理解Merge Insert Buffer</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>Merge Insert Buffer&#x7CFB;&#x5217;-&#x6DF1;&#x5165;&#x7406;&#x89E3;Merge Insert Buffer</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12B017.[底层原理]-orderby的filesort类型有哪些"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12B017.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-orderby%E7%9A%84filesort%E7%B1%BB%E5%9E%8B%E6%9C%89%E5%93%AA%E4%BA%9B/"
+    >12B017.[底层原理]-orderby的filesort类型有哪些</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12B017.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-orderby%E7%9A%84filesort%E7%B1%BB%E5%9E%8B%E6%9C%89%E5%93%AA%E4%BA%9B/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>orderby&#x7684;filesort&#x7C7B;&#x578B;&#x6709;&#x54EA;&#x4E9B;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12B017.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-orderby%E7%9A%84filesort%E7%B1%BB%E5%9E%8B%E6%9C%89%E5%93%AA%E4%BA%9B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12B018-[底层原理]-主从复制原理和binlog类型"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12B018-%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E5%92%8Cbinlog%E7%B1%BB%E5%9E%8B/"
+    >12B018.[底层原理]-主从复制原理和binlog类型</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12B018-%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E5%92%8Cbinlog%E7%B1%BB%E5%9E%8B/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MySQL-binlog&#x5E95;&#x5C42;&#x539F;&#x7406;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e19d9312d1b5">https://www.jianshu.com/p/e19d9312d1b5</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12B018-%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E5%92%8Cbinlog%E7%B1%BB%E5%9E%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12C001.[隔离级别]-Mysql选择RR可重复读作为默认隔离级别原因"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12C001.%5B%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%5D-Mysql%E9%80%89%E6%8B%A9RR%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E4%BD%9C%E4%B8%BA%E9%BB%98%E8%AE%A4%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%8E%9F%E5%9B%A0/"
+    >12C001.[隔离级别]-Mysql选择RR可重复读作为默认隔离级别原因</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12C001.%5B%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%5D-Mysql%E9%80%89%E6%8B%A9RR%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E4%BD%9C%E4%B8%BA%E9%BB%98%E8%AE%A4%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%8E%9F%E5%9B%A0/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>Mysql&#x9009;&#x62E9;RR&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x4F5C;&#x4E3A;&#x9ED8;&#x8BA4;&#x9694;&#x79BB;&#x7EA7;&#x522B;<br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021424784">https://segmentfault.com/a/1190000021424784</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12C001.%5B%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%5D-Mysql%E9%80%89%E6%8B%A9RR%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E4%BD%9C%E4%B8%BA%E9%BB%98%E8%AE%A4%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%8E%9F%E5%9B%A0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D001.[读一致性问题]-数据库读一致性会带来三个问题与隔离级别对应解决"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D001.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E4%BC%9A%E5%B8%A6%E6%9D%A5%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E4%B8%8E%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%AF%B9%E5%BA%94%E8%A7%A3%E5%86%B3/"
+    >12D001.[读一致性问题]-数据库读一致性会带来三个问题与隔离级别对应解决</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D001.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E4%BC%9A%E5%B8%A6%E6%9D%A5%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E4%B8%8E%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%AF%B9%E5%BA%94%E8%A7%A3%E5%86%B3/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x6570;&#x636E;&#x5E93;&#x8BFB;&#x4E00;&#x81F4;&#x6027;&#x4F1A;&#x5E26;&#x6765;&#x4E09;&#x4E2A;&#x95EE;&#x9898;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D001.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E4%BC%9A%E5%B8%A6%E6%9D%A5%E4%B8%89%E4%B8%AA%E9%97%AE%E9%A2%98%E4%B8%8E%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E5%AF%B9%E5%BA%94%E8%A7%A3%E5%86%B3/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D002.[读一致性问题]-Innodb里面常见的几种读--快照读和当前读的区别"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D002.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-Innodb%E9%87%8C%E9%9D%A2%E5%B8%B8%E8%A7%81%E7%9A%84%E5%87%A0%E7%A7%8D%E8%AF%BB--%E5%BF%AB%E7%85%A7%E8%AF%BB%E5%92%8C%E5%BD%93%E5%89%8D%E8%AF%BB%E7%9A%84%E5%8C%BA%E5%88%AB/"
+    >12D002.[读一致性问题]-Innodb里面常见的几种读--快照读和当前读的区别</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D002.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-Innodb%E9%87%8C%E9%9D%A2%E5%B8%B8%E8%A7%81%E7%9A%84%E5%87%A0%E7%A7%8D%E8%AF%BB--%E5%BF%AB%E7%85%A7%E8%AF%BB%E5%92%8C%E5%BD%93%E5%89%8D%E8%AF%BB%E7%9A%84%E5%8C%BA%E5%88%AB/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>Innodb&#x91CC;&#x9762;&#x5E38;&#x89C1;&#x7684;&#x51E0;&#x79CD;&#x8BFB;<br>&#x5FEB;&#x7167;&#x8BFB;&#x548C;&#x5F53;&#x524D;&#x8BFB;&#x7684;&#x533A;&#x522B;<br>&#x54EA;&#x4E9B;sql&#x662F;&#x5FEB;&#x7167;&#x8BFB;<br>&#x54EA;&#x4E9B;sql&#x662F;&#x5F53;&#x524D;&#x8BFB;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D002.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-Innodb%E9%87%8C%E9%9D%A2%E5%B8%B8%E8%A7%81%E7%9A%84%E5%87%A0%E7%A7%8D%E8%AF%BB--%E5%BF%AB%E7%85%A7%E8%AF%BB%E5%92%8C%E5%BD%93%E5%89%8D%E8%AF%BB%E7%9A%84%E5%8C%BA%E5%88%AB/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D003.[读一致性问题]-MVCC原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D003.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86/"
+    >12D003.[读一致性问题]-MVCC原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D003.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC&#x539F;&#x7406;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D003.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D004.[读一致性问题和锁]-MVCC深层次原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D004.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E6%B7%B1%E5%B1%82%E6%AC%A1%E5%8E%9F%E7%90%86/"
+    >12D004.[读一致性问题和锁]-MVCC深层次原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D004.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E6%B7%B1%E5%B1%82%E6%AC%A1%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC&#x6DF1;&#x5C42;&#x6B21;&#x539F;&#x7406;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D004.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E6%B7%B1%E5%B1%82%E6%AC%A1%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81/" rel="tag">读一致性问题和锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D005.[读一致性问题和锁]-MVCC和Next-key-Lock"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D005.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%92%8CNext-key-Lock/"
+    >12D005.[读一致性问题和锁]-MVCC和Next-key-Lock</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D005.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%92%8CNext-key-Lock/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC&#x548C;Next-key-Lock</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D005.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%92%8CNext-key-Lock/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81/" rel="tag">读一致性问题和锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D006.[读一致性问题和锁]-MVCC到底能否解决了幻读问题"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D006.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%88%B0%E5%BA%95%E8%83%BD%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E5%B9%BB%E8%AF%BB%E9%97%AE%E9%A2%98/"
+    >12D006.[读一致性问题和锁]-MVCC到底能否解决了幻读问题</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D006.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%88%B0%E5%BA%95%E8%83%BD%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E5%B9%BB%E8%AF%BB%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC&#x5230;&#x5E95;&#x80FD;&#x5426;&#x89E3;&#x51B3;&#x4E86;&#x5E7B;&#x8BFB;&#x95EE;&#x9898;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D006.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%88%B0%E5%BA%95%E8%83%BD%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E5%B9%BB%E8%AF%BB%E9%97%AE%E9%A2%98/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81/" rel="tag">读一致性问题和锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D007.[读一致性问题和锁]-MVCC在RC和RR两种隔离级别下都有，在RC级别下，MVCC为什么解决不了幻读"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D007.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%9C%A8RC%E5%92%8CRR%E4%B8%A4%E7%A7%8D%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%8B%E9%83%BD%E6%9C%89%EF%BC%8C%E5%9C%A8RC%E7%BA%A7%E5%88%AB%E4%B8%8B%EF%BC%8CMVCC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A7%A3%E5%86%B3%E4%B8%8D%E4%BA%86%E5%B9%BB%E8%AF%BB/"
+    >12D007.[读一致性问题和锁]-MVCC在RC和RR两种隔离级别下都有，在RC级别下，MVCC为什么解决不了幻读</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D007.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%9C%A8RC%E5%92%8CRR%E4%B8%A4%E7%A7%8D%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%8B%E9%83%BD%E6%9C%89%EF%BC%8C%E5%9C%A8RC%E7%BA%A7%E5%88%AB%E4%B8%8B%EF%BC%8CMVCC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A7%A3%E5%86%B3%E4%B8%8D%E4%BA%86%E5%B9%BB%E8%AF%BB/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC &#x5728; RC &#x548C; RR &#x4E24;&#x79CD;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x90FD;&#x6709;&#xFF0C;&#x5728;RC&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;MVCC&#x4E3A;&#x4EC0;&#x4E48;&#x89E3;&#x51B3;&#x4E0D;&#x4E86;&#x4E0D;&#x53EF;&#x91CD;&#x590D;&#x8BFB;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D007.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81%5D-MVCC%E5%9C%A8RC%E5%92%8CRR%E4%B8%A4%E7%A7%8D%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%8B%E9%83%BD%E6%9C%89%EF%BC%8C%E5%9C%A8RC%E7%BA%A7%E5%88%AB%E4%B8%8B%EF%BC%8CMVCC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A7%A3%E5%86%B3%E4%B8%8D%E4%BA%86%E5%B9%BB%E8%AF%BB/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81/" rel="tag">读一致性问题和锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D008.[读一致性问题]-隔离级别中的可重复读能防幻读吗"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D008.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%AD%E7%9A%84%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E8%83%BD%E9%98%B2%E5%B9%BB%E8%AF%BB%E5%90%97/"
+    >12D008.[读一致性问题]-隔离级别中的可重复读能防幻读吗</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D008.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%AD%E7%9A%84%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E8%83%BD%E9%98%B2%E5%B9%BB%E8%AF%BB%E5%90%97/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x4E8B;&#x52A1;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E2D;&#x7684;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x80FD;&#x9632;&#x5E7B;&#x8BFB;&#x5417;?<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/CoderAyu/p/11525408.html">https://www.cnblogs.com/CoderAyu/p/11525408.html</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D008.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E4%B8%AD%E7%9A%84%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E8%83%BD%E9%98%B2%E5%B9%BB%E8%AF%BB%E5%90%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%E5%92%8C%E9%94%81/" rel="tag">读一致性问题和锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D009.[读一致性问题]-MVCC原理+实验1"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D009.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C1/"
+    >12D009.[读一致性问题]-MVCC原理+实验1</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D009.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C1/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>MVCC&#x539F;&#x7406;1+&#x5B9E;&#x9A8C;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D009.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C1/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D010.[读一致性问题]-实验-RR级别避免了“不可重复读”"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D010.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E5%AE%9E%E9%AA%8C-RR%E7%BA%A7%E5%88%AB%E9%81%BF%E5%85%8D%E4%BA%86%E2%80%9C%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E2%80%9D/"
+    >12D010.[读一致性问题]-实验-RR级别避免了“不可重复读”</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D010.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E5%AE%9E%E9%AA%8C-RR%E7%BA%A7%E5%88%AB%E9%81%BF%E5%85%8D%E4%BA%86%E2%80%9C%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E2%80%9D/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x5B9E;&#x9A8C;&#xFF1A;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D010.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E5%AE%9E%E9%AA%8C-RR%E7%BA%A7%E5%88%AB%E9%81%BF%E5%85%8D%E4%BA%86%E2%80%9C%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E2%80%9D/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D011.[读一致性问题]-一致性读-深入研究"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D011.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/"
+    >12D011.[读一致性问题]-一致性读-深入研究</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D011.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x4E00;&#x81F4;&#x6027;&#x8BFB;-&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7684;&#x51C6;&#x786E;&#x65F6;&#x673A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/digdeep/p/4947694.html">https://www.cnblogs.com/digdeep/p/4947694.html</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12D011.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D012.[读一致性问题]-MVCC原理+实验2"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D012.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C2/"
+    >12D012.[读一致性问题]-MVCC原理+实验2</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D012.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C2/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h4 id="MVCC&#x5B9E;&#x73B0;&#x7684;&#x539F;&#x7406;"><a href="#MVCC&#x5B9E;&#x73B0;&#x7684;&#x539F;&#x7406;" class="headerlink" title="MVCC&#x5B9E;&#x73B0;&#x7684;&#x539F;&#x7406;"></a>MVCC&#x5B9E;&#x73B0;&#x7684;&#x539F;&#x7406;</h4><ul>
+<li>&#x6838;&#x5FC3;&#x539F;&#x7406;&#x5C31;&#x662F;&#xFF1A;<strong>&#x6BCF;&#x884C;&#x6570;&#x636E;&#x540E;&#x9762;&#x90FD;&#x6709;2&#x4E2A;&#x9690;&#x85CF;&#x5217;&#xFF1A;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#x548C;&#x5220;&#x9664;&#x7248;&#x672C;&#x53F7;&#xFF1B;&#x67E5;&#x627E;&#x7684;&#x4E8B;&#x52A1;&#x53EA;&#x80FD;&#x67E5;&#x627E;&#x5230;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x5C0F;&#x4E8E;&#x7B49;&#x4E8E;&#x5F53;&#x524D;&#x4E8B;&#x52A1;ID&#x7684;&#x6570;&#x636E;&#xFF0C;&#x548C;&#x5220;&#x9664;&#x7248;&#x672C;&#x5927;&#x4E8E;&#x5F53;&#x524D;&#x4E8B;&#x52A1;ID&#x7684;&#x884C;</strong></li>
+</ul> 
+      <a class="article-more-link" href="/2020/05/01/12D012.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-MVCC%E5%8E%9F%E7%90%86+%E5%AE%9E%E9%AA%8C2/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12D013.[读一致性问题]-验证InnoDB-RR级别下是否解决了不可重复读和幻读"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12D013.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%AA%8C%E8%AF%81InnoDB-RR%E7%BA%A7%E5%88%AB%E4%B8%8B%E6%98%AF%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E5%92%8C%E5%B9%BB%E8%AF%BB/"
+    >12D013.[读一致性问题]-验证InnoDB-RR级别下是否解决了不可重复读和幻读</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12D013.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%AA%8C%E8%AF%81InnoDB-RR%E7%BA%A7%E5%88%AB%E4%B8%8B%E6%98%AF%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E5%92%8C%E5%B9%BB%E8%AF%BB/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x73AF;&#x5883;&#xFF1A;Windows 10&#x4E13;&#x4E1A;&#x7248;</li>
+<li>MySQL&#x7248;&#x672C;&#xFF1A;<code>5.7.18-log</code></li>
+<li>&#x524D;&#x63D0;&#xFF1A;<ul>
+<li>&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4E3A;<code>InnDB</code></li>
+<li>&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E3A;<code>RR</code></li>
+<li>&#x9700;&#x8981;&#x5C06;<code>MySQL</code>&#x4E2D;&#x95F4;&#x4EF6;&#x7684;&#x5168;&#x5C40;<code>autoCommit</code>&#x5173;&#x95ED;&#x3002;</li>
+</ul>
+</li>
+<li>&#x76EE;&#x7684;&#xFF1A;&#x672C;&#x6B21;&#x5B9E;&#x9A8C;&#x76EE;&#x7684;&#x662F;&#x4E3A;&#x4E86;&#x9A8C;&#x8BC1;&#xFF1A;MySQL&#x5728;RR&#x7684;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;&#x662F;&#x5426;&#x89E3;&#x51B3;&#x4E86;&#x4E0D;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#xFF1B;&#x662F;&#x5426;&#x5229;&#x7528;<code>MVCC</code>&#x65B9;&#x6848;&#x89E3;&#x51B3;&#x4E86;&#x201C;&#x5FEB;&#x7167;&#x8BFB;&#x201D;&#x4E0B;&#x7684;&#x5E7B;&#x8BFB;&#x3002;</li></ul> 
+      <a class="article-more-link" href="/2020/05/01/12D013.%5B%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%5D-%E9%AA%8C%E8%AF%81InnoDB-RR%E7%BA%A7%E5%88%AB%E4%B8%8B%E6%98%AF%E5%90%A6%E8%A7%A3%E5%86%B3%E4%BA%86%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E5%92%8C%E5%B9%BB%E8%AF%BB/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98/" rel="tag">读一致性问题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12E001.[锁]-几种锁类型"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12E001.%5B%E9%94%81%5D-%E5%87%A0%E7%A7%8D%E9%94%81%E7%B1%BB%E5%9E%8B/"
+    >12E001.[锁]-几种锁类型</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12E001.%5B%E9%94%81%5D-%E5%87%A0%E7%A7%8D%E9%94%81%E7%B1%BB%E5%9E%8B/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x51E0;&#x79CD;&#x9501;&#x7C7B;&#x578B;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12E001.%5B%E9%94%81%5D-%E5%87%A0%E7%A7%8D%E9%94%81%E7%B1%BB%E5%9E%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12E002.[锁]-MySQL锁类型"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12E002.%5B%E9%94%81%5D-MySQL%E9%94%81%E7%B1%BB%E5%9E%8B/"
+    >12E002.[锁]-MySQL锁类型</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12E002.%5B%E9%94%81%5D-MySQL%E9%94%81%E7%B1%BB%E5%9E%8B/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x9501;&#x7C7B;&#x578B;"><a href="#&#x9501;&#x7C7B;&#x578B;" class="headerlink" title="&#x9501;&#x7C7B;&#x578B;"></a>&#x9501;&#x7C7B;&#x578B;</h3><ul>
+<li><p>&#x8868;&#x9501;  </p>
+<ul>
+<li>&#x51B2;&#x7A81;&#x6982;&#x7387;&#x9AD8;&#x4E8E;&#x884C;&#x9501;</li>
+<li>&#x9501;&#x5B9A;&#x7C92;&#x5EA6;&#x5927;&#xFF0C;&#x53D1;&#x751F;&#x9501;&#x51B2;&#x7A81;&#x7684;&#x6982;&#x7387;&#x6700;&#x9AD8;&#xFF0C;&#x5E76;&#x53D1;&#x5EA6;&#x6700;&#x4F4E;&#x3002;</li>
+</ul>
+</li>
+<li><p>&#x884C;&#x9501;  </p>
+<ul>
+<li>&#x5E76;&#x53D1;&#x6027;&#x80FD;&#x9AD8;&#x4E8E;&#x8868;&#x9501;&#xFF08;&#x51B2;&#x7A81;&#x6982;&#x7387;&#x8D8A;&#x4F4E;&#xFF0C;&#x5E76;&#x53D1;&#x6027;&#x80FD;&#x8D8A;&#x9AD8;&#xFF09;</li>
+<li>&#x9501;&#x5B9A;&#x7C92;&#x5EA6;&#x6700;&#x5C0F;&#xFF0C;&#x53D1;&#x751F;&#x9501;&#x51B2;&#x7A81;&#x7684;&#x6982;&#x7387;&#x6700;&#x4F4E;&#xFF0C;&#x5E76;&#x53D1;&#x5EA6;&#x4E5F;&#x6700;&#x9AD8;&#x3002;</li>
+</ul>
+</li>
+<li><p>&#x9875;&#x9762;&#x9501;</p>
+<ul>
+<li>&#x5F00;&#x9500;&#x548C;&#x52A0;&#x9501;&#x65F6;&#x95F4;&#x754C;&#x4E8E;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x4E4B;&#x95F4;&#xFF1B;&#x4F1A;&#x51FA;&#x73B0;&#x6B7B;&#x9501;&#xFF1B;&#x9501;&#x5B9A;&#x7C92;&#x5EA6;&#x754C;&#x4E8E;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x4E4B;&#x95F4;&#xFF0C;&#x5E76;&#x53D1;&#x5EA6;&#x4E00;&#x822C;&#x3002;</li>
+</ul>
+</li>
+</ul> 
+      <a class="article-more-link" href="/2020/05/01/12E002.%5B%E9%94%81%5D-MySQL%E9%94%81%E7%B1%BB%E5%9E%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12F001.[索引]-几种索引类型"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12F001.%5B%E7%B4%A2%E5%BC%95%5D-%E5%87%A0%E7%A7%8D%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B/"
+    >12F001.[索引]-几种索引类型</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12F001.%5B%E7%B4%A2%E5%BC%95%5D-%E5%87%A0%E7%A7%8D%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x51E0;&#x79CD;&#x7D22;&#x5F15;&#x7C7B;&#x578B;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12F001.%5B%E7%B4%A2%E5%BC%95%5D-%E5%87%A0%E7%A7%8D%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+  </article>
+  
+
+  
+  <nav class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/14/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/16/">下一页</a>
+  </nav>
+  
+</section>
+</div>
+
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

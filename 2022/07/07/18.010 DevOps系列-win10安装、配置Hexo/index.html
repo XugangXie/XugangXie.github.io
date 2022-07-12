@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>DevOps系列-win10安装、配置Hexo |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.010 DevOps系列-win10安装、配置Hexo"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  DevOps系列-win10安装、配置Hexo
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/07/18.010%20DevOps%E7%B3%BB%E5%88%97-win10%E5%AE%89%E8%A3%85%E3%80%81%E9%85%8D%E7%BD%AEHexo/" class="article-date">
+  <time datetime="2022-07-06T16:00:00.000Z" itemprop="datePublished">2022-07-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DevOps/">DevOps</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">14 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>win10&#x5B89;&#x88C5;&#x3001;&#x914D;&#x7F6E;Hexo</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="&#x73AF;&#x5883;&#xFF1A;"><a href="#&#x73AF;&#x5883;&#xFF1A;" class="headerlink" title="&#x73AF;&#x5883;&#xFF1A;"></a>&#x73AF;&#x5883;&#xFF1A;</h2><ol>
+<li>&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#xFF1A;<code>Win10 pro</code></li>
+<li>blog&#x76EE;&#x5F55;&#xFF1A;<code>D:\dev\blog\XugangXie.github.io</code></li>
+<li>&#x672C;&#x7BC7;&#x6700;&#x7EC8;&#x7248;&#x672C;&#xFF1A;</li>
+</ol>
+<ul>
+<li>node: v16.16.0</li>
+<li>npm: 8.13.2</li>
+<li>hexo: 6.2.0</li>
+<li>hexo-cli: 4.3.0</li>
+</ul>
+<h3 id="1-&#x5B89;&#x88C5;node-js"><a href="#1-&#x5B89;&#x88C5;node-js" class="headerlink" title="1.&#x5B89;&#x88C5;node.js"></a>1.&#x5B89;&#x88C5;node.js</h3><p>&#x5230;&#x5B98;&#x7F51;&#xFF1A;<code>https://nodejs.org/en/</code> &#x4E0B;&#x8F7D;&#x76EE;&#x524D;&#x6700;&#x65B0;&#x7248;&#xFF1A;<code>node-v16.16.0-x64.msi</code><br>&#x7136;&#x540E;&#x672C;&#x5730;&#x5B89;&#x88C5;&#xFF0C;&#x67E5;&#x770B;node&#x548C;npm&#x7248;&#x672C;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br><span class="line">v16.16.0</span><br><span class="line"></span><br><span class="line">npm -v</span><br><span class="line">v8.11.0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#x5982;&#x679C;npm&#x6709;&#x7248;&#x672C;&#xFF0C;&#x5219;&#x5347;&#x7EA7;&#x4E0B;&#xFF1A;</span></span><br><span class="line">npm i npm@latest -g</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#x7136;&#x540E;&#x518D;&#x770B;&#xFF1A;</span></span><br><span class="line">npm -v</span><br><span class="line">8.13.2</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="&#x5B89;&#x88C5;hexo&#x548C;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;"><a href="#&#x5B89;&#x88C5;hexo&#x548C;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;" class="headerlink" title="&#x5B89;&#x88C5;hexo&#x548C;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;"></a>&#x5B89;&#x88C5;hexo&#x548C;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;</h3><p>&#x5728;&#x76EE;&#x5F55;&#xFF1A;<code>D:\dev\blog</code>&#x4E0B;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd /d D:\dev\blog</span><br><span class="line">npm install -g hexo-cli</span><br><span class="line">hexo init XugangXie.github.io</span><br><span class="line">cd XugangXie.github.io</span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line"># &#x7136;&#x540E;&#x53EF;&#x4EE5;&#x6267;&#x884C;&#x4E0B;&#x9762;</span><br><span class="line">hexo clean</span><br><span class="line">hexo g</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x521B;&#x5EFA;3&#x4E2A;&#x76EE;&#x5F55;"><a href="#&#x521B;&#x5EFA;3&#x4E2A;&#x76EE;&#x5F55;" class="headerlink" title="&#x521B;&#x5EFA;3&#x4E2A;&#x76EE;&#x5F55;"></a>&#x521B;&#x5EFA;3&#x4E2A;&#x76EE;&#x5F55;</h3><ol>
+<li>categories<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /d D:\dev\blog\XugangXie.github.io</span><br><span class="line">hexo new page categories</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>D:\dev\blog\XugangXie.github.io\source\categories &#x6587;&#x4EF6;&#x5939;&#x4E0B;&#x4F1A;&#x6709;index.md&#xFF0C;&#x6DFB;&#x52A0;&#x540E;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: categories</span><br><span class="line">date: 2022-07-12 15:10:16</span><br><span class="line">type: categories</span><br><span class="line">layout: categories</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>tags<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /d D:\dev\blog\XugangXie.github.io</span><br><span class="line">hexo new page tags</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>D:\dev\blog\XugangXie.github.io\source\tags &#x6587;&#x4EF6;&#x5939;&#x4E0B;&#x4F1A;&#x6709;index.md&#xFF0C;&#x6DFB;&#x52A0;&#x540E;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2022-07-12 15:13:22</span><br><span class="line">type: tags</span><br><span class="line">layout: tags</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>about<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /d D:\dev\blog\XugangXie.github.io</span><br><span class="line">hexo new page about</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>D:\dev\blog\XugangXie.github.io\source\about &#x6587;&#x4EF6;&#x5939;&#x4E0B;&#x4F1A;&#x6709;index.md&#xFF0C;&#x6DFB;&#x52A0;&#x540E;&#x662F;&#x8FD9;&#x6837;&#x7684;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: about</span><br><span class="line">date: 2022-07-12 15:16:09</span><br><span class="line">type: about</span><br><span class="line">layout: about</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="&#x5B89;&#x88C5;&#x51E0;&#x4E2A;&#x63D2;&#x4EF6;&#xFF1A;"><a href="#&#x5B89;&#x88C5;&#x51E0;&#x4E2A;&#x63D2;&#x4EF6;&#xFF1A;" class="headerlink" title="&#x5B89;&#x88C5;&#x51E0;&#x4E2A;&#x63D2;&#x4EF6;&#xFF1A;"></a>&#x5B89;&#x88C5;&#x51E0;&#x4E2A;&#x63D2;&#x4EF6;&#xFF1A;</h3><ol>
+<li>&#x5B89;&#x88C5; hexo-generator-search<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall hexo-generator-search --save</span><br><span class="line"></span><br><span class="line">npm install hexo-generator-search --save</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>&#x5728;&#x7F51;&#x7AD9;&#x7684;&#x6839;&#x76EE;&#x4E2D;&#x7684;_config.yml&#x6587;&#x4EF6;&#xFF0C;&#x65B0;&#x589E;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Hexo-generator-search</span></span><br><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>&#x5B89;&#x88C5; hexo-generator-feed<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed --save</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>&#x5728;&#x7F51;&#x7AD9;&#x7684;&#x6839;&#x76EE;&#x4E2D;&#x7684;_config.yml&#x6587;&#x4EF6;&#xFF0C;&#x65B0;&#x589E;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RSS&#x6709;&#x5173;&#x7684;&#x914D;&#x7F6E;</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br><span class="line">  <span class="attr">hub:</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>&#x5B89;&#x88C5; hexo-blog-encrypt</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save hexo-blog-encrypt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5B89;&#x88C5; hexo-asset-image</p>
+</li>
+</ol>
+<ul>
+<li><p>&#x5B89;&#x88C5;<code>hexo-asset-image@0.0.2</code> &#x53EA;&#x6709;0.0.2&#x7248;&#x672C;&#x7684;&#x624D;&#x53EF;&#x4EE5;&#xFF0C;&#x5176;&#x4ED6;&#x7248;&#x672C;&#x7684;&#x6709;bug&#xFF1B;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-- &#x5148;&#x5378;&#x8F7D;</span><br><span class="line">npm uninstall --save hexo-asset-image</span><br><span class="line">-- &#x518D;&#x5B89;&#x88C5;0.0.2&#x7248;&#x672C;</span><br><span class="line">npm install hexo-asset-image@0.0.2 --save</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x7F16;&#x8F91;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;&#x4E0B; _config.yml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># &#x6539;&#x52A8;&#x70B9;1</span><br><span class="line">permalink: :year/:month/:day/:title/</span><br><span class="line"></span><br><span class="line"># &#x6539;&#x52A8;&#x70B9;2</span><br><span class="line">post_asset_folder: true</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="4">
+<li>&#x5B89;&#x88C5;&#x51E0;&#x4E2A;theme&#xFF1A;</li>
+</ol>
+<ul>
+<li><p>&#x5B89;&#x88C5;Next</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;git clone https://github.com/theme-next/hexo-theme-next.git themes/next</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5B89;&#x88C5;3-hexo</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;git clone https://github.com/yelog/hexo-theme-3-hexo.git themes/3-hexo</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>&#x5B89;&#x88C5;ayer</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;git clone https://github.com/Shen-Yu/hexo-theme-ayer.git themes/ayer</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>&#x66F4;&#x65B0;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd D:\dev\blog\XugangXie.github.io\themes\ayer</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;&#x4E0B;&#x7684; _config.yml &#x6587;&#x4EF6;&#xFF0C;&#x4F7F;&#x7528; ayer &#x4E3B;&#x9898;&#xFF1A;<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">ayer</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="5">
+<li>&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;&#x4E0B;&#x7684;_config.yml&#x4E0B;&#x7684;&#x4FEE;&#x6539;&#x70B9;&#xFF1A;<br>&#x7565;<br>&#x6700;&#x7EC8;&#x5185;&#x5BB9;&#xFF1A;<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Hexo Configuration</span></span><br><span class="line"><span class="comment">## Docs: https://hexo.io/docs/configuration.html</span></span><br><span class="line"><span class="comment">## Source: https://github.com/hexojs/hexo/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Site</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">xugang.xie&apos;s</span> <span class="string">blog</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">Programmer</span></span><br><span class="line"><span class="comment"># description: &#x7AD9;&#x5728;&#x5DE8;&#x4EBA;&#x7684;&#x80A9;&#x8180;&#x4E0A;&lt;br&gt;Standing on the shoulders of giants</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">&#x4E00;&#x4E2A;&#x516B;&#x80A1;&#x6587;&#x62FE;&#x8352;&#x8005;&lt;br&gt;-</span> <span class="string">A</span> <span class="string">collector</span> <span class="string">who</span> <span class="string">is</span> <span class="string">focuced</span> <span class="string">on</span> <span class="string">asshole-Java.</span></span><br><span class="line"><span class="attr">keywords:</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">xugang.xie</span></span><br><span class="line"><span class="comment"># &#x4FEE;&#x6539;:&#x4E3B;&#x9898;&#x6C49;&#x5316;&#x5305;&#xFF0C;&#x4E0D;&#x662F;zh-Hans,&#x547D;&#x540D;&#x53C2;&#x8003; themes/next/languages&#x5305;&#x4E0B;&#x7684;zh-CN.yml&#x547D;&#x540D;</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"><span class="attr">timezone:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL</span></span><br><span class="line"><span class="comment">## If your site is put in a subdirectory, set url as &apos;http://yoursite.com/child&apos; and root as &apos;/child/&apos;</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">http://yoursite.com</span></span><br><span class="line"><span class="attr">root:</span> <span class="string">/</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"><span class="attr">permalink_defaults:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Directory</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">tag_dir:</span> <span class="string">tags</span></span><br><span class="line"><span class="attr">archive_dir:</span> <span class="string">archives</span></span><br><span class="line"><span class="attr">category_dir:</span> <span class="string">categories</span></span><br><span class="line"><span class="attr">code_dir:</span> <span class="string">downloads/code</span></span><br><span class="line"><span class="attr">i18n_dir:</span> <span class="string">:lang</span></span><br><span class="line"><span class="attr">skip_render:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Writing</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span> <span class="comment"># File name of new posts</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span> <span class="comment"># Transform title into titlecase</span></span><br><span class="line"><span class="comment"># ########################&#x5347;&#x7EA7;&#x540E;&#x4FEE;&#x6539;&#x90E8;&#x5206;######################</span></span><br><span class="line"><span class="comment"># New option</span></span><br><span class="line"><span class="attr">external_link:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span> <span class="comment"># Open external links in new tab</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">site</span> <span class="comment"># Apply to the whole site</span></span><br><span class="line">  <span class="attr">exclude:</span> <span class="string">&apos;&apos;</span></span><br><span class="line"><span class="comment"># New option</span></span><br><span class="line"><span class="comment">## pdated_option supports &apos;mtime&apos;, &apos;date&apos;, &apos;empty&apos;</span></span><br><span class="line"><span class="attr">updated_option:</span> <span class="string">&apos;mtime&apos;</span></span><br><span class="line"><span class="comment"># URL</span></span><br><span class="line"><span class="attr">pretty_urls:</span></span><br><span class="line">  <span class="attr">trailing_index:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">trailing_html:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Writing</span></span><br><span class="line"><span class="attr">highlight:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">auto_detect:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">line_number:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">tab_replace:</span> <span class="string">&apos;  &apos;</span></span><br><span class="line">  <span class="attr">wrap:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">hljs:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">prismjs:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">preprocess:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">line_number:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">tab_replace:</span> <span class="string">&apos;&apos;</span></span><br><span class="line"><span class="comment"># Metadata elements</span></span><br><span class="line"><span class="comment">## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta</span></span><br><span class="line"><span class="attr">meta_generator:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Include / Exclude file(s)</span></span><br><span class="line"><span class="comment">## include:/exclude: options only apply to the &apos;source/&apos; folder</span></span><br><span class="line"><span class="attr">include:</span></span><br><span class="line"><span class="attr">exclude:</span></span><br><span class="line"><span class="attr">ignore:</span></span><br><span class="line"><span class="comment"># ########################&#x5347;&#x7EA7;&#x540E;&#x4FEE;&#x6539;&#x90E8;&#x5206;######################</span></span><br><span class="line"><span class="attr">filename_case:</span> <span class="number">0</span></span><br><span class="line"><span class="attr">render_drafts:</span> <span class="literal">false</span></span><br><span class="line"><span class="comment"># &#x4FEE;&#x6539;:</span></span><br><span class="line"><span class="attr">post_asset_folder:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">relative_link:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">future:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Home page setting</span></span><br><span class="line"><span class="comment"># path: Root path for your blogs index page. (default = &apos;&apos;)</span></span><br><span class="line"><span class="comment"># per_page: Posts displayed per page. (0 = disable pagination)</span></span><br><span class="line"><span class="comment"># order_by: Posts order. (Order by date descending by default)</span></span><br><span class="line"><span class="attr">index_generator:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">&apos;&apos;</span></span><br><span class="line">  <span class="attr">per_page:</span> <span class="number">20</span></span><br><span class="line">  <span class="attr">order_by:</span> <span class="string">-date</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Category &amp; Tag</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Date / Time format</span></span><br><span class="line"><span class="comment">## Hexo uses Moment.js to parse and display date</span></span><br><span class="line"><span class="comment">## You can customize the date format as defined in</span></span><br><span class="line"><span class="comment">## http://momentjs.com/docs/#/displaying/format/</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Pagination</span></span><br><span class="line"><span class="comment">## Set per_page to 0 to disable pagination</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">20</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="comment">## Plugins: https://hexo.io/plugins/</span></span><br><span class="line"><span class="comment">## Themes: https://hexo.io/themes/</span></span><br><span class="line"><span class="comment"># &#x4FEE;&#x6539;:</span></span><br><span class="line"><span class="comment"># theme: landscape</span></span><br><span class="line"><span class="comment"># theme: next</span></span><br><span class="line"><span class="comment"># theme: 3-hexo</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">ayer</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS&#x6709;&#x5173;&#x7684;&#x914D;&#x7F6E;</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br><span class="line">  <span class="attr">hub:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &#x4FEE;&#x6539;:</span></span><br><span class="line"><span class="comment"># Deployment</span></span><br><span class="line"><span class="comment">## Docs: https://hexo.io/docs/deployment.html</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="comment"># repository: git@github.com:XugangXie/XugangXie.github.io.git</span></span><br><span class="line">  <span class="comment"># &#x4E0A;&#x9762;&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#xFF0C;&#x9700;&#x8981;&#x672C;&#x5730;&#x751F;&#x6210;&#x516C;&#x79C1;&#x5BC6;&#x94A5;&#x5BF9;&#xFF0C;&#x5E76;&#x4E14;&#x914D;&#x7F6E;&#x5230;github&#x4E0A;&#x7684;ssh key&#xFF0C;&#x914D;&#x7F6E;&#x4E0D;&#x597D;&#x6709;&#x95EE;&#x9898;&#xFF0C;&#x6545;&#x4E0D;&#x7528;ssh&#x65B9;&#x5F0F;&#xFF0C;&#x4F7F;&#x7528;&#x4E0B;&#x9762;&#x7684;&#x65B9;&#x5F0F;</span></span><br><span class="line">  <span class="attr">repository:</span>  <span class="string">https://github.com/XugangXie/XugangXie.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># &#x6587;&#x7AE0;&#x52A0;&#x5BC6;&#xFF0C;&#x53C2;&#x8003;&#xFF1A;https://www.jianshu.com/p/44e211829447</span></span><br><span class="line"><span class="comment"># Security</span></span><br><span class="line"><span class="comment"># encrypt:</span></span><br><span class="line"><span class="comment">#   enable: true  # &#x5F00;&#x542F;&#x4E3A;true&#xFF0C;&#x5173;&#x95ED;&#x4E3A;false</span></span><br><span class="line"><span class="comment">#   abstract: &#x53D7;&#x4FDD;&#x62A4;&#x7684;&#x6587;&#x7AE0; # &#x9ED8;&#x8BA4;&#x6587;&#x7AE0;&#x63CF;&#x8FF0;&#xFF0C;&#x53EF;&#x9009;</span></span><br><span class="line"><span class="comment">#   message: &#x8F93;&#x5165;&#x5BC6;&#x7801;&#xFF0C;&#x67E5;&#x770B;&#x6587;&#x7AE0; #&#x9ED8;&#x8BA4;&#x5BC6;&#x7801;&#x8F93;&#x5165;&#x63D0;&#x793A;&#xFF0C;&#x53EF;&#x9009;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Hexo-generator-search</span></span><br><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="&#x5347;&#x7EA7;node&#x3001;npm&#x3001;hexo"><a href="#&#x5347;&#x7EA7;node&#x3001;npm&#x3001;hexo" class="headerlink" title="&#x5347;&#x7EA7;node&#x3001;npm&#x3001;hexo"></a>&#x5347;&#x7EA7;node&#x3001;npm&#x3001;hexo</h3><ol>
+<li><p>&#x5347;&#x7EA7;node<br>&#x5230;&#x5B98;&#x7F51;&#xFF1A;<code>https://nodejs.org/en/</code> &#x4E0B;&#x8F7D;&#x76EE;&#x524D;&#x6700;&#x65B0;&#x7248;&#xFF1A;<code>node-v16.16.0-x64.msi</code><br>&#x7136;&#x540E;&#x672C;&#x5730;&#x5B89;&#x88C5;&#xFF0C;&#x5E76;&#x67E5;&#x770B;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;node -v</span><br><span class="line">v16.16.0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x67E5;&#x770B;&#x4E0B;hexo&#x3001;hexo-cli &#x7248;&#x672C;&#xFF0C;&#x76EE;&#x524D;<br>hexo: 3.9.0<br>hexo-cli: 2.0.0</p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;hexo -v</span><br><span class="line">hexo: 3.9.0</span><br><span class="line">hexo-cli: 2.0.0</span><br><span class="line">os: Windows_NT 10.0.19042 win32 x64</span><br><span class="line">node: 16.16.0</span><br><span class="line">v8: 9.4.146.24-node.21</span><br><span class="line">uv: 1.43.0</span><br><span class="line">zlib: 1.2.11</span><br><span class="line">brotli: 1.0.9</span><br><span class="line">ares: 1.18.1</span><br><span class="line">modules: 93</span><br><span class="line">nghttp2: 1.47.0</span><br><span class="line">napi: 8</span><br><span class="line">llhttp: 6.0.7</span><br><span class="line">openssl: 1.1.1q+quic</span><br><span class="line">cldr: 40.0</span><br><span class="line">icu: 70.1</span><br><span class="line">tz: 2021a3</span><br><span class="line">unicode: 14.0</span><br><span class="line">ngtcp2: 0.1.0-DEV</span><br><span class="line">nghttp3: 0.1.0-DEV</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>&#x5347;&#x7EA7;&#x6B65;&#x9AA4;&#xFF1A;&#x4EE5;&#x4E0B;&#x5747;&#x5728; <code>D:\dev\blog\XugangXie.github.io</code> &#x76EE;&#x5F55;&#x4E0B;&#x6267;&#x884C;&#xFF1A;</li>
+</ol>
+<ul>
+<li><p>&#x5168;&#x5C40;&#x5347;&#x7EA7;hexo-cli</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli -g  #&#x5168;&#x5C40;&#x5347;&#x7EA7;hexo-cli</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5B89;&#x88C5;npm-check</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm-check     //&#x5B89;&#x88C5;npm-check</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x67E5;&#x770B;&#x7CFB;&#x7EDF;&#x63D2;&#x4EF6;&#x662F;&#x5426;&#x9700;&#x8981;&#x5347;&#x7EA7;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm-check     //&#x5B89;&#x88C5;npm-check</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x5B89;&#x88C5;npm-upgrade</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm-upgrade</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x66F4;&#x65B0;package.json&#xFF0C;&#x5728;&#x6267;&#x884C;npm-upgrade&#x547D;&#x4EE4;&#x540E;&#x4F1A;&#x8981;&#x6C42;&#x8F93;&#x5165;yes&#x6216;&#x8005;no&#xFF0C;&#x76F4;&#x63A5;&#x8F93;&#x5165;Yes&#x6216;Y&#x5373;&#x53EF;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm-upgrade</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x66F4;&#x65B0;&#x5168;&#x5C40;&#x63D2;&#x4EF6;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm update -g</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x66F4;&#x65B0;&#x7CFB;&#x7EDF;&#x63D2;&#x4EF6;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm update --save</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>&#x4EE5;&#x4E0A;&#x51E0;&#x6B65;&#x6C47;&#x603B;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">npm install -g npm-check     //&#x5B89;&#x88C5;npm-check</span><br><span class="line">npm-check                    //&#x67E5;&#x770B;&#x7CFB;&#x7EDF;&#x63D2;&#x4EF6;&#x662F;&#x5426;&#x9700;&#x8981;&#x5347;&#x7EA7;</span><br><span class="line">npm install -g npm-upgrade   //&#x5B89;&#x88C5;</span><br><span class="line">npm-upgrade                 //&#x66F4;&#x65B0;package.json//&#x5728;&#x6267;&#x884C;npm-upgrade&#x547D;&#x4EE4;&#x540E;&#x4F1A;&#x8981;&#x6C42;&#x8F93;&#x5165;yes&#x6216;&#x8005;no&#xFF0C;&#x76F4;&#x63A5;&#x8F93;&#x5165;Yes&#x6216;Y&#x5373;&#x53EF;</span><br><span class="line">npm update -g               //&#x66F4;&#x65B0;&#x5168;&#x5C40;&#x63D2;&#x4EF6;</span><br><span class="line">npm update --save           //&#x66F4;&#x65B0;&#x7CFB;&#x7EDF;&#x63D2;&#x4EF6;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>&#x6700;&#x540E;&#x67E5;&#x770B;&#x4E0B;&#x5347;&#x7EA7;&#x540E;&#x7684;&#x7248;&#x672C;:<br>hexo: 6.2.0<br>hexo-cli: 4.3.0</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;hexo v</span><br><span class="line">INFO  Validating config</span><br><span class="line">WARN  Deprecated config detected: &quot;external_link&quot; with a Boolean value is deprecated. See https://hexo.io/docs/configuration for more details.</span><br><span class="line">hexo: 6.2.0</span><br><span class="line">hexo-cli: 4.3.0</span><br><span class="line">os: win32 10.0.19042</span><br><span class="line">node: 16.16.0</span><br><span class="line">v8: 9.4.146.24-node.21</span><br><span class="line">uv: 1.43.0</span><br><span class="line">zlib: 1.2.11</span><br><span class="line">brotli: 1.0.9</span><br><span class="line">ares: 1.18.1</span><br><span class="line">modules: 93</span><br><span class="line">nghttp2: 1.47.0</span><br><span class="line">napi: 8</span><br><span class="line">llhttp: 6.0.7</span><br><span class="line">openssl: 1.1.1q+quic</span><br><span class="line">cldr: 40.0</span><br><span class="line">icu: 70.1</span><br><span class="line">tz: 2021a3</span><br><span class="line">unicode: 14.0</span><br><span class="line">ngtcp2: 0.1.0-DEV</span><br><span class="line">nghttp3: 0.1.0-DEV</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>npm&#x7248;&#x672C;&#x4E5F;&#x8981;&#x5347;&#x7EA7;&#x4E0B;&#xFF1A;</li>
+</ol>
+<p>&#x5148;&#x67E5;&#x770B;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm -v</span><br><span class="line">8.11.0</span><br></pre></td></tr></table></figure>
+
+<p>&#x5347;&#x7EA7;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i npm@latest -g</span><br></pre></td></tr></table></figure>
+
+<p>&#x5347;&#x7EA7;&#x540E;:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm -v</span><br><span class="line">8.13.2</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>&#x67E5;&#x770B; npm &#x5B89;&#x88C5;&#x5404; hexo &#x63D2;&#x4EF6;&#x7684;&#x60C5;&#x51B5;<br>npm ls &#x2013;depth 0</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\blog\XugangXie.github.io&gt;npm ls --depth 0</span><br><span class="line">npm WARN config global `--global`, `--local` are deprecated. Use `--location=global` instead.</span><br><span class="line">hexo-site@0.0.0 D:\dev\blog\XugangXie.github.io</span><br><span class="line">+-- hexo-asset-image@0.0.2</span><br><span class="line">+-- hexo-blog-encrypt@3.1.6</span><br><span class="line">+-- hexo-deployer-git@3.0.0</span><br><span class="line">+-- hexo-generator-archive@1.0.0</span><br><span class="line">+-- hexo-generator-category@1.0.0</span><br><span class="line">+-- hexo-generator-feed@3.0.0</span><br><span class="line">+-- hexo-generator-index@2.0.0</span><br><span class="line">+-- hexo-generator-search@2.4.3</span><br><span class="line">+-- hexo-generator-sitemap@3.0.1</span><br><span class="line">+-- hexo-generator-tag@1.0.0</span><br><span class="line">+-- hexo-renderer-ejs@2.0.0</span><br><span class="line">+-- hexo-renderer-markdown-it-plus@1.0.5</span><br><span class="line">+-- hexo-renderer-stylus@2.1.0</span><br><span class="line">+-- hexo-server@3.0.0</span><br><span class="line">`-- hexo@6.2.0</span><br></pre></td></tr></table></figure>
+
+<p>&#x5176;&#x4E2D;&#x5982;&#x679C;&#x6CA1;&#x6709;<code>hexo-generator-sitemap</code>&#x548C;<code>hexo-generator-feed</code>&#xFF0C;&#x987A;&#x4FBF;&#x5B89;&#x88C5;&#x4E0B;&#xFF0C;&#x76EE;&#x524D;&#x8FD9;&#x4E24;&#x4E2A;&#x63D2;&#x4EF6;&#x597D;&#x50CF;&#x6CA1;&#x4EC0;&#x4E48;&#x7528;&#xFF0C;&#x4E0D;&#x8FC7;&#x4E5F;&#x5B89;&#x88C5;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#x5148;&#x5378;&#x8F7D;&#x4E0B;</span></span><br><span class="line">npm uninstall hexo-generator-sitemap</span><br><span class="line">npm uninstall hexo-generator-feed</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&#x518D;&#x5B89;&#x88C5;&#x4E0B;</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line">npm install hexo-generator-feed --save</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>&#x5347;&#x7EA7;&#x540E;&#xFF0C;&#x4FEE;&#x6539;&#x6839;&#x535A;&#x5BA2;&#x76EE;&#x5F55;&#x4E0B;&#x7684;_config.yml&#x6587;&#x4EF6;&#xFF1A;<br>&#x53BB;&#x6389;&#xFF1A; <code>external_link</code> &#x548C; <code>highlight</code><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Deprecated</span></span><br><span class="line"><span class="comment"># external_link: true # Open external links in new tab</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># highlight:</span></span><br><span class="line"><span class="comment">#   enable: true</span></span><br><span class="line"><span class="comment">#   line_number: true</span></span><br><span class="line"><span class="comment">#   auto_detect: false</span></span><br><span class="line"><span class="comment">#   tab_replace:</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>&#x65B0;&#x589E;&#xFF1A;</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ########################&#x5347;&#x7EA7;&#x540E;&#x4FEE;&#x6539;&#x90E8;&#x5206;######################</span></span><br><span class="line"><span class="comment"># New option</span></span><br><span class="line"><span class="attr">external_link:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span> <span class="comment"># Open external links in new tab</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">site</span> <span class="comment"># Apply to the whole site</span></span><br><span class="line">  <span class="attr">exclude:</span> <span class="string">&apos;&apos;</span></span><br><span class="line"><span class="comment"># New option</span></span><br><span class="line"><span class="comment">## pdated_option supports &apos;mtime&apos;, &apos;date&apos;, &apos;empty&apos;</span></span><br><span class="line"><span class="attr">updated_option:</span> <span class="string">&apos;mtime&apos;</span></span><br><span class="line"><span class="comment"># URL</span></span><br><span class="line"><span class="attr">pretty_urls:</span></span><br><span class="line">  <span class="attr">trailing_index:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">trailing_html:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Writing</span></span><br><span class="line"><span class="attr">highlight:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">auto_detect:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">line_number:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">tab_replace:</span> <span class="string">&apos;  &apos;</span></span><br><span class="line">  <span class="attr">wrap:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">hljs:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">prismjs:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">preprocess:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">line_number:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">tab_replace:</span> <span class="string">&apos;&apos;</span></span><br><span class="line"><span class="comment"># Metadata elements</span></span><br><span class="line"><span class="comment">## https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta</span></span><br><span class="line"><span class="attr">meta_generator:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Include / Exclude file(s)</span></span><br><span class="line"><span class="comment">## include:/exclude: options only apply to the &apos;source/&apos; folder</span></span><br><span class="line"><span class="attr">include:</span></span><br><span class="line"><span class="attr">exclude:</span></span><br><span class="line"><span class="attr">ignore:</span></span><br><span class="line"><span class="comment"># ########################&#x5347;&#x7EA7;&#x540E;&#x4FEE;&#x6539;&#x90E8;&#x5206;######################</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="&#x5E38;&#x89C1;&#x95EE;&#x9898;&#xFF1A;"><a href="#&#x5E38;&#x89C1;&#x95EE;&#x9898;&#xFF1A;" class="headerlink" title="&#x5E38;&#x89C1;&#x95EE;&#x9898;&#xFF1A;"></a>&#x5E38;&#x89C1;&#x95EE;&#x9898;&#xFF1A;</h3><h4 id="1-&#x65E0;&#x6CD5;&#x751F;&#x6210;-html"><a href="#1-&#x65E0;&#x6CD5;&#x751F;&#x6210;-html" class="headerlink" title="1. &#x65E0;&#x6CD5;&#x751F;&#x6210; html"></a>1. &#x65E0;&#x6CD5;&#x751F;&#x6210; html</h4><p>&#x4F7F;&#x7528; hexo g &#x540E;&#xFF0C;&#x53D1;&#x73B0;public&#x76EE;&#x5F55;&#x4E0B;&#xFF0C;&#x65E0;&#x6CD5;&#x751F;&#x6210; html &#x6587;&#x4EF6;&#xFF0C;&#x539F;&#x56E0;&#xFF1A;<br>&#x53EF;&#x80FD;&#x8BEF;&#x5220;&#x4E86;&#x81EA;&#x5E26;&#x7684;&#x63D2;&#x4EF6;<code>hexo-renderer-marked</code>&#xFF0C;&#x53EF;&#x4EE5;&#x91CD;&#x65B0;&#x5B89;&#x88C5;&#x8FD9;&#x4E2A;&#x63D2;&#x4EF6;&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x5B89;&#x88C5;&#x8FD9;2&#x4E2A;&#x63D2;&#x4EF6;&#xFF1A;<code>hexo-renderer-markdown-it</code> &#x6216; <code>hexo-renderer-markdown-it-plus</code><br>&#x89E3;&#x51B3;&#xFF1A;&#x5B89;&#x88C5;<code>hexo-renderer-markdown-it-plus</code>&#x6BD4;&#x8F83;&#x597D;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-renderer-markdown-it --save</span><br><span class="line">or</span><br><span class="line">npm install hexo-renderer-markdown-it-plus --save</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-html&#x91CC;&#x56FE;&#x7247;&#x65E0;&#x6CD5;&#x663E;&#x793A;"><a href="#2-html&#x91CC;&#x56FE;&#x7247;&#x65E0;&#x6CD5;&#x663E;&#x793A;" class="headerlink" title="2. html&#x91CC;&#x56FE;&#x7247;&#x65E0;&#x6CD5;&#x663E;&#x793A;"></a>2. html&#x91CC;&#x56FE;&#x7247;&#x65E0;&#x6CD5;&#x663E;&#x793A;</h4><p>&#x5728;md&#x91CC;&#xFF0C;&#x4F7F;&#x7528;markdown&#x8BED;&#x6CD5;&#xFF0C;&#x5BFC;&#x5165;&#x56FE;&#x7247;&#x540E;&#xFF0C;&#x751F;&#x6210;&#x7684;html&#x91CC;&#xFF0C;&#x56FE;&#x7247;&#x8981;&#x4E48;&#x2460;&#x591A;&#x91CD;&#x590D;&#x4E86;&#x4E00;&#x5C42;title&#xFF1B;&#x2461;&#x5C11;&#x4E86;&#x5E74;&#x6708;&#x65E5;&#x5C42;&#x6B21;&#xFF1B;<br>&#x89E3;&#x51B3;&#xFF1A;</p>
+<ol>
+<li><p>&#x5B89;&#x88C5;<code>hexo-asset-image@0.0.2</code> &#x53EA;&#x6709;0.0.2&#x7248;&#x672C;&#x7684;&#x624D;&#x53EF;&#x4EE5;&#xFF0C;&#x5176;&#x4ED6;&#x7248;&#x672C;&#x7684;&#x6709;bug&#xFF1B;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-- &#x5148;&#x5378;&#x8F7D;</span><br><span class="line">npm uninstall --save hexo-asset-image</span><br><span class="line">-- &#x518D;&#x5B89;&#x88C5;0.0.2&#x7248;&#x672C;</span><br><span class="line">npm install hexo-asset-image@0.0.2 --save</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x7F16;&#x8F91;&#x535A;&#x5BA2;&#x6839;&#x76EE;&#x5F55;&#x4E0B; _config.yml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># &#x6539;&#x52A8;&#x70B9;1</span><br><span class="line">permalink: :year/:month/:day/:title/</span><br><span class="line"></span><br><span class="line"># &#x6539;&#x52A8;&#x70B9;2</span><br><span class="line">post_asset_folder: true</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x4F7F;&#x7528;&#xFF1A;&#x7136;&#x540E;&#x5728; &#x6587;&#x4EF6;&#x540D;.md &#x91CC;&#xFF0C;&#x4F7F;&#x7528;markdown&#x8BED;&#x6CD5;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">![](./&#x6587;&#x4EF6;&#x540D;/&#x56FE;&#x7247;&#x540D;.jpg)</span><br></pre></td></tr></table></figure></li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/07/12/13.AA000%20%E7%89%9B%E5%AE%A2%E7%BD%91%E5%88%B7%E9%A2%98-%E6%80%BB%E7%BB%93/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            13.AA000 牛客网刷题-总结
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/06/01/11B001.%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%88%86%E5%B8%83%E5%BC%8FID%E7%94%9F%E6%88%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">系统设计-分布式ID生成</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

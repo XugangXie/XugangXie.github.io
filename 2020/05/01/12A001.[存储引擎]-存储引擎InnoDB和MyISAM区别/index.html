@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12A001.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8EInnoDB%E5%92%8CMyISAM%E5%8C%BA%E5%88%AB/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB &#x548C; MYISAM&#x533A;&#x522B;</p>
+</blockquote>
+<span id="more"></span>
+
+<h4 id="InnoDB-&#x548C;-MYISAM&#x533A;&#x522B;-&#x8D44;&#x6599;1&#xFF1A;"><a href="#InnoDB-&#x548C;-MYISAM&#x533A;&#x522B;-&#x8D44;&#x6599;1&#xFF1A;" class="headerlink" title="InnoDB &#x548C; MYISAM&#x533A;&#x522B; &#x8D44;&#x6599;1&#xFF1A;"></a>InnoDB &#x548C; MYISAM&#x533A;&#x522B; &#x8D44;&#x6599;1&#xFF1A;</h4><ul>
+<li>InnoDB &#x652F;&#x6301;&#x5916;&#x952E;, MYISAM &#x4E0D;&#x652F;&#x6301;;</li>
+<li>InnoDB 5.6 &#x4E4B;&#x524D;&#x4E0D;&#x652F;&#x6301;&#x5168;&#x6587;&#x7D22;&#x5F15;, MYISAM &#x652F;&#x6301;;</li>
+<li>InnoDB &#x662F;&#x884C;&#x9501;, MYISAM &#x662F;&#x8868;&#x9501;;</li>
+<li>InnoDB &#x652F;&#x6301;&#x4E8B;&#x52A1;, MYISAM &#x4E0D;&#x652F;&#x6301;;</li>
+<li>InnoDB &#x4E0D;&#x5355;&#x72EC;&#x4FDD;&#x5B58;&#x884C;&#x6570;, &#x7EDF;&#x8BA1;&#x9700;&#x8981;&#x5168;&#x8868;&#x626B;&#x63CF;, MYISAM &#x4F1A;&#x5355;&#x72EC;&#x4FDD;&#x5B58;&#x884C;&#x6570;, &#x4E0D;&#x8FC7;&#x5982;&#x679C;&#x6709; where &#x6761;&#x4EF6;&#x8FD8;&#x662F;&#x8981;&#x5168;&#x8868;&#x626B;&#x63CF;;</li>
+<li>InnoDB &#x662F;&#x805A;&#x96C6;&#x7D22;&#x5F15;, &#x6570;&#x636E;&#x6587;&#x4EF6;&#x548C;&#x7D22;&#x5F15;&#x7ED1;&#x5B9A;&#x4E00;&#x8D77;, &#x8981;&#x6709;&#x4E3B;&#x952E;; MYISAM &#x662F;&#x975E;&#x805A;&#x96C6;&#x7D22;&#x5F15;, &#x6570;&#x636E;&#x6587;&#x4EF6;&#x548C;&#x7D22;&#x5F15;&#x5206;&#x5F00;, &#x7D22;&#x5F15;&#x4FDD;&#x5B58;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x6307;&#x9488;.</li>
+</ul>
+<h4 id="InnoDB-&#x548C;-MYISAM&#x533A;&#x522B;-&#x8D44;&#x6599;2&#xFF1A;"><a href="#InnoDB-&#x548C;-MYISAM&#x533A;&#x522B;-&#x8D44;&#x6599;2&#xFF1A;" class="headerlink" title="InnoDB &#x548C; MYISAM&#x533A;&#x522B; &#x8D44;&#x6599;2&#xFF1A;"></a>InnoDB &#x548C; MYISAM&#x533A;&#x522B; &#x8D44;&#x6599;2&#xFF1A;</h4><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20596402/answer/211492971">https://www.zhihu.com/question/20596402/answer/211492971</a></p>
+<ol>
+<li><code>InnoDB</code> &#x652F;&#x6301;&#x4E8B;&#x52A1;&#xFF0C;<code>MyISAM</code> &#x4E0D;&#x652F;&#x6301;&#x4E8B;&#x52A1;&#x3002;&#x8FD9;&#x662F; MySQL &#x5C06;&#x9ED8;&#x8BA4;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4ECE; <code>MyISAM</code> &#x53D8;&#x6210; <code>InnoDB</code> &#x7684;&#x91CD;&#x8981;&#x539F;&#x56E0;&#x4E4B;&#x4E00;&#xFF1B;</li>
+<li><code>InnoDB</code> &#x652F;&#x6301;&#x5916;&#x952E;&#xFF0C;&#x800C; <code>MyISAM</code> &#x4E0D;&#x652F;&#x6301;&#x3002;&#x5BF9;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x5916;&#x952E;&#x7684; InnoDB &#x8868;&#x8F6C;&#x4E3A; MYISAM &#x4F1A;&#x5931;&#x8D25;&#xFF1B;  </li>
+<li><code>InnoDB</code> &#x662F;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#xFF0C;<code>MyISAM</code> &#x662F;&#x975E;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#x3002;&#x805A;&#x7C07;&#x7D22;&#x5F15;&#x7684;&#x6587;&#x4EF6;&#x5B58;&#x653E;&#x5728;&#x4E3B;&#x952E;&#x7D22;&#x5F15;&#x7684;&#x53F6;&#x5B50;&#x8282;&#x70B9;&#x4E0A;&#xFF0C;&#x56E0;&#x6B64; <code>InnoDB</code> &#x5FC5;&#x987B;&#x8981;&#x6709;&#x4E3B;&#x952E;&#xFF0C;&#x901A;&#x8FC7;&#x4E3B;&#x952E;&#x7D22;&#x5F15;&#x6548;&#x7387;&#x5F88;&#x9AD8;&#x3002;&#x4F46;&#x662F;&#x8F85;&#x52A9;&#x7D22;&#x5F15;&#x9700;&#x8981;&#x4E24;&#x6B21;&#x67E5;&#x8BE2;&#xFF0C;&#x5148;&#x67E5;&#x8BE2;&#x5230;&#x4E3B;&#x952E;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x901A;&#x8FC7;&#x4E3B;&#x952E;&#x67E5;&#x8BE2;&#x5230;&#x6570;&#x636E;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x4E3B;&#x952E;&#x4E0D;&#x5E94;&#x8BE5;&#x8FC7;&#x5927;&#xFF0C;&#x56E0;&#x4E3A;&#x4E3B;&#x952E;&#x592A;&#x5927;&#xFF0C;&#x5176;&#x4ED6;&#x7D22;&#x5F15;&#x4E5F;&#x90FD;&#x4F1A;&#x5F88;&#x5927;&#x3002;&#x800C; <code>MyISAM</code> &#x662F;&#x975E;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#xFF0C;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x662F;&#x5206;&#x79BB;&#x7684;&#xFF0C;&#x7D22;&#x5F15;&#x4FDD;&#x5B58;&#x7684;&#x662F;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x7684;&#x6307;&#x9488;&#x3002;&#x4E3B;&#x952E;&#x7D22;&#x5F15;&#x548C;&#x8F85;&#x52A9;&#x7D22;&#x5F15;&#x662F;&#x72EC;&#x7ACB;&#x7684;&#x3002;</li>
+<li><code>InnoDB</code> &#x4E0D;&#x4FDD;&#x5B58;&#x8868;&#x7684;&#x5177;&#x4F53;&#x884C;&#x6570;&#xFF0C;&#x6267;&#x884C; <code>select count(*) from table</code> &#x65F6;&#x9700;&#x8981;&#x5168;&#x8868;&#x626B;&#x63CF;&#x3002;&#x800C; <code>MyISAM</code> &#x7528;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x4FDD;&#x5B58;&#x4E86;&#x6574;&#x4E2A;&#x8868;&#x7684;&#x884C;&#x6570;&#xFF0C;&#x6267;&#x884C;&#x4E0A;&#x8FF0;&#x8BED;&#x53E5;&#x65F6;&#x53EA;&#x9700;&#x8981;&#x8BFB;&#x51FA;&#x8BE5;&#x53D8;&#x91CF;&#x5373;&#x53EF;&#xFF0C;&#x901F;&#x5EA6;&#x5F88;&#x5FEB;&#xFF1B;    </li>
+<li><code>InnoDB</code> &#x6700;&#x5C0F;&#x7684;&#x9501;&#x7C92;&#x5EA6;&#x662F;&#x884C;&#x9501;&#xFF0C;<code>MyISAM</code> &#x6700;&#x5C0F;&#x7684;&#x9501;&#x7C92;&#x5EA6;&#x662F;&#x8868;&#x9501;&#x3002;&#x4E00;&#x4E2A;&#x66F4;&#x65B0;&#x8BED;&#x53E5;&#x4F1A;&#x9501;&#x4F4F;&#x6574;&#x5F20;&#x8868;&#xFF0C;&#x5BFC;&#x81F4;&#x5176;&#x4ED6;&#x67E5;&#x8BE2;&#x548C;&#x66F4;&#x65B0;&#x90FD;&#x4F1A;&#x88AB;&#x963B;&#x585E;&#xFF0C;&#x56E0;&#x6B64;&#x5E76;&#x53D1;&#x8BBF;&#x95EE;&#x53D7;&#x9650;&#x3002;&#x8FD9;&#x4E5F;&#x662F; MySQL &#x5C06;&#x9ED8;&#x8BA4;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4ECE; <code>MyISAM</code> &#x53D8;&#x6210; <code>InnoDB</code> &#x7684;&#x91CD;&#x8981;&#x539F;&#x56E0;&#x4E4B;&#x4E00;&#xFF1B;</li>
+</ol>
+<hr>
+<h3 id="&#x5B58;&#x50A8;&#x5F15;&#x64CE;InnoDB&#x548C;MyISAM&#x533A;&#x522B;"><a href="#&#x5B58;&#x50A8;&#x5F15;&#x64CE;InnoDB&#x548C;MyISAM&#x533A;&#x522B;" class="headerlink" title="&#x5B58;&#x50A8;&#x5F15;&#x64CE;InnoDB&#x548C;MyISAM&#x533A;&#x522B;"></a>&#x5B58;&#x50A8;&#x5F15;&#x64CE;InnoDB&#x548C;MyISAM&#x533A;&#x522B;</h3><p>&#x5E38;&#x89C1;&#x7684;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x5C31; InnoDB&#x3001;MyISAM&#x3001;Memory&#x3001;NDB&#x3002;<br>InnoDB &#x73B0;&#x5728;&#x662F; MySQL &#x9ED8;&#x8BA4;&#x7684;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x652F;&#x6301;<code>&#x4E8B;&#x52A1;</code>&#x3001;<code>&#x884C;&#x7EA7;&#x9501;&#x5B9A;</code>&#x548C;<code>&#x5916;&#x952E;</code></p>
+<h4 id="&#x6587;&#x4EF6;&#x5B58;&#x50A8;&#x7ED3;&#x6784;&#x5BF9;&#x6BD4;"><a href="#&#x6587;&#x4EF6;&#x5B58;&#x50A8;&#x7ED3;&#x6784;&#x5BF9;&#x6BD4;" class="headerlink" title="&#x6587;&#x4EF6;&#x5B58;&#x50A8;&#x7ED3;&#x6784;&#x5BF9;&#x6BD4;"></a>&#x6587;&#x4EF6;&#x5B58;&#x50A8;&#x7ED3;&#x6784;&#x5BF9;&#x6BD4;</h4><p>&#x5728; MySQL&#x4E2D;&#x5EFA;&#x7ACB;&#x4EFB;&#x4F55;&#x4E00;&#x5F20;&#x6570;&#x636E;&#x8868;&#xFF0C;&#x5728;&#x5176;&#x6570;&#x636E;&#x76EE;&#x5F55;&#x5BF9;&#x5E94;&#x7684;&#x6570;&#x636E;&#x5E93;&#x76EE;&#x5F55;&#x4E0B;&#x90FD;&#x6709;&#x5BF9;&#x5E94;&#x8868;&#x7684; .frm &#x6587;&#x4EF6;&#xFF0C;.frm &#x6587;&#x4EF6;&#x662F;&#x7528;&#x6765;&#x4FDD;&#x5B58;&#x6BCF;&#x4E2A;&#x6570;&#x636E;&#x8868;&#x7684;&#x5143;&#x6570;&#x636E;(meta)&#x4FE1;&#x606F;&#xFF0C;&#x5305;&#x62EC;&#x8868;&#x7ED3;&#x6784;&#x7684;&#x5B9A;&#x4E49;&#x7B49;&#xFF0C;&#x4E0E;&#x6570;&#x636E;&#x5E93;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x65E0;&#x5173;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x4EFB;&#x4F55;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x7684;&#x6570;&#x636E;&#x8868;&#x90FD;&#x5FC5;&#x987B;&#x6709;.frm&#x6587;&#x4EF6;&#xFF0C;&#x547D;&#x540D;&#x65B9;&#x5F0F;&#x4E3A; &#x6570;&#x636E;&#x8868;&#x540D;.frm</p>
+<p>MyISAM &#x7269;&#x7406;&#x6587;&#x4EF6;&#x7ED3;&#x6784;&#x4E3A;&#xFF1A;</p>
+<ul>
+<li><code>.frm</code> &#x6587;&#x4EF6;&#xFF1A;&#x4E0E;&#x8868;&#x76F8;&#x5173;&#x7684;&#x5143;&#x6570;&#x636E;&#x4FE1;&#x606F;&#x90FD;&#x5B58;&#x653E;&#x5728;frm&#x6587;&#x4EF6;&#xFF0C;&#x5305;&#x62EC;&#x8868;&#x7ED3;&#x6784;&#x7684;&#x5B9A;&#x4E49;&#x4FE1;&#x606F;&#x7B49;</li>
+<li><code>.MYD </code>(MYData) &#x6587;&#x4EF6;&#xFF1A;MyISAM &#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4E13;&#x7528;&#xFF0C;&#x7528;&#x4E8E;&#x5B58;&#x50A8;MyISAM &#x8868;&#x7684;&#x6570;&#x636E;</li>
+<li><code>.MYI</code> (MYIndex)&#x6587;&#x4EF6;&#xFF1A;MyISAM &#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4E13;&#x7528;&#xFF0C;&#x7528;&#x4E8E;&#x5B58;&#x50A8;MyISAM &#x8868;&#x7684;&#x7D22;&#x5F15;&#x76F8;&#x5173;&#x4FE1;&#x606F;</li>
+</ul>
+<p>InnoDB &#x7269;&#x7406;&#x6587;&#x4EF6;&#x7ED3;&#x6784;&#x4E3A;&#xFF1A;</p>
+<ul>
+<li><code>.frm</code> &#x6587;&#x4EF6;&#xFF1A;&#x4E0E;&#x8868;&#x76F8;&#x5173;&#x7684;&#x5143;&#x6570;&#x636E;&#x4FE1;&#x606F;&#x90FD;&#x5B58;&#x653E;&#x5728;frm&#x6587;&#x4EF6;&#xFF0C;&#x5305;&#x62EC;&#x8868;&#x7ED3;&#x6784;&#x7684;&#x5B9A;&#x4E49;&#x4FE1;&#x606F;&#x7B49;</li>
+<li><code>.ibd</code> &#x6587;&#x4EF6;&#x6216; <code>.ibdata</code> &#x6587;&#x4EF6;&#xFF1A;&#x8FD9;&#x4E24;&#x79CD;&#x6587;&#x4EF6;&#x90FD;&#x662F;&#x5B58;&#x653E; InnoDB &#x6570;&#x636E;&#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x4E4B;&#x6240;&#x4EE5;&#x6709;&#x4E24;&#x79CD;&#x6587;&#x4EF6;&#x5F62;&#x5F0F;&#x5B58;&#x653E; InnoDB &#x7684;&#x6570;&#x636E;&#xFF0C;&#x662F;&#x56E0;&#x4E3A; InnoDB &#x7684;&#x6570;&#x636E;&#x5B58;&#x50A8;&#x65B9;&#x5F0F;&#x80FD;&#x591F;&#x901A;&#x8FC7;&#x914D;&#x7F6E;&#x6765;&#x51B3;&#x5B9A;&#x662F;&#x4F7F;&#x7528; <code>&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;</code> &#x5B58;&#x653E;&#x5B58;&#x50A8;&#x6570;&#x636E;&#xFF0C;&#x8FD8;&#x662F;&#x7528; <code>&#x72EC;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;</code> &#x5B58;&#x653E;&#x5B58;&#x50A8;&#x6570;&#x636E;&#x3002;</li>
+</ul>
+<p>&#x72EC;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;&#x5B58;&#x50A8;&#x65B9;&#x5F0F;&#x4F7F;&#x7528;.ibd&#x6587;&#x4EF6;&#xFF0C;&#x5E76;&#x4E14;&#x6BCF;&#x4E2A;&#x8868;&#x4E00;&#x4E2A;.ibd&#x6587;&#x4EF6; &#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;&#x5B58;&#x50A8;&#x65B9;&#x5F0F;&#x4F7F;&#x7528;.ibdata&#x6587;&#x4EF6;&#xFF0C;&#x6240;&#x6709;&#x8868;&#x5171;&#x540C;&#x4F7F;&#x7528;&#x4E00;&#x4E2A;.ibdata&#x6587;&#x4EF6;&#xFF08;&#x6216;&#x591A;&#x4E2A;&#xFF0C;&#x53EF;&#x81EA;&#x5DF1;&#x914D;&#x7F6E;&#xFF09;</p>
+<h4 id="&#x9762;&#x8BD5;&#x8FD9;&#x4E48;&#x56DE;&#x7B54;"><a href="#&#x9762;&#x8BD5;&#x8FD9;&#x4E48;&#x56DE;&#x7B54;" class="headerlink" title="&#x9762;&#x8BD5;&#x8FD9;&#x4E48;&#x56DE;&#x7B54;"></a>&#x9762;&#x8BD5;&#x8FD9;&#x4E48;&#x56DE;&#x7B54;</h4><ol>
+<li>InnoDB &#x652F;&#x6301;&#x4E8B;&#x52A1;&#xFF0C;MyISAM &#x4E0D;&#x652F;&#x6301;&#x4E8B;&#x52A1;&#x3002;&#x8FD9;&#x662F; MySQL &#x5C06;&#x9ED8;&#x8BA4;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4ECE; MyISAM &#x53D8;&#x6210; InnoDB &#x7684;&#x91CD;&#x8981;&#x539F;&#x56E0;&#x4E4B;&#x4E00;&#xFF1B;</li>
+<li>InnoDB &#x652F;&#x6301;&#x5916;&#x952E;&#xFF0C;&#x800C; MyISAM &#x4E0D;&#x652F;&#x6301;&#x3002;&#x5BF9;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x5916;&#x952E;&#x7684; InnoDB &#x8868;&#x8F6C;&#x4E3A; MYISAM &#x4F1A;&#x5931;&#x8D25;&#xFF1B;</li>
+<li><strong>MyISAM&#x548C;InnoDB&#x4F7F;&#x7528;B+Tree&#x4F5C;&#x4E3A;&#x7D22;&#x5F15;&#x7ED3;&#x6784;&#x3002;MyISAM &#x662F;&#x975E;&#x805A;&#x7C07;&#x7D22;&#x5F15;&#xFF0C;&#x7D22;&#x5F15;&#x6587;&#x4EF6;&#x548C;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x662F;&#x5206;&#x79BB;&#x7684;&#x3002;&#x7D22;&#x5F15;&#x4FDD;&#x5B58;&#x7684;&#x662F;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x7684;&#x6307;&#x9488;(&#x6570;&#x636E;&#x8BB0;&#x5F55;&#x7684;&#x5730;&#x5740;)&#x3002;<br>InnoDB &#x662F;&#x805A;&#x7C07;&#x7D22;&#x5F15;&#xFF0C;InnoDB&#x7684;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x672C;&#x8EAB;&#x5C31;&#x662F;&#x7D22;&#x5F15;&#x6587;&#x4EF6;&#x3002;&#x8868;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x672C;&#x8EAB;&#x5C31;&#x662F;&#x6309;B+Tree&#x7EC4;&#x7EC7;&#x7684;&#x4E00;&#x4E2A;&#x7D22;&#x5F15;&#x7ED3;&#x6784;&#xFF0C;&#x8FD9;&#x68F5;&#x6811;&#x7684;&#x53F6;&#x8282;&#x70B9;data&#x57DF;&#x4FDD;&#x5B58;&#x4E86;&#x5B8C;&#x6574;&#x7684;&#x6570;&#x636E;&#x8BB0;&#x5F55;&#x3002;&#x8FD9;&#x4E2A;&#x7D22;&#x5F15;&#x7684;key&#x662F;&#x6570;&#x636E;&#x8868;&#x7684;&#x4E3B;&#x952E;&#xFF0C;&#x56E0;&#x6B64;InnoDB&#x8868;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x672C;&#x8EAB;&#x5C31;&#x662F;&#x4E3B;&#x7D22;&#x5F15;&#x3002;</strong></li>
+<li>InnoDB &#x4E0D;&#x4FDD;&#x5B58;&#x8868;&#x7684;&#x5177;&#x4F53;&#x884C;&#x6570;&#xFF0C;&#x6267;&#x884C;select count(*) from table &#x65F6;&#x9700;&#x8981;&#x5168;&#x8868;&#x626B;&#x63CF;&#x3002;&#x800C; MyISAM &#x7528;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x4FDD;&#x5B58;&#x4E86;&#x6574;&#x4E2A;&#x8868;&#x7684;&#x884C;&#x6570;&#xFF0C;&#x6267;&#x884C;&#x4E0A;&#x8FF0;&#x8BED;&#x53E5;&#x65F6;&#x53EA;&#x9700;&#x8981;&#x8BFB;&#x51FA;&#x8BE5;&#x53D8;&#x91CF;&#x5373;&#x53EF;&#xFF0C;&#x901F;&#x5EA6;&#x5F88;&#x5FEB;&#xFF1B;</li>
+<li>InnoDB &#x6700;&#x5C0F;&#x7684;&#x9501;&#x7C92;&#x5EA6;&#x662F;&#x884C;&#x9501;&#xFF0C;MyISAM &#x6700;&#x5C0F;&#x7684;&#x9501;&#x7C92;&#x5EA6;&#x662F;&#x8868;&#x9501;&#x3002;&#x4E00;&#x4E2A;&#x66F4;&#x65B0;&#x8BED;&#x53E5;&#x4F1A;&#x9501;&#x4F4F;&#x6574;&#x5F20;&#x8868;&#xFF0C;&#x5BFC;&#x81F4;&#x5176;&#x4ED6;&#x67E5;&#x8BE2;&#x548C;&#x66F4;&#x65B0;&#x90FD;&#x4F1A;&#x88AB;&#x963B;&#x585E;&#xFF0C;&#x56E0;&#x6B64;&#x5E76;&#x53D1;&#x8BBF;&#x95EE;&#x53D7;&#x9650;&#x3002;&#x8FD9;&#x4E5F;&#x662F; MySQL &#x5C06;&#x9ED8;&#x8BA4;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4ECE; MyISAM &#x53D8;&#x6210; InnoDB &#x7684;&#x91CD;&#x8981;&#x539F;&#x56E0;&#x4E4B;&#x4E00;&#xFF1B;</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>&#x5BF9;&#x6BD4;&#x9879;</th>
+<th>MyISAM</th>
+<th>InnoDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x4E8B;&#x52A1;</td>
+<td>&#x4E0D;&#x652F;&#x6301;</td>
+<td>&#x652F;&#x6301;</td>
+</tr>
+<tr>
+<td>&#x4E3B;&#x5916;&#x952E;</td>
+<td>&#x4E0D;&#x652F;&#x6301;</td>
+<td>&#x652F;&#x6301;</td>
+</tr>
+<tr>
+<td>&#x884C;&#x8868;&#x9501;</td>
+<td>&#x8868;&#x9501;&#xFF0C;&#x5373;&#x4F7F;&#x64CD;&#x4F5C;&#x4E00;&#x6761;&#x8BB0;&#x5F55;&#x4E5F;&#x4F1A;&#x9501;&#x4F4F;&#x6574;&#x4E2A;&#x8868;&#xFF0C;&#x4E0D;&#x9002;&#x5408;&#x9AD8;&#x5E76;&#x53D1;&#x7684;&#x64CD;&#x4F5C;</td>
+<td>&#x884C;&#x9501;,&#x64CD;&#x4F5C;&#x65F6;&#x53EA;&#x9501;&#x67D0;&#x4E00;&#x884C;&#xFF0C;&#x4E0D;&#x5BF9;&#x5176;&#x5B83;&#x884C;&#x6709;&#x5F71;&#x54CD;&#xFF0C;&#x9002;&#x5408;&#x9AD8;&#x5E76;&#x53D1;&#x7684;&#x64CD;&#x4F5C;</td>
+</tr>
+<tr>
+<td>&#x7F13;&#x5B58;</td>
+<td>&#x53EA;&#x7F13;&#x5B58;&#x7D22;&#x5F15;&#xFF0C;&#x4E0D;&#x7F13;&#x5B58;&#x771F;&#x5B9E;&#x6570;&#x636E;</td>
+<td>&#x4E0D;&#x4EC5;&#x7F13;&#x5B58;&#x7D22;&#x5F15;&#x8FD8;&#x8981;&#x7F13;&#x5B58;&#x771F;&#x5B9E;&#x6570;&#x636E;&#xFF0C;&#x5BF9;&#x5185;&#x5B58;&#x8981;&#x6C42;&#x8F83;&#x9AD8;&#xFF0C;&#x800C;&#x4E14;&#x5185;&#x5B58;&#x5927;&#x5C0F;&#x5BF9;&#x6027;&#x80FD;&#x6709;&#x51B3;&#x5B9A;&#x6027;&#x7684;&#x5F71;&#x54CD;</td>
+</tr>
+<tr>
+<td>&#x5173;&#x6CE8;&#x70B9;</td>
+<td>&#x6027;&#x80FD;</td>
+<td>&#x4E8B;&#x52A1;</td>
+</tr>
+</tbody></table>
+<h4 id="From"><a href="#From" class="headerlink" title="From"></a>From</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5OTMyNzQzMg==&amp;mid=2257487079&amp;idx=1&amp;sn=ad8504e2a8c20bc00de0bad173f8c33e&amp;chksm=a447074093308e56b2f052243c5ebad02a66ccf12eb837557e7581a1d53e842a3b52ef011b49&amp;mpshare=1&amp;scene=1&amp;srcid=0601t74T6HZqU8axajFfAuty&amp;sharer_sharetime=1590977001913&amp;sharer_shareid=3a61302a23daf4655f84b131deb4bba7&amp;key=cca06a132b9dbd7aa6e07581cd4581fa8ebc8dee2b56b478ef760ac1ae407f1f054179875e8171192469e2992b0a3acbcf9c60a020900013effecd390a572914673eeb9cb134e35aa9cea464886d1577&amp;ascene=1&amp;uin=NzMzMzk4OTEz&amp;devicetype=Windows+10+x64&amp;version=62090070&amp;lang=zh_CN&amp;exportkey=A5I3Xq2//oLJASNb8iBUrik=&amp;pass_ticket=SPey/At6HwcN/vdfHXAy1ld4EtlLuLsQFUyunnSZ9tBSYXHePaqFF5cxqWnZ+BGo">MySQL &#x4E09;&#x4E07;&#x5B57;&#x7CBE;&#x534E;&#x603B;&#x7ED3; + &#x9762;&#x8BD5;100 &#x95EE;&#xFF0C;&#x540A;&#x6253;&#x9762;&#x8BD5;&#x5B98;&#x7EF0;&#x7EF0;&#x6709;&#x4F59;&#xFF08;&#x6536;&#x85CF;&#x7CFB;&#x5217;&#xFF09;</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            12.002.[综合]-MySQL里的事务、隔离级别、锁类型
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/01/12A002.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-InnoDB%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">12A002.[存储引擎]-InnoDB表空间原理</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2022
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
