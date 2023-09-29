@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">518</span>
+            <span class="post-count">508</span>
         </span>
     </span>
 
@@ -122,8 +122,8 @@
 <p>&#x65B9;&#x6CD5;2&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//&#x4F8B;&#x5B50;&#xFF1A;1--&gt;2--&gt;3--&gt;4--&gt;5--&gt;6</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reorderList</span><span class="params">(ListNode head)</span> {</span><br><span class="line">  <span class="keyword">if</span> (head == <span class="literal">null</span> || head.next == <span class="literal">null</span> || head.next.next == <span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">slow</span> <span class="operator">=</span> head;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">fast</span> <span class="operator">=</span> head.next;</span><br><span class="line">  <span class="keyword">while</span> (fast != <span class="literal">null</span> &amp;&amp; fast.next != <span class="literal">null</span>) {</span><br><span class="line">    slow = slow.next;</span><br><span class="line">    fast = fast.next.next;</span><br><span class="line">  }</span><br><span class="line">  <span class="comment">//eg&#xFF1A; 1-&gt;2-&gt;3-&gt;4-&gt;5-&gt;6</span></span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">mid</span> <span class="operator">=</span> slow.next;		<span class="comment">//mid: 4-&gt;5-&gt;6</span></span><br><span class="line">  slow.next = <span class="literal">null</span>;				<span class="comment">//&#x81F3;&#x6B64;&#xFF0C;&#x4E24;&#x4E2A;&#x94FE;&#x8868;&#x4E2D;&#x95F4;&#x5206;&#x88C2;&#x5B8C;&#x6210;&#xFF1A;1-&gt;2-&gt;3   4-&gt;5-&gt;6</span></span><br><span class="line"></span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">p1</span> <span class="operator">=</span> head;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">p2</span> <span class="operator">=</span> reverse(mid);<span class="comment">//&#x53CD;&#x8F6C;&#x5F97;&#x5230;&#x7B2C;&#x4E8C;&#x4E2A;&#x94FE;&#x8868;:   6-&gt;5-&gt;4</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">//&#x5408;&#x5E76;&#x4E24;&#x4E2A;&#x94FE;&#x8868;  p1: 1-&gt;2-&gt;3   p2: 6-&gt;5-&gt;4</span></span><br><span class="line">  <span class="keyword">while</span> (p2 != <span class="literal">null</span>) {</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">next</span> <span class="operator">=</span> p2.next;</span><br><span class="line">    p2.next = p1.next;</span><br><span class="line">    p1.next = p2;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//p1&#x548C;p2&#x5206;&#x522B;&#x5411;&#x524D;&#x8D70;&#x4E00;&#x6B65;</span></span><br><span class="line">    p1 = p2.next;</span><br><span class="line">    p2 = next;</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 
-<p>&#x4F9D;&#x6B21;&#x5408;&#x5E76;&#x4E24;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x601D;&#x8DEF;&#x56FE;&#xFF1A;<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/9.jpg">https://cdn.jsdelivr.net/gh/XugangXie/blog-img/9.jpg</a></p>
-<p><img src="/2020/04/20/13.AA012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC2%E9%87%8D%E6%8E%92%E9%93%BE%E8%A1%A8/9.jpg"></p>
+<p>&#x4F9D;&#x6B21;&#x5408;&#x5E76;&#x4E24;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x601D;&#x8DEF;&#x56FE;&#xFF1A;<img src="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/NC2%E9%87%8D%E6%8E%92%E9%93%BE%E8%A1%A8.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AA012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC2%E9%87%8D%E6%8E%92%E9%93%BE%E8%A1%A8/NC2%E9%87%8D%E6%8E%92%E9%93%BE%E8%A1%A8.jpg"></p>
  
       <!-- reward -->
       
@@ -178,7 +178,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

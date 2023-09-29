@@ -126,7 +126,7 @@
 <p>&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;&#x662F;&#x7ED9;&#x6240;&#x6709;&#x4EBA;&#x4E00;&#x4E2A;&#x8BF4;ok&#x7684;&#x673A;&#x4F1A;, &#x6EE1;&#x8DB3;&#x624D;&#x63D0;&#x4EA4;</p>
 <p>binlog&#x6CA1;&#x80FD;&#x529B;&#x6062;&#x590D;&#x6570;&#x636E;&#x9875;, innodb&#x7528;&#x7684;WAL&#x6280;&#x672F;, &#x5D29;&#x6E83;&#x540E;&#x8981;&#x4F9D;&#x8D56;&#x65E5;&#x5FD7;&#x6062;&#x590D;&#x6570;&#x636E;&#x9875;</p>
 <p>redo log commit&#x7684;&#x8BDD;&#x662F;&#x4E0D;&#x5141;&#x8BB8;&#x56DE;&#x6EDA;&#x7684;, &#x5982;&#x679C;&#x56DE;&#x6EDA;&#x4F1A;&#x8986;&#x76D6;&#x5176;&#x4ED6;&#x4E8B;&#x52A1;&#x4E86;</p>
-<p><img src="/2020/05/01/12G004.[%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86]-%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%80%9D%E6%83%B3/%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E5%8E%9F%E7%90%86.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12G004.[%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86]-%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%80%9D%E6%83%B3/%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E5%8E%9F%E7%90%86.jpg"></p>
 <h3 id="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;"><a href="#&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;" class="headerlink" title="&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;"></a>&#x4E3A;&#x4EC0;&#x4E48;&#x8981;&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;</h3><p>&#x7531;&#x4E8E; redo log &#x548C; binlog &#x662F;&#x4E24;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x903B;&#x8F91;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x7528;&#x4E24;&#x9636;&#x6BB5;&#x63D0;&#x4EA4;&#xFF0C;&#x8981;&#x4E48;&#x5C31;&#x662F;&#x5148;&#x5199;&#x5B8C; redo log &#x518D;&#x5199; binlog&#xFF0C;&#x6216;&#x8005;&#x91C7;&#x7528;&#x53CD;&#x8FC7;&#x6765;&#x7684;&#x987A;&#x5E8F;&#x3002;&#x6211;&#x4EEC;&#x770B;&#x770B;&#x8FD9;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;&#x4F1A;&#x6709;&#x4EC0;&#x4E48;&#x95EE;&#x9898;&#x3002;</p>
 <p>redo log&#x5148;&#x63D0;&#x4EA4;,binlog&#x540E;&#x63D0;&#x4EA4;. &#x7CFB;&#x7EDF;&#x5D29;&#x6E83;, &#x7531;&#x4E8E;redo log&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;, &#x7CFB;&#x7EDF;&#x5D29;&#x6E83;&#x540E;&#x662F;&#x80FD;&#x62FF;&#x56DE;&#x6765;&#x7684;, &#x4F46;&#x662F;binlog&#x6CA1;&#x5199;, &#x5982;&#x679C;&#x62FF;&#x8FD9;&#x4E2A;binlog&#x53BB;&#x6570;&#x636E;&#x6062;&#x590D;, &#x5907;&#x5E93;&#x5C31;&#x5C11;&#x4E86;&#x4E00;&#x6761;&#x6570;&#x636E;, &#x4E0E;&#x539F;&#x5E93;&#x6570;&#x636E;&#x4E0D;&#x540C;<br>binlog&#x5148;&#x63D0;&#x4EA4;, redo log&#x540E;&#x63D0;&#x4EA4;, &#x7531;&#x4E8E;binlog&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;,&#x62FF;binlog&#x6062;&#x590D;&#x662F;&#x6709;&#x8FD9;&#x4E2A;&#x6570;&#x636E;,&#x4F46;&#x662F;redo log&#x6CA1;&#x5199;&#x5B8C;, &#x4E3B;&#x5E93;&#x6CA1;&#x6709;&#x8FD9;&#x4E2A;&#x6570;&#x636E;, &#x5907;&#x5E93;&#x591A;&#x4E86;&#x4E2A;&#x4E8B;&#x52A1;</p>
 <h3 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h3><p>redo log &#x7528;&#x4E8E;&#x4FDD;&#x8BC1; crash-safe &#x80FD;&#x529B;&#x3002;innodb_flush_log_at_trx_commit &#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x8BBE;&#x7F6E;&#x6210; 1 &#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8868;&#x793A;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x7684; redo log &#x90FD;&#x76F4;&#x63A5;&#x6301;&#x4E45;&#x5316;&#x5230;&#x78C1;&#x76D8;&#x3002;<br>sync_binlog &#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x8BBE;&#x7F6E;&#x6210; 1 &#x7684;&#x65F6;&#x5019;&#xFF0C;&#x8868;&#x793A;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x7684; binlog &#x90FD;&#x6301;&#x4E45;&#x5316;&#x5230;&#x78C1;&#x76D8;&#x3002;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x6211;&#x4E5F;&#x5EFA;&#x8BAE;&#x4F60;&#x8BBE;&#x7F6E;&#x6210; 1&#xFF0C;&#x8FD9;&#x6837;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1; MySQL &#x5F02;&#x5E38;&#x91CD;&#x542F;&#x4E4B;&#x540E; binlog &#x4E0D;&#x4E22;&#x5931;&#x3002;</p>
@@ -151,19 +151,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/05/01/12G003.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-undo-log%E5%8E%9F%E7%90%86/" class="article-nav-link">
+      <a href="/2020/05/01/12G002.%5B%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86%5D-redo-log%E5%8E%9F%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            12G003.[回滚原理]-undo-log原理
+            12G002.[持久原理]-redo-log原理
           
         </div>
       </a>
     
     
-      <a href="/2020/05/01/12G005.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="article-nav-link">
+      <a href="/2020/05/01/12G003.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-undo-log%E5%8E%9F%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">12G005.[回滚原理]-MySQL事务实现原理</div>
+        <div class="article-nav-title">12G003.[回滚原理]-undo-log原理</div>
       </a>
     
   </nav>
@@ -187,7 +187,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

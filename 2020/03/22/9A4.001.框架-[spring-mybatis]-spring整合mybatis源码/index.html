@@ -150,7 +150,7 @@
 
 <p>&#x4F46;&#x5728;&#x6211;&#x4EEC;&#x5728;spring&#x7684;&#x6D4B;&#x8BD5;&#x7528;&#x4F8B;&#x4E2D;&#x4F7F;&#x7528;mybatis&#x7684;&#x65F6;&#x5019;&#x662F;&#x8FD9;&#x6837;&#x4F7F;&#x7528;&#x7684;&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PersonDao personDao=(PersonDao) context.getBean(<span class="string">&quot;personDao&quot;</span>);</span><br></pre></td></tr></table></figure>
-<p>&#x4E3A;&#x4EC0;&#x4E48;spring&#x53EF;&#x4EE5;&#x8FD9;&#x6837;&#x505A;&#x5462;&#xFF0C;&#x7B54;&#x6848;&#x5C31;&#x5728;MapperFactoryBean&#x8FD9;&#x91CC;<br>&#x8BA9;&#x6211;&#x5148;&#x6765;&#x770B;&#x770B;&#x8FD9;&#x4E2A;&#x7C7B;&#x7684;&#x7C7B;&#x5C42;&#x6B21;&#x7ED3;&#x6784;&#x56FE;&#xFF1A;<br><img src="/2020/03/22/9A4.001.%E6%A1%86%E6%9E%B6-[spring-mybatis]-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/1.png"></p>
+<p>&#x4E3A;&#x4EC0;&#x4E48;spring&#x53EF;&#x4EE5;&#x8FD9;&#x6837;&#x505A;&#x5462;&#xFF0C;&#x7B54;&#x6848;&#x5C31;&#x5728;MapperFactoryBean&#x8FD9;&#x91CC;<br>&#x8BA9;&#x6211;&#x5148;&#x6765;&#x770B;&#x770B;&#x8FD9;&#x4E2A;&#x7C7B;&#x7684;&#x7C7B;&#x5C42;&#x6B21;&#x7ED3;&#x6784;&#x56FE;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/9A4.001.%E6%A1%86%E6%9E%B6%E6%BA%90%E7%A0%81-[myatis]-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/1.png"></p>
 <p>MapperFactoryBean&#x4E5F;&#x5B9E;&#x73B0;&#x4E86;FactoryBean&#x548C;InitializingBean&#x63A5;&#x53E3;&#xFF0C;&#x6211;&#x4EEC;&#x4E5F;&#x4ECE;MapperFactoryBean&#x7684;&#x521D;&#x59CB;&#x5316;&#x5F00;&#x59CB;&#x5427;&#xFF0C;&#x770B;&#x770B;&#x5B83;&#x5982;&#x4F55;&#x521D;&#x59CB;&#x5316;&#x3002;</p>
 <h5 id="MapperFactoryBean&#x521D;&#x59CB;&#x5316;"><a href="#MapperFactoryBean&#x521D;&#x59CB;&#x5316;" class="headerlink" title="MapperFactoryBean&#x521D;&#x59CB;&#x5316;"></a>MapperFactoryBean&#x521D;&#x59CB;&#x5316;</h5><p>MapperFactoryBean&#x7EE7;&#x627F;&#x4E86;SqlSessionDaoSupport&#xFF0C;SqlSessionDaoSupport&#x7EE7;&#x627F;DaoSupport&#xFF0C;DaoSupport&#x5B9E;&#x73B0;&#x4E86;InitializingBean&#x63A5;&#x53E3;&#xFF0C;&#x8BA9;&#x6211;&#x4EEC;&#x5F00;&#x770B;&#x770B;&#x5B83;&#x8FD9;&#x63A5;&#x53E3;&#x7684;&#x5B9E;&#x73B0;&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> IllegalArgumentException, BeanInitializationException {</span><br><span class="line">  <span class="comment">// Let abstract subclasses check their configuration.</span></span><br><span class="line">  checkDaoConfig();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Let concrete implementations initialize themselves.</span></span><br><span class="line">  <span class="keyword">try</span> {</span><br><span class="line">    initDao();</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">catch</span> (Exception ex) {</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BeanInitializationException</span>(<span class="string">&quot;Initialization of DAO failed&quot;</span>, ex);</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
@@ -265,11 +265,11 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-nav-link">
+      <a href="/2020/03/22/9A3.007.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-propagation%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            框架-[spring-transaction]-spring-transaction中的readOnly目的是什么
+            框架-[spring-transaction]-propagation组合使用案例说明
           
         </div>
       </a>
@@ -301,7 +301,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

@@ -118,42 +118,32 @@
 <h4 id="&#x73AF;&#x5883;&#xFF1A;"><a href="#&#x73AF;&#x5883;&#xFF1A;" class="headerlink" title="&#x73AF;&#x5883;&#xFF1A;"></a>&#x73AF;&#x5883;&#xFF1A;</h4><ol>
 <li>&#x672C;&#x5730;&#x6784;&#x5EFA;&#x955C;&#x50CF;&#x7684;&#x76EE;&#x5F55;: <code>D:\dev\docker-images\emqx-4.3.7</code></li>
 </ol>
-<h4 id="&#x6B65;&#x9AA4;&#xFF1A;"><a href="#&#x6B65;&#x9AA4;&#xFF1A;" class="headerlink" title="&#x6B65;&#x9AA4;&#xFF1A;"></a>&#x6B65;&#x9AA4;&#xFF1A;</h4><hr>
-<ol>
-<li><p>&#x8FDC;&#x7AEF;&#x521B;&#x5EFA;&#x4ED3;&#x5E93;<code>emqx</code><br>&#x5148;&#x8FDB;&#x5165;<code>docker hub</code>&#xFF0C;&#x521B;&#x5EFA;&#x4ED3;&#x5E93;<code>emqx</code></p>
+<h4 id="&#x6B65;&#x9AA4;&#xFF1A;"><a href="#&#x6B65;&#x9AA4;&#xFF1A;" class="headerlink" title="&#x6B65;&#x9AA4;&#xFF1A;"></a>&#x6B65;&#x9AA4;&#xFF1A;</h4><ol>
+<li><p>&#x8FDC;&#x7AEF;&#x521B;&#x5EFA;&#x4ED3;&#x5E93;<code>emqx</code><br> &#x5148;&#x8FDB;&#x5165;<code>docker hub</code>&#xFF0C;&#x521B;&#x5EFA;&#x4ED3;&#x5E93;<code>emqx</code></p>
 </li>
 <li><p>&#x76EE;&#x5F55;<code>D:\dev\docker-images\emqx-4.3.7</code>&#x4E0B;&#xFF0C;&#x51C6;&#x5907;3&#x4E2A;&#x6587;&#x4EF6;&#xFF1A;</p>
-</li>
-</ol>
 <ul>
 <li>Dockerfile</li>
 <li>emqx_auth_mysql.conf</li>
 <li>emqx.conf</li>
 </ul>
-<p>Dockerfile&#x5185;&#x5BB9;</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &#x57FA;&#x4E8E;&#x516C;&#x53F8;&#x955C;&#x50CF;registry.sxc.sh/public/emqx:4.3.7&#xFF0C;&#x4E8C;&#x6B21;&#x7F16;&#x8F91;</span></span><br><span class="line"><span class="keyword">FROM</span> registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> emqx.conf /opt/emqx/etc/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> emqx_auth_mysql.conf /opt/emqx/etc/plugins/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">chmod</span> -R 777 /opt/emqx/data</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## COPY start.sh /usr/bin/</span></span><br><span class="line"><span class="comment">## CMD [&quot;/usr/bin/start.sh&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;/opt/emqx/bin/emqx&quot;</span>, <span class="string">&quot;foreground&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+<p> Dockerfile&#x5185;&#x5BB9;<br> <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &#x57FA;&#x4E8E;&#x516C;&#x53F8;&#x955C;&#x50CF;registry.sxc.sh/public/emqx:4.3.7&#xFF0C;&#x4E8C;&#x6B21;&#x7F16;&#x8F91;</span></span><br><span class="line"><span class="keyword">FROM</span> registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> emqx.conf /opt/emqx/etc/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> emqx_auth_mysql.conf /opt/emqx/etc/plugins/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">chmod</span> -R 777 /opt/emqx/data</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## COPY start.sh /usr/bin/</span></span><br><span class="line"><span class="comment">## CMD [&quot;/usr/bin/start.sh&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;/opt/emqx/bin/emqx&quot;</span>, <span class="string">&quot;foreground&quot;</span>]</span></span><br></pre></td></tr></table></figure></p>
+<p> <code>emqx.conf</code>&#x4FEE;&#x6539;&#x90E8;&#x5206;:<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">allow_anonymous = false</span><br><span class="line">...</span><br><span class="line">acl_nomatch = deny</span><br></pre></td></tr></table></figure></p>
+<p> <code>emqx_auth_mysql.conf</code>&#x4FEE;&#x6539;&#x90E8;&#x5206;&#xFF1A;<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">auth.mysql.server = 10.130.33.252:26004</span><br><span class="line"></span><br><span class="line">auth.mysql.username = root</span><br><span class="line"></span><br><span class="line">auth.mysql.password = 123456</span><br><span class="line"></span><br><span class="line">auth.mysql.database = nano-iot</span><br><span class="line"></span><br><span class="line">auth.mysql.password_hash = plain</span><br><span class="line"></span><br><span class="line">auth.mysql.acl_query = select allow, ipaddr, username, clientid, access, topic from mqtt_acl where (ipaddr = &apos;%a&apos; or username = &apos;%u&apos; or username = &apos;$all&apos;) and clientid = &apos;%c&apos; ORDER BY id DESC</span><br></pre></td></tr></table></figure></p>
+</li>
+<li><p>&#x6784;&#x5EFA;</p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> D:\dev\docker<span class="literal">-images</span>\emqx<span class="literal">-4</span>.<span class="number">3.7</span></span><br><span class="line">docker build <span class="literal">-t</span> registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span> .</span><br></pre></td></tr></table></figure>
 
-<p><code>emqx.conf</code>&#x4FEE;&#x6539;&#x90E8;&#x5206;:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">allow_anonymous = false</span><br><span class="line">...</span><br><span class="line">acl_nomatch = deny</span><br></pre></td></tr></table></figure>
-
-
-<p><code>emqx_auth_mysql.conf</code>&#x4FEE;&#x6539;&#x90E8;&#x5206;&#xFF1A;</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">auth.mysql.server = 10.130.33.252:26004</span><br><span class="line"></span><br><span class="line">auth.mysql.username = root</span><br><span class="line"></span><br><span class="line">auth.mysql.password = 123456</span><br><span class="line"></span><br><span class="line">auth.mysql.database = nano-iot</span><br><span class="line"></span><br><span class="line">auth.mysql.password_hash = plain</span><br><span class="line"></span><br><span class="line">auth.mysql.acl_query = select allow, ipaddr, username, clientid, access, topic from mqtt_acl where (ipaddr = &apos;%a&apos; or username = &apos;%u&apos; or username = &apos;$all&apos;) and clientid = &apos;%c&apos; ORDER BY id DESC</span><br></pre></td></tr></table></figure>
-
-
-<ol start="3">
-<li>&#x6784;&#x5EFA;<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> D:\dev\docker<span class="literal">-images</span>\emqx<span class="literal">-4</span>.<span class="number">3.7</span></span><br><span class="line">docker build <span class="literal">-t</span> registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span> .</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>&#x767B;&#x5F55;&#x5230; <code>REGISTRYHOST</code>: <code>registry.sxc.sh</code>:</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker login registry.sxc.sh</span><br><span class="line">username&#x8F93;&#x5165;&#xFF1A;<span class="number">13795319741</span></span><br><span class="line">password&#x8F93;&#x5165;&#xFF1A;Xxg@<span class="number">2020</span></span><br></pre></td></tr></table></figure>
-
-<ol start="4">
+<p> &#x767B;&#x5F55;&#x5230; <code>REGISTRYHOST</code>: <code>registry.sxc.sh</code>:</p>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker login registry.sxc.sh</span><br><span class="line">username&#x8F93;&#x5165;&#xFF1A;<span class="number">13795319741</span></span><br><span class="line">password&#x8F93;&#x5165;&#xFF1A;Xxg@<span class="number">2020</span></span><br></pre></td></tr></table></figure>
+</li>
 <li><p>&#x63A8;&#x9001;</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
+ <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push registry.sxc.sh/public/emqx:<span class="number">4.3</span>.<span class="number">7</span></span><br></pre></td></tr></table></figure>
 </li>
-<li><p>&#x955C;&#x50CF;&#x5E93;&#x67E5;&#x770B;<br><img src="/2021/11/20/22.004%20MQTT%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81[EMQX]%E9%95%9C%E5%83%8F%E5%88%B0%E5%85%AC%E5%8F%B8%E7%A7%81%E6%9C%8D/2.png"></p>
+<li><p>&#x955C;&#x50CF;&#x5E93;&#x67E5;&#x770B;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/22.004%20MQTT%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81[EMQX]%E9%95%9C%E5%83%8F%E5%88%B0docker-hub/1.png"></p>
 </li>
 </ol>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/22.004%20MQTT%E7%B3%BB%E5%88%97-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%95%9C%E5%83%8F-docker%E6%8E%A8%E9%80%81[EMQX]%E9%95%9C%E5%83%8F%E5%88%B0docker-hub/2.png"></p>
  
       <!-- reward -->
       
@@ -208,7 +198,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--1.安装gitlab-ce |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.C005.Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--1.安装gitlab-ce"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--1.安装gitlab-ce
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/09/29/18.C005.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--1.%E5%AE%89%E8%A3%85gitlab-ce/" class="article-date">
+  <time datetime="2023-09-29T03:35:00.180Z" itemprop="datePublished">2023-09-29</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Infrastructure/">Infrastructure</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5728;&#x670D;&#x52A1;&#x5668;A&#x5B9E;&#x73B0;&#xFF1A;"><a href="#&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5728;&#x670D;&#x52A1;&#x5668;A&#x5B9E;&#x73B0;&#xFF1A;" class="headerlink" title="&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5728;&#x670D;&#x52A1;&#x5668;A&#x5B9E;&#x73B0;&#xFF1A;"></a>&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5728;&#x670D;&#x52A1;&#x5668;A&#x5B9E;&#x73B0;&#xFF1A;</h2><p>1.&#x5B89;&#x88C5;<code>docker</code><br>2.&#x5B89;&#x88C5;<code>git</code><br>3.&#x5B89;&#x88C5;<code>gitlab-ce</code></p>
+<h2 id="&#x670D;&#x52A1;&#x5668;A&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"><a href="#&#x670D;&#x52A1;&#x5668;A&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;" class="headerlink" title="&#x670D;&#x52A1;&#x5668;A&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"></a>&#x670D;&#x52A1;&#x5668;A&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;</h2><h3 id="&#x4F5C;&#x7528;&#xFF1A;"><a href="#&#x4F5C;&#x7528;&#xFF1A;" class="headerlink" title="&#x4F5C;&#x7528;&#xFF1A;"></a>&#x4F5C;&#x7528;&#xFF1A;</h3><ul>
+<li>&#x90E8;&#x7F72;gitlab-ce&#xFF0C;&#x5C06;&#x9879;&#x76EE;&#x6258;&#x7BA1;&#x81F3;<code>gitlab</code></li>
+</ul>
+<h3 id="&#x914D;&#x7F6E;&#xFF1A;"><a href="#&#x914D;&#x7F6E;&#xFF1A;" class="headerlink" title="&#x914D;&#x7F6E;&#xFF1A;"></a>&#x914D;&#x7F6E;&#xFF1A;</h3><ul>
+<li>&#x9999;&#x6E2F;&#x963F;&#x91CC;&#x4E91;-&#x8F7B;&#x91CF;&#x7EA7;&#x670D;&#x52A1;&#x5668;</li>
+<li>IP&#x5730;&#x5740;  :  (&#x516C;) <code>47.243.76.76</code></li>
+<li>CentoOS 7.6 2&#x6838;8G <code>root</code>  /  <code>???</code></li>
+</ul>
+<h3 id="1-&#x5B89;&#x88C5;docker"><a href="#1-&#x5B89;&#x88C5;docker" class="headerlink" title="1.&#x5B89;&#x88C5;docker"></a>1.&#x5B89;&#x88C5;docker</h3><ul>
+<li>&#x53C2;&#x8003; <a target="_blank" rel="noopener" href="https://xugangxie.github.io/2021/10/07/18.006%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85docker%E5%92%8Cdocker-compose/">&#x8FD9;&#x91CC;</a></li>
+</ul>
+<h3 id="2-&#x5B89;&#x88C5;git"><a href="#2-&#x5B89;&#x88C5;git" class="headerlink" title="2.&#x5B89;&#x88C5;git"></a>2.&#x5B89;&#x88C5;git</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum -y install git</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git --version</span></span><br><span class="line"></span><br><span class="line">git version 1.8.3.1</span><br></pre></td></tr></table></figure>
+
+<p>&#x5982;&#x679C;&#x8981;&#x751F;&#x7EA7;&#x6216;&#x662F;&#x5B89;&#x88C5;&#x6700;&#x65B0;&#x7248;&#x672C;&#x7684;git&#xFF0C;&#x53EF;&#x4EE5;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum install http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-2.noarch.rpm</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum -y install git</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git --version</span></span><br><span class="line">git version 2.39.1</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-&#x5B89;&#x88C5;curl"><a href="#3-&#x5B89;&#x88C5;curl" class="headerlink" title="3.&#x5B89;&#x88C5;curl"></a>3.&#x5B89;&#x88C5;curl</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum -y install curl</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">curl --version</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-&#x5B89;&#x88C5;gitlab"><a href="#3-&#x5B89;&#x88C5;gitlab" class="headerlink" title="3.&#x5B89;&#x88C5;gitlab"></a>3.&#x5B89;&#x88C5;gitlab</h3><p><code>https://packages.gitlab.com/gitlab/gitlab-ce</code> &#x4E0A;&#xFF0C;&#x70B9;&#x51FB;<code>RPM</code>&#x56FE;&#x6807;&#xFF0C;<br>&#x627E;&#x5230; <code>RPM Installation Instructions</code> &#x4E0B;&#x7684;&#x955C;&#x50CF;&#x6E90;&#x547D;&#x4EE4;<br>(&#x622A;&#x81F3;&#x5230;&#x76EE;&#x524D;&#xFF0C;&#x8BE5;&#x955C;&#x50CF;&#x6E90;&#x7684;&#x7248;&#x672C;&#x662F;&#xFF1A;<code>gitlab-ce.x86_64 0:15.11.0-ce.0.el7</code>)</p>
+<h4 id="1-&#x5B89;&#x88C5;&#x955C;&#x50CF;&#x6E90;"><a href="#1-&#x5B89;&#x88C5;&#x955C;&#x50CF;&#x6E90;" class="headerlink" title="1.&#x5B89;&#x88C5;&#x955C;&#x50CF;&#x6E90;"></a>1.&#x5B89;&#x88C5;&#x955C;&#x50CF;&#x6E90;</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-&#x5B89;&#x88C5;-yum-install-gitlab-ce"><a href="#2-&#x5B89;&#x88C5;-yum-install-gitlab-ce" class="headerlink" title="2.&#x5B89;&#x88C5;: yum install gitlab-ce"></a>2.&#x5B89;&#x88C5;: yum install gitlab-ce</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">yum install gitlab-ce</span></span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line">Resolving Dependencies</span><br><span class="line"><span class="meta prompt_">--&gt; </span><span class="language-bash">Running transaction check</span></span><br><span class="line"><span class="meta prompt_">---&gt; </span><span class="language-bash">Package gitlab-ce.x86_64 0:15.11.0-ce.0.el7 will be installed</span></span><br><span class="line"><span class="meta prompt_">--&gt; </span><span class="language-bash">Finished Dependency Resolution</span></span><br><span class="line"></span><br><span class="line">Dependencies Resolved</span><br><span class="line"></span><br><span class="line">===============================================================================================================================================</span><br><span class="line"> Package                        Arch                        Version                                Repository                             Size</span><br><span class="line">===============================================================================================================================================</span><br><span class="line">Installing:</span><br><span class="line"> gitlab-ce                      x86_64                      15.11.0-ce.0.el7                       gitlab_gitlab-ce                      1.2 G</span><br><span class="line"></span><br><span class="line">Transaction Summary</span><br><span class="line">===============================================================================================================================================</span><br><span class="line">Install  1 Package</span><br><span class="line"></span><br><span class="line">Total download size: 1.2 G</span><br><span class="line">Installed size: 2.6 G</span><br><span class="line">Is this ok [y/d/N]: y</span><br><span class="line">Downloading packages:</span><br><span class="line">warning: /var/cache/yum/x86_64/7/gitlab_gitlab-ce/packages/gitlab-ce-15.11.0-ce.0.el7.x86_64.rpm: Header V4 RSA/SHA1 Signature, key ID f27eab47: NOKEY</span><br><span class="line">Public key for gitlab-ce-15.11.0-ce.0.el7.x86_64.rpm is not installed</span><br><span class="line">gitlab-ce-15.11.0-ce.0.el7.x86_64.rpm                                                                                   | 1.2 GB  00:05:55     </span><br><span class="line">Retrieving key from https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey</span><br><span class="line">Importing GPG key 0x51312F3F:</span><br><span class="line"> Userid     : &quot;GitLab B.V. (package repository signing key) &lt;packages@gitlab.com&gt;&quot;</span><br><span class="line"> Fingerprint: f640 3f65 44a3 8863 daa0 b6e0 3f01 618a 5131 2f3f</span><br><span class="line"> From       : https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey</span><br><span class="line">Is this ok [y/N]: y</span><br><span class="line">Retrieving key from https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey/gitlab-gitlab-ce-3D645A26AB9FBD22.pub.gpg</span><br><span class="line">Importing GPG key 0xF27EAB47:</span><br><span class="line"> Userid     : &quot;GitLab, Inc. &lt;support@gitlab.com&gt;&quot;</span><br><span class="line"> Fingerprint: dbef 8977 4ddb 9eb3 7d9f c3a0 3cfc f9ba f27e ab47</span><br><span class="line"> From       : https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey/gitlab-gitlab-ce-3D645A26AB9FBD22.pub.gpg</span><br><span class="line">Is this ok [y/N]: y</span><br><span class="line">Running transaction check</span><br><span class="line">Running transaction test</span><br><span class="line">Transaction test succeeded</span><br><span class="line">Running transaction</span><br><span class="line">  Installing : gitlab-ce-15.11.0-ce.0.el7.x86_64                                                                                           1/1</span><br><span class="line">It looks like GitLab has not been configured yet; skipping the upgrade script.</span><br><span class="line"></span><br><span class="line">       *.                  *.</span><br><span class="line">      ***                 ***</span><br><span class="line">     *****               *****</span><br><span class="line">    .******             *******</span><br><span class="line">    ********            ********</span><br><span class="line">   ,,,,,,,,,***********,,,,,,,,,</span><br><span class="line">  ,,,,,,,,,,,*********,,,,,,,,,,,</span><br><span class="line">  .,,,,,,,,,,,*******,,,,,,,,,,,,</span><br><span class="line">      ,,,,,,,,,*****,,,,,,,,,.</span><br><span class="line">         ,,,,,,,****,,,,,,</span><br><span class="line">            .,,,***,,,,</span><br><span class="line">                ,*,.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">     _______ __  __          __</span><br><span class="line">    / ____(_) /_/ /   ____ _/ /_</span><br><span class="line">   / / __/ / __/ /   / __ `/ __ \</span><br><span class="line">  / /_/ / / /_/ /___/ /_/ / /_/ /</span><br><span class="line">  \____/_/\__/_____/\__,_/_.___/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Thank you for installing GitLab!</span><br><span class="line">GitLab was unable to detect a valid hostname for your instance.</span><br><span class="line">Please configure a URL for your GitLab instance by setting `external_url`</span><br><span class="line">configuration in /etc/gitlab/gitlab.rb file.</span><br><span class="line">Then, you can start your GitLab instance by running the following command:</span><br><span class="line">  sudo gitlab-ctl reconfigure</span><br><span class="line"></span><br><span class="line">For a comprehensive list of configuration options please see the Omnibus GitLab readme</span><br><span class="line">https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md</span><br><span class="line"></span><br><span class="line">Help us improve the installation experience, let us know how we did with a 1 minute survey:</span><br><span class="line">https://gitlab.fra1.qualtrics.com/jfe/form/SV_6kVqZANThUQ1bZb?installation=omnibus&amp;release=15-11</span><br><span class="line"></span><br><span class="line">  Verifying  : gitlab-ce-15.11.0-ce.0.el7.x86_64                                                                                           1/1</span><br><span class="line"></span><br><span class="line">Installed:</span><br><span class="line">  gitlab-ce.x86_64 0:15.11.0-ce.0.el7                                                                                                          </span><br><span class="line"></span><br><span class="line">Complete!</span><br></pre></td></tr></table></figure>
+
+<p>&#x5230;&#x6B64;&#x5DF2;&#x7ECF;&#x5B89;&#x88C5;&#x597D;&#x4E86;&#xFF0C;&#x53EF;&#x4EE5;&#x542F;&#x52A8;&#x4F7F;&#x7528;&#x4E86;&#xFF0C;&#x4F46;&#x662F;&#x7531;&#x4E8E;&#x5176;&#x5185;&#x5B58;&#x5360;&#x7528;&#x8F83;&#x5927;&#xFF0C;&#x6545;&#x53EF;&#x80FD;&#x9700;&#x8981;&#x6839;&#x636E;&#x5B9E;&#x9645;&#x60C5;&#x51B5;&#x8BBE;&#x7F6E;&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#xFF0C;&#x4FEE;&#x6539;&#x914D;&#x7F6E;&#x540E;&#x8FD8;&#x9700;&#x8981;&#x91CD;&#x65B0;&#x52A0;&#x8F7D;&#x914D;&#x7F6E;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x91CD;&#x65B0;&#x542F;&#x52A8;</p>
+<h4 id="3-&#x4F18;&#x5316;&#x914D;&#x7F6E;"><a href="#3-&#x4F18;&#x5316;&#x914D;&#x7F6E;" class="headerlink" title="3.&#x4F18;&#x5316;&#x914D;&#x7F6E;"></a>3.&#x4F18;&#x5316;&#x914D;&#x7F6E;</h4><h5 id="3-1-&#x4FEE;&#x6539;-external-url"><a href="#3-1-&#x4FEE;&#x6539;-external-url" class="headerlink" title="3.1 &#x4FEE;&#x6539; external_url"></a>3.1 &#x4FEE;&#x6539; external_url</h5><p>&#x7F16;&#x8F91;/etc/gitlab/gitlab.rb&#x6587;&#x4EF6;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/gitlab/gitlab.rb</span><br></pre></td></tr></table></figure>
+
+<p>&#x4FEE;&#x6539;external_url&#xFF0C;&#x76F4;&#x63A5;&#x589E;&#x52A0;&#x7AEF;&#x53E3;&#x53F7;&#x5373;&#x53EF;&#xFF0C;&#x6BD4;&#x5982;&#x6211;&#x8FD9;&#x91CC;&#x7528;80&#x7AEF;&#x53E3;&#xFF1A;<br>(&#x627E;&#x5230; <code>external_url &apos;http://gitlab.example.com&apos;</code>&#xFF0C;&#x6539;&#x6210;)<br><code>external_url &apos;http://47.243.76.76&apos;</code></p>
+<h4 id="4-&#x52A0;&#x8F7D;&#x914D;&#x7F6E;"><a href="#4-&#x52A0;&#x8F7D;&#x914D;&#x7F6E;" class="headerlink" title="4.&#x52A0;&#x8F7D;&#x914D;&#x7F6E;"></a>4.&#x52A0;&#x8F7D;&#x914D;&#x7F6E;</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gitlab-ctl reconfigure</span></span><br><span class="line">&#x8017;&#x65F6;&#x6BD4;&#x8F83;&#x957F;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-&#x67E5;&#x770B;&#x72B6;&#x6001;"><a href="#5-&#x67E5;&#x770B;&#x72B6;&#x6001;" class="headerlink" title="5.&#x67E5;&#x770B;&#x72B6;&#x6001;"></a>5.&#x67E5;&#x770B;&#x72B6;&#x6001;</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gitlab-ctl status</span></span><br><span class="line">run: alertmanager: (pid 7293) 112s; run: log: (pid 7131) 155s</span><br><span class="line">run: gitaly: (pid 7240) 120s; run: log: (pid 24689) 266s</span><br><span class="line">run: gitlab-exporter: (pid 7271) 114s; run: log: (pid 7037) 171s</span><br><span class="line">run: gitlab-kas: (pid 7250) 116s; run: log: (pid 24856) 255s</span><br><span class="line">run: gitlab-workhorse: (pid 7258) 115s; run: log: (pid 6950) 187s</span><br><span class="line">run: logrotate: (pid 24607) 281s; run: log: (pid 24616) 277s</span><br><span class="line">run: nginx: (pid 6960) 186s; run: log: (pid 6983) 183s</span><br><span class="line">run: node-exporter: (pid 7266) 115s; run: log: (pid 7014) 177s</span><br><span class="line">run: postgres-exporter: (pid 7302) 112s; run: log: (pid 7167) 147s</span><br><span class="line">run: postgresql: (pid 24723) 262s; run: log: (pid 24734) 261s</span><br><span class="line">run: prometheus: (pid 7279) 113s; run: log: (pid 7070) 159s</span><br><span class="line">run: puma: (pid 6888) 200s; run: log: (pid 6895) 199s</span><br><span class="line">run: redis: (pid 24638) 275s; run: log: (pid 24656) 272s</span><br><span class="line">run: redis-exporter: (pid 7273) 114s; run: log: (pid 7051) 167s</span><br><span class="line">run: sidekiq: (pid 6905) 194s; run: log: (pid 6921) 193s</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-&#x5176;&#x4ED6;&#x547D;&#x4EE4;"><a href="#6-&#x5176;&#x4ED6;&#x547D;&#x4EE4;" class="headerlink" title="6.&#x5176;&#x4ED6;&#x547D;&#x4EE4;:"></a>6.&#x5176;&#x4ED6;&#x547D;&#x4EE4;:</h4><p>&#x91CD;&#x65B0;&#x542F;&#x52A8;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gitlab-ctl restart</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-&#x8BBF;&#x95EE;gitlab"><a href="#7-&#x8BBF;&#x95EE;gitlab" class="headerlink" title="7.&#x8BBF;&#x95EE;gitlab"></a>7.&#x8BBF;&#x95EE;gitlab</h4><p>&#x518D;&#x6B21;&#x8F93;&#x5165;&#x6D4F;&#x89C8;&#x5668;&#x8F93;&#x5165;&#x5730;&#x5740;&#xFF1A;<code>http://47.243.76.76</code>&#xFF0C;&#x53EF;&#x4EE5;&#x6253;&#x5F00;<br>&#x521D;&#x88C5;&#x4EE5;&#x540E;&#xFF0C;&#x628A;&#x5BC6;&#x7801;&#x653E;&#x5728;&#x4E86;&#x4E00;&#x4E2A;&#x4E34;&#x65F6;&#x6587;&#x4EF6;&#x4E2D;&#xFF1A;<code>/etc/gitlab/initial_root_password</code>&#xFF0C;&#x8FD9;&#x4E2A;&#x6587;&#x4EF6;&#x5C06;&#x5728;&#x9996;&#x6B21;&#x6267;&#x884C;reconfigure&#x540E;24&#x5C0F;&#x65F6;&#x81EA;&#x52A8;&#x5220;&#x9664;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># cat /etc/gitlab/initial_root_password</span><br><span class="line"># WARNING: This value is valid only in the following conditions</span><br><span class="line">#          1. If provided manually (either via `GITLAB_ROOT_PASSWORD` environment variable or via `gitlab_rails[&apos;initial_root_password&apos;]` setting in `gitlab.rb`, it was provided before database was seeded for the first time (usually, the first reconfigure run).</span><br><span class="line">#          2. Password hasn&apos;t been changed manually, either via UI or via command line.</span><br><span class="line">#</span><br><span class="line">#          If the password shown here doesn&apos;t work, you must reset the admin password following https://docs.gitlab.com/ee/security/reset_user_password.html#reset-your-root-password.</span><br><span class="line"></span><br><span class="line">Password: 94oiZZ956k9yliJz5qclir9ZY0yGDNPiP0OMElf+//U=</span><br><span class="line"></span><br><span class="line"># NOTE: This file will be automatically deleted in the first reconfigure run after 24 hours.</span><br></pre></td></tr></table></figure>
+
+<p><code>root</code> / <code>94oiZZ956k9yliJz5qclir9ZY0yGDNPiP0OMElf+//U=</code><br>&#x767B;&#x5F55;&#x8FDB;&#x53BB;&#x540E;&#xFF0C;&#x70B9;&#x51FB;&#x5DE6;&#x4E0A;&#x65B9;Meus&#x2013;&gt;Admin&#xFF0C;&#x627E;&#x5230;&#x5DE6;&#x8FB9;&#x7684;Overview&#x2013;Users&#xFF0C;&#x53F3;&#x8FB9;&#x5217;&#x8868;&#x91CC;&#x6709;&#x4E2A;Administrator&#xFF0C;&#x70B9;&#x51FB;Edit&#xFF0C;&#x8FDB;&#x5165;&#x4FEE;&#x6539;&#x5BC6;&#x7801;&#x4E3A;&#xFF1A;<code>xiexugang</code><br>&#x56E0;&#x6B64;&#xFF0C;&#x76EE;&#x524D;&#x7528;&#x6237;&#x540D;&#x5BC6;&#x7801;&#x4E3A;&#xFF1A;<code>root</code> / <code>xiexugang</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C005.Infrastructure.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--1.%E5%AE%89%E8%A3%85gitlab-ce/iLyiU5.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C005.Infrastructure.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--1.%E5%AE%89%E8%A3%85gitlab-ce/iLyVR8.png"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GCP-GKE/" rel="tag">GCP-GKE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab-runner/" rel="tag">gitlab-runner</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2023/09/29/18.D001.Infrastructure-AWS%E7%B3%BB%E5%88%97.1.%E5%88%9B%E5%BB%BARDS%E3%80%81ElasticCache/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Infrastructure-AWS系列.1.创建EC2实例、LB、RDS、ElastiCache
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2023/09/29/18.C004.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--2.%E5%AE%89%E8%A3%85gitlab-runner/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--2.安装gitlab-runner</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

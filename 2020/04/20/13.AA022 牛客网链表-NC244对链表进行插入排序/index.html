@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">150</span>
+            <span class="post-count">159</span>
         </span>
     </span>
 
@@ -116,8 +116,8 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">insertionSortList</span><span class="params">(ListNode head)</span> {</span><br><span class="line">      <span class="type">ListNode</span> <span class="variable">dummy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListNode</span>(Integer.MIN_VALUE);</span><br><span class="line">      <span class="type">ListNode</span> <span class="variable">pre</span> <span class="operator">=</span> dummy;</span><br><span class="line">      <span class="type">ListNode</span> <span class="variable">cur</span> <span class="operator">=</span> head;</span><br><span class="line">      <span class="keyword">while</span> (cur != <span class="literal">null</span>) {</span><br><span class="line">        <span class="comment">//&#x4FDD;&#x5B58;&#x5F53;&#x524D;&#x8282;&#x70B9;&#x4E0B;&#x4E00;&#x4E2A;&#x8282;&#x70B9;</span></span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">next</span> <span class="operator">=</span> cur.next;</span><br><span class="line">        pre = dummy;</span><br><span class="line">        <span class="comment">//pre&#x8282;&#x70B9;&#xFF0C;&#x4E3A;&#x5408;&#x9002;&#x7684;&#x63D2;&#x5165;&#x4F4D;&#x7F6E;</span></span><br><span class="line">        <span class="keyword">while</span> (pre.next != <span class="literal">null</span> &amp;&amp; pre.next.val &lt; cur.val) {</span><br><span class="line">          pre = pre.next;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="comment">//&#x5173;&#x952E;&#x7684;&#x4E09;&#x6B65;&#xFF1A;&#x5C06;&#x5F53;&#x524D;&#x8282;&#x70B9;cur&#xFF0C;&#x63D2;&#x5165;&#x5230;pre&#x540E;&#x9762;</span></span><br><span class="line">        cur.next = pre.next;</span><br><span class="line">        pre.next = cur;</span><br><span class="line">        cur = next;</span><br><span class="line">      }</span><br><span class="line">      <span class="keyword">return</span> dummy.next;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 
-<p>&#x624B;&#x7A3F;&#x793A;&#x610F;&#x56FE;&#xFF1A;<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/1.jpg">https://cdn.jsdelivr.net/gh/XugangXie/blog-img/1.jpg</a></p>
-<p><img src="/2020/04/20/13.AA022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC244%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/NC244%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F-1.jpg"></p>
+<p>&#x624B;&#x7A3F;&#x793A;&#x610F;&#x56FE;&#xFF1A;<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/NC244%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F.jpg">https://cdn.jsdelivr.net/gh/XugangXie/blog-img/NC244&#x5BF9;&#x94FE;&#x8868;&#x8FDB;&#x884C;&#x63D2;&#x5165;&#x6392;&#x5E8F;.jpg</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AA022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC244%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/NC244%E5%AF%B9%E9%93%BE%E8%A1%A8%E8%BF%9B%E8%A1%8C%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F.jpg"></p>
  
       <!-- reward -->
       
@@ -172,7 +172,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

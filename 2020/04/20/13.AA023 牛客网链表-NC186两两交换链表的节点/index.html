@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">202</span>
+            <span class="post-count">192</span>
         </span>
     </span>
 
@@ -119,10 +119,9 @@
 <li><p>&#x4EE3;&#x7801;&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">swapLinkedPair</span> <span class="params">(ListNode head)</span> {</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">dummy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListNode</span>(-<span class="number">1</span>);</span><br><span class="line">  dummy.next = head;</span><br><span class="line"></span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">pre</span> <span class="operator">=</span> dummy;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">cur</span> <span class="operator">=</span> head;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">next</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">while</span>(cur != <span class="literal">null</span> &amp;&amp; cur.next != <span class="literal">null</span>){</span><br><span class="line">      <span class="comment">// &#x5177;&#x4F53;&#x5206;&#x6790;&#x8BE6;&#x89C1;&#x793A;&#x610F;&#x56FE;</span></span><br><span class="line">      next = cur.next;</span><br><span class="line">      cur.next = next.next;	<span class="comment">//1--&gt;3	 	&#x7B2C;&#x2462;&#x6B65;</span></span><br><span class="line">      next.next = pre.next;	<span class="comment">//2--&gt;1	 	&#x7B2C;&#x2461;&#x6B65;</span></span><br><span class="line">      pre.next = next;		<span class="comment">//pre--&gt;2	&#x7B2C;&#x2462;&#x6B65;</span></span><br><span class="line"></span><br><span class="line">      pre = next.next;		<span class="comment">//pre&#x6307;&#x5411;&#x4E0B;&#x9762;2&#x4E2A;&#x51C6;&#x5907;&#x4EA4;&#x6362;&#x7684;&#x94FE;&#x8868;&#x524D;&#x9762;</span></span><br><span class="line">      cur = pre.next;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> dummy.next;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>&#x5B9E;&#x73B0;&#x601D;&#x8DEF;&#xFF0C;&#x753B;&#x56FE;&#x793A;&#x610F;&#xFF1A;<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/2.png">https://cdn.jsdelivr.net/gh/XugangXie/blog-img/2.png</a></p>
+<li><p>&#x5B9E;&#x73B0;&#x601D;&#x8DEF;&#xFF0C;&#x753B;&#x56FE;&#x793A;&#x610F;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AA023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC186%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/NC186%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9.png"></p>
 </li>
 </ul>
-<p><img src="/2020/04/20/13.AA023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC186%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E7%9A%84%E8%8A%82%E7%82%B9/2.png"></p>
  
       <!-- reward -->
       
@@ -177,7 +176,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

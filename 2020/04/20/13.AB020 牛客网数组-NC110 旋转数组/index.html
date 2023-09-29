@@ -136,7 +136,7 @@
 </blockquote>
 <!-- More -->
 <p><strong>&#x65B9;&#x6CD5;1&#xFF1A;</strong><br>//&#x7A7A;&#x95F4;&#x590D;&#x6742;&#x5EA6;&#x4E3A;O(1) &#x4E0D;&#x5F00;&#x8F9F;&#x65B0;&#x7684;&#x5185;&#x5B58;&#x7A7A;&#x95F4;<br>//&#x6570;&#x7EC4;&#x53F3;&#x79FB;k&#x6B65;</p>
-<p><img src="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/1.png">                                                               </p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/1.png">                                                             </p>
 <p>&#x4EE3;&#x7801;&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">char</span>[] arrayRightMoveK_1(<span class="type">char</span>[] array, <span class="type">int</span> k) {</span><br><span class="line">  <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">  <span class="type">char</span> <span class="variable">replaced</span> <span class="operator">=</span> array[index];</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">loopTimes</span> <span class="operator">=</span> <span class="number">0</span>; loopTimes &lt; array.length; loopTimes++) {</span><br><span class="line">    index = (index+k) % array.length;</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> <span class="variable">temp</span> <span class="operator">=</span> array[index];</span><br><span class="line">    array[index] = replaced;</span><br><span class="line">    replaced = temp;</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> array;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 
@@ -202,7 +202,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

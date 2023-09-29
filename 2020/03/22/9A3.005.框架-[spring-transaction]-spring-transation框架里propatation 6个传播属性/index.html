@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">0</span>
+            <span class="post-count">643</span>
         </span>
     </span>
 
@@ -96,20 +96,49 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1 分钟</span>
+            <span class="post-count">4 分钟</span>
         </span>
     </span>
 </div>
  
     </div>
       
+    <div class="tocbot"></div>
+
 
 
 
   
     <div class="article-entry" itemprop="articleBody">
        
-  <span id="more"></span>
+  <h3 id="spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;"><a href="#spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;" class="headerlink" title="spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;"></a>spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;</h3><p>propagation&#x6307;&#x5B9A;&#x4E8B;&#x52A1;&#x7684;&#x4F20;&#x64AD;&#x884C;&#x4E3A;&#xFF0C;&#x5373;&#x5F53;&#x524D;&#x7684;&#x4E8B;&#x52A1;&#x65B9;&#x6CD5;&#x88AB;&#x53E6;&#x5916;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x65B9;&#x6CD5;&#x8C03;&#x7528;&#x65F6;&#x5982;&#x4F55;&#x4F7F;&#x7528;&#x4E8B;&#x52A1;&#x3002;</p>
+<span id="more"></span>
+<p>@Transational&#x91CC;&#x9762;&#x6709;&#x4E2A;propagation&#x5C5E;&#x6027;&#xFF0C;&#x8868;&#x793A;&#x4E8B;&#x52A1;&#x7684;&#x4F20;&#x64AD;&#x673A;&#x5236;&#xFF0C;&#x6839;&#x636E;&#x81EA;&#x5DF1;&#x7684;&#x7406;&#x89E3;&#x53EF;&#x9009;&#x503C;&#x6709;&#xFF1A;</p>
+<ul>
+<li><p><code>REQUIRED</code> &#x8FD9;&#x662F;&#x9ED8;&#x8BA4;&#x7684;&#x4F20;&#x64AD;&#x673A;&#x5236;&#xFF0C;&#x8868;&#x793A;&#x5982;&#x679C;&#x65B9;&#x6CD5;&#x5185;&#x6CA1;&#x6709;&#x4E8B;&#x52A1;&#xFF0C;&#x5C31;&#x65B0;&#x5EFA;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x5982;&#x679C;&#x6709;&#x4E8B;&#x52A1;&#xFF0C;&#x5C31;&#x5171;&#x7528;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x3002;&#x7B80;&#x5355;&#x8BF4;&#xFF0C;&#x5C31;&#x662F;&#x5185;&#x5D4C;&#x7684;&#x65B9;&#x6CD5;/&#x4E8B;&#x52A1;&#x5C06;&#x548C;&#x5916;&#x5C42;&#x65B9;&#x6CD5;/&#x4E8B;&#x52A1;&#x88AB;&#x5408;&#x5E76;&#x6210;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF1B;<br><strong>&#x8868;&#x793A;&#x91CC;&#x5C42;&#x4E8B;&#x52A1;&#x548C;&#x5916;&#x5C42;&#x4E8B;&#x52A1;&#x5C06;&#x88AB;&#x5408;&#x5E76;&#x6210;&#x540C;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF1B;</strong><br>&#x4EE5;&#x4E0B;&#x662F;&#x82F1;&#x6587;&#x63CF;&#x8FF0;&#xFF0C;&#x89C9;&#x5F97;&#x66F4;&#x597D;&#xFF1A;</p>
+<blockquote>
+<p> Spring <strong>REQUIRED</strong> behavior means that the same transaction will be used if there is an already opened transaction in the current bean method execution context. If there is no   existing transaction the Spring container will create a new one. If multiple methods configured as <strong>REQUIRED</strong> behavior are called in a nested way they will be assigned <strong>distinct logical transactions</strong> but they will all share the <strong>same physical transaction</strong>. In short this means that if an inner method causes a transaction to rollback, the outer method will fail to commit and will also rollback the transaction.</p>
+</blockquote>
+</li>
+<li><p><code>REQUIRES_NEW</code> &#x8868;&#x793A;&#x88AB;&#x6807;&#x8BB0;&#x7684;&#x65B9;&#x6CD5;&#x6C38;&#x8FDC;&#x90FD;&#x4F1A;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x4E8B;&#x52A1;&#xFF0C;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x5C06;&#x548C;&#x5916;&#x5C42;&#x65B9;&#x6CD5;/&#x4E8B;&#x52A1;&#x6CA1;&#x6709;&#x4EFB;&#x4F55;&#x5173;&#x7CFB;&#x3002;<br>&#x8868;&#x793A;&#x4E0D;&#x7BA1;&#x5916;&#x5C42;&#x662F;&#x5426;&#x5B58;&#x5728;&#x4E8B;&#x52A1;&#xFF0C;&#x88AB;&#x6807;&#x8BB0;&#x7684;&#x90FD;&#x4F1A;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x4E8B;&#x52A1;&#xFF0C;&#x5916;&#x5C42;&#x7684;&#x4E8B;&#x52A1;&#x88AB;&#x6302;&#x8D77;&#x3002;&#x8FD9;&#x4E2A;&#x548C;<code>REQUIRED</code>&#x76F8;&#x53CD;&#xFF0C;&#x5185;&#x90E8;&#x65B9;&#x6CD5;&#x548C;&#x5916;&#x90E8;&#x65B9;&#x6CD5;&#x662F;&#x4E24;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x4E8B;&#x52A1;&#x3002;<br><strong>&#x8868;&#x793A;&#x91CC;&#x5C42;&#x4E8B;&#x52A1;&#x548C;&#x5916;&#x5C42;&#x4E8B;&#x52A1;&#x662F;&#x4E24;&#x4E2A;&#x72EC;&#x7ACB;&#x7684;&#x4E8B;&#x52A1;&#xFF1B;</strong><br>&#x82F1;&#x6587;&#x63CF;&#x8FF0;:</p>
+<blockquote>
+<p> <strong>REQUIRES_NEW</strong> behavior means that a new physical transaction will always be created by the container. In other words the inner transaction may commit or rollback independently of the outer transaction, i.e. the outer transaction will not be affected by the inner transaction result: they will run in <strong>distinct physical transactions</strong>.</p>
+</blockquote>
+</li>
+<li><p><code>SUPPORTS</code> &#x8868;&#x793A;&#x5916;&#x5C42;&#x7684;&#x65B9;&#x6CD5;&#x5982;&#x679C;&#x6709;&#x4E8B;&#x52A1;&#xFF0C;&#x91CC;&#x5C42;&#x7684;&#x65B9;&#x6CD5;&#x5C31;&#x5171;&#x7528;&#x5916;&#x5C42;&#x7684;&#x540C;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF1B;&#x5426;&#x5219;&#x5982;&#x679C;&#x5916;&#x5C42;&#x6CA1;&#x6709;&#x4E8B;&#x52A1;&#xFF0C;&#x90A3;&#x4E48;&#x91CC;&#x9762;&#x91CC;&#x5C42;&#x7684;&#x65B9;&#x6CD5;&#x4E5F;&#x4E0D;&#x7528;&#x4E8B;&#x52A1;&#xFF1B;<br>&#x82F1;&#x6587;&#x63CF;&#x8FF0;:</p>
+<blockquote>
+<p> The SUPPORTS behavior will execute in the scope of a transaction if an opened transaction already exists. If there isn&#x2019;t an already opened transaction the method will execute anyway but in a non-transactional way.</p>
+</blockquote>
+</li>
+<li><p><code>NOT_SUPPORTED</code>  &#x8868;&#x793A;&#x4E0D;&#x4E3A;&#x6807;&#x8BB0;&#x7684;&#x65B9;&#x6CD5;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF1B;</p>
+</li>
+<li><p><code>NEVER</code> &#x8868;&#x793A;&#x5FC5;&#x987B;&#x5728;&#x4E00;&#x4E2A;&#x6CA1;&#x6709;&#x7684;&#x4E8B;&#x52A1;&#x65B9;&#x6CD5;&#x4E2D;&#x6267;&#x884C;&#xFF0C;&#x5426;&#x5219;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#xFF1B;</p>
+</li>
+<li><p><code>MANDATORY</code> &#x8868;&#x793A;&#x5FC5;&#x987B;&#x5728;&#x4E00;&#x4E2A;&#x5DF2;&#x6709;&#x7684;&#x4E8B;&#x52A1;&#x4E2D;&#x6267;&#x884C;&#xFF0C;&#x5426;&#x5219;&#x629B;&#x51FA;&#x5F02;&#x5E38;&#xFF1B;</p>
+</li>
+<li><p>&#x8BB0;&#x6CD5;&#xFF1A; <code>REQUIRED</code>&#x548C;<code>REQUIRES_NEW</code>&#x76F8;&#x53CD;&#xFF1B;<code>SUPPORTS</code>&#x548C;<code>NOT_SUPPORTED</code>&#x76F8;&#x53CD;&#xFF1B;<code>NEVER</code>&#x548C;<code>MANDATORY</code>&#x76F8;&#x53CD;</p>
+</li>
+</ul>
  
       <!-- reward -->
       
@@ -164,7 +193,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

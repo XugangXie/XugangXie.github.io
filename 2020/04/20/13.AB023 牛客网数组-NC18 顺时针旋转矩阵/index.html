@@ -115,8 +115,8 @@
 <li><a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/3e57cbef241444659ce71c7fc5269b77">https://blog.nowcoder.net/n/3e57cbef241444659ce71c7fc5269b77</a><span id="more"></span>
 &#x4EE3;&#x7801;&#xFF1A;<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span>[][] rotateMatrix_v1(<span class="type">int</span>[][] mat, <span class="type">int</span> n) {</span><br><span class="line">  <span class="comment">//mat[i][j]&#x88AB;&#x65CB;&#x8F6C;&#x5230;&#x4E86;mat[j][n-i-1]&#x7684;&#x4F4D;&#x7F6E;</span></span><br><span class="line">  <span class="type">int</span>[][] ans = <span class="keyword">new</span> <span class="title class_">int</span>[n][n];</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; i++) {</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; n; j++) {</span><br><span class="line">      ans[j][n-<span class="number">1</span>-i] = mat[i][j];</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> ans;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  1	2	3</span></span><br><span class="line"><span class="comment">  4	5	6</span></span><br><span class="line"><span class="comment">  7	8	9</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  &#x6C34;&#x5E73;&#x7FFB;&#x8F6C;&#xFF1A;</span></span><br><span class="line"><span class="comment">  7	8	9</span></span><br><span class="line"><span class="comment">  4	5	6</span></span><br><span class="line"><span class="comment">  1	2	3</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  &#x4E3B;&#x5BF9;&#x89D2;&#x7EBF;&#x7FFB;&#x8F6C;&#xFF1A;</span></span><br><span class="line"><span class="comment">  7	4	1</span></span><br><span class="line"><span class="comment">  8	5	2</span></span><br><span class="line"><span class="comment">  9	6	3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span>[][] rotateMatrix_v2(<span class="type">int</span>[][] mat, <span class="type">int</span> n) {</span><br><span class="line">  <span class="comment">// &#x6C34;&#x5E73;&#x7FFB;&#x8F6C;</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n/<span class="number">2</span>; i++) {	<span class="comment">//&#x884C;&#x6570;</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; n; j++) {<span class="comment">//&#x5217;&#x6570;</span></span><br><span class="line">      <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> mat[i][j];</span><br><span class="line">      mat[i][j] = mat[n-<span class="number">1</span>-i][j];</span><br><span class="line">      mat[n-<span class="number">1</span>-i][j] = temp;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="comment">//&#x4E3B;&#x5BF9;&#x89D2;&#x7EBF;&#x7FFB;&#x8F6C;</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; i++) {</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; i; j++) {</span><br><span class="line">      <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> mat[i][j];</span><br><span class="line">      mat[i][j] = mat[j][i];</span><br><span class="line">      mat[j][i] = temp;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> mat;</span><br><span class="line">}</span><br></pre></td></tr></table></figure></li>
 </ol>
-<p>&#x624B;&#x7A3F;&#xFF1A;<br><img src="/2020/04/20/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/1.jpg"></p>
-<p><img src="/2020/04/20/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/2.jpg"></p>
+<p>&#x624B;&#x7A3F;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/1.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AB023%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC18%20%E9%A1%BA%E6%97%B6%E9%92%88%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/2.jpg"></p>
  
       <!-- reward -->
       
@@ -135,19 +135,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/04/20/13.AB022%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC143%20%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95/" class="article-nav-link">
+      <a href="/2020/04/20/13.AB035%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC166%20%E8%BF%9E%E7%BB%AD%E5%AD%90%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%A4%A7%E5%92%8C%E4%BA%8C/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            13.AB022 牛客网数组-NC143 矩阵乘法
+            13.AB035 牛客网数组-NC166 连续子数组的最大和二
           
         </div>
       </a>
     
     
-      <a href="/2020/04/20/13.AB024%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC46%20%E5%8A%A0%E8%B5%B7%E6%9D%A5%E5%92%8C%E4%B8%BA%E7%9B%AE%E6%A0%87%E5%80%BC%E7%9A%84%E7%BB%84%E5%90%88%E4%BA%8C/" class="article-nav-link">
+      <a href="/2020/04/20/13.AB033%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC202%20%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E8%BF%9E%E7%BB%AD%E5%AD%90%E6%95%B0%E7%BB%84/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">13.AB024 牛客网数组-NC46 加起来和为目标值的组合二</div>
+        <div class="article-nav-title">13.AB033 牛客网数组-NC202 长度最小的连续子数组</div>
       </a>
     
   </nav>
@@ -171,7 +171,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

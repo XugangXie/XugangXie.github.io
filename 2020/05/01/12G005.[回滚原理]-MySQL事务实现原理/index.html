@@ -137,7 +137,7 @@
 <p>Redo log&#x6307;&#x4E8B;&#x52A1;&#x4E2D;&#x64CD;&#x4F5C;&#x7684;&#x4EFB;&#x4F55;&#x6570;&#x636E;&#xFF0C;&#x5C06;&#x6700;&#x65B0;&#x7684;&#x6570;&#x636E;&#x5907;&#x4EFD;&#x5230;&#x4E00;&#x4E2A;&#x5730;&#x65B9; (Redo Log)&#x3002;</p>
 <p>Redo log&#x4E00;&#x822C;&#x662F;&#x5728;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x7684;&#x65F6;&#x5019;&#x4EE5;&#x987A;&#x5E8F;IO&#x7684;&#x65B9;&#x5F0F;&#x5199;&#x5165;&#x78C1;&#x76D8;&#x3002;&#x5177;&#x4F53;&#x7684;&#x843D;&#x76D8;&#x7B56;&#x7565;&#x53EF;&#x4EE5;&#x8FDB;&#x884C;&#x914D;&#x7F6E;&#x3002;</p>
 <h5 id="Redo-log&#x5B9E;&#x73B0;&#x4E86;&#x4E8B;&#x52A1;&#x7684;&#x6301;&#x4E45;&#x6027;&#xFF1A;"><a href="#Redo-log&#x5B9E;&#x73B0;&#x4E86;&#x4E8B;&#x52A1;&#x7684;&#x6301;&#x4E45;&#x6027;&#xFF1A;" class="headerlink" title="Redo log&#x5B9E;&#x73B0;&#x4E86;&#x4E8B;&#x52A1;&#x7684;&#x6301;&#x4E45;&#x6027;&#xFF1A;"></a>Redo log&#x5B9E;&#x73B0;&#x4E86;&#x4E8B;&#x52A1;&#x7684;&#x6301;&#x4E45;&#x6027;&#xFF1A;</h5><p>&#x9632;&#x6B62;&#x5728;&#x53D1;&#x751F;&#x6545;&#x969C;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x5C1A;&#x6709;&#x810F;&#x9875;&#x672A;&#x5199;&#x5165;&#x78C1;&#x76D8;&#xFF0C;&#x5728;&#x91CD;&#x542F;mysql&#x670D;&#x52A1;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6839;&#x636E;Redo log&#x8FDB;&#x884C;&#x91CD;&#x505A;&#xFF0C;&#x4ECE;&#x800C;&#x4FDD;&#x8BC1;&#x4E8B;&#x52A1;&#x4E2D;&#x5C1A;&#x672A;&#x5199;&#x5165;&#x78C1;&#x76D8;&#x7684;&#x6570;&#x636E;&#x7684;&#x6301;&#x4E45;&#x6027;&#x3002;</p>
-<p><img src="/2020/05/01/12G005.[%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86]-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/2.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12G005.[%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86]-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/2b.jpg"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x4E00;&#x65E6;&#x4E8B;&#x52A1;&#x6210;&#x529F;&#x63D0;&#x4EA4;&#x4E14;&#x6570;&#x636E;&#x6301;&#x4E45;&#x5316;&#x843D;&#x76D8;&#x4E4B;&#x540E;&#xFF0C;&#x6B64;&#x65F6;Redo log&#x4E2D;&#x7684;&#x5BF9;&#x5E94;&#x4E8B;&#x52A1;&#x6570;&#x636E;&#x8BB0;&#x5F55;&#x5C31;&#x5931;&#x53BB;&#x4E86;&#x610F;&#x4E49;&#xFF0C;&#x6240;&#x4EE5;Redo log&#x7684;&#x5199;&#x5165;&#x662F;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5FAA;&#x73AF;&#x5199;&#x5165;&#x7684;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x6307;&#x5B9A;Redo log&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x7EC4;&#x4E2D;&#x7684;&#x6570;&#x91CF; innodb_log_files_in_group &#x9ED8;&#x8BA4;&#x4E3A;2&#xFF1B;</span><br><span class="line"></span><br><span class="line">&#x6307;&#x5B9A;Redo log&#x6BCF;&#x4E00;&#x4E2A;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x6700;&#x5927;&#x5B58;&#x50A8;&#x91CF;innodb_log_file_size &#x9ED8;&#x8BA4;48M&#xFF1B;</span><br><span class="line"></span><br><span class="line">&#x6307;&#x5B9A;Redo log&#x5728;cache/buffer&#x4E2D;&#x7684;buffer&#x6C60;&#x5927;&#x5C0F;innodb_log_buffer_size &#x9ED8;&#x8BA4;16M&#x3002;</span><br><span class="line"></span><br><span class="line">Redo buffer &#x6301;&#x4E45;&#x5316;Redo log&#x7684;&#x7B56;&#x7565;&#xFF0C; Innodb_flush_log_at_trx_commit&#xFF1A;</span><br><span class="line"></span><br><span class="line">&#x53D6;&#x503C; 0 &#x6BCF;&#x79D2;&#x63D0;&#x4EA4; Redo buffer --&gt; Redo log OS cache --&gt;flush cache to disk[&#x53EF;&#x80FD;&#x4E22;&#x5931;&#x4E00;&#x79D2;&#x5185;&#x7684;&#x4E8B;&#x52A1;&#x6570;&#x636E;]&#xFF1B;</span><br><span class="line"></span><br><span class="line">&#x53D6;&#x503C; 1 &#x9ED8;&#x8BA4;&#x503C;&#xFF0C;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x6267;&#x884C;Redo buffer --&gt; Redo log OS cache --&gt;flush cache to disk[&#x6700;&#x5B89;&#x5168;&#xFF0C;&#x6027;&#x80FD;&#x6700;&#x5DEE;&#x7684;&#x65B9;&#x5F0F;]&#xFF1B;</span><br><span class="line"></span><br><span class="line">&#x53D6;&#x503C; 2 &#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x6267;&#x884C;Redo buffer --&gt; Redo log OS cache &#x518D;&#x6BCF;&#x4E00;&#x79D2;&#x6267;&#x884C; --&gt;flush cache to disk&#x64CD;&#x4F5C; &#x3002;</span><br></pre></td></tr></table></figure>
 
 <br>
@@ -149,7 +149,7 @@
 <h5 id="MySQL-InnoDB&#x901A;&#x8FC7;Undo-log&#x5B9E;&#x73B0;MVCC&#xFF1A;"><a href="#MySQL-InnoDB&#x901A;&#x8FC7;Undo-log&#x5B9E;&#x73B0;MVCC&#xFF1A;" class="headerlink" title="MySQL InnoDB&#x901A;&#x8FC7;Undo log&#x5B9E;&#x73B0;MVCC&#xFF1A;"></a>MySQL InnoDB&#x901A;&#x8FC7;Undo log&#x5B9E;&#x73B0;MVCC&#xFF1A;</h5><p>&#x4E8B;&#x52A1;&#x672A;&#x63D0;&#x4EA4;&#x4E4B;&#x524D;&#xFF0C;Undo log&#x4FDD;&#x5B58;&#x4E86;&#x672A;&#x63D0;&#x4EA4;&#x4E4B;&#x524D;&#x7684;&#x7248;&#x672C;&#x6570;&#x636E;&#xFF0C;Undo log&#x4E2D;&#x7684;&#x6570;&#x636E;&#x53EF;&#x4F5C;&#x4E3A;&#x6570;&#x636E;&#x65E7;&#x7248;&#x672C;&#x5FEB;&#x7167;&#x4F9B;&#x5176;&#x4ED6;&#x5E76;&#x53D1;&#x4E8B;&#x52A1;&#x8FDB;&#x884C;&#x5FEB;&#x7167;&#x8BFB;&#x3002;&#xA0;</p>
 <h5 id="&#x5FEB;&#x7167;&#x8BFB;&#xFF1A;"><a href="#&#x5FEB;&#x7167;&#x8BFB;&#xFF1A;" class="headerlink" title="&#x5FEB;&#x7167;&#x8BFB;&#xFF1A;"></a>&#x5FEB;&#x7167;&#x8BFB;&#xFF1A;</h5><p>SQL&#x8BFB;&#x53D6;&#x7684;&#x6570;&#x636E;&#x662F;&#x5FEB;&#x7167;&#x7248;&#x672C;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5386;&#x53F2;&#x7248;&#x672C;&#xFF0C;&#x666E;&#x901A;&#x7684;SELECT&#x5C31;&#x662F;&#x5FEB;&#x7167;&#x8BFB;&#x3002;</p>
 <h5 id="&#x5F53;&#x524D;&#x8BFB;&#xFF1A;"><a href="#&#x5F53;&#x524D;&#x8BFB;&#xFF1A;" class="headerlink" title="&#x5F53;&#x524D;&#x8BFB;&#xFF1A;"></a>&#x5F53;&#x524D;&#x8BFB;&#xFF1A;</h5><p>SQL&#x8BFB;&#x53D6;&#x7684;&#x6570;&#x636E;&#x662F;&#x6700;&#x65B0;&#x7248;&#x672C;&#x3002;&#x901A;&#x8FC7;&#x9501;&#x673A;&#x5236;&#x6765;&#x4FDD;&#x8BC1;&#x8BFB;&#x53D6;&#x7684;&#x6570;&#x636E;&#x65E0;&#x6CD5;&#x901A;&#x8FC7;&#x5176;&#x4ED6;&#x4E8B;&#x52A1;&#x8FDB;&#x884C;&#x4FEE;&#x6539;&#x3002;<br>UPDATE&#x3001;DELETE&#x3001;INSERT&#x3001;SELECT &#x2026; LOCK IN SHARE MODE&#x3001;SELECT &#x2026; FOR UPDATE&#x90FD;&#x662F;&#x5F53;&#x524D;&#x8BFB;&#x3002;</p>
-<p><img src="/2020/05/01/12G005.[%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86]-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12G005.[%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86]-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/1a.jpg"></p>
 <hr>
 <p>&#x539F;&#x6587;&#x94FE;&#x63A5;&#xFF1A;<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/48327345">https://zhuanlan.zhihu.com/p/48327345</a></p>
 <h4 id="&#x4E00;&#x3001;Redo-log"><a href="#&#x4E00;&#x3001;Redo-log" class="headerlink" title="&#x4E00;&#x3001;Redo log"></a>&#x4E00;&#x3001;Redo log</h4><p><strong>&#x91CD;&#x505A;&#x65E5;&#x5FD7;&#x7528;&#x6765;&#x5B9E;&#x73B0;&#x4E8B;&#x52A1;&#x7684;&#x6301;&#x4E45;&#x6027;&#xFF0C;&#x5373;D&#x7279;&#x6027;</strong>&#x3002;&#x5B83;&#x7531;&#x4E24;&#x90E8;&#x5206;&#x7EC4;&#x6210;&#xFF1A;</p>
@@ -189,11 +189,11 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/05/01/12G004.%5B%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86%5D-%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%80%9D%E6%83%B3/" class="article-nav-link">
+      <a href="/2020/05/01/12G003.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-undo-log%E5%8E%9F%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            12G004.[持久原理]-两阶段提交思想
+            12G003.[回滚原理]-undo-log原理
           
         </div>
       </a>
@@ -225,7 +225,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

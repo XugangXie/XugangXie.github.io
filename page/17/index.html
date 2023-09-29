@@ -152,6 +152,641 @@
     
     
     <article
+  id="post-12G005.[回滚原理]-MySQL事务实现原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12G005.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"
+    >12G005.[回滚原理]-MySQL事务实现原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12G005.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h4 id="&#x4E8B;&#x52A1;&#x7684;&#x5B9E;&#x73B0;"><a href="#&#x4E8B;&#x52A1;&#x7684;&#x5B9E;&#x73B0;" class="headerlink" title="&#x4E8B;&#x52A1;&#x7684;&#x5B9E;&#x73B0;"></a>&#x4E8B;&#x52A1;&#x7684;&#x5B9E;&#x73B0;</h4><p>&#x4E8B;&#x52A1;<code>&#x9694;&#x79BB;&#x6027;</code>&#x662F;&#x7531;&#x9501;&#x6765;&#x5B9E;&#x73B0;&#x3002;<code>&#x539F;&#x5B50;&#x6027;</code>&#x3001;<code>&#x4E00;&#x81F4;&#x6027;</code>&#x3001;<code>&#x6301;&#x4E45;&#x6027;</code>&#x662F;&#x901A;&#x8FC7;&#x6570;&#x636E;&#x5E93;&#x7684;<code>redo log</code>&#x548C;<code>undo log</code>&#x6765;&#x5B8C;&#x6210;&#x3002; <code>redo log</code> &#x88AB;&#x79F0;&#x4E3A;&#x91CD;&#x505A;&#x65E5;&#x5FD7;&#xFF0C;&#x7528;&#x6765;&#x4FDD;&#x8BC1;&#x4E8B;&#x52A1;&#x7684;<code>&#x539F;&#x5B50;&#x6027;</code>&#x548C;<code>&#x6301;&#x4E45;&#x6027;</code>&#x3002;<code>undo log</code>&#x7528;&#x6765;&#x4FDD;&#x8BC1;&#x4E8B;&#x52A1;&#x7684;<code>&#x4E00;&#x81F4;&#x6027;</code>&#x3002;</p> 
+      <a class="article-more-link" href="/2020/05/01/12G005.%5B%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86%5D-MySQL%E4%BA%8B%E5%8A%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BB%9A%E5%8E%9F%E7%90%86/" rel="tag">回滚原理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12H001.[SQL优化]-Cardinality值如何计算出来的"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12H001.%5BSQL%E4%BC%98%E5%8C%96%5D-Cardinality%E5%80%BC%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E5%87%BA%E6%9D%A5%E7%9A%84/"
+    >12H001.[SQL优化]-Cardinality值如何计算出来的</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H001.%5BSQL%E4%BC%98%E5%8C%96%5D-Cardinality%E5%80%BC%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E5%87%BA%E6%9D%A5%E7%9A%84/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>Cardinality&#x503C;&#x5982;&#x4F55;&#x8BA1;&#x7B97;&#x51FA;&#x6765;&#x7684;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12H001.%5BSQL%E4%BC%98%E5%8C%96%5D-Cardinality%E5%80%BC%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E5%87%BA%E6%9D%A5%E7%9A%84/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12H002.[SQL优化]-执行计划explain详解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12H002.%5BSQL%E4%BC%98%E5%8C%96%5D-%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92explain%E8%AF%A6%E8%A7%A3/"
+    >12H002.[SQL优化]-执行计划explain详解</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H002.%5BSQL%E4%BC%98%E5%8C%96%5D-%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92explain%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>MySQL&#x63D0;&#x4F9B;&#x4E86;&#x4E00;&#x4E2A;explain&#x547D;&#x4EE4;, &#x5B83;&#x53EF;&#x4EE5;&#x5BF9;select&#x8BED;&#x53E5;&#x8FDB;&#x884C;&#x5206;&#x6790;, &#x5E76;&#x8F93;&#x51FA;select&#x6267;&#x884C;&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;, &#x4EE5;&#x4F9B;&#x5F00;&#x53D1;&#x4EBA;&#x5458;&#x9488;&#x5BF9;&#x67E5;&#x8BE2;&#x6027;&#x80FD;&#x8FDB;&#x884C;&#x4F18;&#x5316;</p> 
+      <a class="article-more-link" href="/2020/05/01/12H002.%5BSQL%E4%BC%98%E5%8C%96%5D-%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92explain%E8%AF%A6%E8%A7%A3/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12H003.[SQL优化]-表连接优化、小表驱动大表"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12H003.%5BSQL%E4%BC%98%E5%8C%96%5D-%E8%A1%A8%E8%BF%9E%E6%8E%A5%E4%BC%98%E5%8C%96%E3%80%81%E5%B0%8F%E8%A1%A8%E9%A9%B1%E5%8A%A8%E5%A4%A7%E8%A1%A8/"
+    >12H003.[SQL优化]-表连接优化、小表驱动大表</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H003.%5BSQL%E4%BC%98%E5%8C%96%5D-%E8%A1%A8%E8%BF%9E%E6%8E%A5%E4%BC%98%E5%8C%96%E3%80%81%E5%B0%8F%E8%A1%A8%E9%A9%B1%E5%8A%A8%E5%A4%A7%E8%A1%A8/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;"><a href="#&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;" class="headerlink" title="&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;"></a>&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;</h3><h4 id="&#x4E24;&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;"><a href="#&#x4E24;&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;" class="headerlink" title="&#x4E24;&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;"></a>&#x4E24;&#x8868;&#x8FDE;&#x63A5;&#x4F18;&#x5316;</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">explain <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> class <span class="keyword">left</span> <span class="keyword">join</span> book <span class="keyword">on</span> class.card<span class="operator">=</span>book.card;</span><br></pre></td></tr></table></figure>
+
+<p>&#x8FD9;&#x662F;&#x7531;&#x5DE6;&#x8FDE;&#x63A5;&#x7279;&#x6027;&#x51B3;&#x5B9A;&#x7684;.<br>left join&#x6761;&#x4EF6;&#x7528;&#x4E8E;&#x786E;&#x5B9A;&#x5982;&#x4F55;&#x4ECE;&#x53F3;&#x8868;&#x641C;&#x7D22;,&#x5DE6;&#x8FB9;&#x4E00;&#x5B9A;&#x6709;,&#x7D22;&#x5F15;&#x53CD;&#x7740;&#x5EFA;</p> 
+      <a class="article-more-link" href="/2020/05/01/12H003.%5BSQL%E4%BC%98%E5%8C%96%5D-%E8%A1%A8%E8%BF%9E%E6%8E%A5%E4%BC%98%E5%8C%96%E3%80%81%E5%B0%8F%E8%A1%A8%E9%A9%B1%E5%8A%A8%E5%A4%A7%E8%A1%A8/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96-explain/" rel="tag">SQL优化 explain</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12H004.[SQL优化]-SQL优化策略总结"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
+    >12H004.[SQL优化]-SQL优化策略总结</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"><a href="#SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;" class="headerlink" title="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"></a>SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;</h3><h4 id="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"><a href="#&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;" class="headerlink" title="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"></a>&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;</h4><p>&#x5F53;&#x4E00;&#x884C;&#x6570;&#x636E;&#x88AB;&#x591A;&#x6B21;&#x4F7F;&#x7528;&#x65F6;&#x53EF;&#x4EE5;&#x8003;&#x8651;&#x5C06;&#x6570;&#x636E;&#x884C;&#x7F13;&#x5B58;&#x8D77;&#x6765;&#xFF0C;&#x907F;&#x514D;&#x6BCF;&#x6B21;&#x4F7F;&#x7528;&#x90FD;&#x8981;&#x5230;MySql&#x67E5;&#x8BE2;&#x3002;<br>&#x907F;&#x514D;&#x4F7F;&#x7528;SELECT * &#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x8FDB;&#x884C;&#x67E5;&#x8BE2;&#xFF0C;&#x5E94;&#x8BE5;&#x53EA;&#x8FD4;&#x56DE;&#x9700;&#x8981;&#x7684;&#x5217;&#x3002;</p> 
+      <a class="article-more-link" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12I001.[新特性]-Insert Pool系列-InnoDB关键特性-插入缓冲"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12I001.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-Insert%20Pool%E7%B3%BB%E5%88%97-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E6%8F%92%E5%85%A5%E7%BC%93%E5%86%B2/"
+    >12I001.[新特性]-Insert Pool系列-InnoDB关键特性-插入缓冲</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12I001.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-Insert%20Pool%E7%B3%BB%E5%88%97-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E6%8F%92%E5%85%A5%E7%BC%93%E5%86%B2/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x63D2;&#x5165;&#x7F13;&#x51B2; (insert buffer)</p>
+</blockquote>
+<p>&#x603B;&#x7684;&#x6765;&#x8BF4;&#xFF1A;</p>
+<ol>
+<li>&#x63D2;&#x5165;&#x7F13;&#x51B2; (insert buffer)</li>
+<li>&#x4E24;&#x6B21;&#x5199; &#xFF08;double write)</li>
+<li>&#x81EA;&#x9002;&#x5E94;&#x54C8;&#x5E0C;&#x7D22;&#x5F15; (adaptive has index)</li></ol> 
+      <a class="article-more-link" href="/2020/05/01/12I001.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-Insert%20Pool%E7%B3%BB%E5%88%97-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E6%8F%92%E5%85%A5%E7%BC%93%E5%86%B2/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12I002.[新特性]-InnoDB关键特性-两次写"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/"
+    >12I002.[新特性]-InnoDB关键特性-两次写</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x4E24;&#x6B21;&#x5199; &#xFF08;double write)</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12I003.[新特性]-InnoDB关键特性-自适应哈希索引"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/"
+    >12I003.[新特性]-InnoDB关键特性-自适应哈希索引</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x81EA;&#x9002;&#x5E94;&#x54C8;&#x5E0C;&#x7D22;&#x5F15;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12I004.[新特性]-InnoDB关键特性-刷新邻接页"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/"
+    >12I004.[新特性]-InnoDB关键特性-刷新邻接页</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x5237;&#x65B0;&#x90BB;&#x63A5;&#x9875;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12I005.[新特性]-InnoDB关键特性-异步IO"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/"
+    >12I005.[新特性]-InnoDB关键特性-异步IO</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x5F02;&#x6B65;IO</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.20000 排序"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.20000%20%E6%8E%92%E5%BA%8F/"
+    >排序</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.20000%20%E6%8E%92%E5%BA%8F/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x6392;&#x5E8F;&#x5206;&#x4E3A;&#x4E09;&#x5927;&#x7C7B;&#x578B;&#xFF1A;<code>&#x4EA4;&#x6362;&#x7C7B;&#x6392;&#x5E8F;</code>&#x3001;<code>&#x63D2;&#x5165;&#x7C7B;&#x6392;&#x5E8F;</code>&#x3001;<code>&#x9009;&#x62E9;&#x7C7B;&#x6392;&#x5E8F;</code>&#xFF0C;&#x540C;&#x65F6;&#x5269;&#x4E0B;2&#x4E2A;&#x5176;&#x4ED6;&#x6392;&#x5E8F;&#xFF1A;<code>&#x5F52;&#x5E76;&#x6392;&#x5E8F;</code>&#x548C;<code>&#x57FA;&#x6570;&#x6392;&#x5E8F;</code></p> 
+      <a class="article-more-link" href="/2020/04/20/13.20000%20%E6%8E%92%E5%BA%8F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-13.20001 排序-数组-交换类排序之冒泡排序"
   class="article article-type-post"
   itemscope
@@ -655,630 +1290,6 @@
 </article>
 
     
-    <article
-  id="post-13.20100 排序-链表-单链表快速排序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.20100%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/"
-    >排序-链表-单链表快速排序</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.20100%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h3 id="&#x5355;&#x94FE;&#x8868;&#x5FEB;&#x901F;&#x6392;&#x5E8F;"><a href="#&#x5355;&#x94FE;&#x8868;&#x5FEB;&#x901F;&#x6392;&#x5E8F;" class="headerlink" title="&#x5355;&#x94FE;&#x8868;&#x5FEB;&#x901F;&#x6392;&#x5E8F;"></a>&#x5355;&#x94FE;&#x8868;&#x5FEB;&#x901F;&#x6392;&#x5E8F;</h3> 
-      <a class="article-more-link" href="/2020/04/20/13.20100%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.20101 排序-链表-单链表归并排序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.20101%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/"
-    >排序-链表-单链表归并排序</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.20101%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h3 id="&#x5355;&#x94FE;&#x8868;&#x5F52;&#x5E76;&#x6392;&#x5E8F;"><a href="#&#x5355;&#x94FE;&#x8868;&#x5F52;&#x5E76;&#x6392;&#x5E8F;" class="headerlink" title="&#x5355;&#x94FE;&#x8868;&#x5F52;&#x5E76;&#x6392;&#x5E8F;"></a>&#x5355;&#x94FE;&#x8868;&#x5F52;&#x5E76;&#x6392;&#x5E8F;</h3> 
-      <a class="article-more-link" href="/2020/04/20/13.20101%20%E6%8E%92%E5%BA%8F-%E9%93%BE%E8%A1%A8-%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.30001 其他-判断一个正整数是否可表示为2的N次方"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.30001%20%E5%85%B6%E4%BB%96-%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B4%E6%95%B0%E6%98%AF%E5%90%A6%E5%8F%AF%E8%A1%A8%E7%A4%BA%E4%B8%BA2%E7%9A%84N%E6%AC%A1%E6%96%B9/"
-    >其他-判断一个正整数是否可表示为2的N次方</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.30001%20%E5%85%B6%E4%BB%96-%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B4%E6%95%B0%E6%98%AF%E5%90%A6%E5%8F%AF%E8%A1%A8%E7%A4%BA%E4%B8%BA2%E7%9A%84N%E6%AC%A1%E6%96%B9/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <span id="more"></span>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95-%E6%95%B0%E5%AD%A6/" rel="tag">算法-数学</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA001 牛客网链表-NC78链表反转"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC78%E9%93%BE%E8%A1%A8%E5%8F%8D%E8%BD%AC/"
-    >13.AA001 牛客网链表-NC78链表反转</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC78%E9%93%BE%E8%A1%A8%E5%8F%8D%E8%BD%AC/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x4EE3;&#x7801;&#x5B9E;&#x73B0;&#xFF1A;</li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC78%E9%93%BE%E8%A1%A8%E5%8F%8D%E8%BD%AC/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA002 牛客网链表-NC70链表排序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA002%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC70%E9%93%BE%E8%A1%A8%E6%8E%92%E5%BA%8F/"
-    >13.AA002 牛客网链表-NC70链表排序</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA002%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC70%E9%93%BE%E8%A1%A8%E6%8E%92%E5%BA%8F/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x7B97;&#x6CD5;&#x601D;&#x8DEF;&#xFF1A;</li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA002%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC70%E9%93%BE%E8%A1%A8%E6%8E%92%E5%BA%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA005 牛客网链表-NC21链表内指定区间反转"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC21%E9%93%BE%E8%A1%A8%E5%86%85%E6%8C%87%E5%AE%9A%E5%8C%BA%E9%97%B4%E5%8F%8D%E8%BD%AC/"
-    >13.AA005 牛客网链表-NC21链表内指定区间反转</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC21%E9%93%BE%E8%A1%A8%E5%86%85%E6%8C%87%E5%AE%9A%E5%8C%BA%E9%97%B4%E5%8F%8D%E8%BD%AC/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x9898;&#x76EE;&#xFF1A;<a target="_blank" rel="noopener" href="https://www.nowcoder.com/practice/b58434e200a648c589ca2063f1faf58c?tpId=117&amp;tqId=37726&amp;rp=1&amp;ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=/exam/oj?page=1&amp;pageSize=50&amp;search=&amp;tab=%25E7%25AE%2597%25E6%25B3%2595%25E7%25AF%2587&amp;topicId=117&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=580&amp;title=">NC21 &#x94FE;&#x8868;&#x5185;&#x6307;&#x5B9A;&#x533A;&#x95F4;&#x53CD;&#x8F6C;</a></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA005%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC21%E9%93%BE%E8%A1%A8%E5%86%85%E6%8C%87%E5%AE%9A%E5%8C%BA%E9%97%B4%E5%8F%8D%E8%BD%AC/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA006 牛客网链表-NC51合并k个已排序的链表"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC51%E5%90%88%E5%B9%B6k%E4%B8%AA%E5%B7%B2%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8/"
-    >13.AA006 牛客网链表-NC51合并k个已排序的链表</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC51%E5%90%88%E5%B9%B6k%E4%B8%AA%E5%B7%B2%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li><p>&#x63CF;&#x8FF0;&#xFF1A;</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x5408;&#x5E76; k &#x4E2A;&#x5DF2;&#x6392;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#x5E76;&#x5C06;&#x5176;&#x4F5C;&#x4E3A;&#x4E00;&#x4E2A;&#x5DF2;&#x6392;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#x8FD4;&#x56DE;&#x3002;&#x5206;&#x6790;&#x5E76;&#x63CF;&#x8FF0;&#x5176;&#x590D;&#x6742;&#x5EA6;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;1</span><br><span class="line">&#x8F93;&#x5165;&#xFF1A;	[{1,2,3},{4,5,6,7}]</span><br><span class="line">&#x8FD4;&#x56DE;&#x503C;&#xFF1A;	{1,2,3,4,5,6,7}</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA006%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC51%E5%90%88%E5%B9%B6k%E4%B8%AA%E5%B7%B2%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA007 牛客网链表-NC96判断一个链表是否为回文结构"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC96%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8%E6%98%AF%E5%90%A6%E4%B8%BA%E5%9B%9E%E6%96%87%E7%BB%93%E6%9E%84/"
-    >13.AA007 牛客网链表-NC96判断一个链表是否为回文结构</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC96%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8%E6%98%AF%E5%90%A6%E4%B8%BA%E5%9B%9E%E6%96%87%E7%BB%93%E6%9E%84/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li><p>&#x63CF;&#x8FF0;&#xFF1A;</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x7ED9;&#x5B9A;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x8BF7;&#x5224;&#x65AD;&#x8BE5;&#x94FE;&#x8868;&#x662F;&#x5426;&#x4E3A;&#x56DE;&#x6587;&#x7ED3;&#x6784;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B; 1:</span><br><span class="line">&#x8F93;&#x5165;: 1-&gt;2</span><br><span class="line">&#x8F93;&#x51FA;: false</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B; 2:</span><br><span class="line">&#x8F93;&#x5165;: 1-&gt;2-&gt;2-&gt;1</span><br><span class="line">&#x8F93;&#x51FA;: true</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA007%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC96%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8%E6%98%AF%E5%90%A6%E4%B8%BA%E5%9B%9E%E6%96%87%E7%BB%93%E6%9E%84/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA008 牛客网链表-NC69链表中倒数最后k个结点"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC69%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E6%9C%80%E5%90%8Ek%E4%B8%AA%E7%BB%93%E7%82%B9/"
-    >13.AA008 牛客网链表-NC69链表中倒数最后k个结点</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC69%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E6%9C%80%E5%90%8Ek%E4%B8%AA%E7%BB%93%E7%82%B9/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#x8F93;&#x5165;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x8F93;&#x51FA;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x8BE5;&#x8F93;&#x51FA;&#x94FE;&#x8868;&#x5305;&#x542B;&#x539F;&#x94FE;&#x8868;&#x4E2D;&#x4ECE;&#x5012;&#x6570;&#x7B2C;k&#x4E2A;&#x7ED3;&#x70B9;&#x81F3;&#x5C3E;&#x8282;&#x70B9;&#x7684;&#x5168;&#x90E8;&#x8282;&#x70B9;&#x3002;</span><br><span class="line">&#x5982;&#x679C;&#x8BE5;&#x94FE;&#x8868;&#x957F;&#x5EA6;&#x5C0F;&#x4E8E;k&#xFF0C;&#x8BF7;&#x8FD4;&#x56DE;&#x4E00;&#x4E2A;&#x957F;&#x5EA6;&#x4E3A; 0 &#x7684;&#x94FE;&#x8868;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;1</span><br><span class="line">&#x8F93;&#x5165;&#xFF1A;{1,2,3,4,5},1</span><br><span class="line">&#x8FD4;&#x56DE;&#x503C;&#xFF1A;{5}</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA008%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC69%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E6%9C%80%E5%90%8Ek%E4%B8%AA%E7%BB%93%E7%82%B9/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA009 牛客网链表-NC53删除链表的倒数第n个节点"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC53%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E8%8A%82%E7%82%B9/"
-    >13.AA009 牛客网链表-NC53删除链表的倒数第n个节点</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC53%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E8%8A%82%E7%82%B9/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x7ED9;&#x5B9A;&#x4E00;&#x4E2A;&#x94FE;&#x8868;&#xFF0C;&#x5220;&#x9664;&#x94FE;&#x8868;&#x7684;&#x5012;&#x6570;&#x7B2C; n &#x4E2A;&#x8282;&#x70B9;&#x5E76;&#x8FD4;&#x56DE;&#x94FE;&#x8868;&#x7684;&#x5934;&#x6307;&#x9488;</span><br><span class="line">&#x4F8B;&#x5982;&#xFF0C;</span><br><span class="line">&#x7ED9;&#x51FA;&#x7684;&#x94FE;&#x8868;&#x4E3A;: 1--&gt; 2--&gt; 3--&gt; 4--&gt; 5     n=2</span><br><span class="line">&#x5220;&#x9664;&#x4E86;&#x94FE;&#x8868;&#x7684;&#x5012;&#x6570;&#x7B2C; n &#x4E2A;&#x8282;&#x70B9;&#x4E4B;&#x540E;,&#x94FE;&#x8868;&#x53D8;&#x4E3A;1--&gt; 2--&gt; 3--&gt; 5</span><br><span class="line"></span><br><span class="line">&#x5907;&#x6CE8;&#xFF1A;</span><br><span class="line">&#x9898;&#x76EE;&#x4FDD;&#x8BC1; n &#x4E00;&#x5B9A;&#x662F;&#x6709;&#x6548;&#x7684;</span><br><span class="line">&#x8BF7;&#x7ED9;&#x51FA;&#x8BF7;&#x7ED9;&#x51FA;&#x65F6;&#x95F4;&#x590D;&#x6742;&#x5EA6;&#x4E3A; O(n) &#x7684;&#x7B97;&#x6CD5;</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA009%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC53%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E8%8A%82%E7%82%B9/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AA010 牛客网链表-NC50链表中的节点每k个一组翻转"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC50%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9%E6%AF%8Fk%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC/"
-    >13.AA010 牛客网链表-NC50链表中的节点每k个一组翻转</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC50%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9%E6%AF%8Fk%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1--2--3--4--5--6--7--8--9--10</span><br></pre></td></tr></table></figure></li>
-</ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA010%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC50%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9%E6%AF%8Fk%E4%B8%AA%E4%B8%80%E7%BB%84%E7%BF%BB%E8%BD%AC/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
@@ -1296,7 +1307,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

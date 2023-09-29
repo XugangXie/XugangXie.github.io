@@ -76,7 +76,7 @@
      
     <div class="article-meta">
       <a href="/2022/07/12/7E.104.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%8C%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%8C%E9%A1%BA%E5%BA%8F%E6%80%A7%E7%AD%89/" class="article-date">
-  <time datetime="2022-07-12T07:47:21.543Z" itemprop="datePublished">2022-07-12</time>
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
@@ -124,7 +124,7 @@
 <blockquote>
 <p>&#x5982;&#x679C;&#x67D0;&#x4E2A; broker &#x5B95;&#x673A;&#x4E86;&#xFF0C;&#x90A3;&#x4E2A; broker &#x4E0A;&#x9762;&#x7684; partition &#x5728;&#x5176;&#x4ED6;&#x673A;&#x5668;&#x4E0A;&#x90FD;&#x6709;&#x526F;&#x672C;&#x7684;&#x3002;&#x5982;&#x679C;&#x8FD9;&#x4E2A;&#x5B95;&#x673A;&#x7684; broker&#x4E0A;&#x9762;&#x6709;&#x67D0;&#x4E2A; partition &#x7684; leader&#xFF0C;&#x90A3;&#x4E48;&#x6B64;&#x65F6;&#x4F1A;&#x4ECE; follower &#x4E2D;&#x91CD;&#x65B0;&#x9009;&#x4E3E;&#x4E00;&#x4E2A;&#x65B0;&#x7684; leader&#x51FA;&#x6765;&#xFF0C;&#x5927;&#x5BB6;&#x7EE7;&#x7EED;&#x8BFB;&#x5199;&#x90A3;&#x4E2A;&#x65B0;&#x7684; leader &#x5373;&#x53EF;&#x3002;&#x8FD9;&#x5C31;&#x6709;&#x6240;&#x8C13;&#x7684;&#x9AD8;&#x53EF;&#x7528;&#x6027;&#x4E86;&#x3002;</p>
 </blockquote>
-<p><img src="/2022/07/12/7E.104.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%8C%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%8C%E9%A1%BA%E5%BA%8F%E6%80%A7%E7%AD%89/5.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/7E.104.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%8C%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%8C%E9%A1%BA%E5%BA%8F%E6%80%A7%E7%AD%89/5.1.png"></p>
 <h3 id="2-Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x4E00;&#x81F4;&#x6027;"><a href="#2-Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x4E00;&#x81F4;&#x6027;" class="headerlink" title="2 Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x4E00;&#x81F4;&#x6027;"></a>2 Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x4E00;&#x81F4;&#x6027;</h3><blockquote>
 <p>&#x4E00;&#x81F4;&#x6027;&#xFF1A;&#x82E5;&#x67D0;&#x6761;&#x6D88;&#x606F;&#x5BF9;consumer&#x53EF;&#x89C1;&#xFF0C;&#x90A3;&#x4E48;&#x5373;&#x4F7F;Leader&#x6302;&#x4E86;&#xFF0C;&#x5728;&#x65B0;Leader&#x4E0A;&#x6570;&#x636E;&#x4F9D;&#x7136;&#x53EF;&#x89C1;&#x3002;</p>
 </blockquote>
@@ -134,7 +134,7 @@
 <blockquote>
 <p>LEO&#xFF08;last end offset&#xFF09;&#x65E5;&#x5FD7;&#x672B;&#x7AEF;&#x504F;&#x79FB;&#x91CF;&#xFF0C;&#x8BB0;&#x5F55;&#x4E86;&#x8BE5;&#x526F;&#x672C;&#x5BF9;&#x8C61;&#x5E95;&#x5C42;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x4E2D;&#x4E0B;&#x4E00;&#x6761;&#x6D88;&#x606F;&#x7684;&#x4F4D;&#x79FB;&#x503C;&#x3002;<br>HW&#xFF08;highwatermark&#xFF09;&#xFF0C;&#x9AD8;&#x6C34;&#x5370;&#x503C;&#xFF0C;&#x4EFB;&#x4F55;&#x4E00;&#x4E2A;&#x526F;&#x672C;&#x5BF9;&#x8C61;&#x7684;HW&#x503C;&#x4E00;&#x5B9A;&#x4E0D;&#x5927;&#x4E8E;&#x5176;LEO&#x503C;&#xFF0C;&#x800C;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;HW&#x503C;&#x7684;&#x6240;&#x6709;&#x6D88;&#x606F;&#x88AB;&#x8BA4;&#x4E3A;&#x662F;&#x201C;&#x5DF2;&#x63D0;&#x4EA4;&#x7684;&#x201D;&#x6216;&#x201C;&#x5DF2;&#x5907;&#x4EFD;&#x7684;&#x201D;&#x3002;consumer&#x53EA;&#x80FD;&#x6D88;&#x8D39;&#x5DF2;&#x63D0;&#x4EA4;&#x7684;&#x6D88;&#x606F;&#xFF0C;HW&#x4E4B;&#x540E;&#x7684;&#x6570;&#x636E;&#x5BF9;consumer&#x4E0D;&#x53EF;&#x89C1;&#x3002;</p>
 </blockquote>
-<p><img src="/2022/07/12/7E.104.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%8C%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%8C%E9%A1%BA%E5%BA%8F%E6%80%A7%E7%AD%89/5.2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/7E.104.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bkafka-Kafka%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%8C%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%8C%E9%A1%BA%E5%BA%8F%E6%80%A7%E7%AD%89/5.2.png"></p>
 <h3 id="3-Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;"><a href="#3-Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;" class="headerlink" title="3 Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;"></a>3 Kafka&#x5982;&#x4F55;&#x4FDD;&#x8BC1;&#x987A;&#x5E8F;&#x6027;</h3><p>Kafka&#x53EA;&#x80FD;&#x4FDD;&#x8BC1;partition&#x5185;&#x90E8;&#x6709;&#x5E8F;&#xFF0C;&#x4E0D;&#x4FDD;&#x8BC1;&#x6574;&#x4E2A;topic&#x6709;&#x5E8F;&#x3002;</p>
 <p><strong>&#x4E71;&#x5E8F;&#x573A;&#x666F;&#x4E00;&#xFF1A;</strong><br>&#x56E0;&#x4E3A;&#x4E00;&#x4E2A;topic&#x53EF;&#x4EE5;&#x6709;&#x591A;&#x4E2A;partition&#xFF0C;kafka&#x53EA;&#x80FD;&#x4FDD;&#x8BC1;partition&#x5185;&#x90E8;&#x6709;&#x5E8F;&#x3002;&#x53EF;&#x80FD;&#x9700;&#x8981;&#x987A;&#x5E8F;&#x7684;&#x6570;&#x636E;&#x5206;&#x5E03;&#x5230;&#x4E86;&#x4E0D;&#x540C;&#x7684;partition&#xFF0C;&#x5BFC;&#x81F4;&#x5904;&#x7406;&#x65F6;&#x4E71;&#x5E8F;<br><strong>&#x89E3;&#x51B3;&#x65B9;&#x6848;&#xFF1A;</strong><br>1&#x3001;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;topic &#x6709;&#x4E14;&#x53EA;&#x6709;&#x4E00;&#x4E2A;partition<br>2&#x3001;&#x6839;&#x636E;&#x4E1A;&#x52A1;&#x9700;&#x8981;&#xFF0C;&#x9700;&#x8981;&#x987A;&#x5E8F;&#x7684; &#x6307;&#x5B9A;&#x4E3A;&#x540C;&#x4E00;&#x4E2A;partition&#x3002;&#x6BD4;&#x5982;&#x540C;&#x4E00;&#x4E2A;&#x8BA2;&#x5355;&#xFF0C;&#x4F7F;&#x7528;&#x540C;&#x4E00;&#x4E2A;key&#xFF0C;&#x53EF;&#x4EE5;&#x4FDD;&#x8BC1;&#x5206;&#x914D;&#x5230;&#x540C;&#x4E00;&#x4E2A;partition&#x4E0A;</p>
 <p><strong>&#x4E71;&#x5E8F;&#x573A;&#x666F;&#x4E8C;</strong><br>&#x5BF9;&#x4E8E;&#x540C;&#x4E00;&#x4E1A;&#x52A1;&#x8FDB;&#x5165;&#x4E86;&#x540C;&#x4E00;&#x4E2A;&#x6D88;&#x8D39;&#x8005;&#x7EC4;&#x4E4B;&#x540E;&#xFF0C;&#x7528;&#x4E86;&#x591A;&#x7EBF;&#x7A0B;&#x6765;&#x5904;&#x7406;&#x6D88;&#x606F;&#xFF0C;&#x4F1A;&#x5BFC;&#x81F4;&#x6D88;&#x606F;&#x7684;&#x4E71;&#x5E8F;<br><strong>&#x89E3;&#x51B3;&#x65B9;&#x6848;</strong><br>&#x6D88;&#x8D39;&#x8005;&#x5185;&#x90E8;&#x6839;&#x636E;&#x7EBF;&#x7A0B;&#x6570;&#x91CF;&#x521B;&#x5EFA;&#x7B49;&#x91CF;&#x7684;&#x5185;&#x5B58;&#x961F;&#x5217;&#xFF0C;&#x5BF9;&#x4E8E;&#x9700;&#x8981;&#x987A;&#x5E8F;&#x7684;&#x4E00;&#x7CFB;&#x5217;&#x4E1A;&#x52A1;&#x6570;&#x636E;&#xFF0C;&#x6839;&#x636E;key&#x6216;&#x8005;&#x4E1A;&#x52A1;&#x6570;&#x636E;&#xFF0C;&#x653E;&#x5230;&#x540C;&#x4E00;&#x4E2A;&#x5185;&#x5B58;&#x961F;&#x5217;&#x4E2D;&#xFF0C;&#x7136;&#x540E;&#x7EBF;&#x7A0B;&#x4ECE;&#x5BF9;&#x5E94;&#x7684;&#x5185;&#x5B58;&#x961F;&#x5217;&#x4E2D;&#x53D6;&#x51FA;&#x5E76;&#x64CD;&#x4F5C;</p>
@@ -207,7 +207,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

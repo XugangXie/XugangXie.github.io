@@ -144,15 +144,15 @@
 <p>Sync&#x53C8;&#x6709;&#x4E24;&#x4E2A;&#x5B50;&#x7C7B;&#xFF1A;</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">final static class NonfairSync extends Sync  </span><br><span class="line">final static class FairSync extends Sync  </span><br></pre></td></tr></table></figure>
 
-<p>&#x663E;&#x7136;&#x662F;&#x4E3A;&#x4E86;&#x652F;&#x6301;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x800C;&#x5B9A;&#x4E49;&#xFF0C;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x4E3A;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;<br>&#x5148;&#x7406;&#x4E00;&#x4E0B;Reentrant.lock()&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;&#xFF08;&#x9ED8;&#x8BA4;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF09;&#xFF1A;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/4.png"></p>
+<p>&#x663E;&#x7136;&#x662F;&#x4E3A;&#x4E86;&#x652F;&#x6301;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x800C;&#x5B9A;&#x4E49;&#xFF0C;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x4E3A;&#x975E;&#x516C;&#x5E73;&#x9501;&#x3002;<br>&#x5148;&#x7406;&#x4E00;&#x4E0B;Reentrant.lock()&#x65B9;&#x6CD5;&#x7684;&#x8C03;&#x7528;&#x8FC7;&#x7A0B;&#xFF08;&#x9ED8;&#x8BA4;&#x975E;&#x516C;&#x5E73;&#x9501;&#xFF09;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/4.png"></p>
 <p>ReentrantLock&#x53EF;&#x4EE5;&#x6709;&#x516C;&#x5E73;&#x9501;&#x548C;&#x975E;&#x516C;&#x5E73;&#x9501;&#x7684;&#x4E0D;&#x540C;&#x5B9E;&#x73B0;,&#x53EA;&#x8981;&#x5728;&#x6784;&#x9020;&#x5B83;&#x7684;&#x65F6;&#x5019;&#x4F20;&#x5165;&#x4E0D;&#x540C;&#x7684;&#x5E03;&#x5C14;&#x503C;,&#x7EE7;&#x7EED;&#x8DDF;&#x8FDB;&#x4E0B;&#x6E90;&#x7801;&#x6211;&#x4EEC;&#x5C31;&#x80FD;&#x53D1;&#x73B0;,&#x5173;&#x952E;&#x5728;&#x4E8E;&#x5B9E;&#x4F8B;&#x5316;&#x5185;&#x90E8;&#x53D8;&#x91CF;sync&#x7684;&#x65B9;&#x5F0F;&#x4E0D;&#x540C;,&#x5982;&#x4E0B;&#x6240;&#x793A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Creates an instance of {<span class="doctag">@code</span> ReentrantLock} with the</span></span><br><span class="line"><span class="comment"> * given fairness policy.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> fair {<span class="doctag">@code</span> true} if this lock should use a fair ordering policy</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">ReentrantLock</span><span class="params">(<span class="type">boolean</span> fair)</span> {</span><br><span class="line">    sync = fair ? <span class="keyword">new</span> <span class="title class_">FairSync</span>() : <span class="keyword">new</span> <span class="title class_">NonfairSync</span>();</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 
 <p>&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;FairSync,&#x975E;&#x516C;&#x5E73;&#x9501;&#x5185;&#x90E8;&#x662F;NonfairSync&#x3002;&#x800C;&#x4E0D;&#x7BA1;&#x662F;FairSync&#x8FD8;&#x662F;NonfariSync,&#x90FD;&#x95F4;&#x63A5;&#x7EE7;&#x627F;&#x81EA;AbstractQueuedSynchronizer&#x8FD9;&#x4E2A;&#x62BD;&#x8C61;&#x7C7B;&#xFF0C;&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;</p>
 <ul>
-<li><p>NonfairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/1.png"></p>
+<li><p>NonfairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/1.png"></p>
 </li>
-<li><p>FairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="/2022/05/20/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/2.png"></p>
+<li><p>FairSync&#x7684;&#x7C7B;&#x7EE7;&#x627F;&#x5173;&#x7CFB;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/5B.010.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%BA%8C-%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81/2.png"></p>
 </li>
 </ul>
 <p>&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x4E3A;&#x6211;&#x4EEC;&#x7684;&#x52A0;&#x9501;&#x548C;&#x89E3;&#x9501;&#x8FC7;&#x7A0B;&#x63D0;&#x4F9B;&#x4E86;&#x7EDF;&#x4E00;&#x7684;&#x6A21;&#x677F;&#x65B9;&#x6CD5;&#xFF0C;&#x53EA;&#x662F;&#x4E00;&#x4E9B;&#x7EC6;&#x8282;&#x7684;&#x5904;&#x7406;&#x7531;&#x8BE5;&#x62BD;&#x8C61;&#x7C7B;&#x7684;&#x5B9E;&#x73B0;&#x7C7B;&#x81EA;&#x5DF1;&#x51B3;&#x5B9A;&#x3002;&#x6240;&#x4EE5;&#x5728;&#x89E3;&#x8BFB;ReentrantLock(&#x91CD;&#x5165;&#x9501;)&#x7684;&#x6E90;&#x7801;&#x4E4B;&#x524D;,&#x6709;&#x5FC5;&#x8981;&#x4E86;&#x89E3;&#x4E0B;AbstractQueuedSynchronizer&#x3002;</p>
@@ -181,19 +181,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2022/05/20/5B.002.%E5%B9%B6%E5%8F%91-AQS%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-nav-link">
+      <a href="/2022/05/20/5B.008.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%B8%80/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            并发-AQS原理二
+            并发-ReentrantLock原理二
           
         </div>
       </a>
     
     
-      <a href="/2022/05/20/5B.008.%E5%B9%B6%E5%8F%91-ReentrantLock%E5%8E%9F%E7%90%86%E4%B8%80/" class="article-nav-link">
+      <a href="/2022/05/20/5B.011.%E5%B9%B6%E5%8F%91-Lock%E4%B8%8ESynchronized%E5%8C%BA%E5%88%AB/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">并发-ReentrantLock原理二</div>
+        <div class="article-nav-title">并发-Lock与Synchronized区别</div>
       </a>
     
   </nav>
@@ -217,7 +217,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

@@ -137,7 +137,7 @@
 <p><strong>&#x5B9E;&#x9A8C;2&#xFF1A;</strong><br>session A	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;	mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;</p>
 <p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)<br>mysql&gt; begin;<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;Read-View&#x89C4;&#x5219;&#xFF0C;&#x9694;&#x79BB;&#x7EA7;&#x522B;RR&#x4E0B;&#xFF0C;begin&#x540E;&#x9762;&#x7684;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x624D;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x6B64;&#x65F6;&#x5F00;&#x542F;&#x4E86;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)</p>
 <p>mysql&gt; insert into T(id, a, b) values(1,1, 1);<br>(&#x7531;&#x4E8E;autocommit=ON&#xFF0C;&#x6BCF;&#x6761;sql&#x8BED;&#x53E5;&#x90FD;&#x91CD;&#x65B0;&#x5F00;&#x542F;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;sessionB&#x53C8;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=12)<br>Query OK, 1 row affected (0.01 sec)<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;MVCC&#x7684;&#x89C4;&#x5219;&#xFF0C;&#x5F53;&#x524D;&#x4E8B;&#x52A1;Id=11&#xFF0C;&#x67E5;&#x8BE2;&#x884C;&#x7684;&#x4E8B;&#x52A1;&#x521B;&#x5EFA;&#x7248;&#x672C;&#x53F7;&#xFF0C;&#x8981;&#x5C0F;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;11&#xFF0C;&#x6240;&#x4EE5;&#x8FD4;&#x56DE;&#x7A7A;)<br>Empty set (0.00 sec) 	</p>
-<p><img src="/2020/05/01/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/1.png"></p>
 <p>&#x7528;&#x8FD9;&#x79CD;&#x601D;&#x8DEF;&#x89E3;&#x91CA;&#x4E5F;&#x53EF;&#x4EE5;&#xFF0C;&#x8FD9;&#x91CC;&#x6CA1;&#x7528;&#xFF12;&#x4E2A;&#x4E0D;&#x540C;&#x7684;&#x8868;&#x505A;&#x5B9E;&#x9A8C;&#xFF1A;<br><strong>&#x8BE5;&#x4F7F;&#x7528;&#x8BF4;&#x660E;&#xFF1A;RR&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#xFF0C;&#x662F;&#x4EE5;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x7684;&#x6267;&#x884C;&#x70B9;&#x4F5C;&#x4E3A;snapshot&#x5EFA;&#x7ACB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#x7684;&#xFF0C;&#x5373;&#x4F7F;&#x662F;&#x4E0D;&#x540C;&#x8868;&#x7684;select&#x8BED;&#x53E5;&#x3002;&#x8FD9;&#x91CC;&#x56E0;&#x4E3A;session A&#x5728;insert&#x4E4B;&#x524D;&#x5BF9; t &#x8868;&#x6267;&#x884C;&#x4E86;select&#xFF0C;&#x6240;&#x4EE5;&#x5EFA;&#x7ACB;&#x4E86;snapshot&#xFF0C;&#x6240;&#x4EE5;&#x540E;&#x9762;&#x7684;select * from t1 &#x4E0D;&#x80FD;&#x8BFB;&#x53D6;&#x5230;insert&#x7684;&#x63D2;&#x5165;&#x7684;&#x503C;&#x3002;</strong></p>
 <p><strong>&#x5B9E;&#x9A8C;3&#xFF1A;</strong><br>session A	session B<br>mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;	mysql&gt; set tx_isolation=&#x2019;repeatable-read&#x2019;;</p>
 <p>mysql&gt; select * from T;<br>(sessionB&#x5148;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#x4E8B;&#x52A1;ID=10)<br>Empty set (0.00 sec)<br>mysql&gt; begin;<br>mysql&gt; select * from T;<br>(&#x6839;&#x636E;Read-View&#x89C4;&#x5219;&#xFF0C;&#x9694;&#x79BB;&#x7EA7;&#x522B;RR&#x4E0B;&#xFF0C;begin&#x540E;&#x9762;&#x7684;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x624D;&#x5F00;&#x542F;&#x4E8B;&#x52A1;&#xFF0C;&#x6240;&#x4EE5;&#x6B64;&#x65F6;&#x5F00;&#x542F;&#x4E86;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#xFF0C;&#x4E8B;&#x52A1;ID=11)<br>Empty set (0.00 sec)</p>
@@ -171,7 +171,7 @@
 <p>&#x6240;&#x4EE5;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x5206;&#x4E3A;&#x4E24;&#x79CD;&#x60C5;&#x51B5;&#xFF1A;</p>
 <p>1&#xFF09;<code>START TRANSACTION</code> &#x65F6;&#xFF0C;&#x662F;&#x7B2C;&#x4E00;&#x6761;&#x8BED;&#x53E5;&#x7684;&#x6267;&#x884C;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x5C31;&#x662F;&#x4E8B;&#x52A1;&#x5F00;&#x59CB;&#x7684;&#x65F6;&#x95F4;&#x70B9;&#xFF0C;&#x7B2C;&#x4E00;&#x6761;select&#x8BED;&#x53E5;&#x5EFA;&#x7ACB;&#x4E00;&#x81F4;&#x6027;&#x8BFB;&#x7684;snapshot&#xFF1B;</p>
 <p>2&#xFF09;<code>START TRANSACTION  WITH consistent snapshot</code> &#x65F6;&#xFF0C;&#x5219;&#x662F;&#x7ACB;&#x5373;&#x5EFA;&#x7ACB;&#x672C;&#x4E8B;&#x52A1;&#x7684;&#x4E00;&#x81F4;&#x6027;&#x8BFB;snapshot&#xFF0C;&#x5F53;&#x7136;&#x4E5F;&#x5F00;&#x59CB;&#x4E8B;&#x52A1;&#x4E86;&#xFF1B;</p>
-<p><img src="/2020/05/01/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12D011.[%E8%AF%BB%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98]-%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB-%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6/2.png"></p>
 <hr>
 <blockquote>
 <p><code>MVCC</code> &#x5728; RC &#x548C; RR &#x4E24;&#x79CD;&#x9694;&#x79BB;&#x7EA7;&#x522B;&#x4E0B;&#x90FD;&#x6709;&#xFF0C;&#x5728;RC&#x7EA7;&#x522B;&#x4E0B;&#xFF0C;<code>MVCC</code>&#x4E3A;&#x4EC0;&#x4E48;&#x89E3;&#x51B3;&#x4E0D;&#x4E86;<code>&#x4E0D;&#x53EF;&#x91CD;&#x590D;&#x8BFB;</code></p>
@@ -239,7 +239,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

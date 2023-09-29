@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>java8系列-时间日期API |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-14.006 java8系列-时间日期API"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  java8系列-时间日期API
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/04/28/14.006%20java8%E7%B3%BB%E5%88%97-%E6%97%B6%E9%97%B4%E6%97%A5%E6%9C%9FAPI/" class="article-date">
+  <time datetime="2023-04-27T16:00:00.000Z" itemprop="datePublished">2023-04-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java8/">java8</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x53EF;&#x4EE5;&#x5F88;&#x6E05;&#x6670;&#x7684;&#x770B;&#x51FA;ZonedDateTime&#x76F8;&#x5F53;&#x4E8E;LocalDateTime+ZoneId&#x3002;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/java8-%20%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4API.png"></p>
+<h3 id="&#x65F6;&#x533A;&#x76F8;&#x5173;&#x77E5;&#x8BC6;&#xFF0C;&#x65F6;&#x533A;&#xFF0C;UTC&#x65F6;&#x95F4;&#xFF0C;GMT&#x65F6;&#x95F4;&#xFF0C;Unix&#x65F6;&#x95F4;&#x6233;"><a href="#&#x65F6;&#x533A;&#x76F8;&#x5173;&#x77E5;&#x8BC6;&#xFF0C;&#x65F6;&#x533A;&#xFF0C;UTC&#x65F6;&#x95F4;&#xFF0C;GMT&#x65F6;&#x95F4;&#xFF0C;Unix&#x65F6;&#x95F4;&#x6233;" class="headerlink" title="&#x65F6;&#x533A;&#x76F8;&#x5173;&#x77E5;&#x8BC6;&#xFF0C;&#x65F6;&#x533A;&#xFF0C;UTC&#x65F6;&#x95F4;&#xFF0C;GMT&#x65F6;&#x95F4;&#xFF0C;Unix&#x65F6;&#x95F4;&#x6233;"></a>&#x65F6;&#x533A;&#x76F8;&#x5173;&#x77E5;&#x8BC6;&#xFF0C;&#x65F6;&#x533A;&#xFF0C;UTC&#x65F6;&#x95F4;&#xFF0C;GMT&#x65F6;&#x95F4;&#xFF0C;Unix&#x65F6;&#x95F4;&#x6233;</h3><h4 id="&#x65F6;&#x533A;"><a href="#&#x65F6;&#x533A;" class="headerlink" title="&#x65F6;&#x533A;"></a>&#x65F6;&#x533A;</h4><p>&#x5730;&#x7403;&#x81EA;&#x897F;&#x5411;&#x4E1C;&#x65CB;&#x8F6C;&#xFF0C;&#x4E1C;&#x8FB9;&#x6BD4;&#x897F;&#x8FB9;&#x5148;&#x770B;&#x5230;&#x592A;&#x9633;&#xFF0C;&#x4E1C;&#x8FB9;&#x7684;&#x65F6;&#x95F4;&#x4E5F;&#x6BD4;&#x897F;&#x8FB9;&#x7684;&#x65E9;&#x3002;&#x4E3A;&#x4E86;&#x7EDF;&#x4E00;&#x4E16;&#x754C;&#x7684;&#x65F6;&#x95F4;&#xFF0C;1884&#x5E74;&#x7684;&#x56FD;&#x9645;&#x7ECF;&#x5EA6;&#x4F1A;&#x8BAE;&#x89C4;&#x89C4;&#x5B9A;&#x5C06;&#x5168;&#x7403;&#x5212;&#x5206;&#x4E3A;24&#x4E2A;&#x65F6;&#x533A;&#xFF08;&#x4E1C;&#x3001;&#x897F;&#x5404;12&#x4E2A;&#x65F6;&#x533A;&#xFF09;&#x3002;&#x89C4;&#x5B9A;&#x82F1;&#x56FD;&#xFF08;&#x683C;&#x6797;&#x5C3C;&#x6CBB;&#x5929;&#x6587;&#x53F0;&#x65E7;&#x5740;&#xFF09;&#x4E3A;&#x96F6;&#x65F6;&#x533A;&#xFF08;GMT+00&#xFF09;&#xFF0C;&#x4E1C;1-12&#x533A;&#xFF0C;&#x897F;1-12&#x533A;&#xFF0C;&#x4E2D;&#x56FD;&#x5317;&#x4EAC;&#x5904;&#x4E8E;&#x4E1C;8&#x533A;&#xFF08;GMT+08&#xFF09;&#x3002;</p>
+<p>&#x82E5;&#x82F1;&#x56FD;&#x65F6;&#x95F4;&#x4E3A;6&#x70B9;&#x6574;&#xFF0C;&#x5219;GMT&#x65F6;&#x95F4;&#x4E3A;6&#x70B9;&#x6574;&#xFF0C;&#x5219;&#x5317;&#x4EAC;&#x65F6;&#x95F4;&#x4E3A;14&#x70B9;&#x6574;&#x3002;</p>
+<h4 id="GMT&#x548C;UTC"><a href="#GMT&#x548C;UTC" class="headerlink" title="GMT&#x548C;UTC"></a>GMT&#x548C;UTC</h4><p>GMT&#xFF0C;&#x5373;&#x683C;&#x6797;&#x5C3C;&#x6CBB;&#x6807;&#x51C6;&#x65F6;&#x95F4;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x4E16;&#x754C;&#x65F6;&#x3002;GMT&#x7684;&#x6B63;&#x5348;&#x662F;&#x6307;&#x5F53;&#x592A;&#x9633;&#x6A2A;&#x7A7F;&#x683C;&#x6797;&#x5C3C;&#x6CBB;&#x5B50;&#x5348;&#x7EBF;&#xFF08;&#x672C;&#x521D;&#x5B50;&#x5348;&#x7EBF;&#xFF09;&#x65F6;&#x7684;&#x65F6;&#x95F4;&#x3002;&#x4F46;&#x7531;&#x4E8E;&#x5730;&#x7403;&#x81EA;&#x8F6C;&#x4E0D;&#x5747;&#x5300;&#x4E0D;&#x89C4;&#x5219;&#xFF0C;&#x5BFC;&#x81F4;GMT&#x4E0D;&#x7CBE;&#x786E;&#xFF0C;&#x73B0;&#x5728;&#x5DF2;&#x7ECF;&#x4E0D;&#x518D;&#x4F5C;&#x4E3A;&#x4E16;&#x754C;&#x6807;&#x51C6;&#x65F6;&#x95F4;&#x4F7F;&#x7528;&#x3002;</p>
+<p>UTC&#xFF0C;&#x5373;&#x534F;&#x8C03;&#x4E16;&#x754C;&#x65F6;&#x3002;UTC&#x662F;&#x4EE5;&#x539F;&#x5B50;&#x65F6;&#x79D2;&#x957F;&#x4E3A;&#x57FA;&#x7840;&#xFF0C;&#x5728;&#x65F6;&#x523B;&#x4E0A;&#x5C3D;&#x91CF;&#x63A5;&#x8FD1;&#x4E8E;GMT&#x7684;&#x4E00;&#x79CD;&#x65F6;&#x95F4;&#x8BA1;&#x91CF;&#x7CFB;&#x7EDF;&#x3002;&#x4E3A;&#x786E;&#x4FDD;UTC&#x4E0E;GMT&#x76F8;&#x5DEE;&#x4E0D;&#x4F1A;&#x8D85;&#x8FC7;0.9&#x79D2;&#xFF0C;&#x5728;&#x6709;&#x9700;&#x8981;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x4F1A;&#x5728;UTC&#x5185;&#x52A0;&#x4E0A;&#x6B63;&#x6216;&#x8D1F;&#x95F0;&#x79D2;&#x3002;UTC&#x73B0;&#x5728;&#x4F5C;&#x4E3A;&#x4E16;&#x754C;&#x6807;&#x51C6;&#x65F6;&#x95F4;&#x4F7F;&#x7528;&#x3002;</p>
+<p>&#x6240;&#x4EE5;&#xFF0C;UTC&#x4E0E;GMT&#x57FA;&#x672C;&#x4E0A;&#x7B49;&#x540C;&#xFF0C;&#x8BEF;&#x5DEE;&#x4E0D;&#x8D85;&#x8FC7;0.9&#x79D2;&#x3002;</p>
+<h4 id="UNIX&#x65F6;&#x95F4;&#x6233;"><a href="#UNIX&#x65F6;&#x95F4;&#x6233;" class="headerlink" title="UNIX&#x65F6;&#x95F4;&#x6233;"></a>UNIX&#x65F6;&#x95F4;&#x6233;</h4><p>&#x8BA1;&#x7B97;&#x673A;&#x4E2D;&#x7684;UNIX&#x65F6;&#x95F4;&#x6233;&#xFF0C;&#x662F;&#x4EE5;GMT/UTC&#x65F6;&#x95F4;&#x300C;1970-01-01T00:00:00&#x300D;&#x4E3A;&#x8D77;&#x70B9;&#xFF0C;&#x5230;&#x5177;&#x4F53;&#x65F6;&#x95F4;&#x7684;&#x79D2;&#x6570;&#xFF0C;&#x4E0D;&#x8003;&#x8651;&#x95F0;&#x79D2;&#x3002;&#x8FD9;&#x4E48;&#x505A;&#x5F53;&#x7136;&#x662F;&#x4E3A;&#x4E86;&#x7B80;&#x5316;&#x8BA1;&#x7B97;&#x673A;&#x5BF9;&#x65F6;&#x95F4;&#x64CD;&#x4F5C;&#x7684;&#x590D;&#x6742;&#x5EA6;&#x3002;</p>
+<p>&#x6BD4;&#x5982;&#x6211;&#x7684;&#x7535;&#x8111;&#x73B0;&#x5728;&#x7684;&#x7CFB;&#x7EDF;&#x65F6;&#x95F4;&#x4E3A;2015&#x5E74;2&#x6708;27&#x65E5;15&#x70B9;43&#x5206;0&#x79D2;&#xFF0C;&#x56E0;&#x4E3A;&#x6211;&#x7684;&#x7535;&#x8111;&#x9ED8;&#x8BA4;&#x65F6;&#x533A;&#x4E3A;&#x4E1C;8&#x533A;&#xFF0C;&#x5219;0&#x65F6;&#x533A;&#x7684;&#x65F6;&#x95F4;&#x4E3A;2015&#x5E74;2&#x6708;27&#x65E5;7&#x70B9;43&#x5206;0&#x79D2;&#xFF0C;&#x5219;UNIX&#x65F6;&#x95F4;&#x6233;&#x4E3A;1425022980&#x79D2;&#x3002;</p>
+<h4 id="JAVA-&#x4E2D;&#x5E38;&#x7528;&#x7684;zoneId-&#x6709;2&#x79CD;&#x683C;&#x5F0F;"><a href="#JAVA-&#x4E2D;&#x5E38;&#x7528;&#x7684;zoneId-&#x6709;2&#x79CD;&#x683C;&#x5F0F;" class="headerlink" title="JAVA &#x4E2D;&#x5E38;&#x7528;&#x7684;zoneId &#x6709;2&#x79CD;&#x683C;&#x5F0F;:"></a>JAVA &#x4E2D;&#x5E38;&#x7528;&#x7684;zoneId &#x6709;2&#x79CD;&#x683C;&#x5F0F;:</h4><p>1.&#x65F6;&#x533A;&#x504F;&#x79FB;&#x91CF;&#x7684;&#x5F62;&#x5F0F;&#xFF1A;GMT+8<br>2.&#x533A;&#x57DF;&#x7684;&#x5F62;&#x5F0F;&#xFF1A;Asia/Shanghai&#xFF08;&#x5E38;&#x7528;&#xFF09;&#xFF0C;<strong>java&#x4E2D;&#x4F7F;&#x7528;&#x8BE5;&#x5F62;&#x5F0F;&#x7684;zoneId&#x4F1A;&#x81EA;&#x52A8;&#x8BA1;&#x7B97;&#x590F;&#x4EE4;&#x65F6;</strong>&#x3002;</p>
+<p>&#x6D4B;&#x8BD5;&#xFF1A;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">public class ZoneTest {</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) {</span><br><span class="line">		TimeZone defaultTimeZone = TimeZone.getDefault();</span><br><span class="line">		ZoneId defaultZoneId = ZoneId.systemDefault();</span><br><span class="line">		log.info(&quot;\ndefaultZoneId={}\ndefaultTimeZone={}&quot;, defaultTimeZone, defaultZoneId);</span><br><span class="line">		//&#x7ED3;&#x679C;&#xFF1A;</span><br><span class="line">		//defaultZoneId=sun.util.calendar.ZoneInfo[id=&quot;Asia/Shanghai&quot;,offset=28800000,dstSavings=0,useDaylight=false,transitions=31,lastRule=null]</span><br><span class="line">		//defaultTimeZone=Asia/Shanghai</span><br><span class="line"></span><br><span class="line">		Set&lt;String&gt; zoneSet = ZoneId.getAvailableZoneIds();</span><br><span class="line">		//&#x7ED3;&#x679C;&#xFF1A;</span><br><span class="line">		//zoneSet=[Asia/Aden, America/Cuiaba, Etc/GMT+9, Etc/GMT+8, Africa/Nairobi, America/Marigot, Asia/Aqtau, Pacific/Kwajalein, America/El_Salvador, Asia/Pontianak, Africa/Cairo, Pacific/Pago_Pago, Africa/Mbabane, Asia/Kuching, Pacific/Honolulu, Pacific/Rarotonga, America/Guatemala, Australia/Hobart, Europe/London, America/Belize, America/Panama, Asia/Chungking, America/Managua, America/Indiana/Petersburg, Asia/Yerevan, Europe/Brussels, GMT, Europe/Warsaw, America/Chicago, Asia/Kashgar, Chile/Continental, Pacific/Yap, CET, Etc/GMT-1, Etc/GMT-0, Europe/Jersey, America/Tegucigalpa, Etc/GMT-5, Europe/Istanbul, America/Eirunepe, Etc/GMT-4, America/Miquelon, Etc/GMT-3, Europe/Luxembourg, Etc/GMT-2, Etc/GMT-9, America/Argentina/Catamarca, Etc/GMT-8, Etc/GMT-7, Etc/GMT-6, Europe/Zaporozhye, Canada/Yukon, Canada/Atlantic, Atlantic/St_Helena, Australia/Tasmania, Libya, Europe/Guernsey, America/Grand_Turk, Asia/Samarkand, America/Argentina/Cordoba, Asia/Phnom_Penh, Africa/Kigali, Asia/Almaty, US/Alaska, Asia/Dubai, Europe/Isle_of_Man, America/Araguaina, Cuba, Asia/Novosibirsk, America/Argentina/Salta, Etc/GMT+3, Africa/Tunis, Etc/GMT+2, Etc/GMT+1, Pacific/Fakaofo, Africa/Tripoli, Etc/GMT+0, Israel, Africa/Banjul, Etc/GMT+7, Indian/Comoro, Etc/GMT+6, Etc/GMT+5, Etc/GMT+4, Pacific/Port_Moresby, US/Arizona, Antarctica/Syowa, Indian/Reunion, Pacific/Palau, Europe/Kaliningrad, America/Montevideo, Africa/Windhoek, Asia/Karachi, Africa/Mogadishu, Australia/Perth, Brazil/East, Etc/GMT, Asia/Chita, Pacific/Easter, Antarctica/Davis, Antarctica/McMurdo, Asia/Macao, America/Manaus, Africa/Freetown, Europe/Bucharest, Asia/Tomsk, America/Argentina/Mendoza, Asia/Macau, Europe/Malta, Mexico/BajaSur, Pacific/Tahiti, Africa/Asmera, Europe/Busingen, America/Argentina/Rio_Gallegos, Africa/Malabo, Europe/Skopje, America/Catamarca, America/Godthab, Europe/Sarajevo, Australia/ACT, GB-Eire, Africa/Lagos, America/Cordoba, Europe/Rome, Asia/Dacca, Indian/Mauritius, Pacific/Samoa, America/Regina, America/Fort_Wayne, America/Dawson_Creek, Africa/Algiers, Europe/Mariehamn, America/St_Johns, America/St_Thomas, Europe/Zurich, America/Anguilla, Asia/Dili, America/Denver, Africa/Bamako, Europe/Saratov, GB, Mexico/General, Pacific/Wallis, Europe/Gibraltar, Africa/Conakry, Africa/Lubumbashi, Asia/Istanbul, America/Havana, NZ-CHAT, Asia/Choibalsan, America/Porto_Acre, Asia/Omsk, Europe/Vaduz, US/Michigan, Asia/Dhaka, America/Barbados, Europe/Tiraspol, Atlantic/Cape_Verde, Asia/Yekaterinburg, America/Louisville, Pacific/Johnston, Pacific/Chatham, Europe/Ljubljana, America/Sao_Paulo, Asia/Jayapura, America/Curacao, Asia/Dushanbe, America/Guyana, America/Guayaquil, America/Martinique, Portugal, Europe/Berlin, Europe/Moscow, Europe/Chisinau, America/Puerto_Rico, America/Rankin_Inlet, Pacific/Ponape, Europe/Stockholm, Europe/Budapest, America/Argentina/Jujuy, Australia/Eucla, Asia/Shanghai, Universal, Europe/Zagreb, America/Port_of_Spain, Europe/Helsinki, Asia/Beirut, Asia/Tel_Aviv, Pacific/Bougainville, US/Central, Africa/Sao_Tome, Indian/Chagos, America/Cayenne, Asia/Yakutsk, Pacific/Galapagos, Australia/North, Europe/Paris, Africa/Ndjamena, Pacific/Fiji, America/Rainy_River, Indian/Maldives, Australia/Yancowinna, SystemV/AST4, Asia/Oral, America/Yellowknife, Pacific/Enderbury, America/Juneau, Australia/Victoria, America/Indiana/Vevay, Asia/Tashkent, Asia/Jakarta, Africa/Ceuta, Asia/Barnaul, America/Recife, America/Buenos_Aires, America/Noronha, America/Swift_Current, Australia/Adelaide, America/Metlakatla, Africa/Djibouti, America/Paramaribo, Asia/Qostanay, Europe/Simferopol, Europe/Sofia, Africa/Nouakchott, Europe/Prague, America/Indiana/Vincennes, Antarctica/Mawson, America/Kralendijk, Antarctica/Troll, Europe/Samara, Indian/Christmas, America/Antigua, Pacific/Gambier, America/Indianapolis, America/Inuvik, America/Iqaluit, Pacific/Funafuti, UTC, Antarctica/Macquarie, Canada/Pacific, America/Moncton, Africa/Gaborone, Pacific/Chuuk, Asia/Pyongyang, America/St_Vincent, Asia/Gaza, Etc/Universal, PST8PDT, Atlantic/Faeroe, Asia/Qyzylorda, Canada/Newfoundland, America/Kentucky/Louisville, America/Yakutat, Asia/Ho_Chi_Minh, Antarctica/Casey, Europe/Copenhagen, Africa/Asmara, Atlantic/Azores, Europe/Vienna, ROK, Pacific/Pitcairn, America/Mazatlan, Australia/Queensland, Pacific/Nauru, Europe/Tirane, Asia/Kolkata, SystemV/MST7, Australia/Canberra, MET, Australia/Broken_Hill, Europe/Riga, America/Dominica, Africa/Abidjan, America/Mendoza, America/Santarem, Kwajalein, America/Asuncion, Asia/Ulan_Bator, NZ, America/Boise, Australia/Currie, EST5EDT, Pacific/Guam, Pacific/Wake, Atlantic/Bermuda, America/Costa_Rica, America/Dawson, Asia/Chongqing, Eire, Europe/Amsterdam, America/Indiana/Knox, America/North_Dakota/Beulah, Africa/Accra, Atlantic/Faroe, Mexico/BajaNorte, America/Maceio, Etc/UCT, Pacific/Apia, GMT0, America/Atka, Pacific/Niue, Australia/Lord_Howe, Europe/Dublin, Pacific/Truk, MST7MDT, America/Monterrey, America/Nassau, America/Jamaica, Asia/Bishkek, America/Atikokan, Atlantic/Stanley, Australia/NSW, US/Hawaii, SystemV/CST6, Indian/Mahe, Asia/Aqtobe, America/Sitka, Asia/Vladivostok, Africa/Libreville, Africa/Maputo, Zulu, America/Kentucky/Monticello, Africa/El_Aaiun, Africa/Ouagadougou, America/Coral_Harbour, Pacific/Marquesas, Brazil/West, America/Aruba, America/North_Dakota/Center, America/Cayman, Asia/Ulaanbaatar, Asia/Baghdad, Europe/San_Marino, America/Indiana/Tell_City, America/Tijuana, Pacific/Saipan, SystemV/YST9, Africa/Douala, America/Chihuahua, America/Ojinaga, Asia/Hovd, America/Anchorage, Chile/EasterIsland, America/Halifax, Antarctica/Rothera, America/Indiana/Indianapolis, US/Mountain, Asia/Damascus, America/Argentina/San_Luis, America/Santiago, Asia/Baku, America/Argentina/Ushuaia, Atlantic/Reykjavik, Africa/Brazzaville, Africa/Porto-Novo, America/La_Paz, Antarctica/DumontDUrville, Asia/Taipei, Antarctica/South_Pole, Asia/Manila, Asia/Bangkok, Africa/Dar_es_Salaam, Poland, Atlantic/Madeira, Antarctica/Palmer, America/Thunder_Bay, Africa/Addis_Ababa, Asia/Yangon, Europe/Uzhgorod, Brazil/DeNoronha, Asia/Ashkhabad, Etc/Zulu, America/Indiana/Marengo, America/Creston, America/Punta_Arenas, America/Mexico_City, Antarctica/Vostok, Asia/Jerusalem, Europe/Andorra, US/Samoa, PRC, Asia/Vientiane, Pacific/Kiritimati, America/Matamoros, America/Blanc-Sablon, Asia/Riyadh, Iceland, Pacific/Pohnpei, Asia/Ujung_Pandang, Atlantic/South_Georgia, Europe/Lisbon, Asia/Harbin, Europe/Oslo, Asia/Novokuznetsk, CST6CDT, Atlantic/Canary, America/Knox_IN, Asia/Kuwait, SystemV/HST10, Pacific/Efate, Africa/Lome, America/Bogota, America/Menominee, America/Adak, Pacific/Norfolk, Europe/Kirov, America/Resolute, Pacific/Kanton, Pacific/Tarawa, Africa/Kampala, Asia/Krasnoyarsk, Greenwich, SystemV/EST5, America/Edmonton, Europe/Podgorica, Australia/South, Canada/Central, Africa/Bujumbura, America/Santo_Domingo, US/Eastern, Europe/Minsk, Pacific/Auckland, Africa/Casablanca, America/Glace_Bay, Canada/Eastern, Asia/Qatar, Europe/Kiev, Singapore, Asia/Magadan, SystemV/PST8, America/Port-au-Prince, Europe/Belfast, America/St_Barthelemy, Asia/Ashgabat, Africa/Luanda, America/Nipigon, Atlantic/Jan_Mayen, Brazil/Acre, Asia/Muscat, Asia/Bahrain, Europe/Vilnius, America/Fortaleza, Etc/GMT0, US/East-Indiana, America/Hermosillo, America/Cancun, Africa/Maseru, Pacific/Kosrae, Africa/Kinshasa, Asia/Kathmandu, Asia/Seoul, Australia/Sydney, America/Lima, Australia/LHI, America/St_Lucia, Europe/Madrid, America/Bahia_Banderas, America/Montserrat, Asia/Brunei, America/Santa_Isabel, Canada/Mountain, America/Cambridge_Bay, Asia/Colombo, Australia/West, Indian/Antananarivo, Australia/Brisbane, Indian/Mayotte, US/Indiana-Starke, Asia/Urumqi, US/Aleutian, Europe/Volgograd, America/Lower_Princes, America/Vancouver, Africa/Blantyre, America/Rio_Branco, America/Danmarkshavn, America/Detroit, America/Thule, Africa/Lusaka, Asia/Hong_Kong, Iran, America/Argentina/La_Rioja, Africa/Dakar, SystemV/CST6CDT, America/Tortola, America/Porto_Velho, Asia/Sakhalin, Etc/GMT+10, America/Scoresbysund, Asia/Kamchatka, Asia/Thimbu, Africa/Harare, Etc/GMT+12, Etc/GMT+11, Navajo, America/Nome, Europe/Tallinn, Turkey, Africa/Khartoum, Africa/Johannesburg, Africa/Bangui, Europe/Belgrade, Jamaica, Africa/Bissau, Asia/Tehran, WET, Europe/Astrakhan, Africa/Juba, America/Campo_Grande, America/Belem, Etc/Greenwich, Asia/Saigon, America/Ensenada, Pacific/Midway, America/Jujuy, Africa/Timbuktu, America/Bahia, America/Goose_Bay, America/Virgin, America/Pangnirtung, Asia/Katmandu, America/Phoenix, Africa/Niamey, America/Whitehorse, Pacific/Noumea, Asia/Tbilisi, America/Montreal, Asia/Makassar, America/Argentina/San_Juan, Hongkong, UCT, Asia/Nicosia, America/Indiana/Winamac, SystemV/MST7MDT, America/Argentina/ComodRivadavia, America/Boa_Vista, America/Grenada, Asia/Atyrau, Australia/Darwin, Asia/Khandyga, Asia/Kuala_Lumpur, Asia/Famagusta, Asia/Thimphu, Asia/Rangoon, Europe/Bratislava, Asia/Calcutta, America/Argentina/Tucuman, Asia/Kabul, Indian/Cocos, Japan, Pacific/Tongatapu, America/New_York, Etc/GMT-12, Etc/GMT-11, America/Nuuk, Etc/GMT-10, SystemV/YST9YDT, Europe/Ulyanovsk, Etc/GMT-14, Etc/GMT-13, W-SU, America/Merida, EET, America/Rosario, Canada/Saskatchewan, America/St_Kitts, Arctic/Longyearbyen, America/Fort_Nelson, America/Caracas, America/Guadeloupe, Asia/Hebron, Indian/Kerguelen, SystemV/PST8PDT, Africa/Monrovia, Asia/Ust-Nera, Egypt, Asia/Srednekolymsk, America/North_Dakota/New_Salem, Asia/Anadyr, Australia/Melbourne, Asia/Irkutsk, America/Shiprock, America/Winnipeg, Europe/Vatican, Asia/Amman, Etc/UTC, SystemV/AST4ADT, Asia/Tokyo, America/Toronto, Asia/Singapore, Australia/Lindeman, America/Los_Angeles, SystemV/EST5EDT, Pacific/Majuro, America/Argentina/Buenos_Aires, Europe/Nicosia, Pacific/Guadalcanal, Europe/Athens, US/Pacific, Europe/Monaco]</span><br><span class="line">		log.info(&quot;\nzoneSet={}&quot;, zoneSet);</span><br><span class="line"></span><br><span class="line">		log.info(&quot;==============================&quot;);</span><br><span class="line"></span><br><span class="line">		//&#x590F;&#x4EE4;&#x65F6;&#x662F;&#x4ECE;&#x6BCF;&#x5E74;3&#x6708;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x661F;&#x671F;&#x65E5;&#x5230;10&#x6708;&#x4EFD;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x661F;&#x671F;&#x65E5;&#xFF0C;&#x8FD9;&#x65F6;&#x5FB7;&#x56FD;&#x548C;&#x4E2D;&#x56FD;&#x65F6;&#x5DEE;&#x65F6;6&#x5C0F;&#x65F6;&#xFF0C;&#x4E4B;&#x540E;&#x5C31;&#x8F6C;&#x4E3A;&#x51AC;&#x4EE4;&#x65F6;&#xFF0C;&#x65F6;&#x5DEE;&#x6539;&#x4E3A;7&#x5C0F;&#x65F6;</span><br><span class="line"></span><br><span class="line">		//&#x4E2D;&#x56FD;&#x4E0A;&#x6D77;&#x76EE;&#x524D;&#x7684;&#x65F6;&#x95F4;</span><br><span class="line">		LocalDateTime shanghaiLocalDateTime = LocalDateTime.now();</span><br><span class="line">		ZoneId currentZoneId = OffsetDateTime.now().getOffset();</span><br><span class="line"></span><br><span class="line">		//&#x590F;&#x4EE4;&#x65F6;&#x6D4B;&#x8BD5;&#xFF0C;&#x5F53;&#x524D;&#x4E2D;&#x56FD;&#x4E0A;&#x6D77;&#x65F6;&#x95F4;&#x662F;&#xFF1A;2023-04-28T21:46:36.503</span><br><span class="line">		//&#x5FB7;&#x56FD;&#x65F6;&#x533A;ID: Europe/Berlin</span><br><span class="line">		ZoneId berlinZoneId = ZoneId.of(&quot;Europe/Berlin&quot;);</span><br><span class="line">		//&#x5C06;&#x5F53;&#x524D;&#x7684;&#x4E2D;&#x56FD;&#x4E0A;&#x6D77;&#x65F6;&#x95F4;&#xFF0C;&#x8F6C;&#x6362;&#x6210;&#x5FB7;&#x56FD;&#x67CF;&#x6797;&#x65F6;&#x95F4; (&#x5FB7;&#x56FD;&#x6709;&#x590F;&#x4EE4;&#x65F6;&#x548C;&#x51AC;&#x4EE4;&#x65F6;&#xFF0C;2&#x4E2A;&#x65F6;&#x533A;&#xFF0C;&#x4E0B;&#x9762;&#x63A5;&#x53E3;&#x5185;&#x90E8;&#x4F1A;&#x81EA;&#x52A8;&#x8F6C;)</span><br><span class="line">		LocalDateTime berlinLocalDateTime = shanghaiLocalDateTime.atZone(currentZoneId)</span><br><span class="line">				.withZoneSameInstant(berlinZoneId).toLocalDateTime();</span><br><span class="line">		//&#x7ED3;&#x679C;&#xFF1A;</span><br><span class="line">		//shanghaiLocalDateTime=2023-04-28T21:46:36.503</span><br><span class="line">		//berlinLocalDateTime=2023-04-28T15:46:36.503</span><br><span class="line">		log.info(&quot;\nshanghaiLocalDateTime={}\nberlinLocalDateTime={}&quot;, shanghaiLocalDateTime, berlinLocalDateTime);</span><br><span class="line"></span><br><span class="line">		log.info(&quot;==============================&quot;);</span><br><span class="line"></span><br><span class="line">		//&#x51AC;&#x4EE4;&#x65F6;&#x6D4B;&#x8BD5;&#xFF0C;&#x5FB7;&#x56FD;&#x51AC;&#x4EE4;&#x65F6;&#x7684;&#x65F6;&#x95F4;&#xFF0C;&#x4E0E;&#x56FD;&#x5185;&#x7684;&#x65F6;&#x5DEE;&#x4E3A;7&#x5C0F;&#x65F6;</span><br><span class="line">		//&#x6A21;&#x62DF;&#x5F53;&#x524D;&#x4E2D;&#x56FD;&#x4E0A;&#x6D77;&#x65F6;&#x95F4;&#x662F;&#xFF1A;2022-12-25T08:00:00.000</span><br><span class="line">		ZoneId asiaShanghaiZoneId = ZoneId.of(&quot;Asia/Shanghai&quot;);</span><br><span class="line">		LocalDateTime aisaShanghaiLocalDateTime = LocalDateTime.of(2022, 12, 25, 8, 0, 0);</span><br><span class="line">		ZonedDateTime asiaShanghaiZonedDateTime = ZonedDateTime.of(aisaShanghaiLocalDateTime, asiaShanghaiZoneId);</span><br><span class="line"></span><br><span class="line">		LocalDateTime europeGermanyLocalDateTime = asiaShanghaiZonedDateTime.withZoneSameInstant(berlinZoneId).toLocalDateTime();</span><br><span class="line">		//&#x7ED3;&#x679C;&#xFF1A;</span><br><span class="line">		//Mock--aisaShanghaiLocalDateTime=2022-12-25T08:00</span><br><span class="line">		//Mock--europeGermanyLocalDateTime=2022-12-25T01:00</span><br><span class="line">		log.info(&quot;\nMock--aisaShanghaiLocalDateTime={}\nMock--europeGermanyLocalDateTime={}&quot;, aisaShanghaiLocalDateTime, europeGermanyLocalDateTime);</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2023/09/29/18.C001.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--5.GKE-Java微服务编排
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2023/04/28/15.004%20%E7%AC%94%E8%AE%B0-%E9%80%9A%E8%BF%87%E5%9F%9F%E5%90%8D%EF%BC%8C%E5%8F%8D%E6%9F%A5%E5%88%B0Nginx%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84IP%E5%92%8C.conf%E9%85%8D%E7%BD%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">笔记-通过域名，反查到Nginx服务器的IP和.conf配置</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

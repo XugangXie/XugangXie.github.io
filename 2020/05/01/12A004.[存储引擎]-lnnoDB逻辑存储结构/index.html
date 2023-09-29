@@ -131,7 +131,7 @@
 <li>&#x9875;&#xFF1A;16K</li>
 </ul>
 <p>&#x8868;&#x7A7A;&#x95F4;<br>&#x8868;&#x7A7A;&#x95F4;&#x53EF;&#x4EE5;&#x770B;&#x505A;&#x662F;InnoDB&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x903B;&#x8F91;&#x7ED3;&#x6784;&#x7684;&#x6700;&#x9AD8;&#x5C42; &#xFF0C;&#x6240;&#x6709;&#x7684;&#x6570;&#x636E;&#x90FD;&#x662F;&#x5B58;&#x653E;&#x5728;&#x8868;&#x7A7A;&#x95F4;&#x4E2D;&#x3002;&#x5DF2;&#x7ECF;&#x4ECB;&#x7ECD;&#x4E86;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B; InnoDB&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x6709;&#x4E00;&#x4E2A;&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4; ibdata1 &#xFF0C;&#x5373;&#x6240;&#x6709;&#x6570;&#x636E;&#x90FD;&#x653E;&#x5728;&#x8FD9;&#x4E2A;&#x8868;&#x7A7A;&#x95F4;&#x5185; &#x3002;&#x5982;&#x679C;&#x6211;&#x4EEC;&#x542F;&#x7528;&#x4E86;&#x53C2;&#x6570;innodb_file_per_table &#xFF0C;&#x5219;&#x6BCF;&#x5F20;&#x8868;&#x5185;&#x7684;&#x6570;&#x636E;&#x53EF;&#x4EE5;&#x5355;&#x72EC;&#x653E;&#x5230;&#x4E00;&#x4E2A;&#x8868;&#x7A7A;&#x95F4;&#x5185; &#x3002;</p>
-<p><img src="/2020/05/01/12A004.[%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E]-lnnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/1.jpg"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12A004.[%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E]-lnnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/1.jpg"></p>
 <p>segment&#xFF1A;&#x8868;&#xFF1B;<br>extent&#xFF1A;&#x7269;&#x7406;&#x4E0A;&#x8FDE;&#x7EED;&#x7684;&#x51E0;&#x4E2A;&#x9875;&#xFF1B;<br>page&#xFF08;block&#xFF09;&#xFF1A;16K<br>&#xFF08;&#x5373;&#xFF1A;&#x5C06;&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;&#x72EC;&#x7ACB;&#x51FA;&#x53BB; innodb_file_per_table &#x53C2;&#x6570;&#xFF09;</p>
 <p>&#x5BF9;&#x4E8E;&#x542F;&#x7528;&#x4E86;innodb_file_per_table&#x7684;&#x53C2;&#x6570;&#x9009;&#x9879;&#xFF0C;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F; &#xFF0C;&#x6BCF;&#x5F20;&#x8868;&#x7684;&#x8868;&#x7A7A;&#x95F4;&#x5185;&#x5B58;&#x653E;&#x7684;&#x53EA;&#x662F;&#x6570;&#x636E;&#x3001;&#x7D22;&#x5F15;&#x548C;&#x63D2;&#x5165;&#x7F13;&#x51B2; &#xFF0C;&#x5176;&#x4ED6;&#x7C7B;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x5982;&#x64A4;&#x9500;&#xFF08; Undo&#xFF09; &#x4FE1;&#x606F;&#x3001;&#x7CFB;&#x7EDF;&#x4E8B;&#x52A1;&#x4FE1;&#x606F;&#x3001; &#x4E8C;&#x6B21;&#x5199;&#x7F13;&#x51B2; &#xFF08;double write buffer &#xFF09; &#x7B49;&#x8FD8;&#x662F;&#x5B58;&#x653E;&#x5728;&#x539F;&#x6765;&#x7684;&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;&#x5185;&#x3002;&#x8FD9;&#x4E5F;&#x5C31;&#x8BF4;&#x660E;&#x4E86;&#x53E6;&#x4E00;&#x4E2A;&#x95EE;&#x9898;&#xFF1A;&#x5373;&#x4F7F;&#x5728;&#x542F;&#x7528;&#x4E86;&#x53C2;&#x6570;innodb_file_per_table&#x4E4B;&#x540E;&#xFF0C;&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;&#x8FD8;&#x662F;&#x4F1A;&#x4E0D;&#x65AD;&#x5730;&#x589E;&#x52A0;&#x5176;&#x5927;&#x5C0F;&#x3002;</p>
 <p>&#x8868;&#x7A7A;&#x95F4;&#xFF1A;&#x8868;&#x3001;&#x7D22;&#x5F15;&#x3001;insert buffer bitmap&#x3010;&#x8BB0;&#x5F55;&#x4E8C;&#x7EA7;&#x7D22;&#x5F15;&#x6BCF;&#x4E00;&#x4E2A;&#x6570;&#x636E;&#x9875;&#x7684;&#x7A7A;&#x95F2;&#x7A7A;&#x95F4;&#x5269;&#x4F59;&#x60C5;&#x51B5;&#x3011;<br>&#x3010;&#x77E5;&#x9053;&#xFF1A;&#x8BA1;&#x7B97;&#x673A;&#x91CC;&#x5F88;&#x591A;&#x5730;&#x65B9;&#x7528;bitmap&#xFF08;&#x4F4D;&#x56FE;&#xFF09;&#x6765;&#x5B58;&#x50A8;&#x4E1C;&#x897F;&#x3002;&#x3011;</p>
@@ -157,19 +157,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/" class="article-nav-link">
+      <a href="/2020/05/01/12A003.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%93%AA%E4%B8%AA%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E6%89%A7%E8%A1%8C%20select%20count()%20%E6%9B%B4%E5%BF%AB%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            12.004.[综合]-MySQL底层架构：缓冲与磁盘
+            12A003.[存储引擎]-哪个存储引擎执行 select count() 更快，为什么
           
         </div>
       </a>
     
     
-      <a href="/2020/05/01/12A005.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84/" class="article-nav-link">
+      <a href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">12A005.[存储引擎]-深入理解InnoDB存储引擎的逻辑架构</div>
+        <div class="article-nav-title">12.004.[综合]-MySQL底层架构：缓冲与磁盘</div>
       </a>
     
   </nav>
@@ -193,7 +193,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

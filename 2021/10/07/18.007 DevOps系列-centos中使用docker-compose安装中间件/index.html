@@ -164,7 +164,7 @@
 
 
 <p>####7. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;<br>win10&#x4E0A;&#xFF0C;&#x6253;&#x5F00;SQLYog&#xFF0C;&#x5C1D;&#x8BD5;&#x8FDE;&#x63A5;&#xFF1A;</p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/1.png"></p>
 <h3 id="&#x5B89;&#x88C5;redis5-0"><a href="#&#x5B89;&#x88C5;redis5-0" class="headerlink" title="&#x5B89;&#x88C5;redis5.0"></a>&#x5B89;&#x88C5;redis5.0</h3><blockquote>
 <p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/raorao1994/p/14537573.html">https://www.cnblogs.com/raorao1994/p/14537573.html</a></p>
 </blockquote>
@@ -189,8 +189,8 @@
 <p><code>docker ps -a</code></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ docker]<span class="comment"># docker ps -a | grep redis</span></span><br><span class="line">5dde5f8bf2ad        redis:5.0.4         <span class="string">&quot;docker-entrypoint.s&#x2026;&quot;</span>   39 hours ago        Up 39 hours         0.0.0.0:6379-&gt;6379/tcp              redis</span><br></pre></td></tr></table></figure>
 
-<p>####6. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;<br>win10&#x4E0A;&#xFF0C;&#x6253;&#x5F00;<code>Another Redis Desktop Manager</code>&#xFF0C;&#x5C1D;&#x8BD5;&#x8FDE;&#x63A5;&#xFF1A;<br><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/2.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/3.png"></p>
+<p>####6. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;<br>win10&#x4E0A;&#xFF0C;&#x6253;&#x5F00;<code>Another Redis Desktop Manager</code>&#xFF0C;&#x5C1D;&#x8BD5;&#x8FDE;&#x63A5;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/3.png"></p>
 <h3 id="&#x5B89;&#x88C5;mongodb"><a href="#&#x5B89;&#x88C5;mongodb" class="headerlink" title="&#x5B89;&#x88C5;mongodb"></a>&#x5B89;&#x88C5;mongodb</h3><blockquote>
 <p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/raorao1994/p/14627358.html">https://www.cnblogs.com/raorao1994/p/14627358.html</a></p>
 </blockquote>
@@ -216,9 +216,9 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x6388;&#x6743;&#x521B;&#x5EFA;&#x8D26;&#x6237;</span><br><span class="line">docker exec -it mymongodb mongo admin</span><br><span class="line"></span><br><span class="line">use admin;</span><br><span class="line"></span><br><span class="line">db.createUser({</span><br><span class="line">  user: &apos;root&apos;,</span><br><span class="line">  pwd: &apos;123456&apos;,</span><br><span class="line">  roles: [ { role: &quot;userAdminAnyDatabase&quot;, db: &quot;admin&quot; } ]</span><br><span class="line">});</span><br><span class="line"></span><br><span class="line">db.auth(&quot;root&quot;,&quot;123456&quot;);</span><br><span class="line"></span><br><span class="line">1 &#x4EE3;&#x8868;&#x6388;&#x6743;&#x9A8C;&#x8BC1;&#x6210;&#x529F;</span><br></pre></td></tr></table></figure>
 
 
-<h4 id="7-&#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;"><a href="#7-&#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;" class="headerlink" title="7. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;"></a>7. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;</h4><p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/4.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/5.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/6.png"></p>
+<h4 id="7-&#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;"><a href="#7-&#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;" class="headerlink" title="7. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;"></a>7. &#x8FDC;&#x7A0B;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;</h4><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/4.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/5.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/6.png"></p>
 <h3 id="&#x5B89;&#x88C5;zookeeper&#x5355;&#x8282;&#x70B9;"><a href="#&#x5B89;&#x88C5;zookeeper&#x5355;&#x8282;&#x70B9;" class="headerlink" title="&#x5B89;&#x88C5;zookeeper&#x5355;&#x8282;&#x70B9;"></a>&#x5B89;&#x88C5;zookeeper&#x5355;&#x8282;&#x70B9;</h3><blockquote>
 <p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://www.ytooo.top/98d98f75.html">https://www.ytooo.top/98d98f75.html</a></p>
 </blockquote>
@@ -229,7 +229,7 @@
 
 <h4 id="3-win10&#x4E0A;&#x4F7F;&#x7528;&#x5BA2;&#x6237;&#x7AEF;&#x6D4B;&#x8BD5;&#x8FDE;&#x63A5;"><a href="#3-win10&#x4E0A;&#x4F7F;&#x7528;&#x5BA2;&#x6237;&#x7AEF;&#x6D4B;&#x8BD5;&#x8FDE;&#x63A5;" class="headerlink" title="3.win10&#x4E0A;&#x4F7F;&#x7528;&#x5BA2;&#x6237;&#x7AEF;&#x6D4B;&#x8BD5;&#x8FDE;&#x63A5;"></a>3.win10&#x4E0A;&#x4F7F;&#x7528;&#x5BA2;&#x6237;&#x7AEF;&#x6D4B;&#x8BD5;&#x8FDE;&#x63A5;</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /d D:\dev\configurations\zookeeper\zookeeper-3.4.10\bin</span><br><span class="line"></span><br><span class="line">zkCli.cmd -server 101.132.76.245:2180</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/14.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/14.png"></p>
 <h3 id="&#x5B89;&#x88C5;zookeeper-3&#x8282;&#x70B9;&#x96C6;&#x7FA4;"><a href="#&#x5B89;&#x88C5;zookeeper-3&#x8282;&#x70B9;&#x96C6;&#x7FA4;" class="headerlink" title="&#x5B89;&#x88C5;zookeeper 3&#x8282;&#x70B9;&#x96C6;&#x7FA4;"></a>&#x5B89;&#x88C5;zookeeper 3&#x8282;&#x70B9;&#x96C6;&#x7FA4;</h3><blockquote>
 <p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ling_du/article/details/103489253">https://blog.csdn.net/ling_du/article/details/103489253</a><br><a target="_blank" rel="noopener" href="https://www.cxyzjd.com/article/qq_39340792/112383482">https://www.cxyzjd.com/article/qq_39340792/112383482</a> (&#x4EE5;&#x8FD9;&#x4E2A;&#x4E3A;&#x51C6;)</p>
 </blockquote>
@@ -261,15 +261,15 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ docker]# docker-compose -f docker-compose.kafka.single.yml up -d</span><br><span class="line">WARNING: Found orphan containers (mysql, myrabbitmq, myzookeeper, mymongodb, redis) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.</span><br><span class="line">Creating docker_kafka_1         ... done</span><br><span class="line">Creating docker_kafka-manager_1 ... done</span><br></pre></td></tr></table></figure>
 
 <h4 id="3-kafa-manager&#x63A7;&#x5236;&#x53F0;"><a href="#3-kafa-manager&#x63A7;&#x5236;&#x53F0;" class="headerlink" title="3.kafa-manager&#x63A7;&#x5236;&#x53F0;"></a>3.kafa-manager&#x63A7;&#x5236;&#x53F0;</h4><p><a target="_blank" rel="noopener" href="http://101.132.76.245:9000/">http://101.132.76.245:9000</a></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/15.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/15.png"></p>
 <h4 id="4-&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic"><a href="#4-&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic" class="headerlink" title="4.&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic"></a>4.&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic</h4><h5 id="&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic"><a href="#&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic" class="headerlink" title="&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic:"></a>&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic:</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ ~]<span class="comment"># docker exec -it mykafka bash</span></span><br><span class="line">bash-5.1<span class="comment"># cd /opt/kafka_2.13-2.7.1</span></span><br></pre></td></tr></table></figure>
 
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bash-5.1<span class="comment"># kafka-topics.sh --create --zookeeper 172.19.226.247:2180 --replication-factor 1 --partitions 1 --topic topicTEST</span></span><br><span class="line">Created topic topicTEST.</span><br><span class="line"></span><br><span class="line">bash-5.1<span class="comment"># kafka-topics.sh --list --zookeeper 172.19.226.247:2180</span></span><br><span class="line">topicTEST</span><br></pre></td></tr></table></figure>
 
-<h5 id="&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;"><a href="#&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;" class="headerlink" title="&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;"></a>&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;</h5><p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/16.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/17.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/18.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/19.png"></p>
+<h5 id="&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;"><a href="#&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;" class="headerlink" title="&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;"></a>&#x67E5;&#x770B;&#x4E0B;kafka-manager&#x63A7;&#x5236;&#x53F0;</h5><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/16.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/17.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/18.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/19.png"></p>
 <h5 id="&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;"><a href="#&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;" class="headerlink" title="&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;"></a>&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ ~]<span class="comment"># docker exec -it mykafka bash</span></span><br><span class="line">bash-5.1<span class="comment"># cd /opt/kafka_2.13-2.7.1</span></span><br></pre></td></tr></table></figure>
 
 <p>&#x521B;&#x5EFA;&#x751F;&#x4EA7;&#x8005;&#x547D;&#x4EE4;</p>
@@ -318,19 +318,19 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">13749f5192bf        sheepkiller/kafka-manager:latest   <span class="string">&quot;./start-kafka-manag&#x2026;&quot;</span>   3 minutes ago       Up 3 minutes        0.0.0.0:9000-&gt;9000/tcp                                 kafka-manager</span><br><span class="line">d3ea19076f2e        wurstmeister/kafka                 <span class="string">&quot;start-kafka.sh&quot;</span>         3 minutes ago       Up 3 minutes        0.0.0.0:9092-&gt;9092/tcp                                 kafka1</span><br><span class="line">3cd25bb57731        wurstmeister/kafka                 <span class="string">&quot;start-kafka.sh&quot;</span>         3 minutes ago       Up 3 minutes        0.0.0.0:9094-&gt;9092/tcp                                 kafka3</span><br><span class="line">91d967d22719        wurstmeister/kafka                 <span class="string">&quot;start-kafka.sh&quot;</span>         3 minutes ago       Up 3 minutes        0.0.0.0:9093-&gt;9092/tcp                                 kafka2</span><br></pre></td></tr></table></figure>
 
 <h4 id="4-&#x8FDB;&#x5165;kafka-manager&#x63A7;&#x5236;&#x53F0;"><a href="#4-&#x8FDB;&#x5165;kafka-manager&#x63A7;&#x5236;&#x53F0;" class="headerlink" title="4.&#x8FDB;&#x5165;kafka-manager&#x63A7;&#x5236;&#x53F0;"></a>4.&#x8FDB;&#x5165;kafka-manager&#x63A7;&#x5236;&#x53F0;</h4><p>&#x5728;&#x542F;&#x52A8;&#x4E86; ZooKeeper &#x96C6;&#x7FA4;&#x540E;&#x518D;&#x542F;&#x52A8; Kafka &#x96C6;&#x7FA4;&#x3002;&#x4E4B;&#x540E;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x8BBF;&#x95EE; <code>http://101.132.76.245:9000</code> &#x8BBF;&#x95EE; kafka-manager&#x3002;</p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/7.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.1.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.2.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.3.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.1.png"></p>
-<p>&#x70B9;&#x51FB;Topics: 1<br><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.2.png"></p>
-<p>&#x70B9;&#x51FB;Brokers: 3<br><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/7.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/8.3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.1.png"></p>
+<p>&#x70B9;&#x51FB;Topics: 1<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.2.png"></p>
+<p>&#x70B9;&#x51FB;Brokers: 3<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/9.3.png"></p>
 <h4 id="5-&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic"><a href="#5-&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic" class="headerlink" title="5.&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic"></a>5.&#x7EC8;&#x7AEF;&#x521B;&#x5EFA;topic</h4><h5 id="&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic-1"><a href="#&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic-1" class="headerlink" title="&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic:"></a>&#x7EC8;&#x7AEF;1&#xFF1A;&#x521B;&#x5EFA;topic:</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ ~]<span class="comment"># docker exec -it kafka1 bash</span></span><br><span class="line">bash-5.1<span class="comment"># cd /opt/kafka_2.13-2.7.1</span></span><br></pre></td></tr></table></figure>
 
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bash-5.1<span class="comment"># kafka-topics.sh --create --zookeeper zoo1:2181,zoo2:2181,zoo3:2181 --replication-factor 1 --partitions 1 --topic topicTEST</span></span><br><span class="line">Created topic topicTEST.</span><br><span class="line"></span><br><span class="line">bash-5.1<span class="comment"># kafka-topics.sh --list --zookeeper zoo1:2181,zoo2:2181,zoo3:2181</span></span><br><span class="line">__consumer_offsets</span><br><span class="line">topicTEST</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/10.1.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/11.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/10.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/11.png"></p>
 <h5 id="&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;-1"><a href="#&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;-1" class="headerlink" title="&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;"></a>&#x7EC8;&#x7AEF;2&#xFF1A;&#x751F;&#x4EA7;&#x8005;</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ ~]<span class="comment"># docker exec -it kafka1 bash</span></span><br><span class="line">bash-5.1<span class="comment"># cd /opt/kafka_2.13-2.7.1</span></span><br></pre></td></tr></table></figure>
 
 <p>//&#x521B;&#x5EFA;&#x751F;&#x4EA7;&#x8005;</p>
@@ -352,8 +352,8 @@
 <p>&#x4EE5;&#x4E0A; <code>172.19.226.247</code> &#x662F;&#x963F;&#x91CC;&#x4E91;ECS&#x5185;&#x7F51;IP</p>
 </blockquote>
 <p>&#x518D;&#x770B;&#x770B;kafka-manager&#x4E0A;&#x7684;topic: <code>topicTEST</code></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/20.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/21.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/20.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/21.png"></p>
 <h3 id="&#x5B89;&#x88C5;rabbitmq"><a href="#&#x5B89;&#x88C5;rabbitmq" class="headerlink" title="&#x5B89;&#x88C5;rabbitmq"></a>&#x5B89;&#x88C5;rabbitmq</h3><blockquote>
 <p>&#x53C2;&#x8003;&#xFF1A;<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013887008/article/details/110333298">https://blog.csdn.net/u013887008/article/details/110333298</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/raorao1994/p/14681430.html%EF%BC%88%E4%BB%A5%E8%BF%99%E4%B8%AA%E4%B8%BA%E5%87%86%EF%BC%89">https://www.cnblogs.com/raorao1994/p/14681430.html&#xFF08;&#x4EE5;&#x8FD9;&#x4E2A;&#x4E3A;&#x51C6;&#xFF09;</a></p>
 </blockquote>
@@ -372,8 +372,8 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@iZuf6fzs4zygg3dp5czjoiZ docker]<span class="comment"># docker ps -a | grep rabbitmq</span></span><br><span class="line">72ce35197e1d        rabbitmq:3.7.16-management         <span class="string">&quot;docker-entrypoint.s&#x2026;&quot;</span>   24 seconds ago      Up 22 seconds       0.0.0.0:4369-&gt;4369/tcp, 5671/tcp, 0.0.0.0:5672-&gt;5672/tcp, 0.0.0.0:15672-&gt;15672/tcp, 0.0.0.0:25672-&gt;25672/tcp, 15671/tcp   myrabbitmq</span><br></pre></td></tr></table></figure>
 
 <h4 id="5-admin-console&#x63A7;&#x5236;&#x53F0;"><a href="#5-admin-console&#x63A7;&#x5236;&#x53F0;" class="headerlink" title="5. admin-console&#x63A7;&#x5236;&#x53F0;"></a>5. admin-console&#x63A7;&#x5236;&#x53F0;</h4><p><code>http://101.132.76.245:15672/</code><br>root / 123456</p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/12.png"></p>
-<p><img src="/2021/10/07/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/13.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/12.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.007%20DevOps%E7%B3%BB%E5%88%97-centos%E4%B8%AD%E4%BD%BF%E7%94%A8docker-compose%E5%AE%89%E8%A3%85%E4%B8%AD%E9%97%B4%E4%BB%B6/13.png"></p>
  
       <!-- reward -->
       
@@ -392,19 +392,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/10/07/18.008%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85Hexo/" class="article-nav-link">
+      <a href="/2021/10/07/18.006%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85docker%E5%92%8Cdocker-compose/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            DevOps系列-centos7.8安装Hexo
+            DevOps系列-centos7.8安装docker和docker-compose
           
         </div>
       </a>
     
     
-      <a href="/2021/10/07/18.101%20DevOps%E7%B3%BB%E5%88%97-kibana%E5%AE%89%E8%A3%85/" class="article-nav-link">
+      <a href="/2021/10/07/18.008%20DevOps%E7%B3%BB%E5%88%97-centos7.8%E5%AE%89%E8%A3%85Hexo/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">DevOps系列-kibana安装</div>
+        <div class="article-nav-title">DevOps系列-centos7.8安装Hexo</div>
       </a>
     
   </nav>
@@ -428,7 +428,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

@@ -116,7 +116,7 @@
 </blockquote>
 <p>&#x5E74;&#x8F7B;&#x4EE3;&#xFF1A; <code>&#x4E32;&#x884C;&#x56DE;&#x6536;&#x5668;&#xFF08;Serial&#xFF09;</code>&#xFF0C;<code>&#x5E76;&#x884C;&#x56DE;&#x6536;&#x5668;(ParNew)</code>&#xFF0C; <code>&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x56DE;&#x6536;&#x5668;(Parallel Scavenge)</code><br>&#x5E74;&#x8001;&#x4EE3;&#xFF1A; <code>&#x4E32;&#x884C;&#x56DE;&#x6536;&#x5668;&#xFF08;Serial Old&#xFF09;</code>&#xFF0C;<code>&#x5E76;&#x884C;&#x56DE;&#x6536;&#x5668;(Parallel Old)</code>&#xFF0C; <code>CMS&#x6536;&#x96C6;&#x5668;&#xFF08;&#x5E76;&#x53D1;&#x6807;&#x8BB0;&#x6E05;&#x9664;&#xFF09;</code></p>
 <span id="more"></span>
-<p>&#x5E74;&#x8F7B;&#x4EE3;&#x4E0E;&#x5E74;&#x8001;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#x7684;&#x7EC4;&#x5408;&#x56FE;&#xFF1A;&#x5C55;&#x793A;&#x4E86;7&#x79CD;&#x4F5C;&#x7528;&#x4E8E;&#x4E0D;&#x540C;&#x5206;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5982;&#x679C;&#x4E24;&#x4E2A;&#x6536;&#x96C6;&#x5668;&#x4E4B;&#x95F4;&#x5B58;&#x5728;&#x8FDE;&#x7EBF;&#xFF0C;&#x5C31;&#x8BF4;&#x660E;&#x5B83;&#x4EEC;&#x53EF;&#x4EE5;&#x642D;&#x914D;&#x4F7F;&#x7528;&#x3002;<br><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a1.png"></p>
+<p>&#x5E74;&#x8F7B;&#x4EE3;&#x4E0E;&#x5E74;&#x8001;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#x7684;&#x7EC4;&#x5408;&#x56FE;&#xFF1A;&#x5C55;&#x793A;&#x4E86;7&#x79CD;&#x4F5C;&#x7528;&#x4E8E;&#x4E0D;&#x540C;&#x5206;&#x4EE3;&#x7684;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x5982;&#x679C;&#x4E24;&#x4E2A;&#x6536;&#x96C6;&#x5668;&#x4E4B;&#x95F4;&#x5B58;&#x5728;&#x8FDE;&#x7EBF;&#xFF0C;&#x5C31;&#x8BF4;&#x660E;&#x5B83;&#x4EEC;&#x53EF;&#x4EE5;&#x642D;&#x914D;&#x4F7F;&#x7528;&#x3002;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a1.png"></p>
 <p>&#x4EE5;&#x4E0B;&#x7ED3;&#x8BBA;&#xFF0C;&#x8BB0;&#x4F4F;&#x5373;&#x53EF;&#xFF1A;</p>
 <ul>
 <li><p>jdk1.7 &#x9ED8;&#x8BA4;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;Parallel Scavenge&#xFF08;&#x65B0;&#x751F;&#x4EE3;&#xFF09;+Parallel Old&#xFF08;&#x8001;&#x5E74;&#x4EE3;&#xFF09;</p>
@@ -126,11 +126,11 @@
 <li><p>jdk1.9 &#x9ED8;&#x8BA4;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;G1</p>
 </li>
 </ul>
-<p>&#x5982;&#x4F55;&#x67E5;&#x770B;&#xFF1F; cmd&#x6267;&#x884C;&#x547D;&#x4EE4;&#xFF1A; java -XX:+PrintCommandLineFlags -version<br><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a2.png"></p>
-<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a3.png"></p>
+<p>&#x5982;&#x4F55;&#x67E5;&#x770B;&#xFF1F; cmd&#x6267;&#x884C;&#x547D;&#x4EE4;&#xFF1A; java -XX:+PrintCommandLineFlags -version<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/a3.png"></p>
 <hr>
-<h2 id="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"><a href="#6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;" class="headerlink" title="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"></a>6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;</h2><p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/1.png"></p>
-<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/2.png"></p>
+<h2 id="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"><a href="#6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;" class="headerlink" title="6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;"></a>6&#x79CD;&#x5783;&#x573E;&#x6536;&#x96C6;&#x7EC4;&#x5408;&#x5173;&#x7CFB;&#x56FE;</h2><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/2.png"></p>
 <h2 id="&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h2><p><strong>&#x6240;&#x6709;&#x65B0;&#x751F;&#x4EE3;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;&#xFF0C;&#x90FD;&#x4F7F;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;&#x90FD;&#x4F1A;&#x53D1;&#x751F;stop-the-world</strong>&#x3002;&#x7531;&#x4E8E;&#x7EDD;&#x5927;&#x591A;&#x6570;&#x5BF9;&#x8C61;&#x7684;&#x751F;&#x547D;&#x5468;&#x671F;&#x901A;&#x5E38;&#x6BD4;&#x8F83;&#x77ED;&#xFF0C;&#x5728;&#x65B0;&#x751F;&#x4EE3;&#x88AB;&#x56DE;&#x6536;&#x7684;&#x53EF;&#x80FD;&#x6027;&#x5F88;&#x5927;&#xFF0C;&#x65B0;&#x751F;&#x4EE3;&#x7684;&#x5783;&#x573E;&#x56DE;&#x6536;&#x901A;&#x5E38;&#x53EF;&#x4EE5;&#x56DE;&#x6536;&#x5927;&#x90E8;&#x5206;&#x5BF9;&#x8C61;&#xFF0C;&#x56E0;&#x6B64;&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#x6548;&#x7387;&#x66F4;&#x9AD8;&#x3002;</p>
 <h3 id="Serial"><a href="#Serial" class="headerlink" title="Serial"></a>Serial</h3><p><strong>&#x91C7;&#x7528;&#x590D;&#x5236;&#x7B97;&#x6CD5;&#xFF0C;GC&#x65F6;&#x53D1;&#x751F;stop-the-world&#xFF0C;&#x4F7F;&#x7528;&#x5355;&#x4E2A;GC&#x7EBF;&#x7A0B;&#x3002;</strong></p>
 <blockquote>
@@ -168,7 +168,7 @@
 </blockquote>
 <h2 id="&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;"><a href="#&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;" class="headerlink" title="&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;"></a>&#x63A8;&#x8350;&#x4F7F;&#x7528;&#x7684;2&#x79CD;GC&#x7EC4;&#x5408;</h2><h3 id="1-&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#1-&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="1.&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>1.&#x57FA;&#x4E8E;&#x4F4E;&#x505C;&#x987F;&#x65F6;&#x95F4;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h3><p>-XX:+UseConcMarkSweepGC&#xFF08;&#x8BE5;&#x53C2;&#x6570;&#x9690;&#x5F0F;&#x542F;&#x7528;-XX:+UseParNewGC&#xFF09;</p>
 <h3 id="2-&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"><a href="#2-&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;" class="headerlink" title="2.&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;"></a>2.&#x57FA;&#x4E8E;&#x541E;&#x5410;&#x91CF;&#x4F18;&#x5148;&#x7684;&#x5783;&#x573E;&#x6536;&#x96C6;&#x5668;</h3><p>-XX:+UseParallelOldGC&#xFF08;&#x8BE5;&#x53C2;&#x6570;&#x9690;&#x5F0F;&#x542F;&#x7528;-XX:+UseParallelGC&#xFF09;</p>
-<p><img src="/2022/05/12/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/4.004.GC-GC%E6%94%B6%E9%9B%86%E5%99%A8%E5%90%84%E7%A7%8D%E7%BB%84%E5%90%88/3.png"></p>
 <h2 id="&#x53C2;&#x8003;&#xFF1A;"><a href="#&#x53C2;&#x8003;&#xFF1A;" class="headerlink" title="&#x53C2;&#x8003;&#xFF1A;"></a>&#x53C2;&#x8003;&#xFF1A;</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.breakyizhan.com/javamianshiti/2853.html">Java&#x865A;&#x62DF;&#x673A;&#xFF08;JVM&#xFF09;&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;Parallel Scavenge&#x6536;&#x96C6;&#x5668;</a></li>
 </ul>
@@ -226,7 +226,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

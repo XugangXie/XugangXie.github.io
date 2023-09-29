@@ -137,7 +137,7 @@
 
 <h5 id="&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;"><a href="#&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;" class="headerlink" title="&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;"></a>&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;</h5><p>&#x901A;&#x8FC7;&#x4E0A;&#x9762;&#x7684;&#x5206;&#x6790;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5F88;&#x6E05;&#x695A;&#x7684;&#x770B;&#x5F97;&#x51FA;&#x6765;&#xFF0C;&#x4E2D;&#x65AD;&#x673A;&#x5236;&#x7684;&#x6838;&#x5FC3;&#x5C31;&#x662F;&#x501F;&#x52A9;&#x4E8E;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;</p>
 <p>&#x800C; interrupt interrupted isInterrupted&#x4E09;&#x4E2A;&#x65B9;&#x6CD5;&#x5176;&#x5B9E;&#x5C31;&#x662F;&#x5BF9;&#x4E8E;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;&#x7684;&#x64CD;&#x4F5C;</p>
-<p>&#x91CD;&#x65B0;&#x5BA1;&#x89C6;&#x4E0B;&#x65B9;&#x6CD5;&#xFF0C;&#x4E24;&#x4E2A;&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;&#x4E00;&#x4E2A;&#x9759;&#x6001;&#x65B9;&#x6CD5;<br><img src="/2021/03/07/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/1.png"></p>
+<p>&#x91CD;&#x65B0;&#x5BA1;&#x89C6;&#x4E0B;&#x65B9;&#x6CD5;&#xFF0C;&#x4E24;&#x4E2A;&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;&#x4E00;&#x4E2A;&#x9759;&#x6001;&#x65B9;&#x6CD5;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/1.png"></p>
 <h5 id="API&#x6587;&#x6863;"><a href="#API&#x6587;&#x6863;" class="headerlink" title="API&#x6587;&#x6863;"></a>API&#x6587;&#x6863;</h5><p><strong>public void interrupt()</strong></p>
 <p><strong>&#x4E2D;&#x65AD;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#xFF08;&#x8BBE;&#x7F6E;&#x6807;&#x5FD7;&#x4F4D;&#xFF09;</strong> 	</p>
 <p>&#x9664;&#x975E;&#x662F;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x6B63;&#x5728;&#x4E2D;&#x65AD;&#x81EA;&#x5DF1;&#xFF08;&#x8FD9;&#x5728;&#x4EFB;&#x4F55;&#x60C5;&#x51B5;&#x4E0B;&#x90FD;&#x662F;&#x5141;&#x8BB8;&#x7684;&#xFF09;&#xFF0C;&#x5426;&#x5219;&#x8BE5;&#x7EBF;&#x7A0B;&#x7684; checkAccess &#x65B9;&#x6CD5;&#x5C31;&#x4F1A;&#x88AB;&#x8C03;&#x7528;&#xFF0C;&#x8FD9;&#x53EF;&#x80FD;&#x629B;&#x51FA; SecurityException&#x3002;  	</p>
@@ -161,7 +161,7 @@
 <p>&#x5728;&#x4E2D;&#x65AD;&#x53D1;&#x751F;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x5E76;&#x4E0D;&#x662F;alive&#x7684;&#xFF0C;&#x4E2D;&#x65AD;&#x64CD;&#x4F5C;&#x5C06;&#x4F1A;&#x88AB;&#x5FFD;&#x7565;&#xFF0C;&#x4E5F;&#x4F1A;&#x901A;&#x8FC7;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x8FD4;&#x56DE;false&#x53CD;&#x6620;&#x51FA;&#x6765; 		</p>
 <p>&#x8FD4;&#x56DE;&#xFF1A; 		</p>
 <p>&#x5982;&#x679C;&#x8BE5;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x4E2D;&#x65AD;&#xFF0C;&#x5219;&#x8FD4;&#x56DE; true&#xFF1B;&#x5426;&#x5219;&#x8FD4;&#x56DE; false&#x3002; 		</p>
-<p>&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x6839;&#x672C;&#x90FD;&#x4E0D;&#x662F;alive&#x7684;&#xFF0C;&#x8C03;&#x7528;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x4E5F;&#x662F;&#x8FD4;&#x56DE;false<br><img src="/2021/03/07/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/2.png"></p>
+<p>&#x5982;&#x679C;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#x6839;&#x672C;&#x90FD;&#x4E0D;&#x662F;alive&#x7684;&#xFF0C;&#x8C03;&#x7528;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x4E5F;&#x662F;&#x8FD4;&#x56DE;false<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/2.png"></p>
 <hr>
 <p><strong>public static boolean interrupted()</strong><br><strong>&#x6D4B;&#x8BD5;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x5DF2;&#x7ECF;&#x4E2D;&#x65AD;&#x3002;</strong> 	</p>
 <p><strong>&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x72B6;&#x6001; &#x7531;&#x8BE5;&#x65B9;&#x6CD5;&#x6E05;&#x9664;&#x3002;</strong> 	</p>
@@ -172,14 +172,14 @@
 </blockquote>
 <p>&#x8FD4;&#x56DE;&#xFF1A; 	</p>
 <p>&#x5982;&#x679C;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x5DF2;&#x7ECF;&#x4E2D;&#x65AD;&#xFF0C;&#x5219;&#x8FD4;&#x56DE; true&#xFF1B;&#x5426;&#x5219;&#x8FD4;&#x56DE; false&#x3002; 	</p>
-<p>&#x63A5;&#x4E0B;&#x6765;&#x770B;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;<br><img src="/2021/03/07/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/3.png"></p>
+<p>&#x63A5;&#x4E0B;&#x6765;&#x770B;&#x4E00;&#x4E2A;&#x65B9;&#x6CD5;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/3.png"></p>
 <p>&#x6D4B;&#x8BD5;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#x3002;</p>
 <p>&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;&#x5C06;&#x4F1A;&#x6839;&#x636E;&#x53C2;&#x6570;ClearInterrupted&#x7684;&#x503C;&#x51B3;&#x5B9A;&#x662F;&#x5426;&#x4F1A;&#x88AB;&#x6E05;&#x9664;</p>
 <p>&#x8FD9;&#x662F;&#x4E00;&#x4E2A;&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;&#xFF0C;&#x6240;&#x4EE5;&#x9700;&#x8981;&#x4F9D;&#x8D56;&#x4E8E;&#x67D0;&#x4E2A;&#x5B9E;&#x4F8B;&#x5BF9;&#x8C61;</p>
-<p>&#x518D;&#x4ED4;&#x7EC6;&#x770B;&#x770B;&#x9759;&#x6001;&#x65B9;&#x6CD5;interrupted<br><img src="/2021/03/07/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/4.png"></p>
+<p>&#x518D;&#x4ED4;&#x7EC6;&#x770B;&#x770B;&#x9759;&#x6001;&#x65B9;&#x6CD5;interrupted<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/4.png"></p>
 <p>&#x5185;&#x90E8;&#x501F;&#x52A9;&#x4E8E;&#x4E0A;&#x9762;&#x7684;&#x90A3;&#x4E2A;&#x79C1;&#x6709;&#x65B9;&#x6CD5;</p>
 <p>&#x4ED6;&#x7684;&#x542B;&#x4E49;&#x5C31;&#x662F;&#xFF0C;<strong>&#x6D4B;&#x8BD5;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#xFF0C;&#x5E76;&#x4E14;&#x6E05;&#x9664;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x4F4D;</strong></p>
-<p>&#x800C;<strong>&#x5BF9;&#x4E8E;&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;isInterrupted&#xFF0C;&#x4ECD;&#x65E7;&#x662F;&#x501F;&#x52A9;&#x4E8E;&#x672C;&#x5730;&#x65B9;&#x6CD5;&#xFF0C;&#x6D4B;&#x8BD5;&#x67D0;&#x4E2A;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#xFF0C;&#x4F46;&#x662F;&#x5E76;&#x4E0D;&#x4F1A;&#x6E05;&#x9664;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;</strong><br><img src="/2021/03/07/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/5.png"></p>
+<p>&#x800C;<strong>&#x5BF9;&#x4E8E;&#x5B9E;&#x4F8B;&#x65B9;&#x6CD5;isInterrupted&#xFF0C;&#x4ECD;&#x65E7;&#x662F;&#x501F;&#x52A9;&#x4E8E;&#x672C;&#x5730;&#x65B9;&#x6CD5;&#xFF0C;&#x6D4B;&#x8BD5;&#x67D0;&#x4E2A;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x88AB;&#x4E2D;&#x65AD;&#xFF0C;&#x4F46;&#x662F;&#x5E76;&#x4E0D;&#x4F1A;&#x6E05;&#x9664;&#x7EBF;&#x7A0B;&#x7684;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;</strong><br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/1C001.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-interrupt,isInterrupted%E5%92%8Cinterrupted%E7%9A%84%E5%8C%BA%E5%88%AB-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%E7%9A%84%E5%87%A0%E4%B8%AA%E6%96%B9%E5%BC%8F/5.png"></p>
 <h5 id="&#x5C0F;&#x7ED3;"><a href="#&#x5C0F;&#x7ED3;" class="headerlink" title="&#x5C0F;&#x7ED3;"></a>&#x5C0F;&#x7ED3;</h5><ol>
 <li><p>&#x4E09;&#x4E2A;&#x65B9;&#x6CD5;&#x5168;&#x90FD;&#x662F;&#x7528;&#x6765;&#x5BF9;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x6807;&#x5FD7;&#x8FDB;&#x884C;&#x64CD;&#x4F5C;&#x7684;</p>
 </li>
@@ -258,7 +258,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

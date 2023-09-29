@@ -87,7 +87,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">269</span>
+            <span class="post-count">286</span>
         </span>
     </span>
 
@@ -118,7 +118,8 @@
 <li><p>&#x4EE3;&#x7801;&#xFF1A;</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">oddEvenList</span><span class="params">(ListNode head)</span> {</span><br><span class="line">  <span class="keyword">if</span> (head == <span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line"></span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">odd</span> <span class="operator">=</span> head;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">even</span> <span class="operator">=</span> head.next;</span><br><span class="line">  <span class="type">ListNode</span> <span class="variable">evenHead</span> <span class="operator">=</span> even;</span><br><span class="line">  <span class="keyword">while</span> (even != <span class="literal">null</span> &amp;&amp; even.next != <span class="literal">null</span>) {</span><br><span class="line">    odd.next = even.next;</span><br><span class="line">    odd = odd.next;</span><br><span class="line">    even.next = odd.next;</span><br><span class="line">    even = even.next;</span><br><span class="line">  }</span><br><span class="line">  <span class="comment">//even&#x6574;&#x4F53;&#x63A5;&#x5728;odd&#x540E;&#x9762;</span></span><br><span class="line">  odd.next = evenHead;</span><br><span class="line">  <span class="keyword">return</span> head;</span><br><span class="line">}</span><br></pre></td></tr></table></figure></li>
 </ul>
-<p>&#x624B;&#x7A3F;&#x793A;&#x610F;&#x56FE;&#xFF1A;<img src="/2020/04/20/13.AA016%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC133%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A5%87%E5%81%B6%E9%87%8D%E6%8E%92/1.jpg"></p>
+<p>&#x624B;&#x7A3F;&#x793A;&#x610F;&#x56FE;&#xFF1A;<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/XugangXie/blog-img/NC133%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A5%87%E5%81%B6%E9%87%8D%E6%8E%92.jpg">https://cdn.jsdelivr.net/gh/XugangXie/blog-img/NC133&#x94FE;&#x8868;&#x7684;&#x5947;&#x5076;&#x91CD;&#x6392;.jpg</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/13.AA016%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC133%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A5%87%E5%81%B6%E9%87%8D%E6%8E%92/NC133%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A5%87%E5%81%B6%E9%87%8D%E6%8E%92.jpg"></p>
  
       <!-- reward -->
       
@@ -173,7 +174,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2022
+        2015-2023
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>
