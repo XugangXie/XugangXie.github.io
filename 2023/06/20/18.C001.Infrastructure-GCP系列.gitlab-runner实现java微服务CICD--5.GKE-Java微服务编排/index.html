@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--5.GKE-Java微服务编排 |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-18.C001.Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--5.GKE-Java微服务编排"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--5.GKE-Java微服务编排
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/06/20/18.C001.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/" class="article-date">
+  <time datetime="2023-06-19T16:00:00.000Z" itemprop="datePublished">2023-06-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Infrastructure/">Infrastructure</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">25 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5B9E;&#x73B0;GKE&#x91CC;&#xFF1A;"><a href="#&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5B9E;&#x73B0;GKE&#x91CC;&#xFF1A;" class="headerlink" title="&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5B9E;&#x73B0;GKE&#x91CC;&#xFF1A;"></a>&#x672C;&#x7BC7;&#x4E3B;&#x8981;&#x5B9E;&#x73B0;GKE&#x91CC;&#xFF1A;</h2><ol>
+<li>&#x521B;&#x5EFA; K8&#x96C6;&#x7FA4;&#x548C;&#x8282;&#x70B9;&#xFF08;&#x4E0A;&#x7BC7;&#x5DF2;&#x7ECF;&#x521B;&#x5EFA;&#xFF09;&#xFF0C;&#x521B;&#x5EFA; namespace&#xFF1B;</li>
+<li>&#x521B;&#x5EFA; BackendConfig &#x5E76;&#x751F;&#x6548;&#xFF1B;</li>
+<li>&#x521B;&#x5EFA; service &#x5E76;&#x751F;&#x6548;&#xFF1B;</li>
+<li>&#x521B;&#x5EFA; &#x9759;&#x6001;IP&#x3001;&#x7533;&#x8BF7;&#x57DF;&#x540D;&#x3001;&#x57DF;&#x540D;&#x89E3;&#x6790;&#xFF1B;</li>
+<li>&#x521B;&#x5EFA; &#x6258;&#x7BA1;SSL&#x8BC1;&#x4E66; &#x5E76;&#x751F;&#x6548;&#xFF1B;</li>
+<li>&#x521B;&#x5EFA;&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment&#x5E76;&#x751F;&#x6548;;</li>
+<li>&#x521B;&#x5EFA; Ingress&#xFF0C;&#x57DF;&#x540D;&#x548C;SSL&#x8BC1;&#x4E66;&#x7684;&#x7ED1;&#x5B9A;&#xFF0C;&#x6700;&#x7EC8; user-service &#x5C31;&#x80FD;&#x90E8;&#x7F72;&#x6210;&#x529F;&#x4E86;&#xFF1B;</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ul>
+<li>GCP Project: <code>atrenew-swappie-prod</code></li>
+<li>&#x76EE;&#x5F55;&#x7ED3;&#x6784;:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/home/gitlab-runner</span><br><span class="line">    |- .bach_profile</span><br><span class="line">    |- .kube</span><br><span class="line">    |- gcp_deploy.groovy</span><br><span class="line">    |- google-cloud-sdk</span><br><span class="line">    |- dockerize</span><br><span class="line">        |- deployment-prod</span><br><span class="line">            |- user-service</span><br><span class="line">                |- Dockerfile-template-MultiEnv</span><br><span class="line">                |- ssl.yaml</span><br><span class="line">                |- ingress.yaml</span><br><span class="line">                |- backend-config.yaml</span><br><span class="line">                |- service-clusterip.yaml</span><br><span class="line">                |- deployment-template.yaml</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="1-&#x5207;&#x6362;&#x670D;&#x52A1;&#x8D26;&#x53F7;"><a href="#1-&#x5207;&#x6362;&#x670D;&#x52A1;&#x8D26;&#x53F7;" class="headerlink" title="1.&#x5207;&#x6362;&#x670D;&#x52A1;&#x8D26;&#x53F7;"></a>1.&#x5207;&#x6362;&#x670D;&#x52A1;&#x8D26;&#x53F7;</h2><p>&#x4EE5;&#x4E0B;&#x6240;&#x6709;&#x64CD;&#x4F5C;&#xFF0C;&#x90FD;&#x662F;&#x4EE5;gitlab-runner&#x7528;&#x6237;&#x64CD;&#x4F5C;&#x7684;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">su - gitlab-runner</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x67E5;&#x770B;&#x4E0B;&#x5F53; active &#x7684; account &#x662F;&#x5426;&#x662F; <code>creative-cicd-prod-asia</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gcloud auth list</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5982;&#x679C;&#x5F53;&#x524D; active &#x7684; account &#x4E0D;&#x662F;&#xFF1A; <code>creative-cicd-prod-europe@atrenew-swappie-prod.iam.gserviceaccount.com</code>&#xFF0C;&#x5219;&#x9700;&#x8981;&#x5982;&#x4E0B;&#x547D;&#x4EE4;&#x5207;&#x6362;&#x4E0B;&#x8D26;&#x6237;&#xFF1A;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gcloud config <span class="built_in">set</span> account  creative-cicd-prod-europe@atrenew-swappie-prod.iam.gserviceaccount.com</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-&#x521B;&#x5EFA;Dockerfile&#x6587;&#x4EF6;"><a href="#2-&#x521B;&#x5EFA;Dockerfile&#x6587;&#x4EF6;" class="headerlink" title="2.&#x521B;&#x5EFA;Dockerfile&#x6587;&#x4EF6;"></a>2.&#x521B;&#x5EFA;Dockerfile&#x6587;&#x4EF6;</h2><p>&#x5728;&#x76EE;&#x5F55;&#xFF1A; <code>/home/gitlab-runner/dockerize/deployment-prod/user-service</code> &#x4E0B;&#x521B;&#x5EFA; <code>Dockerfile-template-MultiEnv</code> &#x6587;&#x4EF6;&#xFF0C;&#x5185;&#x5BB9;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span>  /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi Dockerfile-template-MultiEnv</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x52A0;&#x5165;&#x4EE5;&#x4E0B;&#x5185;&#x5BB9;&#xFF0C;&#x7136;&#x540E; :wq &#x4FDD;&#x5B58;</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">FROM openjdk:8u332-jre-bullseye</span><br><span class="line"></span><br><span class="line">WORKDIR /usr/src/myapp</span><br><span class="line"></span><br><span class="line">COPY ./target/@@service_jar /usr/src/myapp/</span><br><span class="line"></span><br><span class="line">RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/timezone &amp;&amp; ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br><span class="line"></span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line">ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;@@service_jar&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-&#x5728;GKE&#x96C6;&#x7FA4;&#x4E2D;&#xFF0C;&#x521B;&#x5EFA;namespace-java-service"><a href="#3-&#x5728;GKE&#x96C6;&#x7FA4;&#x4E2D;&#xFF0C;&#x521B;&#x5EFA;namespace-java-service" class="headerlink" title="3.&#x5728;GKE&#x96C6;&#x7FA4;&#x4E2D;&#xFF0C;&#x521B;&#x5EFA;namespace: java-service"></a>3.&#x5728;GKE&#x96C6;&#x7FA4;&#x4E2D;&#xFF0C;&#x521B;&#x5EFA;namespace: java-service</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl create namespace java-service  --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">namespace/java-service created</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl get namespace --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">NAME              STATUS   AGE</span><br><span class="line">default           Active   9d</span><br><span class="line">java-service      Active   82s</span><br><span class="line">kube-node-lease   Active   9d</span><br><span class="line">kube-public       Active   9d</span><br><span class="line">kube-system       Active   9d</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-yaml&#x521B;&#x5EFA;BackendConfig"><a href="#4-yaml&#x521B;&#x5EFA;BackendConfig" class="headerlink" title="4.yaml&#x521B;&#x5EFA;BackendConfig"></a>4.yaml&#x521B;&#x5EFA;BackendConfig</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi backend-config.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x52A0;&#x5165;&#x5185;&#x5BB9;&#xFF1A;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">cloud.google.com/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">BackendConfig</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">user-service-backendconfig</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">timeoutSec:</span> <span class="number">300</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-BackendConfig&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;"><a href="#5-BackendConfig&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;" class="headerlink" title="5.BackendConfig&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;"></a>5.BackendConfig&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl apply -n java-service -f backend-config.yaml --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">backendconfig.cloud.google.com/user-service-backendconfig created</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-yaml&#x521B;&#x5EFA;service"><a href="#6-yaml&#x521B;&#x5EFA;service" class="headerlink" title="6.yaml&#x521B;&#x5EFA;service"></a>6.yaml&#x521B;&#x5EFA;service</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> home/gitlab-runner/dockerize/deployment-prod/user-srvcie</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi service-clusterip.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>service-clusterip.yaml&#x5185;&#x5BB9;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span>  <span class="comment"># &#x7C7B;&#x578B;&#x4E3A; Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">user-service</span>  <span class="comment"># Service &#x7684;&#x540D;&#x79F0;</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">java-service</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">beta.cloud.google.com/backend-config:</span> <span class="string">&apos;{&quot;default&quot;: &quot;user-service-backendconfig&quot;}&apos;</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span> <span class="comment"># &#x6807;&#x7B7E;&#x9009;&#x62E9;&#x5668;&#xFF0C;&#x4F1A;&#x548C;&#x4E0A;&#x9762;&#x521B;&#x5EFA;&#x7684; deployment.yaml &#x7684; pod &#x5173;&#x8054;&#x8D77;&#x6765;</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">user-service</span></span><br><span class="line">  <span class="attr">clusterIP:</span>  <span class="comment"># service &#x7684; ip &#x5730;&#x5740;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x5199;&#xFF0C;&#x9ED8;&#x8BA4;&#x4F1A;&#x751F;&#x6210;&#x4E00;&#x4E2A;,&#x6CE8;&#x610F;&#x8FD9;&#x4E2A;&#x5730;&#x5740;&#x4E0D;&#x80FD;&#x5199;&#xFF0C;&#x6709;&#x4E2A;&#x8303;&#x56F4;&#x7684;&#xFF0C;&#x6211;&#x7684;&#x662F; 172.31.0.0/16</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span> <span class="comment"># &#x7C7B;&#x578B;&#x4E3A; Service &#x7684; ClusterIP</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">8080</span>  <span class="comment"># Service &#x7AEF;&#x53E3;&#xFF0C;&#x81EA;&#x5B9A;&#x4E49;</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">8080</span> <span class="comment"># pod &#x7AEF;&#x53E3;&#xFF0C;&#x4E0D;&#x5199;&#x9ED8;&#x8BA4;&#x662F; 80</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-service&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;"><a href="#7-service&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;" class="headerlink" title="7.service&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;"></a>7.service&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl apply -n java-service -f service-clusterip.yaml --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">service/user-service created</span><br></pre></td></tr></table></figure>
+
+<p>GCP-GCK&#x91CC;&#x7684;Service&#x770B;&#x4E0B;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service.1.png"></p>
+<p>&#x76EE;&#x524D;&#x770B;&#x5230;service: user-service&#xFF0C;pod&#x6570;&#x91CF;&#x662F;0</p>
+<h2 id="8-&#x90E8;&#x7F72;GKE-&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment"><a href="#8-&#x90E8;&#x7F72;GKE-&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment" class="headerlink" title="8.&#x90E8;&#x7F72;GKE-&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment:"></a>8.&#x90E8;&#x7F72;GKE-&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment:</h2><h3 id="1-&#x6A21;&#x677F;-deployment-template-yaml-&#x5185;&#x5BB9;&#xFF1A;"><a href="#1-&#x6A21;&#x677F;-deployment-template-yaml-&#x5185;&#x5BB9;&#xFF1A;" class="headerlink" title="1.&#x6A21;&#x677F; deployment-template.yaml &#x5185;&#x5BB9;&#xFF1A;"></a>1.&#x6A21;&#x677F; deployment-template.yaml &#x5185;&#x5BB9;&#xFF1A;</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">@@service_name</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">java-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">revisionHistoryLimit:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="string">@@kube_replicas</span></span><br><span class="line">  <span class="attr">strategy:</span></span><br><span class="line">    <span class="attr">rollingUpdate:</span></span><br><span class="line">      <span class="attr">maxSurge:</span> <span class="number">50</span><span class="string">%</span></span><br><span class="line">      <span class="attr">maxUnavailable:</span> <span class="number">0</span><span class="string">%</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">@@service_name</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">@@service_name</span></span><br><span class="line">        <span class="attr">version:</span> <span class="string">@@version</span></span><br><span class="line">        <span class="attr">release:</span> <span class="string">normal</span></span><br><span class="line">        <span class="attr">updatedTimestamp:</span> <span class="string">&quot;@@timestamp&quot;</span></span><br><span class="line">        <span class="attr">language:</span> <span class="string">java</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">affinity:</span></span><br><span class="line">        <span class="attr">podAntiAffinity:</span></span><br><span class="line">          <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">podAffinityTerm:</span>      </span><br><span class="line">              <span class="attr">labelSelector:</span></span><br><span class="line">                <span class="attr">matchExpressions:</span></span><br><span class="line">                  <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">app</span></span><br><span class="line">                    <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">                    <span class="attr">values:</span></span><br><span class="line">                      <span class="bullet">-</span> <span class="string">@@service_name</span></span><br><span class="line">              <span class="attr">topologyKey:</span> <span class="string">kubernetes.io/hostname</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">@@service_name</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">@@image</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">Always</span></span><br><span class="line">          <span class="attr">lifecycle:</span></span><br><span class="line">            <span class="attr">preStop:</span></span><br><span class="line">              <span class="attr">exec:</span></span><br><span class="line">                <span class="attr">command:</span> [<span class="string">&quot;/bin/sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;sleep 30&quot;</span>]</span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">18080</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">28080</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">HOST_IP</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">HOST_PORT</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ENV</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;pro&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PINPOINT_OPTS</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;-Xmx2048M -Xms2048M -XX:+PrintHeapAtGC -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:/data/log/@@service_name-gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/log/@@service_name.dump -javaagent:/usr/src/myapp/transmittable-thread-local-2.10.2.jar&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">CATALINA_OPTS</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;-XX:+PrintHeapAtGC -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:/data/log/@@service_name-gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/log/$service_name.dump -javaagent:/usr/local/tomcat/transmittable-thread-local-2.10.2.jar&quot;</span></span><br><span class="line">          <span class="attr">resources:</span></span><br><span class="line">            <span class="attr">limits:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">3000m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">3072M</span></span><br><span class="line">            <span class="attr">requests:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">300m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">3072M</span></span><br><span class="line">          <span class="attr">readinessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/@@service-context/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">livenessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/@@service-context/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">200</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">volumeMounts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/data/log</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">business-log</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">business-log</span></span><br><span class="line">          <span class="attr">hostPath:</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/var/log/ahs-pods/mount</span></span><br></pre></td></tr></table></figure>
+
+<p><code>deployment-template.yaml</code> &#x91CC;&#x7684;&#x5F88;&#x591A;&#x53D8;&#x91CF;&#xFF0C;&#x90FD;&#x662F;&#x6839;&#x636E;&#x6BCF;&#x6B21;&#x90E8;&#x7F72;&#x65F6;&#x5019;&#x7684;&#x65F6;&#x95F4;&#x6233;&#xFF0C;&#x5B9E;&#x65F6;&#x53D8;&#x5316;&#x7684;&#xFF0C;&#x56E0;&#x6B64;&#x8FD9;&#x91CC;&#x4E0D;&#x505A;&#x624B;&#x52A8;&#x66F4;&#x6539;&#x548C;apply&#xFF0C;&#x653E;&#x5728;gitlab CI/CD&#x7684;Groovy&#x811A;&#x672C;&#x91CC;&#x6267;&#x884C;&#x8FD9;&#x4E2A; <code>deployment.yaml</code></p>
+<p>&#x67D0;&#x4E00;&#x6B21;&#x6784;&#x5EFA;&#x5F97;&#x5230;&#x7684;<code>deployment.yaml</code>&#x5185;&#x5BB9;&#xFF1A;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">user-service</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">java-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">revisionHistoryLimit:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">strategy:</span></span><br><span class="line">    <span class="attr">rollingUpdate:</span></span><br><span class="line">      <span class="attr">maxSurge:</span> <span class="number">50</span><span class="string">%</span></span><br><span class="line">      <span class="attr">maxUnavailable:</span> <span class="number">0</span><span class="string">%</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">user-service</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">user-service</span></span><br><span class="line">        <span class="attr">version:</span> <span class="string">20230504_170126.gcp</span></span><br><span class="line">        <span class="attr">release:</span> <span class="string">normal</span></span><br><span class="line">        <span class="attr">updatedTimestamp:</span> <span class="string">&quot;20231417155&quot;</span></span><br><span class="line">        <span class="attr">language:</span> <span class="string">java</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">affinity:</span></span><br><span class="line">        <span class="attr">podAntiAffinity:</span></span><br><span class="line">          <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">podAffinityTerm:</span>      </span><br><span class="line">              <span class="attr">labelSelector:</span></span><br><span class="line">                <span class="attr">matchExpressions:</span></span><br><span class="line">                  <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">app</span></span><br><span class="line">                    <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">                    <span class="attr">values:</span></span><br><span class="line">                      <span class="bullet">-</span> <span class="string">user-service</span></span><br><span class="line">              <span class="attr">topologyKey:</span> <span class="string">kubernetes.io/hostname</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">user-service</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">europe-west3-docker.pkg.dev/atrenew-swappie-prod/prod/user-service:20230504_170126</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">Always</span></span><br><span class="line">          <span class="attr">lifecycle:</span></span><br><span class="line">            <span class="attr">preStop:</span></span><br><span class="line">              <span class="attr">exec:</span></span><br><span class="line">                <span class="attr">command:</span> [<span class="string">&quot;/bin/sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;sleep 30&quot;</span>]</span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">18080</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">28080</span></span><br><span class="line">          <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">HOST_IP</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">HOST_PORT</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">ENV</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;pro&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PINPOINT_OPTS</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;-Xmx2048M -Xms2048M -XX:+PrintHeapAtGC -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:/data/log/user-service-gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/log/user-service.dump -javaagent:/usr/src/myapp/transmittable-thread-local-2.10.2.jar&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">CATALINA_OPTS</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;-XX:+PrintHeapAtGC -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:/data/log/user-service-gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/log/$service_name.dump -javaagent:/usr/local/tomcat/transmittable-thread-local-2.10.2.jar&quot;</span></span><br><span class="line">          <span class="attr">resources:</span></span><br><span class="line">            <span class="attr">limits:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">3000m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">3072M</span></span><br><span class="line">            <span class="attr">requests:</span></span><br><span class="line">              <span class="attr">cpu:</span> <span class="string">300m</span></span><br><span class="line">              <span class="attr">memory:</span> <span class="string">3072M</span></span><br><span class="line">          <span class="attr">readinessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/user/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">30</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">livenessProbe:</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/user/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">200</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">          <span class="attr">volumeMounts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/data/log</span></span><br><span class="line">              <span class="attr">name:</span> <span class="string">business-log</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">business-log</span></span><br><span class="line">          <span class="attr">hostPath:</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">/var/log/ahs-pods/mount</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-&#x624B;&#x52A8;&#x90E8;&#x7F72;deployment"><a href="#2-&#x624B;&#x52A8;&#x90E8;&#x7F72;deployment" class="headerlink" title="2.&#x624B;&#x52A8;&#x90E8;&#x7F72;deployment"></a>2.&#x624B;&#x52A8;&#x90E8;&#x7F72;deployment</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/builds/DYbAzYGs/0/e-commerce/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl apply -f ./target/deployment.yaml --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">ingress.networking.k8s.io/user-service-backend-ingress configured</span><br><span class="line"></span><br><span class="line">//&#x67E5;&#x770B;&#x4E0B;&#x90E8;&#x7F72;&#x7684;pod&#x6709;&#x6CA1;&#x6709;&#x8FD0;&#x884C;&#x8D77;&#x6765;&#xFF1A;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line">NAME                            READY   STATUS    RESTARTS      AGE</span><br><span class="line">user-service-7f6b887766-wqxxh   0/1     Running   6 (79s ago)   26m</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="GKE&#x91CC;&#x7684;deployment&#x60C5;&#x51B5;"><a href="#GKE&#x91CC;&#x7684;deployment&#x60C5;&#x51B5;" class="headerlink" title="GKE&#x91CC;&#x7684;deployment&#x60C5;&#x51B5;:"></a>GKE&#x91CC;&#x7684;deployment&#x60C5;&#x51B5;:</h4><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/deployment.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/deployment.2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/deployment.3.png"></p>
+<h2 id="9-&#x90E8;&#x7F72;GKE-ingress"><a href="#9-&#x90E8;&#x7F72;GKE-ingress" class="headerlink" title="9.&#x90E8;&#x7F72;GKE-ingress:"></a>9.&#x90E8;&#x7F72;GKE-ingress:</h2><h3 id="1-&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x9884;&#x7559;&#x56FA;&#x5B9A;IP"><a href="#1-&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x9884;&#x7559;&#x56FA;&#x5B9A;IP" class="headerlink" title="1.&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x9884;&#x7559;&#x56FA;&#x5B9A;IP"></a>1.&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x9884;&#x7559;&#x56FA;&#x5B9A;IP</h3><p>&#x53EF;&#x4EE5;&#x5728;GCP Console&#x2013;VPC &#x7F51;&#x7EDC;&#x2013;IP &#x5730;&#x5740; &#x4E2D;&#xFF0C;&#x70B9;&#x51FB; <code>RESERVE EXTERNAL STATIC ADDRESS</code> &#x6765;&#x521B;&#x5EFA;<br>&#x6216;&#x8005;&#x53EF;&#x4EE5;&#x7528;gcloud&#x547D;&#x4EE4;&#x6765;&#x521B;&#x5EFA;</p>
+<p>&#x8FD9;&#x91CC;&#x5728;<code>GCP Console</code>&#x2013;<code>VPC &#x7F51;&#x7EDC;</code>&#x2013;<code>IP&#x5730;&#x5740;</code> &#x4E2D;&#x521B;&#x5EFA;&#xFF0C;Console&#x7F51;&#x5740;&#xFF1A;<code>https://console.cloud.google.com/networking/addresses/list?project=atrenew-swappie-prod</code></p>
+<p>&#x521B;&#x5EFA;&#x5168;&#x7403;&#x9884;&#x7559;IP&#xFF0C;&#x540D;&#x79F0;&#xFF1A;<code>user-service-prod-ingress-static-ip</code>&#xFF0C;&#x56FA;&#x5B9A;IP&#x4E3A;&#xFF1A;<code>34.111.251.63</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/static.ip.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/static.ip.2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/static.ip.3.png"></p>
+<p>&#x8981;&#x786E;&#x4FDD;&#x8FD9;&#x4E2A;IP: <code>34.111.251.63</code>&#xFF0C;&#x516C;&#x7F51;&#x80FD;ping&#x7684;&#x901A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/static.ip.4.png"></p>
+<h3 id="2-&#x5C06;&#x9759;&#x6001;IP&#xFF1A;user-service-prod-ingress-static-ip-&#x548C;-&#x76EE;&#x6807;&#x57DF;&#x540D;&#x7ED1;&#x5B9A;"><a href="#2-&#x5C06;&#x9759;&#x6001;IP&#xFF1A;user-service-prod-ingress-static-ip-&#x548C;-&#x76EE;&#x6807;&#x57DF;&#x540D;&#x7ED1;&#x5B9A;" class="headerlink" title="2.&#x5C06;&#x9759;&#x6001;IP&#xFF1A;user-service-prod-ingress-static-ip &#x548C; &#x76EE;&#x6807;&#x57DF;&#x540D;&#x7ED1;&#x5B9A;"></a>2.&#x5C06;&#x9759;&#x6001;IP&#xFF1A;<code>user-service-prod-ingress-static-ip</code> &#x548C; &#x76EE;&#x6807;&#x57DF;&#x540D;&#x7ED1;&#x5B9A;</h3><h4 id="1-&#x8D2D;&#x4E70;&#x57DF;&#x540D;"><a href="#1-&#x8D2D;&#x4E70;&#x57DF;&#x540D;" class="headerlink" title="1.&#x8D2D;&#x4E70;&#x57DF;&#x540D;"></a>1.&#x8D2D;&#x4E70;&#x57DF;&#x540D;</h4><p>&#x5BFB;&#x627E;&#x514D;&#x8D39;&#x57DF;&#x540D;&#x63D0;&#x4F9B;&#x5546; VS &#x8D2D;&#x4E70;&#x4FBF;&#x5B9C;&#x7684;&#x57DF;&#x540D;</p>
+<p>&#x627E;&#x4E86;&#x534A;&#x5929;&#xFF0C;&#x6CA1;&#x627E;&#x5230;&#x514D;&#x8D39;&#x7684;&#x57DF;&#x540D;&#xFF0C;&#x4E70;&#x4E2A;&#x963F;&#x91CC;&#x4E91;&#x4FBF;&#x5B9C;&#x70B9;&#x7684;&#x57DF;&#x540D;<br><a target="_blank" rel="noopener" href="https://wanwang.aliyun.com/domain/searchresult/?keyword=xiexugang&amp;suffix=.top#?keyword=xiexugang&amp;suffix=asia">https://wanwang.aliyun.com/domain/searchresult/?keyword=xiexugang&amp;suffix=.top#?keyword=xiexugang&amp;suffix=asia</a></p>
+<p>&#x4E70;&#x57DF;&#x540D;&#xFF1A; <code>xiexugang-api.top</code> &#xFF08;&#x672C;&#x60F3;&#x4E70;6&#x5143;&#x7684;<code>.asia</code>&#x4E00;&#x7EA7;&#x57DF;&#x540D;&#xFF0C;&#x7136;&#x800C;<code>.top</code>&#x89C9;&#x5F97;&#x66F4;&#x987A;&#x773C;(<em>^_^</em>)&#xFF09;</p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain2.png"></p>
+<blockquote>
+<p>&#x6CE8;&#xFF1A;&#x8D2D;&#x4E70;&#x57DF;&#x540D;&#x5E76;&#x4ED8;&#x94B1;&#x4E4B;&#x524D;&#xFF0C;&#x9700;&#x8981;&#x5148;&#x586B;&#x5199;&#x4FE1;&#x606F;&#x6A21;&#x677F;&#xFF0C;&#x5E76;&#x63D0;&#x4EA4;&#x5BA1;&#x6838;&#xFF0C;&#x53EA;&#x6709;&#x7B49;&#x5BA1;&#x6838;&#x901A;&#x8FC7;&#x540E;&#xFF0C;&#x624D;&#x80FD;&#x5728;&#x8D2D;&#x4E70;&#x57DF;&#x540D;&#x9875;&#x9762;&#xFF0C;&#x52FE;&#x9009;&#x521A;&#x624D;&#x5BA1;&#x6838;&#x901A;&#x8FC7;&#x7684;&#x4FE1;&#x606F;&#x6A21;&#x677F;&#xFF0C;&#x624D;&#x80FD;&#x6700;&#x7EC8;&#x4ED8;&#x6B3E;&#x3002;</p>
+<p>&#x4FE1;&#x606F;&#x6A21;&#x677F;&#x586B;&#x5199;&#x5B8C;&#x6BD5;&#x540E;&#xFF0C;&#x5927;&#x6982;&#x534A;&#x5C0F;&#x65F6;&#x5C31;&#x80FD;&#x5BA1;&#x6838;&#x901A;&#x8FC7;&#xFF0C;&#x901A;&#x8FC7;&#x4FE1;&#x606F;&#x662F;&#x4EE5;&#x77ED;&#x4FE1;&#x4E0B;&#x53D1;&#x544A;&#x77E5;&#x7684;&#x3002;</p>
+</blockquote>
+<h4 id="2-&#x57DF;&#x540D;&#x89E3;&#x6790;"><a href="#2-&#x57DF;&#x540D;&#x89E3;&#x6790;" class="headerlink" title="2.&#x57DF;&#x540D;&#x89E3;&#x6790;"></a>2.&#x57DF;&#x540D;&#x89E3;&#x6790;</h4><p>&#x7B49;&#x4E0A;&#x9762;&#x7684;&#x57DF;&#x540D;&#x7533;&#x8BF7;&#x901A;&#x8FC7;&#x540E;&#xFF0C;&#x63A5;&#x7740;&#x662F; &#x76EE;&#x6807;&#x57DF;&#x540D;&#x548C;&#x9759;&#x6001;IP&#x7ED1;&#x5B9A;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;<code>&#x57DF;&#x540D;&#x89E3;&#x6790;</code></p>
+<p>&#x963F;&#x91CC;&#x4E91;&#x6709;&#x514D;&#x8D39;&#x7684;&#x57DF;&#x540D;&#x89E3;&#x6790;&#x8BBE;&#x7F6E;&#xFF1A;<br>&#x8BB0;&#x5F55;&#x7C7B;&#x578B;&#xFF1A;A<br>&#x4E3B;&#x673A;&#x8BB0;&#x5F55;&#xFF1A;@</p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.4.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.5.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.6.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.7.png"></p>
+<p>IP&#x5730;&#x5740;&#x66F4;&#x6539;&#x4E3A;&#xFF1A;<code>34.111.251.63</code><br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.8.png"></p>
+<p>&#x4EE5;&#x4E0A;&#x8BBE;&#x7F6E;&#x5B8C;&#x6BD5;&#x540E;&#xFF0C;&#x7B49;&#x51E0;&#x5206;&#x949F;&#xFF0C;&#x518D;ping&#x4E0B;&#x57DF;&#x540D;&#xFF0C;&#x770B;&#x89E3;&#x6790;&#x662F;&#x5426;&#x751F;&#x6548;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/domain.9.png"><br>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x57DF;&#x540D;&#x89E3;&#x6790;&#x5DF2;&#x751F;&#x6548;</p>
+<p>cloudflare &#x57DF;&#x540D;&#x89E3;&#x6790;<br>TODO</p>
+<p>&#x7B49;&#x57DF;&#x540D;&#x548C;IP&#x89E3;&#x6790;&#x751F;&#x6548;&#x540E;&#xFF0C;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x4E0B;&#x9762;</p>
+<h3 id="3-yaml&#x521B;&#x5EFA;SSL&#x8BC1;&#x4E66;&#x5E76;&#x5E94;&#x7528;&#x751F;&#x6548;"><a href="#3-yaml&#x521B;&#x5EFA;SSL&#x8BC1;&#x4E66;&#x5E76;&#x5E94;&#x7528;&#x751F;&#x6548;" class="headerlink" title="3.yaml&#x521B;&#x5EFA;SSL&#x8BC1;&#x4E66;&#x5E76;&#x5E94;&#x7528;&#x751F;&#x6548;"></a>3.yaml&#x521B;&#x5EFA;SSL&#x8BC1;&#x4E66;&#x5E76;&#x5E94;&#x7528;&#x751F;&#x6548;</h3><p>GCP&#x4E0A;&#x7684;SSL&#x6258;&#x7BA1;SSL&#x8BC1;&#x4E66;&#x662F;&#x514D;&#x8D39;&#x7684;&#xFF0C;&#x56E0;&#x6B64;&#x4F7F;&#x7528;GCP&#x7684;&#x8BC1;&#x4E66;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"> vi ssl.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>ssl.yaml&#x5185;&#x5BB9;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.gke.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ManagedCertificate</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">user-service-api-cert</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">domains:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">xiexugang-api.top</span> <span class="comment">#SSL&#x8BC1;&#x4E66;&#x8981;&#x7ED1;&#x5B9A;&#x7684;&#x7F51;&#x57DF;/&#x57DF;&#x540D;</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="4-SSL&#x6B63;&#x5F0F;&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;"><a href="#4-SSL&#x6B63;&#x5F0F;&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;" class="headerlink" title="4.SSL&#x6B63;&#x5F0F;&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;"></a>4.SSL&#x6B63;&#x5F0F;&#x6267;&#x884C;&#x5E76;&#x751F;&#x6548;&#xFF1A;</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl apply -n java-service -f ssl.yaml --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x8FDB;&#x5165;GCP Certificate Manager&#x91CC;&#x770B;&#x4E0B;&#x8BC1;&#x4E66;&#x662F;&#x5426;&#x751F;&#x6210;&#xFF1A;<br><code>https://console.cloud.google.com/security/ccm/list/lbCertificates?project=atrenew-swappie-prod</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/cm.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/cm.2.png"></p>
+<p>&#x4E0A;&#x56FE;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;&#x76EE;&#x524D;&#x72B6;&#x6001;&#x662F;&#xFF1A;<code>PROVSIONING</code>&#xFF0C;&#x53EF;&#x80FD;&#x8FD8;&#x5728;&#x5BA1;&#x6838;??</p>
+<p>&#x8FC7;&#x4E86;&#x534A;&#x5C0F;&#x65F6;&#x540E;&#xFF0C;&#x518D;&#x6B21;&#x67E5;&#x770B;&#xFF0C;SSL&#x8BC1;&#x4E66;&#x751F;&#x6548;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/cm.3.png"></p>
+<h3 id="5-yaml&#x521B;&#x5EFA;ingress"><a href="#5-yaml&#x521B;&#x5EFA;ingress" class="headerlink" title="5.yaml&#x521B;&#x5EFA;ingress"></a>5.yaml&#x521B;&#x5EFA;ingress</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi ingress.yaml</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5185;&#x5BB9;&#x5982;&#x4E0B;&#xFF1A;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">networking.k8s.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">user-service-backend-ingress</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">java-service</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">kubernetes.io/ingress.global-static-ip-name:</span> <span class="string">&quot;user-service-prod-ingress-static-ip&quot;</span></span><br><span class="line">    <span class="attr">networking.gke.io/managed-certificates:</span> <span class="string">&quot;user-service-api-cert&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">xiexugang-api.top</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">user-service</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">8080</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">/user</span> <span class="comment"># &#x6CE8;&#x610F;&#x8FD9;&#x91CC;&#x7684;path&#xFF0C;&#x662F;&#x4E1A;&#x52A1;&#x670D;&#x52A1;&#x7684;servlet-contextPath</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">service:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">user-service</span></span><br><span class="line">            <span class="attr">port:</span></span><br><span class="line">              <span class="attr">number:</span> <span class="number">8080</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">        <span class="attr">pathType:</span> <span class="string">Prefix</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="6-&#x6267;&#x884C;ingress&#x5E76;&#x751F;&#x6548;"><a href="#6-&#x6267;&#x884C;ingress&#x5E76;&#x751F;&#x6548;" class="headerlink" title="6.&#x6267;&#x884C;ingress&#x5E76;&#x751F;&#x6548;"></a>6.&#x6267;&#x884C;ingress&#x5E76;&#x751F;&#x6548;</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">cd</span> /home/gitlab-runner/dockerize/deployment-prod/user-service</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl apply -n java-service -f ingress.yaml --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>GCP-GCK&#x91CC;&#x7684;Ingress&#x770B;&#x4E0B;&#xFF0C;&#x76EE;&#x524D;Ingress&#x6B63;&#x5728;&#x521B;&#x5EFA;&#x4E2D;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/ingress.1.png"></p>
+<p>&#x518D;&#x5230;&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#x91CC;&#x770B;&#x4E0B;&#xFF1A;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/ingress.2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/ingress.3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/ingress.4.png"></p>
+<p>&#x81F3;&#x6B64;&#xFF0C;GKE&#x91CC;&#x5DF2;&#x7ECF;&#x5B8C;&#x6210;&#x4E86;&#xFF1A;</p>
+<ol>
+<li>K8&#x96C6;&#x7FA4;&#x548C;&#x8282;&#x70B9;&#x7684;&#x521B;&#x5EFA;&#xFF0C;&#x547D;&#x540D;&#x7A7A;&#x95F4;&#x7684;&#x521B;&#x5EFA;&#xFF1B;</li>
+<li>BackendConfig&#x7684;&#x521B;&#x5EFA;&#xFF1B;</li>
+<li>service&#x7684;&#x521B;&#x5EFA;&#xFF1B;</li>
+<li>&#x9759;&#x6001;IP&#x7684;&#x521B;&#x5EFA;&#x3001;&#x57DF;&#x540D;&#x7684;&#x521B;&#x5EFA;&#x3001;&#x57DF;&#x540D;&#x89E3;&#x6790;&#x7684;&#x7ED1;&#x5B9A;&#xFF1B;</li>
+<li>&#x521B;&#x5EFA;&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;deployment&#x5E76;&#x751F;&#x6548;&#xFF0C;</li>
+<li>&#x6258;&#x7BA1;SSL&#x8BC1;&#x4E66;&#x521B;&#x5EFA;&#x5E76;&#x751F;&#x6548;&#xFF1B;</li>
+<li>&#x57DF;&#x540D;&#x548C;SSL&#x8BC1;&#x4E66;&#x7684;&#x7ED1;&#x5B9A;&#x3001;</li>
+<li>&#x521B;&#x5EFA;Ingress&#x5E76;&#x751F;&#x6548;&#xFF0C;&#x6700;&#x7EC8; user-service &#x5C31;&#x80FD;&#x90E8;&#x7F72;&#x6210;&#x529F;&#x4E86;&#xFF01;</li>
+</ol>
+<h2 id="10-&#x6700;&#x540E;&#x7684;&#x68C0;&#x67E5;"><a href="#10-&#x6700;&#x540E;&#x7684;&#x68C0;&#x67E5;" class="headerlink" title="10.&#x6700;&#x540E;&#x7684;&#x68C0;&#x67E5;"></a>10.&#x6700;&#x540E;&#x7684;&#x68C0;&#x67E5;</h2><h3 id="Service"><a href="#Service" class="headerlink" title="Service:"></a>Service:</h3><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..2.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..4.png"></p>
+<h3 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress:"></a>Ingress:</h3><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/ingress..3.png"></p>
+<p>&#x770B;&#x5230;&#x4E0A;&#x9762;&#x7684;Ingress&#x72B6;&#x6001;&#x662F;&#xFF1A;<code>Some backend services are in UNHEALTHY state</code>&#xFF0C;&#x5F88;&#x53EF;&#x80FD;&#x662F;&#x521A;&#x624D;&#x7684; <code>ingress.yaml</code> &#x91CC;&#x7684; <code>path</code> &#x6CA1;&#x6709;&#x914D;&#x7F6E;&#x6210; <code>/user</code> &#xFF08;&#x8FD9;&#x4E2A;&#x5C31;&#x662F;&#x9879;&#x76EE;&#x91CC;&#x7684;<code>servlet-context-path</code>&#xFF0C;&#x8981;&#x4E00;&#x81F4;&#xFF09;&#xFF0C;&#x66F4;&#x6539;&#x5B8C;&#x6210;&#x540E;&#xFF0C;<strong>&#x628A;Service&#x5220;&#x6389;&#x3001;Ingress&#x5220;&#x6389;&#x3001;Deployment&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;&#x5220;&#x6389;</strong><br>&#x91CD;&#x65B0;kubectl apply &#x4E0A;&#x9762;&#x7684;<code>service</code>&#x3001;<code>deployment</code>&#x3001;<code>ingress</code>&#xFF0C;&#x7EE7;&#x7EED;&#x67E5;&#x770B;&#xFF1A;</p>
+<h3 id="Service&#x518D;&#x6B21;&#x68C0;&#x67E5;"><a href="#Service&#x518D;&#x6B21;&#x68C0;&#x67E5;" class="headerlink" title="Service&#x518D;&#x6B21;&#x68C0;&#x67E5;:"></a>Service&#x518D;&#x6B21;&#x68C0;&#x67E5;:</h3><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..5.png"></p>
+<h3 id="Ingress&#x518D;&#x6B21;&#x68C0;&#x67E5;"><a href="#Ingress&#x518D;&#x6B21;&#x68C0;&#x67E5;" class="headerlink" title="Ingress&#x518D;&#x6B21;&#x68C0;&#x67E5;:"></a>Ingress&#x518D;&#x6B21;&#x68C0;&#x67E5;:</h3><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..6.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..7.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/service..8.png"></p>
+<h3 id="&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#xFF1A;"><a href="#&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#xFF1A;" class="headerlink" title="&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#xFF1A;"></a>&#x8D1F;&#x8F7D;&#x5747;&#x8861;&#xFF1A;</h3><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/lb..3.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/lb..4.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/lb..5.png"></p>
+<h2 id="11-&#x8C03;&#x7528;&#x63A5;&#x53E3;&#x9A8C;&#x8BC1;&#xFF1A;"><a href="#11-&#x8C03;&#x7528;&#x63A5;&#x53E3;&#x9A8C;&#x8BC1;&#xFF1A;" class="headerlink" title="11. &#x8C03;&#x7528;&#x63A5;&#x53E3;&#x9A8C;&#x8BC1;&#xFF1A;"></a>11. &#x8C03;&#x7528;&#x63A5;&#x53E3;&#x9A8C;&#x8BC1;&#xFF1A;</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># curl -X GET https://xiexugang-api.top/user/actuator/health</span><br><span class="line">{&quot;status&quot;:&quot;UP&quot;,&quot;groups&quot;:[&quot;liveness&quot;,&quot;readiness&quot;]}</span><br><span class="line"></span><br><span class="line"># curl -X GET https://xiexugang-api.top/user/test/</span><br><span class="line">ok</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>&#x6216;</p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/validate.1.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/18.C001.Infrastructure-gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/validate.2.png"></p>
+<h2 id="12-&#x5176;&#x4ED6;"><a href="#12-&#x5176;&#x4ED6;" class="headerlink" title="12.&#x5176;&#x4ED6;:"></a>12.&#x5176;&#x4ED6;:</h2><h3 id="kubectl&#x51E0;&#x4E2A;&#x67E5;&#x770B;&#x547D;&#x4EE4;&#xFF1A;"><a href="#kubectl&#x51E0;&#x4E2A;&#x67E5;&#x770B;&#x547D;&#x4EE4;&#xFF1A;" class="headerlink" title="kubectl&#x51E0;&#x4E2A;&#x67E5;&#x770B;&#x547D;&#x4EE4;&#xFF1A;"></a>kubectl&#x51E0;&#x4E2A;&#x67E5;&#x770B;&#x547D;&#x4EE4;&#xFF1A;</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">//1.&#x663E;&#x793A;&#x96C6;&#x7FA4;&#x4FE1;&#x606F;</span><br><span class="line"># kubectl cluster-info --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line">//2.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;</span><br><span class="line"># kubectl get namespace --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line">//3.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;:java-service&#x4E0B;&#x7684;&#x6240;&#x6709;&#x8282;&#x70B9;</span><br><span class="line"># kubectl get nodes -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//4.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;:java-service&#x4E0B;&#x7684;&#x6240;&#x6709;pod</span><br><span class="line"># kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//4.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;:java-service&#x4E0B;&#x7684;pod&#x540D;&#x79F0;=user-service&#xFF0C;&#x72B6;&#x6001;&#x662F; ContainerCreating &#x7684;&#x4E2A;&#x6570;&#xFF0C;&#x8FD9;&#x4E2A;&#x4E00;&#x822C;&#x7528;&#x4E8E;Shell&#x811A;&#x672C;&#x4E2D;&#xFF0C;&#x76D1;&#x542C;pod&#x662F;&#x5426;&#x6B63;&#x5728;&#x521B;&#x5EFA;&#x4E2D;</span><br><span class="line"># kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe | grep user-service  |grep ContainerCreating -c</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 5.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;:java-service&#x4E0B;&#x7684;&#x8D44;&#x6E90;&#x72B6;&#x6001;</span><br><span class="line"># kubectl rollout status deployment/user-service -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//6.&#x67E5;&#x770B;&#x547D;&#x540D;&#x7A7A;&#x95F4;:java-service&#x4E0B;&#x7684;&#x8D44;&#x6E90;&#x72B6;&#x6001;&#xFF0C;&#x662F;&#x5426;&#x662F;successfully&#xFF0C;&#x8FD9;&#x4E2A;&#x4E00;&#x822C;&#x7528;&#x4E8E;Shell&#x811A;&#x672C;&#x4E2D;&#xFF0C;&#x76D1;&#x542C;deployment&#x662F;&#x5426;&#x521B;&#x5EFA;&#x6210;&#x529F;</span><br><span class="line"># kubectl rollout status deployment/user-service -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe |grep successfully -c</span><br><span class="line"></span><br><span class="line">//7.&#x67E5;&#x770B;&#x67D0;&#x4E2A;pod&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x6BD4;&#x5982;&#x6709;&#x4E2A;pod&#x540D;&#x79F0;=user-service-7b4bc6d59f-tlrkx</span><br><span class="line"># kubectl describe pod user-service-7b4bc6d59f-tlrkx -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line">//8.&#x8FDB;&#x5165;&#x67D0;&#x4E2A;&#x5BB9;&#x5668;</span><br><span class="line">&#x8BED;&#x6CD5;&#xFF1A;kubectl exec -it {podName}  -c  {containerName} /bin/bash -n {namespace} --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br><span class="line">//&#x6BD4;&#x5982;&#x8FDB;&#x5165;pod&#x540D;&#x79F0;=user-service-7b4bc6d59f-tlrkx  container&#x540D;&#x79F0;=user-service</span><br><span class="line"># kubectl exec -it user-service-7b4bc6d59f-tlrkx  -c  user-service /bin/bash -n java-service --kubeconfig=/home/gitlab-runner/.kube/config-prod-europe</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="CI-x2F-CD&#x6838;&#x5FC3;&#x811A;&#x672C;&#xFF1A;gcp-deploy-groovy"><a href="#CI-x2F-CD&#x6838;&#x5FC3;&#x811A;&#x672C;&#xFF1A;gcp-deploy-groovy" class="headerlink" title="CI/CD&#x6838;&#x5FC3;&#x811A;&#x672C;&#xFF1A;gcp_deploy.groovy"></a>CI/CD&#x6838;&#x5FC3;&#x811A;&#x672C;&#xFF1A;<code>gcp_deploy.groovy</code></h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">gcp_deploy</span> {</span><br><span class="line">	<span class="keyword">static</span> main(args) {</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;=========================1.print args:========================&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> (args != <span class="literal">null</span> &amp;&amp; args.length &gt; <span class="number">0</span>) {</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">def</span> i = <span class="number">0</span>; i &lt; args.length; i++) {</span><br><span class="line">				println <span class="string">&quot;i=${i}, value=${args[i]}&quot;</span></span><br><span class="line">			}</span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> serviceName = args[<span class="number">0</span>]</span><br><span class="line">		<span class="keyword">def</span> env = args[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> currentDir = <span class="string">&quot;pwd&quot;</span>.execute().text</span><br><span class="line">		println(<span class="string">&quot;currentDir=${currentDir}&quot;</span>)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> dockerizeDir = <span class="string">&quot;/home/gitlab-runner/dockerize&quot;</span></span><br><span class="line">		<span class="keyword">def</span> dockerFileName = <span class="string">&quot;Dockerfile-template-MultiEnv&quot;</span></span><br><span class="line">		<span class="keyword">def</span> k8sDeployFileName = <span class="string">&quot;deployment-template.yaml&quot;</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> gcloud = <span class="string">&quot;/home/gitlab-runner/google-cloud-sdk/bin/gcloud&quot;</span></span><br><span class="line">		<span class="keyword">def</span> kubectl = <span class="string">&quot;/usr/local/bin/kubectl&quot;</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> kubeConfig = System.getenv(<span class="string">&quot;KUBE_CONFIG&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> kubeServiceAccount = System.getenv(<span class="string">&quot;KUBE_SERVICE_ACCOUNT&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> kubeReplicas = System.getenv(<span class="string">&quot;KUBE_REPLICAS&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> healthCheck = System.getenv(<span class="string">&quot;HEALTH_CHECK&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> dockerRegistry = System.getenv(<span class="string">&quot;DOCKER_REPOSITORY&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> servletContext = System.getenv(<span class="string">&quot;SERLET_CONTEXT&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================2.print env variables from .gitlab-ci.yml list:========================&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;env KUBE_CONFIG=${kubeConfig}&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;env KUBE_SERVICE_ACCOUNT=${kubeServiceAccount}&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;env KUBE_REPLICAS=${kubeReplicas}&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;env HEALTH_CHECK=${healthCheck}&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;env DOCKER_REPOSITORY=${dockerRegistry}&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;========================3.mvn package========================&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;mvn -e -DskipTests=true clean package&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================4.docker build image========================&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;docker --version&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================5.gcloud change account========================&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;gcloud config set account ${kubeServiceAccount}&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;gcloud auth list&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================6.Create Dockerfile========================&quot;</span>)</span><br><span class="line">		File dockerFile = <span class="keyword">new</span> File(<span class="string">&quot;${dockerizeDir}/deployment-prod/user-service/${dockerFileName}&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> dockerFileTempleteContent = dockerFile.text</span><br><span class="line">		println(<span class="string">&quot;dockerFileTempleteContent=${dockerFileTempleteContent}&quot;</span>)</span><br><span class="line"></span><br><span class="line">	    <span class="keyword">def</span> serviceJar = serviceName + <span class="string">&quot;.jar&quot;</span></span><br><span class="line">		<span class="keyword">def</span> lastDockerFileTempleteContent = dockerFileTempleteContent.replaceAll(<span class="string">&quot;@@service_name&quot;</span>, serviceName)</span><br><span class="line">								.replaceAll(<span class="string">&quot;@@service_jar&quot;</span>, serviceJar)</span><br><span class="line">		println(<span class="string">&quot;lastDockerFileTempleteContent=${lastDockerFileTempleteContent}&quot;</span>)					</span><br><span class="line"></span><br><span class="line">		<span class="comment">//&#x5F53;&#x524D;&#x76EE;&#x5F55;&#x5728;: /home/gitlab-runner/builds/DYbAzYGs/0/e-commerce/user-service</span></span><br><span class="line">		File lastDockerFile = <span class="keyword">new</span> File(<span class="string">&quot;./target/Dockerfile&quot;</span>)</span><br><span class="line">		lastDockerFile.write(lastDockerFileTempleteContent)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> dockerTag = ymdhms()</span><br><span class="line">		<span class="keyword">def</span> dockerImage = dockerRegistry + <span class="string">&quot;:&quot;</span> + dockerTag</span><br><span class="line">		println(<span class="string">&quot;sudo docker build -f ./target/Dockerfile -t ${dockerImage} .&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;sudo docker build -f ./target/Dockerfile -t ${dockerImage} .&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================7.docker push image========================&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;sudo docker push ${dockerImage}&quot;</span>)</span><br><span class="line">		runCommandResult(<span class="string">&quot;sudo docker push ${dockerImage}&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================8.Create deployment.yaml========================&quot;</span>)</span><br><span class="line">		File k8sDeploymentFile = <span class="keyword">new</span> File(<span class="string">&quot;${dockerizeDir}/deployment-prod/user-service/${k8sDeployFileName}&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> k8sDeploymentFileContent = k8sDeploymentFile.text</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> lastK8sDeploymentFileContent = k8sDeploymentFileContent</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@service_name&quot;</span>, serviceName)</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@timestamp&quot;</span>, <span class="keyword">new</span> Date().format(<span class="string">&quot;YmdHms&quot;</span>))</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@image&quot;</span>, dockerImage)</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@version&quot;</span>, dockerTag+<span class="string">&quot;.gcp&quot;</span>)</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@service-context&quot;</span>, servletContext)</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@health_check&quot;</span>, healthCheck)</span><br><span class="line">												.replaceAll(<span class="string">&quot;@@kube_replicas&quot;</span>, kubeReplicas)</span><br><span class="line">		File lastK8sDeploymentFile = <span class="keyword">new</span> File(<span class="string">&quot;./target/deployment.yaml&quot;</span>)</span><br><span class="line">		lastK8sDeploymentFile.write(lastK8sDeploymentFileContent)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================9.GKE list nodes========================&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;1_kubectl get nodes --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>)</span><br><span class="line">		runCommand(<span class="string">&quot;kubectl get nodes --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================10.GKE list pods========================&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;2_kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>)</span><br><span class="line">		runCommand(<span class="string">&quot;kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================11.GKE apply deployment========================&quot;</span>)</span><br><span class="line">		<span class="comment">//kubectl apply -f ... 		</span></span><br><span class="line">		println(<span class="string">&quot;3_kubectl apply -f ./target/deployment.yaml --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> k1 = <span class="string">&quot;kubectl apply -f ./target/deployment.yaml --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}&quot;</span>.execute().text</span><br><span class="line">		runCommand(<span class="string">&quot;echo 3_____${k1}&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> (k1.contains(<span class="string">&quot;configured&quot;</span>)) {</span><br><span class="line">			println(<span class="string">&quot;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;GKE deployment configured!&quot;</span>)</span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================12.GKE detect pods status: ContainerCreating========================&quot;</span>)</span><br><span class="line">		<span class="comment">//&#x67E5;&#x770B;k8s&#x72B6;&#x6001;</span></span><br><span class="line">		runCommand(<span class="string">&quot;date&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;4__Detect ContainerCreating==&gt; kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}  | grep ${serviceName}  | grep ContainerCreating -c&quot;</span>)</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">def</span> index = <span class="number">1</span>; index &lt;= <span class="number">10</span>; index++) {</span><br><span class="line">			<span class="keyword">def</span> podStatus = runPipeline(<span class="string">&quot;kubectl get pods -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig}  | grep ${serviceName}  | grep ContainerCreating -c \n&quot;</span>)</span><br><span class="line">			<span class="keyword">if</span> (podStatus.equals(<span class="string">&quot;1&quot;</span>)) {</span><br><span class="line">				println(<span class="string">&quot;&#x5BB9;&#x5668;&#x6B63;&#x5728;&#x521B;&#x5EFA;&#x4E2D;...\n&quot;</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			}</span><br><span class="line">			sleep(<span class="number">1000</span>L)</span><br><span class="line">		}</span><br><span class="line">		runCommand(<span class="string">&quot;date&quot;</span>)</span><br><span class="line"></span><br><span class="line">		println(<span class="string">&quot;========================13.GKE detect deployment status: successfully========================&quot;</span>)</span><br><span class="line">		runCommand(<span class="string">&quot;date&quot;</span>)</span><br><span class="line">		println(<span class="string">&quot;6__Detect successfully==&gt; kubectl rollout status deployment/${serviceName}  -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig} | grep successfully -c&quot;</span>)</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">def</span> index = <span class="number">1</span>; index &lt;= <span class="number">10</span>; index++) {</span><br><span class="line">			<span class="keyword">def</span> deploymentStatus = runPipeline(<span class="string">&quot;kubectl rollout status deployment/${serviceName}  -n java-service --kubeconfig=/home/gitlab-runner/.kube/${kubeConfig} | grep successfully -c \n&quot;</span>)</span><br><span class="line">			<span class="keyword">if</span> (deploymentStatus.equals(<span class="string">&quot;1&quot;</span>)) {</span><br><span class="line">				println(<span class="string">&quot;&#x53D1;&#x5E03;&#x6210;&#x529F;!\n&quot;</span>)</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			}</span><br><span class="line">			sleep(<span class="number">1000</span>L)</span><br><span class="line">		}</span><br><span class="line">		runCommand(<span class="string">&quot;date&quot;</span>)</span><br><span class="line"></span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="comment">//&#x666E;&#x901A;shell&#x547D;&#x4EE4;&#xFF0C;&#x6CA1;&#x6709;&#x7BA1;&#x9053;</span></span><br><span class="line">	<span class="keyword">def</span> <span class="keyword">static</span> runCommand(<span class="keyword">def</span> command) {</span><br><span class="line">		println command.execute().text</span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="comment">//&#x666E;&#x901A;shell&#x547D;&#x4EE4;&#xFF0C;&#x6CA1;&#x6709;&#x7BA1;&#x9053;</span></span><br><span class="line">	<span class="keyword">def</span> <span class="keyword">static</span> runCommandResult(<span class="keyword">def</span> command) {</span><br><span class="line">		<span class="keyword">def</span> info  = <span class="keyword">new</span> StringBuilder()</span><br><span class="line">		<span class="keyword">def</span> error = <span class="keyword">new</span> StringBuilder()</span><br><span class="line"></span><br><span class="line">		<span class="keyword">def</span> proc = command.execute()	<span class="comment">// Call *execute* on the string</span></span><br><span class="line">		proc.consumeProcessOutput(info, error)</span><br><span class="line">		proc.waitFor()					<span class="comment">// Wait for the command to finish</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (!error.toString().equals(<span class="string">&quot;&quot;</span>)) {</span><br><span class="line">			println <span class="string">&quot;Command[ ${command} ] &gt;&gt;error: ${error.toString()}&quot;</span></span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line">		println <span class="string">&quot;Command[ ${command} ] &gt;&gt;result: ${info.toString()}&quot;</span></span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="comment">//&#x6709;&#x7BA1;&#x9053;&#x7684;shell&#x547D;&#x4EE4;</span></span><br><span class="line">	<span class="comment">//https://stackoverflow.com/questions/5711084/java-runtime-getruntime-getting-output-from-executing-a-command-line-program</span></span><br><span class="line">	<span class="keyword">def</span> <span class="keyword">static</span> runPipeline(<span class="keyword">def</span> command) {</span><br><span class="line">		Runtime rt = Runtime.getRuntime()</span><br><span class="line">		String[] commands = [<span class="string">&quot;sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, command]</span><br><span class="line">		Process proc = rt.exec(commands)</span><br><span class="line"></span><br><span class="line">		BufferedReader stdInput = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span></span><br><span class="line">			InputStreamReader(proc.getInputStream()))</span><br><span class="line"></span><br><span class="line">	    BufferedReader stdError = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span></span><br><span class="line">			InputStreamReader(proc.getErrorStream()))</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Read the output from the command</span></span><br><span class="line">		println(<span class="string">&quot;Here is the standard output of the command:\n&quot;</span>)</span><br><span class="line">		<span class="keyword">def</span> infoBuilder = <span class="keyword">new</span> StringBuilder()</span><br><span class="line">		<span class="keyword">def</span> infostr = <span class="literal">null</span></span><br><span class="line">		<span class="keyword">while</span> ((infostr = stdInput.readLine()) != <span class="literal">null</span>) {</span><br><span class="line">			infoBuilder.append(infostr)</span><br><span class="line">		}</span><br><span class="line">		<span class="keyword">if</span> (!infoBuilder.toString().equals(<span class="string">&quot;&quot;</span>)) {</span><br><span class="line">			<span class="comment">//println &quot;AAAAAAAAAA&quot;</span></span><br><span class="line">			<span class="keyword">return</span> infoBuilder.toString()</span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		<span class="comment">// Read any errors from the attempted command</span></span><br><span class="line">		println(<span class="string">&quot;Here is the standard error of the command (if any):\n&quot;</span>);</span><br><span class="line">		<span class="keyword">def</span> errorBuilder = <span class="keyword">new</span> StringBuilder()</span><br><span class="line">		<span class="keyword">def</span> errorstr = <span class="literal">null</span></span><br><span class="line">		<span class="keyword">while</span> ((errorstr = stdError.readLine()) != <span class="literal">null</span>) {</span><br><span class="line">			errorBuilder.append(errorstr)</span><br><span class="line">		}</span><br><span class="line">		<span class="keyword">if</span> (!errorBuilder.toString().equals(<span class="string">&quot;&quot;</span>)) {</span><br><span class="line">			<span class="comment">//println &quot;BBBBBBBBBB&quot;</span></span><br><span class="line">			<span class="keyword">return</span> errorBuilder.toString()</span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	<span class="keyword">def</span> <span class="keyword">static</span> ymdhms() {</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> Date().format(<span class="string">&quot;yyyyMMdd_HHmmss&quot;</span>)</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684;-gitlab-ci-yml"><a href="#&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684;-gitlab-ci-yml" class="headerlink" title="&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684; .gitlab-ci.yml"></a>&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684; .gitlab-ci.yml</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">stages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">uat</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">deploy-hk-aliyun</span></span><br><span class="line"></span><br><span class="line"><span class="attr">master:</span></span><br><span class="line">    <span class="attr">stage:</span> <span class="string">master</span></span><br><span class="line">    <span class="attr">script:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">pwd</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">whoami</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">run</span> <span class="string">prod</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">front_deploy</span></span><br><span class="line">    <span class="attr">only:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line">    <span class="attr">tags:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">hk-aliyun</span></span><br><span class="line"><span class="attr">uat:</span></span><br><span class="line">    <span class="attr">stage:</span> <span class="string">uat</span></span><br><span class="line">    <span class="attr">script:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">pwd</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">whoami</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">run</span> <span class="string">uat</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">npx</span> <span class="string">shipit</span> <span class="string">uat</span> <span class="string">deploy</span></span><br><span class="line">    <span class="attr">only:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">uat</span></span><br><span class="line">    <span class="attr">tags:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">hangzhou-aliyun</span></span><br><span class="line"></span><br><span class="line"><span class="attr">deploy-hk-aliyun:</span></span><br><span class="line">    <span class="attr">stage:</span> <span class="string">deploy-hk-aliyun</span></span><br><span class="line">    <span class="attr">script:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">pwd</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">whoami</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">install</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">yarn</span> <span class="string">run</span> <span class="string">aliyun_prod</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">npx</span> <span class="string">shipit</span> <span class="string">aliyun_prod</span> <span class="string">deploy</span></span><br><span class="line">    <span class="attr">when:</span> <span class="string">manual</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684;-front-deploy"><a href="#&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684;-front-deploy" class="headerlink" title="&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684; front_deploy"></a>&#x524D;&#x7AEF;reactive&#x9879;&#x76EE;&#x91CC;&#x7684; front_deploy</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$nginx_root</span> = <span class="string">&apos;/usr/share/nginx/html/janpara-admin-ui&apos;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$current_dir</span> = <span class="title function_ invoke__">getcwd</span>();</span><br><span class="line"><span class="variable">$version</span> = <span class="title function_ invoke__">date</span>(<span class="string">&apos;YmdHis&apos;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">run_command</span>(<span class="string">&quot;kubectl cp <span class="subst">$current_dir</span>/dist/ management-nginx-0:<span class="subst">$nginx_root</span>/releases/<span class="subst">$version</span>  -c nginx -n java-service&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">run_command</span>(<span class="string">&quot;kubectl exec -i management-nginx-0 -n java-service -c nginx -- bash -c \&quot;cd <span class="subst">$nginx_root</span> &amp;&amp; ln -sfn releases/<span class="subst">$version</span> current\&quot;&quot;</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;Files have been copied to PersistentVolumeClaim&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">run_command</span>(<span class="params"><span class="variable">$command</span></span>)</span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="title function_ invoke__">passthru</span>(<span class="variable">$command</span>, <span class="variable">$result_code</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$result_code</span> != <span class="number">0</span>) <span class="keyword">exit</span>;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GCP-GKE/" rel="tag">GCP-GKE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab-runner/" rel="tag">gitlab-runner</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2023/07/21/18.D001.Infrastructure-AWS%E7%B3%BB%E5%88%97.1.%E5%88%9B%E5%BB%BARDS%E3%80%81ElasticCache/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Infrastructure-AWS系列.1.创建EC2实例、LB、RDS、ElastiCache
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--4.GCP服务账号激活、创建镜像库、运行pipeline</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
