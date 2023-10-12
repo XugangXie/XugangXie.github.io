@@ -152,7 +152,7 @@
     
     
     <article
-  id="post-7A.002.中间件系列之redis-redis非常快的原因"
+  id="post-7A.005.中间件系列之redis-集群架构"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -163,8 +163,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/"
-    >中间件系列之redis-redis非常快的原因</a> 
+  <a class="article-title" href="/2022/07/12/7A.005.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84/"
+    >中间件系列之redis-集群架构</a> 
 </h2>
  
 
@@ -172,7 +172,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/" class="article-date">
+      <a href="/2022/07/12/7A.005.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84/" class="article-date">
   <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
 </a> 
   <div class="article-category">
@@ -184,17 +184,13 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>redis&#x975E;&#x5E38;&#x5FEB;&#x7684;&#x539F;&#x56E0;</p>
+<p>redis&#x96C6;&#x7FA4;&#x67B6;&#x6784;&#xFF1A;</p>
 </blockquote>
 <ul>
-<li><p>A. &#x7EAF;&#x5185;&#x5B58;&#x64CD;&#x4F5C;&#xFF0C;&#x907F;&#x514D;&#x5927;&#x91CF;&#x8BBF;&#x95EE;&#x6570;&#x636E;&#x5E93;&#xFF0C;&#x51CF;&#x5C11;&#x76F4;&#x63A5;&#x8BFB;&#x53D6;&#x78C1;&#x76D8;&#x6570;&#x636E;&#xFF0C;redis&#x5C06;&#x6570;&#x636E;&#x50A8;&#x5B58;&#x5728;&#x5185;&#x5B58;&#x91CC;&#x9762;&#xFF0C;&#x8BFB;&#x5199;&#x6570;&#x636E;&#x7684;&#x65F6;&#x5019;&#x90FD;&#x4E0D;&#x4F1A;&#x53D7;&#x5230;&#x786C;&#x76D8; I/O &#x901F;&#x5EA6;&#x7684;&#x9650;&#x5236;&#xFF0C;&#x6240;&#x4EE5;&#x901F;&#x5EA6;&#x5FEB;.</p>
-</li>
-<li><p>B. &#x5355;&#x7EBF;&#x7A0B;&#x64CD;&#x4F5C;&#xFF0C;&#x907F;&#x514D;&#x4E86;&#x4E0D;&#x5FC5;&#x8981;&#x7684;&#x4E0A;&#x4E0B;&#x6587;&#x5207;&#x6362;&#x548C;&#x7ADE;&#x4E89;&#x6761;&#x4EF6;&#xFF0C;&#x4E5F;&#x4E0D;&#x5B58;&#x5728;&#x591A;&#x8FDB;&#x7A0B;&#x6216;&#x8005;&#x591A;&#x7EBF;&#x7A0B;&#x5BFC;&#x81F4;&#x7684;&#x5207;&#x6362;&#x800C;&#x6D88;&#x8017;CPU&#xFF0C;&#x4E0D;&#x7528;&#x53BB;&#x8003;&#x8651;&#x5404;&#x79CD;&#x9501;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x4E0D;&#x5B58;&#x5728;&#x52A0;&#x9501;&#x91CA;&#x653E;&#x9501;&#x64CD;&#x4F5C;&#xFF0C;&#x6CA1;&#x6709;&#x56E0;&#x4E3A;&#x53EF;&#x80FD;&#x51FA;&#x73B0;&#x6B7B;&#x9501;&#x800C;&#x5BFC;&#x81F4;&#x7684;&#x6027;&#x80FD;&#x6D88;&#x8017;.</p>
-</li>
-<li><p>C. &#x91C7;&#x7528;&#x4E86;<strong>&#x975E;&#x963B;&#x585E;I/O &#x591A;&#x8DEF;&#x590D;&#x7528;&#x673A;&#x5236;</strong>.</p>
-</li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/crazymakercircle/p/14282108.html">https://www.cnblogs.com/crazymakercircle/p/14282108.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/rjzheng/p/10360619.html">https://www.cnblogs.com/rjzheng/p/10360619.html</a></li>
 </ul> 
-      <a class="article-more-link" href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/"
+      <a class="article-more-link" href="/2022/07/12/7A.005.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84/"
         >阅读更多...</a
       >
        
