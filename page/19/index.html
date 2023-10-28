@@ -152,7 +152,7 @@
     
     
     <article
-  id="post-13.AA020 牛客网链表-NC66两个链表的第一个公共结点"
+  id="post-13.AA019 牛客网链表-NC4判断链表中是否有环"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -163,8 +163,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/"
-    >13.AA020 牛客网链表-NC66两个链表的第一个公共结点</a> 
+  <a class="article-title" href="/2020/04/20/13.AA019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC4%E5%88%A4%E6%96%AD%E9%93%BE%E8%A1%A8%E4%B8%AD%E6%98%AF%E5%90%A6%E6%9C%89%E7%8E%AF/"
+    >13.AA019 牛客网链表-NC4判断链表中是否有环</a> 
 </h2>
  
 
@@ -172,7 +172,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/" class="article-date">
+      <a href="/2020/04/20/13.AA019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC4%E5%88%A4%E6%96%AD%E9%93%BE%E8%A1%A8%E4%B8%AD%E6%98%AF%E5%90%A6%E6%9C%89%E7%8E%AF/" class="article-date">
   <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
 </a> 
   <div class="article-category">
@@ -184,8 +184,8 @@
     <div class="article-entry" itemprop="articleBody">
        
   <ul>
-<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">4--&gt;1--</span><br><span class="line">    \</span><br><span class="line">     --&gt;8--&gt;4--&gt;5</span><br><span class="line">    /		</span><br><span class="line">5--&gt;0--&gt;1--</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/"
+<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x5224;&#x65AD;&#x7ED9;&#x5B9A;&#x7684;&#x94FE;&#x8868;&#x4E2D;&#x662F;&#x5426;&#x6709;&#x73AF;&#x3002;&#x5982;&#x679C;&#x6709;&#x73AF;&#x5219;&#x8FD4;&#x56DE;true&#xFF0C;&#x5426;&#x5219;&#x8FD4;&#x56DE;false&#x3002;</span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AA019%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC4%E5%88%A4%E6%96%AD%E9%93%BE%E8%A1%A8%E4%B8%AD%E6%98%AF%E5%90%A6%E6%9C%89%E7%8E%AF/"
         >阅读更多...</a
       >
        
@@ -243,6 +243,63 @@
   <ul>
 <li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x5047;&#x8BBE;&#x94FE;&#x8868;&#x4E2D;&#x6BCF;&#x4E00;&#x4E2A;&#x8282;&#x70B9;&#x7684;&#x503C;&#x90FD;&#x5728; 0 - 9 &#x4E4B;&#x95F4;&#xFF0C;&#x90A3;&#x4E48;&#x94FE;&#x8868;&#x6574;&#x4F53;&#x5C31;&#x53EF;&#x4EE5;&#x4EE3;&#x8868;&#x4E00;&#x4E2A;&#x6574;&#x6570;&#x3002;</span><br><span class="line">&#x7ED9;&#x5B9A;&#x4E24;&#x4E2A;&#x8FD9;&#x79CD;&#x94FE;&#x8868;&#xFF0C;&#x8BF7;&#x751F;&#x6210;&#x4EE3;&#x8868;&#x4E24;&#x4E2A;&#x6574;&#x6570;&#x76F8;&#x52A0;&#x503C;&#x7684;&#x7ED3;&#x679C;&#x94FE;&#x8868;&#x3002;</span><br><span class="line">&#x4F8B;&#x5982;&#xFF1A;&#x94FE;&#x8868; 1 &#x4E3A; 9-&gt;3-&gt;7&#xFF0C;&#x94FE;&#x8868; 2 &#x4E3A; 6-&gt;3&#xFF0C;&#x6700;&#x540E;&#x751F;&#x6210;&#x65B0;&#x7684;&#x7ED3;&#x679C;&#x94FE;&#x8868;&#x4E3A; 1-&gt;0-&gt;0-&gt;0&#x3002;</span><br><span class="line"></span><br><span class="line">&#x793A;&#x4F8B;1</span><br><span class="line">&#x8F93;&#x5165;&#xFF1A;[9,3,7],[6,3]</span><br><span class="line">&#x8FD4;&#x56DE;&#x503C;&#xFF1A;{1,0,0,0}</span><br></pre></td></tr></table></figure></li></ul> 
       <a class="article-more-link" href="/2020/04/20/13.AA021%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC40%E9%93%BE%E8%A1%A8%E7%9B%B8%E5%8A%A0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AA020 牛客网链表-NC66两个链表的第一个公共结点"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/"
+    >13.AA020 牛客网链表-NC66两个链表的第一个公共结点</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x63CF;&#x8FF0;&#xFF1A;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">4--&gt;1--</span><br><span class="line">    \</span><br><span class="line">     --&gt;8--&gt;4--&gt;5</span><br><span class="line">    /		</span><br><span class="line">5--&gt;0--&gt;1--</span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AA020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC66%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E7%BB%93%E7%82%B9/"
         >阅读更多...</a
       >
        
@@ -438,63 +495,6 @@
 
     
     <article
-  id="post-13.AA025 牛客网链表-NC207排序奇升偶降链表"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/"
-    >13.AA025 牛客网链表-NC207排序奇升偶降链表</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x63CF;&#x8FF0;:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x7ED9;&#x5B9A;&#x4E00;&#x4E2A;&#x5947;&#x6570;&#x4F4D;&#x5347;&#x5E8F;&#xFF0C;&#x5076;&#x6570;&#x4F4D;&#x964D;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#xFF0C;&#x8FD4;&#x56DE;&#x5BF9;&#x5176;&#x6392;&#x5E8F;&#x540E;&#x7684;&#x94FE;&#x8868;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x9898;&#x9762;&#x89E3;&#x91CA;&#xFF1A;&#x4F8B;&#x5982;&#x94FE;&#x8868; 1-&gt;3-&gt;2-&gt;2-&gt;3-&gt;1 &#x662F;&#x5947;&#x6570;&#x4F4D;&#x5347;&#x5E8F;&#x5076;&#x6570;&#x4F4D;&#x964D;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#xFF0C;&#x800C; 1-&gt;3-&gt;2-&gt;2-&gt;3-&gt;2 &#x5219;&#x4E0D;&#x7B26;&#x5408;&#x9898;&#x76EE;&#x8981;&#x6C42;&#x3002;</span><br></pre></td></tr></table></figure></li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-13.AA026 牛客网链表-NC211旋转链表"
   class="article article-type-post"
   itemscope
@@ -529,6 +529,63 @@
   <ul>
 <li>&#x63CF;&#x8FF0;:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x7ED9;&#x5B9A;&#x94FE;&#x8868;&#x7684;&#x5934;&#x8282;&#x70B9;&#xFF0C;&#x65CB;&#x8F6C;&#x94FE;&#x8868;&#xFF0C;&#x5C06;&#x94FE;&#x8868;&#x6BCF;&#x4E2A;&#x8282;&#x70B9;&#x5F80;&#x53F3;&#x79FB;&#x52A8; k &#x4E2A;&#x4F4D;&#x7F6E;&#xFF0C;&#x539F;&#x94FE;&#x8868;&#x540E; k &#x4E2A;&#x4F4D;&#x7F6E;&#x7684;&#x8282;&#x70B9;&#x5219;&#x4F9D;&#x6B21;&#x79FB;&#x52A8;&#x5230;&#x94FE;&#x8868;&#x5934;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x5373;&#xFF0C;&#x4F8B;&#x5982;&#x94FE;&#x8868; &#xFF1A; 1-&gt;2-&gt;3-&gt;4-&gt;5 k=2 &#x5219;&#x8FD4;&#x56DE;&#x94FE;&#x8868; 4-&gt;5-&gt;1-&gt;2-&gt;3</span><br></pre></td></tr></table></figure></li></ul> 
       <a class="article-more-link" href="/2020/04/20/13.AA026%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC211%E6%97%8B%E8%BD%AC%E9%93%BE%E8%A1%A8/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%93%BE%E8%A1%A8/" rel="tag">链表</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.AA025 牛客网链表-NC207排序奇升偶降链表"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/"
+    >13.AA025 牛客网链表-NC207排序奇升偶降链表</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x63CF;&#x8FF0;:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x7ED9;&#x5B9A;&#x4E00;&#x4E2A;&#x5947;&#x6570;&#x4F4D;&#x5347;&#x5E8F;&#xFF0C;&#x5076;&#x6570;&#x4F4D;&#x964D;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#xFF0C;&#x8FD4;&#x56DE;&#x5BF9;&#x5176;&#x6392;&#x5E8F;&#x540E;&#x7684;&#x94FE;&#x8868;&#x3002;</span><br><span class="line"></span><br><span class="line">&#x9898;&#x9762;&#x89E3;&#x91CA;&#xFF1A;&#x4F8B;&#x5982;&#x94FE;&#x8868; 1-&gt;3-&gt;2-&gt;2-&gt;3-&gt;1 &#x662F;&#x5947;&#x6570;&#x4F4D;&#x5347;&#x5E8F;&#x5076;&#x6570;&#x4F4D;&#x964D;&#x5E8F;&#x7684;&#x94FE;&#x8868;&#xFF0C;&#x800C; 1-&gt;3-&gt;2-&gt;2-&gt;3-&gt;2 &#x5219;&#x4E0D;&#x7B26;&#x5408;&#x9898;&#x76EE;&#x8981;&#x6C42;&#x3002;</span><br></pre></td></tr></table></figure></li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AA025%20%E7%89%9B%E5%AE%A2%E7%BD%91%E9%93%BE%E8%A1%A8-NC207%E6%8E%92%E5%BA%8F%E5%A5%87%E5%8D%87%E5%81%B6%E9%99%8D%E9%93%BE%E8%A1%A8/"
         >阅读更多...</a
       >
        
@@ -1207,63 +1264,6 @@
        
   <p><strong>&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;&#xFF0C;&#x5BF9;&#x4E8E;&#x6570;&#x7EC4;&#x4E2D;&#x7684;&#x6BCF;&#x4E00;&#x4E2A;&#x5143;&#x7D20;[i,j]&#xFF0C;&#x8FBE;&#x5230;&#x8BE5;&#x4F4D;&#x7F6E;&#x5171;&#x6709;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;&#xFF1A;&#x5DE6;&#x4FA7;&#x5143;&#x7D20;([i,j-1])&#x5411;&#x53F3;&#x79FB;&#x52A8;&#x4E00;&#x6B65;&#xFF0C;&#x6216;&#x8005;&#x4E0A;&#x65B9;&#x5143;&#x7D20;([i-1,j])&#x5411;&#x4E0B;&#x79FB;&#x52A8;&#x4E00;&#x6B65;&#x3002;</strong></p> 
       <a class="article-more-link" href="/2020/04/20/13.AB011%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC59%20%E7%9F%A9%E9%98%B5%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-13.AB012 牛客网数组-NC61两数之和"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/"
-    >13.AB012 牛客网数组-NC61两数之和</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
-      <a class="article-more-link" href="/2020/04/20/13.AB012%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC61%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/"
         >阅读更多...</a
       >
        
