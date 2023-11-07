@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>笔记-Springboot-MDC-为每个请求设置唯一ID |  xugang.xie&#39;s blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="xugang.xie's blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-15.005 笔记-Springboot-MDC-为每个请求设置唯一ID"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  笔记-Springboot-MDC-为每个请求设置唯一ID
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/04/28/15.005%20%E7%AC%94%E8%AE%B0-Springboot-MDC-%E4%B8%BA%E6%AF%8F%E4%B8%AA%E8%AF%B7%E6%B1%82%E8%AE%BE%E7%BD%AE%E5%94%AF%E4%B8%80ID/" class="article-date">
+  <time datetime="2023-04-27T16:00:00.000Z" itemprop="datePublished">2023-04-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x76EE;&#x6807;&#xFF1A;&#x4E3A;&#x6BCF;&#x4E2A;HTTP &#x8BF7;&#x6C42;&#x7684;Server&#x7AEF;&#x65E5;&#x5FD7;&#x91CC;&#xFF0C;&#x52A0;&#x5165;&#x5168;&#x5C40;&#x7684;&#x552F;&#x4E00;ID&#xFF0C;&#x8FD4;&#x56DE;&#x7ED9;&#x5BA2;&#x6237;&#x7AEF;&#x3002;&#x5982;&#x679C;&#x63A5;&#x53E3;&#x62A5;&#x9519;&#xFF0C;&#x4ECE;&#x5BA2;&#x6237;&#x7AEF;&#x7ED9;&#x5230;&#x8FD9;&#x4E2A;&#x552F;&#x4E00;ID&#xFF0C;&#x7136;&#x540E;&#x5230;Server&#x7AEF;&#x65E5;&#x5FD7;&#x91CC;&#x641C;&#x5BFB;&#x65E5;&#x5FD7;&#x8C03;&#x7528;&#x94FE;&#xFF0C;&#x65B9;&#x4FBF;&#x6392;&#x67E5;&#x3002;</p>
+</blockquote>
+<h4 id="1-&#x521B;&#x5EFA;springboot&#x9879;&#x76EE;&#xFF1A;springboot-mdc"><a href="#1-&#x521B;&#x5EFA;springboot&#x9879;&#x76EE;&#xFF1A;springboot-mdc" class="headerlink" title="1.&#x521B;&#x5EFA;springboot&#x9879;&#x76EE;&#xFF1A;springboot-mdc"></a>1.&#x521B;&#x5EFA;springboot&#x9879;&#x76EE;&#xFF1A;<code>springboot-mdc</code></h4><h4 id="2-&#x521B;&#x5EFA;-Slf4jMDCFilter-java"><a href="#2-&#x521B;&#x5EFA;-Slf4jMDCFilter-java" class="headerlink" title="2.&#x521B;&#x5EFA; Slf4jMDCFilter.java"></a>2.&#x521B;&#x5EFA; <code>Slf4jMDCFilter.java</code></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.FilterChain;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang3.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.MDC;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.filter.OncePerRequestFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.EqualsAndHashCode;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@EqualsAndHashCode(callSuper = false)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Slf4jMDCFilter</span> <span class="keyword">extends</span> <span class="title class_">OncePerRequestFilter</span> {</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> String responseHeader;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> String mdcTokenKey;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> String requestHeader;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span></span><br><span class="line">			<span class="keyword">throws</span> ServletException, IOException {</span><br><span class="line">		<span class="keyword">try</span> {</span><br><span class="line">			<span class="keyword">final</span> String token;</span><br><span class="line">			<span class="keyword">if</span> (StringUtils.isNotBlank(requestHeader) &amp;&amp; StringUtils.isNotBlank(request.getHeader(requestHeader))) {</span><br><span class="line">				token = request.getHeader(requestHeader);</span><br><span class="line">			} <span class="keyword">else</span> {</span><br><span class="line">				token = UUID.randomUUID().toString().toUpperCase().replace(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">			}</span><br><span class="line">			MDC.put(mdcTokenKey, token);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (StringUtils.isNotBlank(responseHeader)) {</span><br><span class="line">				response.addHeader(responseHeader, token);</span><br><span class="line">			}</span><br><span class="line">			filterChain.doFilter(request, response);</span><br><span class="line">		} <span class="keyword">finally</span> {</span><br><span class="line">			MDC.remove(mdcTokenKey);</span><br><span class="line">		}</span><br><span class="line"></span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-&#x521B;&#x5EFA;-Slf4jMDCFilterConfiguration-java&#xFF0C;&#x914D;&#x7F6E;Filter"><a href="#3-&#x521B;&#x5EFA;-Slf4jMDCFilterConfiguration-java&#xFF0C;&#x914D;&#x7F6E;Filter" class="headerlink" title="3.&#x521B;&#x5EFA; Slf4jMDCFilterConfiguration.java&#xFF0C;&#x914D;&#x7F6E;Filter"></a>3.&#x521B;&#x5EFA; <code>Slf4jMDCFilterConfiguration.java</code>&#xFF0C;&#x914D;&#x7F6E;Filter</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.xxg.mdc.mdc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.servlet.FilterRegistrationBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;config.slf4jfilter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Slf4jMDCFilterConfiguration</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_RESPONSE_TOKEN_HEADER</span> <span class="operator">=</span> <span class="string">&quot;Response-TraceId&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_MDC_UUID_TOKEN_KEY</span> <span class="operator">=</span> <span class="string">&quot;traceId&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">responseHeader</span> <span class="operator">=</span> DEFAULT_RESPONSE_TOKEN_HEADER;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">mdcTokenKey</span> <span class="operator">=</span> DEFAULT_MDC_UUID_TOKEN_KEY;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">requestHeader</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> FilterRegistrationBean&lt;Slf4jMDCFilter&gt; <span class="title function_">servletRegistrationBean</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">final</span> FilterRegistrationBean&lt;Slf4jMDCFilter&gt; registrationBean = <span class="keyword">new</span> <span class="title class_">FilterRegistrationBean</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Slf4jMDCFilter</span> <span class="variable">log4jMDCFilterFilter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Slf4jMDCFilter</span>(responseHeader, mdcTokenKey, requestHeader);</span><br><span class="line">        registrationBean.setFilter(log4jMDCFilterFilter);</span><br><span class="line">        registrationBean.addUrlPatterns(<span class="string">&quot;/*&quot;</span>);</span><br><span class="line">        registrationBean.setName(<span class="string">&quot;Slf4jMDCFilter&quot;</span>);</span><br><span class="line">        registrationBean.setOrder(-<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> registrationBean;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-pom-xml&#x91CC;&#xFF0C;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;"><a href="#4-pom-xml&#x91CC;&#xFF0C;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;" class="headerlink" title="4.pom.xml&#x91CC;&#xFF0C;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;"></a>4.pom.xml&#x91CC;&#xFF0C;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-over-slf4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>&#x5B8C;&#x6574;&#x7684;pom.xml:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.17<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.xxg<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springboot-mdc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>springboot-mdc<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">description</span>&gt;</span>Demo project for Spring Boot with MDC<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.build.resourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.resourceEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">maven.test.skip</span>&gt;</span>true<span class="tag">&lt;/<span class="name">maven.test.skip</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-over-slf4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang3<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">excludes</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">exclude</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">excludes</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="5-src-main-resources&#x4E0B;&#xFF0C;&#x521B;&#x5EFA;logback-spring-xml&#xFF1A;"><a href="#5-src-main-resources&#x4E0B;&#xFF0C;&#x521B;&#x5EFA;logback-spring-xml&#xFF1A;" class="headerlink" title="5.src/main/resources&#x4E0B;&#xFF0C;&#x521B;&#x5EFA;logback-spring.xml&#xFF1A;"></a>5.<code>src/main/resources</code>&#x4E0B;&#xFF0C;&#x521B;&#x5EFA;<code>logback-spring.xml</code>&#xFF1A;</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">&quot;org/springframework/boot/logging/logback/defaults.xml&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">&quot;org/springframework/boot/logging/logback/console-appender.xml&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">springProperty</span> <span class="attr">scope</span>=<span class="string">&quot;context&quot;</span> <span class="attr">name</span>=<span class="string">&quot;APPLICATION_NAME&quot;</span> <span class="attr">source</span>=<span class="string">&quot;spring.application.name&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">	2023-11-07 14:59:37.933 [3A91AE7D75D741E0A768D174E45C8B5A] [http-nio-8080-exec-1] INFO org.xxg.mdc.controller.TestController [24] - result={aa=aa, 11=11, list=[]}</span></span><br><span class="line"><span class="comment">	--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;COMMON_CONSOLE_LOG_PATTERN&quot;</span> <span class="attr">value</span>=<span class="string">&quot;%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}] [%t] %p %c{256} [%line] - %m%n&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--1. &#x8F93;&#x51FA;&#x5230;&#x63A7;&#x5236;&#x53F0;--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!--&#x6B64;&#x65E5;&#x5FD7;appender&#x662F;&#x4E3A;&#x5F00;&#x53D1;&#x4F7F;&#x7528;&#xFF0C;&#x53EA;&#x914D;&#x7F6E;&#x6700;&#x5E95;&#x7EA7;&#x522B;&#xFF0C;&#x63A7;&#x5236;&#x53F0;&#x8F93;&#x51FA;&#x7684;&#x65E5;&#x5FD7;&#x7EA7;&#x522B;&#x662F;&#x5927;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;&#x6B64;&#x7EA7;&#x522B;&#x7684;&#x65E5;&#x5FD7;&#x4FE1;&#x606F;--&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">filter</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.classic.filter.ThresholdFilter&quot;</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">level</span>&gt;</span>debug<span class="tag">&lt;/<span class="name">level</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">encoder</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">Pattern</span>&gt;</span>${COMMON_CONSOLE_LOG_PATTERN}<span class="tag">&lt;/<span class="name">Pattern</span>&gt;</span></span><br><span class="line"></span><br><span class="line">          <span class="comment">&lt;!-- &#x8BBE;&#x7F6E;&#x5B57;&#x7B26;&#x96C6; --&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">charset</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">charset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6-&#x6D4B;&#x8BD5;&#xFF1A;GET-http-localhost-8080-rest-test"><a href="#6-&#x6D4B;&#x8BD5;&#xFF1A;GET-http-localhost-8080-rest-test" class="headerlink" title="6.&#x6D4B;&#x8BD5;&#xFF1A;GET http://localhost:8080/rest/test/"></a>6.&#x6D4B;&#x8BD5;&#xFF1A;GET <code>http://localhost:8080/rest/test/</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">2023-11-07 20:22:29.344 [ED40CCF2886F4656A300AB9349A0F299] [http-nio-8080-exec-2] INFO org.xxg.mdc.controller.TestController [24] - result={aa=aa, 11=11, list=[]}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5BA2;&#x6237;&#x7AEF;&#x8BF7;&#x6C42;&#x53EF;&#x4EE5;&#x770B;&#x5230;Response&#x91CC;&#x7684;<code>Response-TraceId</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/15.005.%E7%AC%94%E8%AE%B0-Springboot-MDC-%E4%B8%BA%E6%AF%8F%E4%B8%AA%E8%AF%B7%E6%B1%82%E8%AE%BE%E7%BD%AE%E5%94%AF%E4%B8%80ID/1.png"></p>
+<hr>
+<p>&#x53E6;&#x4E00;&#x79CD;&#x5199;&#x6CD5;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x65E5;&#x5FD7;&#x91CC;&#x770B;&#x5230;&#x5BA2;&#x6237;&#x7AEF;&#x7684;&#x8BF7;&#x6C42;IP&#xFF0C;&#x5199;&#x6CD5;&#x5927;&#x540C;&#x5C0F;&#x5F02;&#xFF0C;&#x5982;&#x4E0B;&#xFF1A;</p>
+<h4 id="1-Slf4jMDCFilterV2-java"><a href="#1-Slf4jMDCFilterV2-java" class="headerlink" title="1.Slf4jMDCFilterV2.java"></a>1.<code>Slf4jMDCFilterV2.java</code></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.xxg.mdc.mdc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.FilterChain;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang3.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.MDC;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.filter.OncePerRequestFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.EqualsAndHashCode;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@EqualsAndHashCode(callSuper = false)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Slf4jMDCFilterV2</span> <span class="keyword">extends</span> <span class="title class_">OncePerRequestFilter</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String responseHeader;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String mdcTokenKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String mdcClientIpKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String requestHeader;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Slf4jMDCFilterV2</span><span class="params">()</span> {</span><br><span class="line">        responseHeader = Slf4jMDCFilterConfigurationV2.DEFAULT_RESPONSE_TOKEN_HEADER;</span><br><span class="line">        mdcTokenKey = Slf4jMDCFilterConfigurationV2.DEFAULT_MDC_UUID_TOKEN_KEY;</span><br><span class="line">        mdcClientIpKey = Slf4jMDCFilterConfigurationV2.DEFAULT_MDC_CLIENT_IP_KEY;</span><br><span class="line">        requestHeader = <span class="literal">null</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Slf4jMDCFilterV2</span><span class="params">(<span class="keyword">final</span> String responseHeader, <span class="keyword">final</span> String mdcTokenKey, <span class="keyword">final</span> String mdcClientIPKey, <span class="keyword">final</span> String requestHeader)</span> {</span><br><span class="line">        <span class="built_in">this</span>.responseHeader = responseHeader;</span><br><span class="line">        <span class="built_in">this</span>.mdcTokenKey = mdcTokenKey;</span><br><span class="line">        <span class="built_in">this</span>.mdcClientIpKey = mdcClientIPKey;</span><br><span class="line">        <span class="built_in">this</span>.requestHeader = requestHeader;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doFilterInternal</span><span class="params">(<span class="keyword">final</span> HttpServletRequest request, <span class="keyword">final</span> HttpServletResponse response, <span class="keyword">final</span> FilterChain chain)</span></span><br><span class="line">            <span class="keyword">throws</span> java.io.IOException, ServletException {</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> extractToken(request);</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">clientIP</span> <span class="operator">=</span> extractClientIP(request);</span><br><span class="line">            MDC.put(mdcClientIpKey, clientIP);</span><br><span class="line">            MDC.put(mdcTokenKey, token);</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isNotBlank(responseHeader)) {</span><br><span class="line">                response.addHeader(responseHeader, token);</span><br><span class="line">            }</span><br><span class="line">            chain.doFilter(request, response);</span><br><span class="line">        } <span class="keyword">finally</span> {</span><br><span class="line">            MDC.remove(mdcTokenKey);</span><br><span class="line">            MDC.remove(mdcClientIpKey);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">extractToken</span><span class="params">(<span class="keyword">final</span> HttpServletRequest request)</span> {</span><br><span class="line">        <span class="keyword">final</span> String token;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotBlank(requestHeader) &amp;&amp; StringUtils.isNotBlank(request.getHeader(requestHeader))) {</span><br><span class="line">            token = request.getHeader(requestHeader);</span><br><span class="line">        } <span class="keyword">else</span> {</span><br><span class="line">            token = UUID.randomUUID().toString().toUpperCase().replace(<span class="string">&quot;-&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> token;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">extractClientIP</span><span class="params">(<span class="keyword">final</span> HttpServletRequest request)</span> {</span><br><span class="line">        <span class="keyword">final</span> String clientIP;</span><br><span class="line">        <span class="keyword">if</span> (request.getHeader(<span class="string">&quot;X-Forwarded-For&quot;</span>) != <span class="literal">null</span>) {</span><br><span class="line">            clientIP = request.getHeader(<span class="string">&quot;X-Forwarded-For&quot;</span>).split(<span class="string">&quot;,&quot;</span>)[<span class="number">0</span>];</span><br><span class="line">        } <span class="keyword">else</span> {</span><br><span class="line">            clientIP = request.getRemoteAddr();</span><br><span class="line">        }</span><br><span class="line">        <span class="keyword">return</span> clientIP;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">isAsyncDispatch</span><span class="params">(<span class="keyword">final</span> HttpServletRequest request)</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">shouldNotFilterErrorDispatch</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-Slf4jMDCFilterConfigurationV2-java"><a href="#2-Slf4jMDCFilterConfigurationV2-java" class="headerlink" title="2.Slf4jMDCFilterConfigurationV2.java"></a>2.<code>Slf4jMDCFilterConfigurationV2.java</code></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.xxg.mdc.mdc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.servlet.FilterRegistrationBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;summer.slf4jfilter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Slf4jMDCFilterConfigurationV2</span> {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_RESPONSE_TOKEN_HEADER</span> <span class="operator">=</span> <span class="string">&quot;Response_Token&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_MDC_UUID_TOKEN_KEY</span> <span class="operator">=</span> <span class="string">&quot;traceId&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DEFAULT_MDC_CLIENT_IP_KEY</span> <span class="operator">=</span> <span class="string">&quot;clientIP&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">responseHeader</span> <span class="operator">=</span> DEFAULT_RESPONSE_TOKEN_HEADER;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">mdcTokenKey</span> <span class="operator">=</span> DEFAULT_MDC_UUID_TOKEN_KEY;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">mdcClientIpKey</span> <span class="operator">=</span> DEFAULT_MDC_CLIENT_IP_KEY;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">requestHeader</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> FilterRegistrationBean&lt;Slf4jMDCFilterV2&gt; <span class="title function_">servletRegistrationBean</span><span class="params">()</span> {</span><br><span class="line">        <span class="keyword">final</span> FilterRegistrationBean&lt;Slf4jMDCFilterV2&gt; registrationBean = <span class="keyword">new</span> <span class="title class_">FilterRegistrationBean</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Slf4jMDCFilterV2</span> <span class="variable">log4jMDCFilterFilter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Slf4jMDCFilterV2</span>(responseHeader, mdcTokenKey, mdcClientIpKey, requestHeader);</span><br><span class="line">        registrationBean.setFilter(log4jMDCFilterFilter);</span><br><span class="line">        registrationBean.setOrder(<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">return</span> registrationBean;</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-pom-xml&#x4E2D;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;"><a href="#3-pom-xml&#x4E2D;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;" class="headerlink" title="3.pom.xml&#x4E2D;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;"></a>3.<code>pom.xml</code>&#x4E2D;&#x52A0;&#x5165;logback&#x4F9D;&#x8D56;&#xFF1A;</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-over-slf4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-src-main-resources&#x4E0B;&#x521B;&#x5EFA;logback-spring-xml"><a href="#4-src-main-resources&#x4E0B;&#x521B;&#x5EFA;logback-spring-xml" class="headerlink" title="4.src/main/resources&#x4E0B;&#x521B;&#x5EFA;logback-spring.xml:"></a>4.<code>src/main/resources&#x4E0B;&#x521B;&#x5EFA;logback-spring.xml</code>:</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">&quot;org/springframework/boot/logging/logback/defaults.xml&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">&quot;org/springframework/boot/logging/logback/console-appender.xml&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">springProperty</span> <span class="attr">scope</span>=<span class="string">&quot;context&quot;</span> <span class="attr">name</span>=<span class="string">&quot;APPLICATION_NAME&quot;</span> <span class="attr">source</span>=<span class="string">&quot;spring.application.name&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;COMMON_CONSOLE_LOG_PATTERN_V2&quot;</span> <span class="attr">value</span>=<span class="string">&quot;%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}] [%X{clientIP}] [%t] %p %c{256} [%line] - %m%n&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!--1. &#x8F93;&#x51FA;&#x5230;&#x63A7;&#x5236;&#x53F0;--&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!--&#x6B64;&#x65E5;&#x5FD7;appender&#x662F;&#x4E3A;&#x5F00;&#x53D1;&#x4F7F;&#x7528;&#xFF0C;&#x53EA;&#x914D;&#x7F6E;&#x6700;&#x5E95;&#x7EA7;&#x522B;&#xFF0C;&#x63A7;&#x5236;&#x53F0;&#x8F93;&#x51FA;&#x7684;&#x65E5;&#x5FD7;&#x7EA7;&#x522B;&#x662F;&#x5927;&#x4E8E;&#x6216;&#x7B49;&#x4E8E;&#x6B64;&#x7EA7;&#x522B;&#x7684;&#x65E5;&#x5FD7;&#x4FE1;&#x606F;--&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">filter</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.classic.filter.ThresholdFilter&quot;</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">level</span>&gt;</span>debug<span class="tag">&lt;/<span class="name">level</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">encoder</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">Pattern</span>&gt;</span>${COMMON_CONSOLE_LOG_PATTERN_V2}<span class="tag">&lt;/<span class="name">Pattern</span>&gt;</span></span><br><span class="line"></span><br><span class="line">          <span class="comment">&lt;!-- &#x8BBE;&#x7F6E;&#x5B57;&#x7B26;&#x96C6; --&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">charset</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">charset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-&#x6D4B;&#x8BD5;&#xFF1A;GET-http-localhost-8080-rest-test"><a href="#5-&#x6D4B;&#x8BD5;&#xFF1A;GET-http-localhost-8080-rest-test" class="headerlink" title="5.&#x6D4B;&#x8BD5;&#xFF1A;GET http://localhost:8080/rest/test/"></a>5.&#x6D4B;&#x8BD5;&#xFF1A;GET <code>http://localhost:8080/rest/test/</code></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">2023-11-07 20:49:39.308 [093FF19E54B542BD872E4BC536DD0AC3] [0:0:0:0:0:0:0:1] [http-nio-8080-exec-4] INFO org.xxg.mdc.controller.TestController [24] - result={aa=aa, 11=11, list=[]}</span><br></pre></td></tr></table></figure>
+
+<p>&#x5BA2;&#x6237;&#x7AEF;&#x8BF7;&#x6C42;&#x53EF;&#x4EE5;&#x770B;&#x5230;Response&#x91CC;&#x7684;<code>Response-TraceId</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/15.005.%E7%AC%94%E8%AE%B0-Springboot-MDC-%E4%B8%BA%E6%AF%8F%E4%B8%AA%E8%AF%B7%E6%B1%82%E8%AE%BE%E7%BD%AE%E5%94%AF%E4%B8%80ID/2.png"></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MDC/" rel="tag">MDC</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2023/04/28/15.004%20%E7%AC%94%E8%AE%B0-%E9%80%9A%E8%BF%87%E5%9F%9F%E5%90%8D%EF%BC%8C%E5%8F%8D%E6%9F%A5%E5%88%B0Nginx%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84IP%E5%92%8C.conf%E9%85%8D%E7%BD%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            笔记-通过域名，反查到Nginx服务器的IP和.conf配置
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/08/07/9G1.001.%E6%A1%86%E6%9E%B6-%5Beureka%5D-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0Eureka%E5%8E%9F%E7%90%86%E4%B8%8E%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">框架-[eureka]-服务发现Eureka原理与源码分析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> xugang.xie
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="xugang.xie&#39;s blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -152,6 +152,119 @@
     
     
     <article
+  id="post-8A104.操作系统与网络-Reactor设计模式"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+    >操作系统与网络-Reactor设计模式</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C/">操作系统与网络</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;"><a href="#Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;" class="headerlink" title="Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;"></a>Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;</h3><p>reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;&#xFF1A;<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021054503">https://segmentfault.com/a/1190000021054503</a></p> 
+      <a class="article-more-link" href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">Reactor设计模式</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-8A106.操作系统与网络-Netty"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/"
+    >操作系统与网络-Netty</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C/">操作系统与网络</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h4 id="Netty-&#x6574;&#x4F53;&#x67B6;&#x6784;"><a href="#Netty-&#x6574;&#x4F53;&#x67B6;&#x6784;" class="headerlink" title="Netty &#x6574;&#x4F53;&#x67B6;&#x6784;"></a>Netty &#x6574;&#x4F53;&#x67B6;&#x6784;</h4><p>Netty &#x4F7F;&#x7528; NIO &#x800C;&#x4E0D;&#x662F; AIO<br>&#x5728; linux&#x7CFB;&#x7EDF;&#x4E0A;&#xFF0C;AIO &#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x4ECD;&#x7136;&#x4F7F;&#x7528; epoll&#xFF0C;&#x4E0E; NIO &#x76F8;&#x540C;&#xFF0C;&#x56E0;&#x6B64;&#x5728;&#x6027;&#x80FD;&#x4E0A;&#x6CA1;&#x6709;&#x660E;&#x663E;&#x7684;&#x4F18;&#x52BF;</p>
+<p>Netty &#x6574;&#x4F53;&#x67B6;&#x6784;&#x662F;: reactor &#x8BBE;&#x8BA1;&#x6A21;&#x578B;&#xFF0C;&#x91C7;&#x7528; epoll&#x673A;&#x5236;&#xFF0C;IO &#x591A;&#x8DEF;&#x590D;&#x7528;&#xFF0C;&#x540C;&#x6B65;&#x975E;&#x963B;&#x585E;&#x6A21;&#x578B;<br>Netty &#x662F;&#x57FA;&#x4E8E; Java NIO &#x7C7B;&#x5E93;&#x5B9E;&#x73B0;&#x7684;&#x5F02;&#x6B65;&#x901A;&#x8BAF;&#x6846;&#x67B6;<br>&#x7279;&#x70B9;&#xFF1A; &#x5F02;&#x6B65;&#x975E;&#x963B;&#x585E;&#xFF0C;&#x57FA;&#x4E8E;&#x4E8B;&#x4EF6;&#x9A71;&#x52A8;&#xFF0C;&#x6027;&#x80FD;&#x9AD8;&#xFF0C;&#x9AD8;&#x53EF;&#x9760;&#x6027;&#xFF0C;&#x9AD8;&#x53EF;&#x5B9A;&#x5236;&#x6027;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-8A111.操作系统与网络-fsync函数"
   class="article article-type-post"
   itemscope
@@ -1113,64 +1226,6 @@
 
     
     <article
-  id="post-22.001 MQTT系列-windows安装emqx2种方式"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/11/20/22.001%20MQTT%E7%B3%BB%E5%88%97-windows%E5%AE%89%E8%A3%85emqx2%E7%A7%8D%E6%96%B9%E5%BC%8F/"
-    >MQTT系列-windows安装emqx2种方式</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/11/20/22.001%20MQTT%E7%B3%BB%E5%88%97-windows%E5%AE%89%E8%A3%85emqx2%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="article-date">
-  <time datetime="2021-11-19T16:00:00.000Z" itemprop="datePublished">2021-11-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/MQTT/">MQTT</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;win10&#x73AF;&#x5883;&#x4E0B;&#xFF0C;&#x5B89;&#x88C5;EMQX&#x7684;2&#x79CD;&#x65B9;&#x5F0F;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2021/11/20/22.001%20MQTT%E7%B3%BB%E5%88%97-windows%E5%AE%89%E8%A3%85emqx2%E7%A7%8D%E6%96%B9%E5%BC%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EMQX/" rel="tag">EMQX</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-22.002 MQTT系列-EMQX配置权限"
   class="article article-type-post"
   itemscope
@@ -1206,64 +1261,6 @@
 <p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;win10&#x4E0A;EMQX&#x914D;&#x7F6E;&#x6743;&#x9650;</p>
 </blockquote> 
       <a class="article-more-link" href="/2021/11/20/22.002%20MQTT%E7%B3%BB%E5%88%97-EMQX%E9%85%8D%E7%BD%AE%E6%9D%83%E9%99%90/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EMQX/" rel="tag">EMQX</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-22.003 MQTT系列-centos安装emqx"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/11/20/22.003%20MQTT%E7%B3%BB%E5%88%97-centos%E5%AE%89%E8%A3%85emqx/"
-    >MQTT系列-centos安装emqx</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/11/20/22.003%20MQTT%E7%B3%BB%E5%88%97-centos%E5%AE%89%E8%A3%85emqx/" class="article-date">
-  <time datetime="2021-11-19T16:00:00.000Z" itemprop="datePublished">2021-11-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/MQTT/">MQTT</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>&#x8FD9;&#x7BC7;&#x4E3B;&#x8981;&#x8BB0;&#x5F55;centos&#x73AF;&#x5883;&#x4E0B;&#xFF0C;&#x5B89;&#x88C5;EMQX<br>&#x53C2;&#x8003;&#xFF1A;<a target="_blank" rel="noopener" href="https://www.cnblogs.com/virtulreal/p/14431704.html">https://www.cnblogs.com/virtulreal/p/14431704.html</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2021/11/20/22.003%20MQTT%E7%B3%BB%E5%88%97-centos%E5%AE%89%E8%A3%85emqx/"
         >阅读更多...</a
       >
        
