@@ -152,6 +152,72 @@
     
     
     <article
+  id="post-7A.002.中间件系列之redis-redis非常快的原因"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/"
+    >中间件系列之redis-redis非常快的原因</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>redis&#x975E;&#x5E38;&#x5FEB;&#x7684;&#x539F;&#x56E0;</p>
+</blockquote>
+<ul>
+<li><p>A. &#x7EAF;&#x5185;&#x5B58;&#x64CD;&#x4F5C;&#xFF0C;&#x907F;&#x514D;&#x5927;&#x91CF;&#x8BBF;&#x95EE;&#x6570;&#x636E;&#x5E93;&#xFF0C;&#x51CF;&#x5C11;&#x76F4;&#x63A5;&#x8BFB;&#x53D6;&#x78C1;&#x76D8;&#x6570;&#x636E;&#xFF0C;redis&#x5C06;&#x6570;&#x636E;&#x50A8;&#x5B58;&#x5728;&#x5185;&#x5B58;&#x91CC;&#x9762;&#xFF0C;&#x8BFB;&#x5199;&#x6570;&#x636E;&#x7684;&#x65F6;&#x5019;&#x90FD;&#x4E0D;&#x4F1A;&#x53D7;&#x5230;&#x786C;&#x76D8; I/O &#x901F;&#x5EA6;&#x7684;&#x9650;&#x5236;&#xFF0C;&#x6240;&#x4EE5;&#x901F;&#x5EA6;&#x5FEB;.</p>
+</li>
+<li><p>B. &#x5355;&#x7EBF;&#x7A0B;&#x64CD;&#x4F5C;&#xFF0C;&#x907F;&#x514D;&#x4E86;&#x4E0D;&#x5FC5;&#x8981;&#x7684;&#x4E0A;&#x4E0B;&#x6587;&#x5207;&#x6362;&#x548C;&#x7ADE;&#x4E89;&#x6761;&#x4EF6;&#xFF0C;&#x4E5F;&#x4E0D;&#x5B58;&#x5728;&#x591A;&#x8FDB;&#x7A0B;&#x6216;&#x8005;&#x591A;&#x7EBF;&#x7A0B;&#x5BFC;&#x81F4;&#x7684;&#x5207;&#x6362;&#x800C;&#x6D88;&#x8017;CPU&#xFF0C;&#x4E0D;&#x7528;&#x53BB;&#x8003;&#x8651;&#x5404;&#x79CD;&#x9501;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x4E0D;&#x5B58;&#x5728;&#x52A0;&#x9501;&#x91CA;&#x653E;&#x9501;&#x64CD;&#x4F5C;&#xFF0C;&#x6CA1;&#x6709;&#x56E0;&#x4E3A;&#x53EF;&#x80FD;&#x51FA;&#x73B0;&#x6B7B;&#x9501;&#x800C;&#x5BFC;&#x81F4;&#x7684;&#x6027;&#x80FD;&#x6D88;&#x8017;.</p>
+</li>
+<li><p>C. &#x91C7;&#x7528;&#x4E86;<strong>&#x975E;&#x963B;&#x585E;I/O &#x591A;&#x8DEF;&#x590D;&#x7528;&#x673A;&#x5236;</strong>.</p>
+</li>
+</ul> 
+      <a class="article-more-link" href="/2022/07/12/7A.002.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-redis%E9%9D%9E%E5%B8%B8%E5%BF%AB%E7%9A%84%E5%8E%9F%E5%9B%A0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-7A.004.中间件系列之redis-持久化机制"
   class="article article-type-post"
   itemscope
@@ -330,64 +396,6 @@
 
     
     <article
-  id="post-7A.009.中间件系列之redis-key过期是如何处理的"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/"
-    >中间件系列之redis-key过期是如何处理的</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/" class="article-date">
-  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>redis key&#x8FC7;&#x671F;&#x662F;&#x5982;&#x4F55;&#x5904;&#x7406;&#x7684;<br>&#x6458;&#x81EA;&#xFF1A;&#x300A;Redis&#x6DF1;&#x5EA6;&#x5386;&#x9669;&#xFF1A;&#x6838;&#x5FC3;&#x539F;&#x7406;&#x548C;&#x5E94;&#x7528;&#x5B9E;&#x8DF5;.pdf&#x300B;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-7A.008.中间件系列之redis-内存的淘汰策略"
   class="article article-type-post"
   itemscope
@@ -423,6 +431,64 @@
 <p>&#x6458;&#x81EA;&#xFF1A;&#x300A;Redis&#x6DF1;&#x5EA6;&#x5386;&#x9669;&#xFF1A;&#x6838;&#x5FC3;&#x539F;&#x7406;&#x548C;&#x5E94;&#x7528;&#x5B9E;&#x8DF5;.pdf&#x300B;</p>
 </blockquote> 
       <a class="article-more-link" href="/2022/07/12/7A.008.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E5%86%85%E5%AD%98%E7%9A%84%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-7A.009.中间件系列之redis-key过期是如何处理的"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/"
+    >中间件系列之redis-key过期是如何处理的</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>redis key&#x8FC7;&#x671F;&#x662F;&#x5982;&#x4F55;&#x5904;&#x7406;&#x7684;<br>&#x6458;&#x81EA;&#xFF1A;&#x300A;Redis&#x6DF1;&#x5EA6;&#x5386;&#x9669;&#xFF1A;&#x6838;&#x5FC3;&#x539F;&#x7406;&#x548C;&#x5E94;&#x7528;&#x5B9E;&#x8DF5;.pdf&#x300B;</p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/07/12/7A.009.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-key%E8%BF%87%E6%9C%9F%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%9A%84/"
         >阅读更多...</a
       >
        
@@ -562,64 +628,6 @@
 
     
     <article
-  id="post-7A.013.中间件系列之redis-为什么用skiplist而不用平衡树"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/"
-    >中间件系列之redis-为什么用skiplist而不用平衡树</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/" class="article-date">
-  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>&#x6458;&#x81EA;&#xFF1A;<a target="_blank" rel="noopener" href="https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-7A.012.中间件系列之redis-pipeline"
   class="article article-type-post"
   itemscope
@@ -692,6 +700,64 @@
 
     
     <article
+  id="post-7A.013.中间件系列之redis-为什么用skiplist而不用平衡树"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/"
+    >中间件系列之redis-为什么用skiplist而不用平衡树</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x6458;&#x81EA;&#xFF1A;<a target="_blank" rel="noopener" href="https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/07/12/7A.013.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8skiplist%E8%80%8C%E4%B8%8D%E7%94%A8%E5%B9%B3%E8%A1%A1%E6%A0%91/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-7A.014.中间件系列之redis-如何优雅删除大key"
   class="article article-type-post"
   itemscope
@@ -727,6 +793,64 @@
 <p>redis&#x5982;&#x4F55;&#x4F18;&#x96C5;&#x5220;&#x9664;&#x5927;key<br>&#x6458;&#x81EA;&#xFF1A;&#x300A;Redis&#x6DF1;&#x5EA6;&#x5386;&#x9669;&#xFF1A;&#x6838;&#x5FC3;&#x539F;&#x7406;&#x548C;&#x5E94;&#x7528;&#x5B9E;&#x8DF5;.pdf&#x300B;</p>
 </blockquote> 
       <a class="article-more-link" href="/2022/07/12/7A.014.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E5%88%A0%E9%99%A4%E5%A4%A7key/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-7A.015.中间件系列之redis-[综合]应用场景"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
+    >中间件系列之redis-[综合]应用场景</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x53C2;&#x8003;&#xFF1A;<br>1.<a target="_blank" rel="noopener" href="https://artisan.blog.csdn.net/article/details/104711721">https://artisan.blog.csdn.net/article/details/104711721</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
         >阅读更多...</a
       >
        
@@ -866,7 +990,7 @@
 
     
     <article
-  id="post-7A.015.中间件系列之redis-[综合]应用场景"
+  id="post-7A.201.中间件系列之redis-[数据类型]redis数据类型string底层原理"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -877,8 +1001,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
-    >中间件系列之redis-[综合]应用场景</a> 
+  <a class="article-title" href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/"
+    >中间件系列之redis-[数据类型]redis数据类型string底层原理</a> 
 </h2>
  
 
@@ -886,7 +1010,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" class="article-date">
+      <a href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" class="article-date">
   <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
 </a> 
   <div class="article-category">
@@ -898,9 +1022,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>&#x53C2;&#x8003;&#xFF1A;<br>1.<a target="_blank" rel="noopener" href="https://artisan.blog.csdn.net/article/details/104711721">https://artisan.blog.csdn.net/article/details/104711721</a></p>
+<p><a target="_blank" rel="noopener" href="https://i6448038.github.io/2019/12/01/redis-data-struct/">https://i6448038.github.io/2019/12/01/redis-data-struct/</a></p>
 </blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.015.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BB%BC%E5%90%88%5D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
+      <a class="article-more-link" href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/"
         >阅读更多...</a
       >
        
@@ -982,64 +1106,6 @@
 
     
     <article
-  id="post-7A.201.中间件系列之redis-[数据类型]redis数据类型string底层原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/"
-    >中间件系列之redis-[数据类型]redis数据类型string底层原理</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p><a target="_blank" rel="noopener" href="https://i6448038.github.io/2019/12/01/redis-data-struct/">https://i6448038.github.io/2019/12/01/redis-data-struct/</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.201.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bstring%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-7A.203.中间件系列之redis-[数据类型]redis数据类型zset底层原理"
   class="article article-type-post"
   itemscope
@@ -1075,64 +1141,6 @@
 <p><a target="_blank" rel="noopener" href="https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</a></p>
 </blockquote> 
       <a class="article-more-link" href="/2022/07/12/7A.203.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%5Dredis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8Bzset%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-7A.302.中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/"
-    >中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103367975">https://zhuanlan.zhihu.com/p/103367975</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/"
         >阅读更多...</a
       >
        
@@ -1334,6 +1342,64 @@
 
     
     <article
+  id="post-7A.302.中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/"
+    >中间件系列之redis-[编码]redis底层数据结构或编码-字典dict原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103367975">https://zhuanlan.zhihu.com/p/103367975</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/07/12/7A.302.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%AD%97%E5%85%B8dict%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-7A.303.中间件系列之redis-[编码]redis底层数据结构或编码-跳表skiplist原理"
   class="article article-type-post"
   itemscope
@@ -1369,64 +1435,6 @@
 <p>&#x6458;&#x81EA;&#xFF1A;<a target="_blank" rel="noopener" href="https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/">https://zsr.github.io/2017/07/03/redis-zset%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/</a></p>
 </blockquote> 
       <a class="article-more-link" href="/2022/07/12/7A.303.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E8%B7%B3%E8%A1%A8skiplist%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-7A.304.中间件系列之redis-[编码]redis底层数据结构或编码-压缩列表ziplist原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/12/7A.304.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8ziplist%E5%8E%9F%E7%90%86/"
-    >中间件系列之redis-[编码]redis底层数据结构或编码-压缩列表ziplist原理</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/12/7A.304.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8ziplist%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>&#x53C2;&#x8003;&#xFF1A;<br>1.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Finley/p/13423846.html">https://www.cnblogs.com/Finley/p/13423846.html</a><br>2.<a target="_blank" rel="noopener" href="https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/">https://throwsnew.com/2017/09/12/%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E4%BD%BF%E7%94%A8ziplist%E8%83%BD%E8%8A%82%E7%9C%81%E5%86%85%E5%AD%98/</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/07/12/7A.304.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%5B%E7%BC%96%E7%A0%81%5Dredis%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%88%96%E7%BC%96%E7%A0%81-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8ziplist%E5%8E%9F%E7%90%86/"
         >阅读更多...</a
       >
        

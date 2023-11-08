@@ -208,7 +208,7 @@
 
     
     <article
-  id="post-4.009.GC-三色标记法"
+  id="post-4.104.GC-G1如何做到可预测的停顿"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -219,8 +219,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/05/12/4.009.GC-%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95/"
-    >GC-三色标记法</a> 
+  <a class="article-title" href="/2022/05/12/4.104.GC-G1%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E5%8F%AF%E9%A2%84%E6%B5%8B%E7%9A%84%E5%81%9C%E9%A1%BF/"
+    >GC-G1如何做到可预测的停顿</a> 
 </h2>
  
 
@@ -228,7 +228,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/05/12/4.009.GC-%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95/" class="article-date">
+      <a href="/2022/05/12/4.104.GC-G1%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E5%8F%AF%E9%A2%84%E6%B5%8B%E7%9A%84%E5%81%9C%E9%A1%BF/" class="article-date">
   <time datetime="2022-05-11T16:00:00.000Z" itemprop="datePublished">2022-05-12</time>
 </a> 
   <div class="article-category">
@@ -240,10 +240,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>&#x4E09;&#x8272;&#x6807;&#x8BB0;&#x6CD5;<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Courage129/p/14385571.html">https://www.cnblogs.com/Courage129/p/14385571.html</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hongdada/p/14578950.html">https://www.cnblogs.com/hongdada/p/14578950.html</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_32310175/article/details/107724213">https://blog.csdn.net/qq_32310175/article/details/107724213</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/bbc10c98d0d6">https://www.jianshu.com/p/bbc10c98d0d6</a><br><a target="_blank" rel="noopener" href="https://tech.souyunku.com/?p=45733">https://tech.souyunku.com/?p=45733</a></p>
-</blockquote>
-<p>JVM&#x4E2D;&#x7684;CMS&#x3001;G1&#x5783;&#x573E;&#x56DE;&#x6536;&#x5668;&#x6240;&#x4F7F;&#x7528;&#x5783;&#x573E;&#x56DE;&#x6536;&#x7B97;&#x6CD5;&#x5373;&#x4E3A;&#x4E09;&#x8272;&#x6807;&#x8BB0;&#x6CD5;&#x3002;</p> 
-      <a class="article-more-link" href="/2022/05/12/4.009.GC-%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95/"
+<p>&#x5199;&#x8FD9;&#x7BC7;&#x6587;&#x7AE0;&#x662F;&#x57FA;&#x4E8E;&#x963F;&#x91CC;&#x9762;&#x8BD5;&#x5B98;&#x7684;&#x4E00;&#x4E2A;&#x95EE;&#x9898;&#xFF1A;<br>&#x4F17;&#x6240;&#x5468;&#x671F;&#xFF0C;G1&#x8DDF;&#x5176;&#x4ED6;&#x7684;&#x5783;&#x573E;&#x56DE;&#x6536;&#x7B97;&#x6CD5;&#x5DEE;&#x522B;&#x5F88;&#x5927;&#xFF0C;&#x4F60;&#x4E86;&#x89E3;G1&#x7684;&#x5783;&#x573E;&#x56DE;&#x6536;&#x67B6;&#x6784;&#x5417;&#xFF1F;&#x4E3A;&#x4EC0;&#x4E48;G1&#x53EF;&#x4EE5;&#x505A;&#x5230;&#x56DE;&#x6536;&#x65F6;&#x95F4;&#x7528;&#x6237;&#x53EF;&#x4EE5;&#x8BBE;&#x5B9A;?<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspirant/p/8663872.html">https://www.cnblogs.com/aspirant/p/8663872.html</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/613f56425fb2">https://www.jianshu.com/p/613f56425fb2</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/12/4.104.GC-G1%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E5%8F%AF%E9%A2%84%E6%B5%8B%E7%9A%84%E5%81%9C%E9%A1%BF/"
         >阅读更多...</a
       >
        
@@ -256,7 +255,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E6%B3%95/" rel="tag">三色标记法</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/G1/" rel="tag">G1</a></li></ul>
 
     </footer>
   </div>
@@ -325,6 +324,62 @@
 
     
     <article
+  id="post-3.002.类加载-类加载机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"
+    >类加载-类加载机制</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2022-05-09T16:00:00.000Z" itemprop="datePublished">2022-05-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"><a href="#&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"></a>&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;</h3><h4 id="&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"><a href="#&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"></a>&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;</h4><p>&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;&#xFF1A;<strong>&#x52A0;&#x8F7D;</strong>&#x2013;&gt;<strong>&#x9A8C;&#x8BC1;</strong>&#x2013;&gt;<strong>&#x51C6;&#x5907;</strong>&#x2013;&gt;<strong>&#x89E3;&#x6790;</strong>&#x2013;&gt;<strong>&#x521D;&#x59CB;&#x5316;</strong><br>&#x5176;&#x4E2D;&#xFF0C;&#x9A8C;&#x8BC1;&#x3001;&#x51C6;&#x5907;&#x3001;&#x89E3;&#x6790;&#xFF0C;&#x4E09;&#x4E2A;&#x8FC7;&#x7A0B;&#xFF0C;&#x53EF;&#x4EE5;&#x7EDF;&#x79F0;<strong>&#x8FDE;&#x63A5;</strong></p> 
+      <a class="article-more-link" href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B/" rel="tag">双亲委派模型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" rel="tag">类加载器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" rel="tag">类加载过程</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-3.003.类加载--Tomcat类加载"
   class="article article-type-post"
   itemscope
@@ -383,7 +438,7 @@
 
     
     <article
-  id="post-3.002.类加载-类加载机制"
+  id="post-2.001.JMM-运行时数据区域"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -394,8 +449,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"
-    >类加载-类加载机制</a> 
+  <a class="article-title" href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/"
+    >JMM-运行时数据区域</a> 
 </h2>
  
 
@@ -403,19 +458,20 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" class="article-date">
-  <time datetime="2022-05-09T16:00:00.000Z" itemprop="datePublished">2022-05-10</time>
+      <a href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>
+    <a class="article-category-link" href="/categories/JMM/">JMM</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h3 id="&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"><a href="#&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"></a>&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;</h3><h4 id="&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"><a href="#&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;"></a>&#x56DE;&#x987E;&#x4E00;&#x4E0B;&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;</h4><p>&#x7C7B;&#x52A0;&#x8F7D;&#x8FC7;&#x7A0B;&#xFF1A;<strong>&#x52A0;&#x8F7D;</strong>&#x2013;&gt;<strong>&#x9A8C;&#x8BC1;</strong>&#x2013;&gt;<strong>&#x51C6;&#x5907;</strong>&#x2013;&gt;<strong>&#x89E3;&#x6790;</strong>&#x2013;&gt;<strong>&#x521D;&#x59CB;&#x5316;</strong><br>&#x5176;&#x4E2D;&#xFF0C;&#x9A8C;&#x8BC1;&#x3001;&#x51C6;&#x5907;&#x3001;&#x89E3;&#x6790;&#xFF0C;&#x4E09;&#x4E2A;&#x8FC7;&#x7A0B;&#xFF0C;&#x53EF;&#x4EE5;&#x7EDF;&#x79F0;<strong>&#x8FDE;&#x63A5;</strong></p> 
-      <a class="article-more-link" href="/2022/05/10/3.002.%E7%B1%BB%E5%8A%A0%E8%BD%BD-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/"
+  <h3 id="&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;"><a href="#&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;" class="headerlink" title="&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;"></a>&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;</h3><p>JVM&#x865A;&#x62DF;&#x673A;&#x5728;&#x6267;&#x884C; Java &#x7A0B;&#x5E8F;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#x4F1A;&#x628A;&#x5B83;&#x7BA1;&#x7406;&#x7684;&#x5185;&#x5B58;&#x5212;&#x5206;&#x6210;&#x82E5;&#x5E72;&#x4E2A;&#x4E0D;&#x540C;&#x7684;&#x6570;&#x636E;&#x533A;&#x57DF;&#x3002;</p>
+<p>java&#x5185;&#x5B58;&#x533A;&#x57DF;&#xFF0C;&#x5206;&#x4E3A;<code>&#x7EBF;&#x7A0B;&#x5171;&#x4EAB;</code>&#x548C;<code>&#x7EBF;&#x7A0B;&#x79C1;&#x6709;</code>&#x4E24;&#x90E8;&#x5206;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/"
         >阅读更多...</a
       >
        
@@ -428,7 +484,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B/" rel="tag">双亲委派模型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" rel="tag">类加载器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" rel="tag">类加载过程</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a></li></ul>
 
     </footer>
   </div>
@@ -551,7 +607,7 @@
 
     
     <article
-  id="post-2.001.JMM-运行时数据区域"
+  id="post-2.004.JMM-Java对象的创建过程"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -562,8 +618,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/"
-    >JMM-运行时数据区域</a> 
+  <a class="article-title" href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/"
+    >JMM-Java对象的创建过程</a> 
 </h2>
  
 
@@ -571,7 +627,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/" class="article-date">
+      <a href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/" class="article-date">
   <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
 </a> 
   <div class="article-category">
@@ -582,9 +638,8 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h3 id="&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;"><a href="#&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;" class="headerlink" title="&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;"></a>&#x8FD0;&#x884C;&#x65F6;&#x6570;&#x636E;&#x533A;&#x57DF;</h3><p>JVM&#x865A;&#x62DF;&#x673A;&#x5728;&#x6267;&#x884C; Java &#x7A0B;&#x5E8F;&#x7684;&#x8FC7;&#x7A0B;&#x4E2D;&#x4F1A;&#x628A;&#x5B83;&#x7BA1;&#x7406;&#x7684;&#x5185;&#x5B58;&#x5212;&#x5206;&#x6210;&#x82E5;&#x5E72;&#x4E2A;&#x4E0D;&#x540C;&#x7684;&#x6570;&#x636E;&#x533A;&#x57DF;&#x3002;</p>
-<p>java&#x5185;&#x5B58;&#x533A;&#x57DF;&#xFF0C;&#x5206;&#x4E3A;<code>&#x7EBF;&#x7A0B;&#x5171;&#x4EAB;</code>&#x548C;<code>&#x7EBF;&#x7A0B;&#x79C1;&#x6709;</code>&#x4E24;&#x90E8;&#x5206;&#x3002;</p> 
-      <a class="article-more-link" href="/2022/05/05/2.001.JMM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F/"
+  <h4 id="java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;"><a href="#java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;" class="headerlink" title="java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;"></a>java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;</h4><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/2.004.JVM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/2.png"></p> 
+      <a class="article-more-link" href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/"
         >阅读更多...</a
       >
        
@@ -597,7 +652,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%B9%E8%B1%A1%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/" rel="tag">对象创建过程</a></li></ul>
 
     </footer>
   </div>
@@ -657,62 +712,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B8%B8%E9%87%8F%E6%B1%A0/" rel="tag">常量池</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-2.004.JMM-Java对象的创建过程"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/"
-    >JMM-Java对象的创建过程</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/" class="article-date">
-  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/JMM/">JMM</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h4 id="java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;"><a href="#java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;" class="headerlink" title="java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;"></a>java&#x5BF9;&#x8C61;&#x521B;&#x5EFA;&#x7684;5&#x6B65;</h4><p><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/2.004.JVM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/2.png"></p> 
-      <a class="article-more-link" href="/2022/05/05/2.004.JMM-Java%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%B9%E8%B1%A1%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/" rel="tag">对象创建过程</a></li></ul>
 
     </footer>
   </div>
@@ -829,6 +828,64 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OOM/" rel="tag">OOM</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-2.009.JMM-java几个命令与dump分析工具"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/"
+    >JMM-java几个命令与dump分析工具</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JMM/">JMM</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>dump&#x5206;&#x6790;&#x5DE5;&#x5177;:<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39869733/article/details/110618036">https://blog.csdn.net/weixin_39869733/article/details/110618036</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/" rel="tag">dump分析工具</a></li></ul>
 
     </footer>
   </div>
@@ -962,64 +1019,6 @@
 
     
     <article
-  id="post-2.009.JMM-java几个命令与dump分析工具"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/"
-    >JMM-java几个命令与dump分析工具</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/" class="article-date">
-  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/JMM/">JMM</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>dump&#x5206;&#x6790;&#x5DE5;&#x5177;:<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39869733/article/details/110618036">https://blog.csdn.net/weixin_39869733/article/details/110618036</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/05/05/2.009.JMM-java%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4%E4%B8%8Edump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dump%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/" rel="tag">dump分析工具</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-8A102.操作系统与网络-5种IO模型"
   class="article article-type-post"
   itemscope
@@ -1081,7 +1080,7 @@
 
     
     <article
-  id="post-8A107.操作系统与网络-IO中断、零拷贝"
+  id="post-8A104.操作系统与网络-Reactor设计模式"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1092,8 +1091,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/"
-    >操作系统与网络-IO中断、零拷贝</a> 
+  <a class="article-title" href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
+    >操作系统与网络-Reactor设计模式</a> 
 </h2>
  
 
@@ -1101,7 +1100,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/" class="article-date">
+      <a href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
   <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
 </a> 
   <div class="article-category">
@@ -1112,10 +1111,8 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>I/O&#x4E2D;&#x65AD;&#x539F;&#x7406;: <a target="_blank" rel="noopener" href="https://juejin.im/post/5d84bd1f6fb9a06b2d780df7#heading-28">https://juejin.im/post/5d84bd1f6fb9a06b2d780df7#heading-28</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/"
+  <h3 id="Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;"><a href="#Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;" class="headerlink" title="Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;"></a>Reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;</h3><p>reactor&#x8BBE;&#x8BA1;&#x6A21;&#x5F0F;&#xFF1A;<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000021054503">https://segmentfault.com/a/1190000021054503</a></p> 
+      <a class="article-more-link" href="/2022/05/05/8A104.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
         >阅读更多...</a
       >
        
@@ -1128,65 +1125,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-8A108.操作系统与网络-LinuxIO原理和几种零拷贝机制"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/8A108.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-LinuxIO%E5%8E%9F%E7%90%86%E5%92%8C%E5%87%A0%E7%A7%8D%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/"
-    >操作系统与网络-LinuxIO原理和几种零拷贝机制</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/05/05/8A108.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-LinuxIO%E5%8E%9F%E7%90%86%E5%92%8C%E5%87%A0%E7%A7%8D%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/" class="article-date">
-  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C/">操作系统与网络</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>&#x6DF1;&#x5165;&#x5256;&#x6790;Linux IO&#x539F;&#x7406;&#x548C;&#x51E0;&#x79CD;&#x96F6;&#x62F7;&#x8D1D;&#x673A;&#x5236;&#x7684;&#x5B9E;&#x73B0;:<br><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903949359644680#heading-2">https://juejin.cn/post/6844903949359644680#heading-2</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/05/05/8A108.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-LinuxIO%E5%8E%9F%E7%90%86%E5%92%8C%E5%87%A0%E7%A7%8D%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%9C%BA%E5%88%B6/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9B%B6%E6%8B%B7%E8%B4%9D/" rel="tag">零拷贝</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reactor%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">Reactor设计模式</a></li></ul>
 
     </footer>
   </div>
@@ -1253,7 +1192,7 @@
 
     
     <article
-  id="post-8A109.操作系统与网络-http-1.0、1.1、2.0区别"
+  id="post-8A106.操作系统与网络-Netty"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1264,8 +1203,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2022/05/05/8A109.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-http-1.0%E3%80%811.1%E3%80%812.0%E5%8C%BA%E5%88%AB/"
-    >操作系统与网络-http-1.0、1.1、2.0区别</a> 
+  <a class="article-title" href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/"
+    >操作系统与网络-Netty</a> 
 </h2>
  
 
@@ -1273,7 +1212,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2022/05/05/8A109.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-http-1.0%E3%80%811.1%E3%80%812.0%E5%8C%BA%E5%88%AB/" class="article-date">
+      <a href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/" class="article-date">
   <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
 </a> 
   <div class="article-category">
@@ -1284,10 +1223,9 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>http-1.0&#x3001;1.1&#x3001;2.0 &#x533A;&#x522B;<br><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903489596833800">https://juejin.cn/post/6844903489596833800</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2022/05/05/8A109.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-http-1.0%E3%80%811.1%E3%80%812.0%E5%8C%BA%E5%88%AB/"
+  <h4 id="Netty-&#x6574;&#x4F53;&#x67B6;&#x6784;"><a href="#Netty-&#x6574;&#x4F53;&#x67B6;&#x6784;" class="headerlink" title="Netty &#x6574;&#x4F53;&#x67B6;&#x6784;"></a>Netty &#x6574;&#x4F53;&#x67B6;&#x6784;</h4><p>Netty &#x4F7F;&#x7528; NIO &#x800C;&#x4E0D;&#x662F; AIO<br>&#x5728; linux&#x7CFB;&#x7EDF;&#x4E0A;&#xFF0C;AIO &#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x4ECD;&#x7136;&#x4F7F;&#x7528; epoll&#xFF0C;&#x4E0E; NIO &#x76F8;&#x540C;&#xFF0C;&#x56E0;&#x6B64;&#x5728;&#x6027;&#x80FD;&#x4E0A;&#x6CA1;&#x6709;&#x660E;&#x663E;&#x7684;&#x4F18;&#x52BF;</p>
+<p>Netty &#x6574;&#x4F53;&#x67B6;&#x6784;&#x662F;: reactor &#x8BBE;&#x8BA1;&#x6A21;&#x578B;&#xFF0C;&#x91C7;&#x7528; epoll&#x673A;&#x5236;&#xFF0C;IO &#x591A;&#x8DEF;&#x590D;&#x7528;&#xFF0C;&#x540C;&#x6B65;&#x975E;&#x963B;&#x585E;&#x6A21;&#x578B;<br>Netty &#x662F;&#x57FA;&#x4E8E; Java NIO &#x7C7B;&#x5E93;&#x5B9E;&#x73B0;&#x7684;&#x5F02;&#x6B65;&#x901A;&#x8BAF;&#x6846;&#x67B6;<br>&#x7279;&#x70B9;&#xFF1A; &#x5F02;&#x6B65;&#x975E;&#x963B;&#x585E;&#xFF0C;&#x57FA;&#x4E8E;&#x4E8B;&#x4EF6;&#x9A71;&#x52A8;&#xFF0C;&#x6027;&#x80FD;&#x9AD8;&#xFF0C;&#x9AD8;&#x53EF;&#x9760;&#x6027;&#xFF0C;&#x9AD8;&#x53EF;&#x5B9A;&#x5236;&#x6027;&#x3002;</p> 
+      <a class="article-more-link" href="/2022/05/05/8A106.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-Netty/"
         >阅读更多...</a
       >
        
@@ -1300,7 +1238,65 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http-1-0-1-1-2-0/" rel="tag">http-1.0-1.1-2.0</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-8A107.操作系统与网络-IO中断、零拷贝"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/"
+    >操作系统与网络-IO中断、零拷贝</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/" class="article-date">
+  <time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished">2022-05-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C/">操作系统与网络</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>I/O&#x4E2D;&#x65AD;&#x539F;&#x7406;: <a target="_blank" rel="noopener" href="https://juejin.im/post/5d84bd1f6fb9a06b2d780df7#heading-28">https://juejin.im/post/5d84bd1f6fb9a06b2d780df7#heading-28</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/05/05/8A107.%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E7%BD%91%E7%BB%9C-IO%E4%B8%AD%E6%96%AD%E3%80%81%E9%9B%B6%E6%8B%B7%E8%B4%9D/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li></ul>
 
     </footer>
   </div>
