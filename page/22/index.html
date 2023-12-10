@@ -152,6 +152,63 @@
     
     
     <article
+  id="post-13.AX001 牛客网综合-NC93设计LRU缓存结构"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.AX001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E7%BB%BC%E5%90%88-NC93%E8%AE%BE%E8%AE%A1LRU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84/"
+    >13.AX001 牛客网综合-NC93设计LRU缓存结构</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.AX001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E7%BB%BC%E5%90%88-NC93%E8%AE%BE%E8%AE%A1LRU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <ul>
+<li>&#x4EE3;&#x7801;&#xFF1A;</li></ul> 
+      <a class="article-more-link" href="/2020/04/20/13.AX001%20%E7%89%9B%E5%AE%A2%E7%BD%91%E7%BB%BC%E5%90%88-NC93%E8%AE%BE%E8%AE%A1LRU%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%BC%E5%90%88/" rel="tag">综合</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-13.AZ003 番外篇-背包算法"
   class="article article-type-post"
   itemscope
@@ -460,64 +517,6 @@
 
     
     <article
-  id="post-13.AB020 牛客网数组-NC110 旋转数组"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/"
-    >13.AB020 牛客网数组-NC110 旋转数组</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/" class="article-date">
-  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><strong>&#x65B9;&#x6CD5;1&#xFF1A;</strong></p>
-<p>&#x4EE3;&#x7801;&#xFF1A;</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span>[] solve1(<span class="type">int</span> n, <span class="type">int</span> m, <span class="type">int</span>[] a) {</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; m; i++) {</span><br><span class="line">    <span class="type">int</span> <span class="variable">last</span> <span class="operator">=</span> a[n-<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> n-<span class="number">1</span>; j &gt; <span class="number">0</span>; j--) {</span><br><span class="line">      a[j] = a[j-<span class="number">1</span>];</span><br><span class="line">    }</span><br><span class="line">    a[<span class="number">0</span>] = last;</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> a;</span><br><span class="line">}</span><br></pre></td></tr></table></figure> 
-      <a class="article-more-link" href="/2020/04/20/13.AB020%20%E7%89%9B%E5%AE%A2%E7%BD%91%E6%95%B0%E7%BB%84-NC110%20%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-9A1.000.框架-[spring-ioc]-BeanFactory和FactoryBean区别"
   class="article article-type-post"
   itemscope
@@ -730,6 +729,59 @@
 
     
     <article
+  id="post-9A1.004.框架-[spring-ioc]-spring怎么解决循环依赖"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/"
+    >框架-[spring-ioc]-spring怎么解决循环依赖</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-9A2.001.框架-[spring-aop]-spring事务是怎么通过AOP实现的"
   class="article article-type-post"
   itemscope
@@ -826,59 +878,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-aop/" rel="tag">spring-aop</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-9A1.004.框架-[spring-ioc]-spring怎么解决循环依赖"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/"
-    >框架-[spring-ioc]-spring怎么解决循环依赖</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" class="article-date">
-  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <span id="more"></span>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -1160,6 +1159,59 @@
 
     
     <article
+  id="post-9A3.006.框架-[spring-transaction]-spring-transaction中的readOnly目的是什么"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/"
+    >框架-[spring-transaction]-spring-transaction中的readOnly目的是什么</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <span id="more"></span>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-9A3.007.框架-[spring-transaction]-propagation组合使用案例说明"
   class="article article-type-post"
   itemscope
@@ -1196,59 +1248,6 @@
         >阅读更多...</a
       >
        
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-9A3.006.框架-[spring-transaction]-spring-transaction中的readOnly目的是什么"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/"
-    >框架-[spring-transaction]-spring-transaction中的readOnly目的是什么</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
-  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <span id="more"></span>
- 
       <!-- reward -->
       
     </div>
