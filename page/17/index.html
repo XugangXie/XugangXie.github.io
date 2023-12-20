@@ -152,64 +152,6 @@
     
     
     <article
-  id="post-12G002.[持久原理]-redo-log原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12G002.%5B%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86%5D-redo-log%E5%8E%9F%E7%90%86/"
-    >12G002.[持久原理]-redo-log原理</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12G002.%5B%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86%5D-redo-log%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>redo-log&#x539F;&#x7406;<br>From: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93131864">https://zhuanlan.zhihu.com/p/93131864</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12G002.%5B%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86%5D-redo-log%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%81%E4%B9%85%E5%8E%9F%E7%90%86/" rel="tag">持久原理</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-12G003.[回滚原理]-undo-log原理"
   class="article article-type-post"
   itemscope
@@ -496,6 +438,62 @@
 
     
     <article
+  id="post-12H004.[SQL优化]-SQL优化策略总结"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
+    >12H004.[SQL优化]-SQL优化策略总结</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"><a href="#SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;" class="headerlink" title="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"></a>SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;</h3><h4 id="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"><a href="#&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;" class="headerlink" title="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"></a>&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;</h4><p>&#x5F53;&#x4E00;&#x884C;&#x6570;&#x636E;&#x88AB;&#x591A;&#x6B21;&#x4F7F;&#x7528;&#x65F6;&#x53EF;&#x4EE5;&#x8003;&#x8651;&#x5C06;&#x6570;&#x636E;&#x884C;&#x7F13;&#x5B58;&#x8D77;&#x6765;&#xFF0C;&#x907F;&#x514D;&#x6BCF;&#x6B21;&#x4F7F;&#x7528;&#x90FD;&#x8981;&#x5230;MySql&#x67E5;&#x8BE2;&#x3002;<br>&#x907F;&#x514D;&#x4F7F;&#x7528;SELECT * &#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x8FDB;&#x884C;&#x67E5;&#x8BE2;&#xFF0C;&#x5E94;&#x8BE5;&#x53EA;&#x8FD4;&#x56DE;&#x9700;&#x8981;&#x7684;&#x5217;&#x3002;</p> 
+      <a class="article-more-link" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-12H003.[SQL优化]-表连接优化、小表驱动大表"
   class="article article-type-post"
   itemscope
@@ -544,62 +542,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96-explain/" rel="tag">SQL优化 explain</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-12H004.[SQL优化]-SQL优化策略总结"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
-    >12H004.[SQL优化]-SQL优化策略总结</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h3 id="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"><a href="#SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;" class="headerlink" title="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"></a>SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;</h3><h4 id="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"><a href="#&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;" class="headerlink" title="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"></a>&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;</h4><p>&#x5F53;&#x4E00;&#x884C;&#x6570;&#x636E;&#x88AB;&#x591A;&#x6B21;&#x4F7F;&#x7528;&#x65F6;&#x53EF;&#x4EE5;&#x8003;&#x8651;&#x5C06;&#x6570;&#x636E;&#x884C;&#x7F13;&#x5B58;&#x8D77;&#x6765;&#xFF0C;&#x907F;&#x514D;&#x6BCF;&#x6B21;&#x4F7F;&#x7528;&#x90FD;&#x8981;&#x5230;MySql&#x67E5;&#x8BE2;&#x3002;<br>&#x907F;&#x514D;&#x4F7F;&#x7528;SELECT * &#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x8FDB;&#x884C;&#x67E5;&#x8BE2;&#xFF0C;&#x5E94;&#x8BE5;&#x53EA;&#x8FD4;&#x56DE;&#x9700;&#x8981;&#x7684;&#x5217;&#x3002;</p> 
-      <a class="article-more-link" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
 
     </footer>
   </div>
@@ -1287,6 +1229,62 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8F%92%E5%85%A5%E7%B1%BB%E6%8E%92%E5%BA%8F/" rel="tag">插入类排序</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-13.20007 排序-数组-归并排序"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/20/13.20007%20%E6%8E%92%E5%BA%8F-%E6%95%B0%E7%BB%84-%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/"
+    >排序-数组-归并排序</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/20/13.20007%20%E6%8E%92%E5%BA%8F-%E6%95%B0%E7%BB%84-%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/" class="article-date">
+  <time datetime="2020-04-19T16:00:00.000Z" itemprop="datePublished">2020-04-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="&#x5F52;&#x5E76;&#x6392;&#x5E8F;"><a href="#&#x5F52;&#x5E76;&#x6392;&#x5E8F;" class="headerlink" title="&#x5F52;&#x5E76;&#x6392;&#x5E8F;"></a>&#x5F52;&#x5E76;&#x6392;&#x5E8F;</h3> 
+      <a class="article-more-link" href="/2020/04/20/13.20007%20%E6%8E%92%E5%BA%8F-%E6%95%B0%E7%BB%84-%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F/" rel="tag">归并排序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li></ul>
 
     </footer>
   </div>
