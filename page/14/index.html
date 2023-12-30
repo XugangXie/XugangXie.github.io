@@ -152,7 +152,7 @@
     
     
     <article
-  id="post-1C006.线程中断-线程中断 interrupt和 LockSupport"
+  id="post-1C005.线程中断-如何中断一个正在运行的线程"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -163,8 +163,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/"
-    >线程中断-线程中断%20interrupt和%20LockSupport</a> 
+  <a class="article-title" href="/2021/03/07/1C005.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E5%A6%82%E4%BD%95%E4%B8%AD%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E7%BA%BF%E7%A8%8B/"
+    >线程中断-如何中断一个正在运行的线程</a> 
 </h2>
  
 
@@ -172,7 +172,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/" class="article-date">
+      <a href="/2021/03/07/1C005.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E5%A6%82%E4%BD%95%E4%B8%AD%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E7%BA%BF%E7%A8%8B/" class="article-date">
   <time datetime="2021-03-06T16:00:00.000Z" itemprop="datePublished">2021-03-07</time>
 </a> 
   <div class="article-category">
@@ -183,14 +183,8 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>&#x672C;&#x6587;&#x7AE0;&#x5C06;&#x8981;&#x4ECB;&#x7ECD;&#x7684;&#x5185;&#x5BB9;&#x6709;&#x4EE5;&#x4E0B;&#x51E0;&#x70B9;&#xFF0C;&#x8BFB;&#x8005;&#x670B;&#x53CB;&#x4E5F;&#x53EF;&#x5148;&#x81EA;&#x884C;&#x601D;&#x8003;&#x4E00;&#x4E0B;&#x76F8;&#x5173;&#x95EE;&#x9898;&#xFF1A;</p>
-<ol>
-<li>&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD; interrupt &#x65B9;&#x6CD5;&#x600E;&#x4E48;&#x7406;&#x89E3;&#xFF0C;&#x610F;&#x601D;&#x5C31;&#x662F;&#x7EBF;&#x7A0B;&#x4E2D;&#x65AD;&#x4E86;&#x5417;&#xFF1F;&#x90A3;&#x5F53;&#x524D;&#x7EBF;&#x7A0B;&#x8FD8;&#x80FD;&#x7EE7;&#x7EED;&#x6267;&#x884C;&#x5417;&#xFF1F;</li>
-<li>&#x5224;&#x65AD;&#x7EBF;&#x7A0B;&#x662F;&#x5426;&#x4E2D;&#x65AD;&#x7684;&#x65B9;&#x6CD5;&#x6709;&#x51E0;&#x4E2A;&#xFF0C;&#x5B83;&#x4EEC;&#x4E4B;&#x95F4;&#x6709;&#x4EC0;&#x4E48;&#x533A;&#x522B;&#xFF1F;</li>
-<li>LockSupport&#x7684; park/unpark &#x548C; wait/notify &#x6709;&#x4EC0;&#x4E48;&#x533A;&#x522B;&#xFF1F;</li>
-<li>sleep &#x65B9;&#x6CD5;&#x662F;&#x600E;&#x4E48;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x7684;&#xFF1F;</li>
-<li>park &#x65B9;&#x6CD5;&#x53C8;&#x662F;&#x600E;&#x4E48;&#x54CD;&#x5E94;&#x4E2D;&#x65AD;&#x7684;&#xFF1F;</li></ol> 
-      <a class="article-more-link" href="/2021/03/07/1C006.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD%20interrupt%E5%92%8C%20LockSupport/"
+  <h3 id="&#x80CC;&#x666F;"><a href="#&#x80CC;&#x666F;" class="headerlink" title="&#x80CC;&#x666F;"></a>&#x80CC;&#x666F;</h3><p>&#x9996;&#x5148;&#xFF0C;&#x5FD8;&#x6389;Thread.stop&#x65B9;&#x6CD5;&#x3002;&#x867D;&#x7136;&#x5B83;&#x786E;&#x5B9E;&#x505C;&#x6B62;&#x4E86;&#x4E00;&#x4E2A;&#x6B63;&#x5728;&#x8FD0;&#x884C;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x7136;&#x800C;&#xFF0C;&#x8FD9;&#x79CD;&#x65B9;&#x6CD5;&#x662F;&#x4E0D;&#x5B89;&#x5168;&#x4E5F;&#x662F;&#x4E0D;&#x53D7;&#x63D0;&#x5021;&#x7684;&#xFF0C;&#x8FD9;&#x610F;&#x5473;&#x7740;&#xFF0C;&#x5728;&#x672A;&#x6765;&#x7684;JAVA&#x7248;&#x672C;&#x4E2D;&#xFF0C;&#x5B83;&#x5C06;&#x4E0D;&#x590D;&#x5B58;&#x5728;&#x3002;</p> 
+      <a class="article-more-link" href="/2021/03/07/1C005.%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD-%E5%A6%82%E4%BD%95%E4%B8%AD%E6%96%AD%E4%B8%80%E4%B8%AA%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E7%BA%BF%E7%A8%8B/"
         >阅读更多...</a
       >
        
@@ -549,122 +543,6 @@
 
     
     <article
-  id="post-12.002.[综合]-MySQL里的事务、隔离级别、锁类型"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/"
-    >12.002.[综合]-MySQL里的事务、隔离级别、锁类型</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h3 id="&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;"><a href="#&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;"></a>&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;</h3><blockquote>
-<blockquote>
-<p>&#x4E8B;&#x52A1;&#x662F;&#x6570;&#x636E;&#x5E93;&#x7BA1;&#x7406;&#x7CFB;&#x7EDF;&#xFF08;DBMS&#xFF09;&#x6267;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#x7684;&#x4E00;&#x4E2A;&#x903B;&#x8F91;&#x5355;&#x4F4D;&#xFF0C;&#x7531;&#x4E00;&#x4E2A;&#x6709;&#x9650;&#x7684;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x5E8F;&#x5217;&#x6784;&#x6210;&#x3002;</p>
-</blockquote>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E7%AC%94%E8%AE%B0/" rel="tag">MySQL笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-12.003.[综合]-MySQL面试题知识总结"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"
-    >12.003.[综合]-MySQL面试题知识总结</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  Here's something encrypted, password is required to continue reading. 
-      <a class="article-more-link" href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E7%AC%94%E8%AE%B0/" rel="tag">MySQL笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
   id="post-12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别"
   class="article article-type-post"
   itemscope
@@ -723,7 +601,7 @@
 
     
     <article
-  id="post-12.004.[综合]-MySQL底层架构：缓冲与磁盘"
+  id="post-12.002.[综合]-MySQL里的事务、隔离级别、锁类型"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -734,8 +612,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
-    >12.004.[综合]-MySQL底层架构：缓冲与磁盘</a> 
+  <a class="article-title" href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/"
+    >12.002.[综合]-MySQL里的事务、隔离级别、锁类型</a> 
 </h2>
  
 
@@ -743,7 +621,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/" class="article-date">
+      <a href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -754,13 +632,12 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>&#x91CD;&#x70B9;&#x8BB2;&#x8FF0;MySQL&#x5E95;&#x5C42;&#x67B6;&#x6784;&#xFF0C;&#x6D89;&#x53CA;&#x5230;&#xFF1A;</p>
-<ul>
-<li>&#x5185;&#x5B58;&#x7ED3;&#x6784;&#xFF1A;<code>buffer pool</code> &#x3001;<code>log buffer</code> &#x3001;<code>change buffer</code> &#x3001;<code>buffer pool&#x7684;&#x9875;&#x6DD8;&#x6C70;&#x673A;&#x5236;</code>&#x662F;&#x600E;&#x6837;&#x7684;&#xFF1B;</li>
-<li>&#x78C1;&#x76D8;&#x7ED3;&#x6784;&#xFF1A;<code>&#x7CFB;&#x7EDF;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x72EC;&#x7ACB;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x901A;&#x7528;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>undo&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>redo log</code>&#xFF1B;</li>
-<li>&#x4EE5;&#x53CA;IO&#x76F8;&#x5173;&#x5E95;&#x5C42;&#x539F;&#x7406;&#x3001;&#x67E5;&#x8BE2;SQL&#x6267;&#x884C;&#x6D41;&#x7A0B;&#x3001;&#x6570;&#x636E;&#x9875;&#x7ED3;&#x6784;&#x548C;&#x884C;&#x7ED3;&#x6784;&#x63CF;&#x8FF0;&#x3001;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#x548C;&#x8F85;&#x52A9;&#x7D22;&#x5F15;&#x7684;&#x5E95;&#x5C42;&#x6570;&#x636E;&#x7EC4;&#x7EC7;&#x65B9;&#x5F0F;&#x3001;MVCC&#x591A;&#x7248;&#x672C;&#x5E76;&#x53D1;&#x63A7;&#x5236;&#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x539F;&#x7406;&#xFF0C;&#x4EE5;&#x53CA;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x3001;&#x8BFB;&#x5DF2;&#x63D0;&#x4EA4;&#x662F;&#x600E;&#x4E48;&#x901A;&#x8FC7;MVCC&#x5B9E;&#x73B0;&#x7684;&#x3002;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12.004.[%E7%BB%BC%E5%90%88]-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/1.png"></li>
-</ul> 
-      <a class="article-more-link" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
+  <h3 id="&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;"><a href="#&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;"></a>&#x4EC0;&#x4E48;&#x662F;&#x4E8B;&#x52A1;</h3><blockquote>
+<blockquote>
+<p>&#x4E8B;&#x52A1;&#x662F;&#x6570;&#x636E;&#x5E93;&#x7BA1;&#x7406;&#x7CFB;&#x7EDF;&#xFF08;DBMS&#xFF09;&#x6267;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#x7684;&#x4E00;&#x4E2A;&#x903B;&#x8F91;&#x5355;&#x4F4D;&#xFF0C;&#x7531;&#x4E00;&#x4E2A;&#x6709;&#x9650;&#x7684;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;&#x5E8F;&#x5217;&#x6784;&#x6210;&#x3002;</p>
+</blockquote>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12.002.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%87%8C%E7%9A%84%E4%BA%8B%E5%8A%A1%E3%80%81%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E3%80%81%E9%94%81%E7%B1%BB%E5%9E%8B/"
         >阅读更多...</a
       >
        
@@ -773,7 +650,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E7%AC%94%E8%AE%B0/" rel="tag">MySQL笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
 
     </footer>
   </div>
@@ -898,6 +775,62 @@
 
     
     <article
+  id="post-12.003.[综合]-MySQL面试题知识总结"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"
+    >12.003.[综合]-MySQL面试题知识总结</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  Here's something encrypted, password is required to continue reading. 
+      <a class="article-more-link" href="/2020/05/01/12.003.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E9%9D%A2%E8%AF%95%E9%A2%98%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E7%AC%94%E8%AE%B0/" rel="tag">MySQL笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%94%81/" rel="tag">数据库锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-12A004.[存储引擎]-lnnoDB逻辑存储结构"
   class="article article-type-post"
   itemscope
@@ -1004,6 +937,67 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-12.004.[综合]-MySQL底层架构：缓冲与磁盘"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
+    >12.004.[综合]-MySQL底层架构：缓冲与磁盘</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x91CD;&#x70B9;&#x8BB2;&#x8FF0;MySQL&#x5E95;&#x5C42;&#x67B6;&#x6784;&#xFF0C;&#x6D89;&#x53CA;&#x5230;&#xFF1A;</p>
+<ul>
+<li>&#x5185;&#x5B58;&#x7ED3;&#x6784;&#xFF1A;<code>buffer pool</code> &#x3001;<code>log buffer</code> &#x3001;<code>change buffer</code> &#x3001;<code>buffer pool&#x7684;&#x9875;&#x6DD8;&#x6C70;&#x673A;&#x5236;</code>&#x662F;&#x600E;&#x6837;&#x7684;&#xFF1B;</li>
+<li>&#x78C1;&#x76D8;&#x7ED3;&#x6784;&#xFF1A;<code>&#x7CFB;&#x7EDF;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x72EC;&#x7ACB;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x901A;&#x7528;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>undo&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>redo log</code>&#xFF1B;</li>
+<li>&#x4EE5;&#x53CA;IO&#x76F8;&#x5173;&#x5E95;&#x5C42;&#x539F;&#x7406;&#x3001;&#x67E5;&#x8BE2;SQL&#x6267;&#x884C;&#x6D41;&#x7A0B;&#x3001;&#x6570;&#x636E;&#x9875;&#x7ED3;&#x6784;&#x548C;&#x884C;&#x7ED3;&#x6784;&#x63CF;&#x8FF0;&#x3001;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#x548C;&#x8F85;&#x52A9;&#x7D22;&#x5F15;&#x7684;&#x5E95;&#x5C42;&#x6570;&#x636E;&#x7EC4;&#x7EC7;&#x65B9;&#x5F0F;&#x3001;MVCC&#x591A;&#x7248;&#x672C;&#x5E76;&#x53D1;&#x63A7;&#x5236;&#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x539F;&#x7406;&#xFF0C;&#x4EE5;&#x53CA;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x3001;&#x8BFB;&#x5DF2;&#x63D0;&#x4EA4;&#x662F;&#x600E;&#x4E48;&#x901A;&#x8FC7;MVCC&#x5B9E;&#x73B0;&#x7684;&#x3002;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12.004.[%E7%BB%BC%E5%90%88]-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/1.png"></li>
+</ul> 
+      <a class="article-more-link" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
 
     </footer>
   </div>
@@ -1188,6 +1182,64 @@
 
     
     <article
+  id="post-12B007.[底层原理]-什么叫脏页"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/"
+    >12B007.[底层原理]-什么叫脏页</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/" class="article-date">
+  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>&#x4EC0;&#x4E48;&#x53EB;&#x810F;&#x9875;<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/126fbdef0e12">https://www.jianshu.com/p/126fbdef0e12</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-12B004.[底层原理]-常见的页类型"
   class="article article-type-post"
   itemscope
@@ -1221,64 +1273,6 @@
        
   <p>&#x5E38;&#x89C1;&#x7684;&#x9875;&#x7C7B;&#x578B;&#x6709; &#xFF1A;</p> 
       <a class="article-more-link" href="/2020/05/01/12B004.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E5%B8%B8%E8%A7%81%E7%9A%84%E9%A1%B5%E7%B1%BB%E5%9E%8B/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-12B005.[底层原理]-binlog有几种格式"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/"
-    >12B005.[底层原理]-binlog有几种格式</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>binlog&#x6709;&#x51E0;&#x79CD;&#x683C;&#x5F0F;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/"
         >阅读更多...</a
       >
        
