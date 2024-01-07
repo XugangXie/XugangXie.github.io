@@ -268,6 +268,66 @@
 
     
     <article
+  id="post-18.C002.Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--4.GCP服务账号激活、创建镜像库、运行pipeline"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/"
+    >Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--4.GCP服务账号激活、创建镜像库、运行pipeline</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/" class="article-date">
+  <time datetime="2023-06-19T16:00:00.000Z" itemprop="datePublished">2023-06-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Infrastructure/">Infrastructure</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"><a href="#&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;" class="headerlink" title="&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"></a>&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;</h2><h3 id="&#x4F5C;&#x7528;&#xFF1A;"><a href="#&#x4F5C;&#x7528;&#xFF1A;" class="headerlink" title="&#x4F5C;&#x7528;&#xFF1A;"></a>&#x4F5C;&#x7528;&#xFF1A;</h3><ul>
+<li>kubectl &#x547D;&#x4EE4;&#x53EF;&#x7528;</li>
+<li>GCP Project: <code>atrenew-swappie-prod </code>&#x521B;&#x5EFA;&#x5E76;&#x914D;&#x7F6E;&#x597D;&#x670D;&#x52A1;&#x8D26;&#x53F7;&#x7684;&#x89D2;&#x8272;&#xFF0C;&#x4F7F;&#x5176;&#x62E5;&#x6709;&#x955C;&#x50CF;&#x5E93;&#x7684;&#x63A8;&#x9001;&#x6743;&#x9650;</li>
+<li>gitlab&#x91CC;&#x7684;pipeline&#xFF0C;&#x80FD;&#x591F;&#x8FD0;&#x884C;&#x8D77;&#x6765;</li>
+</ul> 
+      <a class="article-more-link" href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GCP-GKE/" rel="tag">GCP-GKE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab-runner/" rel="tag">gitlab-runner</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-18.C001.Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--5.GKE-Java微服务编排"
   class="article article-type-post"
   itemscope
@@ -309,66 +369,6 @@
 <li>&#x521B;&#x5EFA; Ingress&#xFF0C;&#x57DF;&#x540D;&#x548C;SSL&#x8BC1;&#x4E66;&#x7684;&#x7ED1;&#x5B9A;&#xFF0C;&#x6700;&#x7EC8; user-service &#x5C31;&#x80FD;&#x90E8;&#x7F72;&#x6210;&#x529F;&#x4E86;&#xFF1B;</li>
 </ol> 
       <a class="article-more-link" href="/2023/06/20/18.C001.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--5.GKE-Java%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GCP-GKE/" rel="tag">GCP-GKE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab-runner/" rel="tag">gitlab-runner</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-18.C002.Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--4.GCP服务账号激活、创建镜像库、运行pipeline"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/"
-    >Infrastructure-GCP系列.gitlab-runner实现java微服务CICD--4.GCP服务账号激活、创建镜像库、运行pipeline</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/" class="article-date">
-  <time datetime="2023-06-19T16:00:00.000Z" itemprop="datePublished">2023-06-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Infrastructure/">Infrastructure</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"><a href="#&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;" class="headerlink" title="&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;"></a>&#x670D;&#x52A1;&#x5668;B&#x7684;&#x4F5C;&#x7528;&#x4E0E;&#x914D;&#x7F6E;&#x8BF4;&#x660E;</h2><h3 id="&#x4F5C;&#x7528;&#xFF1A;"><a href="#&#x4F5C;&#x7528;&#xFF1A;" class="headerlink" title="&#x4F5C;&#x7528;&#xFF1A;"></a>&#x4F5C;&#x7528;&#xFF1A;</h3><ul>
-<li>kubectl &#x547D;&#x4EE4;&#x53EF;&#x7528;</li>
-<li>GCP Project: <code>atrenew-swappie-prod </code>&#x521B;&#x5EFA;&#x5E76;&#x914D;&#x7F6E;&#x597D;&#x670D;&#x52A1;&#x8D26;&#x53F7;&#x7684;&#x89D2;&#x8272;&#xFF0C;&#x4F7F;&#x5176;&#x62E5;&#x6709;&#x955C;&#x50CF;&#x5E93;&#x7684;&#x63A8;&#x9001;&#x6743;&#x9650;</li>
-<li>gitlab&#x91CC;&#x7684;pipeline&#xFF0C;&#x80FD;&#x591F;&#x8FD0;&#x884C;&#x8D77;&#x6765;</li>
-</ul> 
-      <a class="article-more-link" href="/2023/06/20/18.C002.Infrastructure-GCP%E7%B3%BB%E5%88%97.gitlab-runner%E5%AE%9E%E7%8E%B0java%E5%BE%AE%E6%9C%8D%E5%8A%A1CICD--4.GCP%E6%9C%8D%E5%8A%A1%E8%B4%A6%E5%8F%B7%E6%BF%80%E6%B4%BB%E3%80%81%E5%88%9B%E5%BB%BA%E9%95%9C%E5%83%8F%E5%BA%93%E3%80%81%E8%BF%90%E8%A1%8Cpipeline/"
         >阅读更多...</a
       >
        
@@ -668,62 +668,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-24.001.生活照片"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/09/20/24.001.%E7%94%9F%E6%B4%BB%E7%85%A7%E7%89%87/"
-    >生活照片</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/09/20/24.001.%E7%94%9F%E6%B4%BB%E7%85%A7%E7%89%87/" class="article-date">
-  <time datetime="2022-09-19T16:00:00.000Z" itemprop="datePublished">2022-09-20</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%94%9F%E6%B4%BB/">生活</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>&#x5730;&#x70B9;&#xFF1A;&#x4E0A;&#x6D77;&#x4E09;&#x95E8;&#x8DEF;</p> 
-      <a class="article-more-link" href="/2022/09/20/24.001.%E7%94%9F%E6%B4%BB%E7%85%A7%E7%89%87/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%85%A7%E7%89%87/" rel="tag">照片</a></li></ul>
 
     </footer>
   </div>
@@ -1322,6 +1266,64 @@
 </article>
 
     
+    <article
+  id="post-7A.004.中间件系列之redis-持久化机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/12/7A.004.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/"
+    >中间件系列之redis-持久化机制</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/12/7A.004.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2022-07-11T16:00:00.000Z" itemprop="datePublished">2022-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/340082703">https://zhuanlan.zhihu.com/p/340082703</a></p>
+</blockquote> 
+      <a class="article-more-link" href="/2022/07/12/7A.004.%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B3%BB%E5%88%97%E4%B9%8Bredis-%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
   </article>
   
 
@@ -1411,6 +1413,10 @@
     
     <li class="nav-item">
       <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://xiexugang.lofter.com">拍照</a>
     </li>
     
     <li class="nav-item">
