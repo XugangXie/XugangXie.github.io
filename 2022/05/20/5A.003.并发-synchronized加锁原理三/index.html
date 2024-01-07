@@ -7,8 +7,6 @@
     <head>
       <meta charset="utf-8" />
         
-      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
-      
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -149,6 +147,53 @@
     
     <footer class="article-footer">
        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2022/05/20/5A.003.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%89/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/synchonized%E5%8E%9F%E7%90%86/" rel="tag">synchonized原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E4%BC%98%E5%8C%96/" rel="tag">锁优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%81%E8%86%A8%E8%83%80/" rel="tag">锁膨胀</a></li></ul>
 
     </footer>
@@ -157,19 +202,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2022/05/20/5A.001.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%80%E3%80%81%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B%E3%80%81%E9%94%81%E4%BC%98%E5%8C%96/" class="article-nav-link">
+      <a href="/2022/05/20/5A.002.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            并发-synchronized加锁原理一、锁的膨胀过程、锁优化
+            并发-synchronized加锁原理二
           
         </div>
       </a>
     
     
-      <a href="/2022/05/20/5A.002.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E4%BA%8C/" class="article-nav-link">
+      <a href="/2022/05/20/5A.004.%E5%B9%B6%E5%8F%91-synchronized%E5%8A%A0%E9%94%81%E5%8E%9F%E7%90%86%E5%9B%9B-%E9%94%81%E7%9A%84%E8%86%A8%E8%83%80%E8%BF%87%E7%A8%8B/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">并发-synchronized加锁原理二</div>
+        <div class="article-nav-title">并发-synchronized加锁原理四-锁的膨胀过程</div>
       </a>
     
   </nav>
@@ -193,7 +238,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2023
+        2017-2024
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>

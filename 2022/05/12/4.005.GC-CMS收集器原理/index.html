@@ -7,8 +7,6 @@
     <head>
       <meta charset="utf-8" />
         
-      <meta name="description" content="一个八股文拾荒者&lt;br&gt;- A collector who is focuced on asshole-Java." />
-      
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -582,6 +580,53 @@
     
     <footer class="article-footer">
        
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://example.com/2022/05/12/4.005.GC-CMS%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CMS/" rel="tag">CMS</a></li></ul>
 
     </footer>
@@ -590,19 +635,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2022/05/12/4.004.GC-Parallel-Scavenge%E5%8E%9F%E7%90%86/" class="article-nav-link">
+      <a href="/2022/05/12/4.006.GC-CMS%E5%92%8CG1%E4%BC%98%E7%BC%BA%E7%82%B9%E5%AF%B9%E6%AF%94/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            GC-Parallel-Scavenge原理
+            GC-CMS和G1优缺点对比
           
         </div>
       </a>
     
     
-      <a href="/2022/05/12/4.006.GC-CMS%E5%92%8CG1%E4%BC%98%E7%BC%BA%E7%82%B9%E5%AF%B9%E6%AF%94/" class="article-nav-link">
+      <a href="/2022/05/12/4.007.GC-ZGC%E6%94%B6%E9%9B%86%E5%99%A8%E5%8E%9F%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">GC-CMS和G1优缺点对比</div>
+        <div class="article-nav-title">GC-ZGC收集器原理</div>
       </a>
     
   </nav>
@@ -626,7 +671,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2023
+        2017-2024
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>
