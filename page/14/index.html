@@ -156,7 +156,7 @@
     
     
     <article
-  id="post-12.004.[综合]-MySQL底层架构：缓冲与磁盘"
+  id="post-12H004.[SQL优化]-SQL优化策略总结"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -167,8 +167,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
-    >12.004.[综合]-MySQL底层架构：缓冲与磁盘</a> 
+  <a class="article-title" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
+    >12H004.[SQL优化]-SQL优化策略总结</a> 
 </h2>
  
 
@@ -176,7 +176,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/" class="article-date">
+      <a href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -187,13 +187,8 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>&#x91CD;&#x70B9;&#x8BB2;&#x8FF0;MySQL&#x5E95;&#x5C42;&#x67B6;&#x6784;&#xFF0C;&#x6D89;&#x53CA;&#x5230;&#xFF1A;</p>
-<ul>
-<li>&#x5185;&#x5B58;&#x7ED3;&#x6784;&#xFF1A;<code>buffer pool</code> &#x3001;<code>log buffer</code> &#x3001;<code>change buffer</code> &#x3001;<code>buffer pool&#x7684;&#x9875;&#x6DD8;&#x6C70;&#x673A;&#x5236;</code>&#x662F;&#x600E;&#x6837;&#x7684;&#xFF1B;</li>
-<li>&#x78C1;&#x76D8;&#x7ED3;&#x6784;&#xFF1A;<code>&#x7CFB;&#x7EDF;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x72EC;&#x7ACB;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>&#x901A;&#x7528;&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>undo&#x8868;&#x7A7A;&#x95F4;</code>&#x3001;<code>redo log</code>&#xFF1B;</li>
-<li>&#x4EE5;&#x53CA;IO&#x76F8;&#x5173;&#x5E95;&#x5C42;&#x539F;&#x7406;&#x3001;&#x67E5;&#x8BE2;SQL&#x6267;&#x884C;&#x6D41;&#x7A0B;&#x3001;&#x6570;&#x636E;&#x9875;&#x7ED3;&#x6784;&#x548C;&#x884C;&#x7ED3;&#x6784;&#x63CF;&#x8FF0;&#x3001;&#x805A;&#x96C6;&#x7D22;&#x5F15;&#x548C;&#x8F85;&#x52A9;&#x7D22;&#x5F15;&#x7684;&#x5E95;&#x5C42;&#x6570;&#x636E;&#x7EC4;&#x7EC7;&#x65B9;&#x5F0F;&#x3001;MVCC&#x591A;&#x7248;&#x672C;&#x5E76;&#x53D1;&#x63A7;&#x5236;&#x7684;&#x5E95;&#x5C42;&#x5B9E;&#x73B0;&#x539F;&#x7406;&#xFF0C;&#x4EE5;&#x53CA;&#x53EF;&#x91CD;&#x590D;&#x8BFB;&#x3001;&#x8BFB;&#x5DF2;&#x63D0;&#x4EA4;&#x662F;&#x600E;&#x4E48;&#x901A;&#x8FC7;MVCC&#x5B9E;&#x73B0;&#x7684;&#x3002;<br><img src="https://cdn.jsdelivr.net/gh/XugangXie/xxg-img-repo@main/12.004.[%E7%BB%BC%E5%90%88]-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/1.png"></li>
-</ul> 
-      <a class="article-more-link" href="/2020/05/01/12.004.%5B%E7%BB%BC%E5%90%88%5D-MySQL%E5%BA%95%E5%B1%82%E6%9E%B6%E6%9E%84%EF%BC%9A%E7%BC%93%E5%86%B2%E4%B8%8E%E7%A3%81%E7%9B%98/"
+  <h3 id="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"><a href="#SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;" class="headerlink" title="SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;"></a>SQL&#x4F18;&#x5316;&#x7B56;&#x7565;&#x603B;&#x7ED3;</h3><h4 id="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"><a href="#&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;" class="headerlink" title="&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;"></a>&#x907F;&#x514D;&#x5411;&#x6570;&#x636E;&#x5E93;&#x8BF7;&#x6C42;&#x4E0D;&#x9700;&#x8981;&#x7684;&#x6570;&#x636E;</h4><p>&#x5F53;&#x4E00;&#x884C;&#x6570;&#x636E;&#x88AB;&#x591A;&#x6B21;&#x4F7F;&#x7528;&#x65F6;&#x53EF;&#x4EE5;&#x8003;&#x8651;&#x5C06;&#x6570;&#x636E;&#x884C;&#x7F13;&#x5B58;&#x8D77;&#x6765;&#xFF0C;&#x907F;&#x514D;&#x6BCF;&#x6B21;&#x4F7F;&#x7528;&#x90FD;&#x8981;&#x5230;MySql&#x67E5;&#x8BE2;&#x3002;<br>&#x907F;&#x514D;&#x4F7F;&#x7528;SELECT * &#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x8FDB;&#x884C;&#x67E5;&#x8BE2;&#xFF0C;&#x5E94;&#x8BE5;&#x53EA;&#x8FD4;&#x56DE;&#x9700;&#x8981;&#x7684;&#x5217;&#x3002;</p> 
+      <a class="article-more-link" href="/2020/05/01/12H004.%5BSQL%E4%BC%98%E5%8C%96%5D-SQL%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%E6%80%BB%E7%BB%93/"
         >阅读更多...</a
       >
        
@@ -206,7 +201,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB/" rel="tag">隔离级别</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag">SQL优化</a></li></ul>
 
     </footer>
   </div>
@@ -217,7 +212,7 @@
 
     
     <article
-  id="post-12.000.[笔记]-MySQL零散点记录"
+  id="post-12I002.[新特性]-InnoDB关键特性-两次写"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -228,8 +223,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12.000.%5B%E7%AC%94%E8%AE%B0%5D-MySQL%E9%9B%B6%E6%95%A3%E7%82%B9%E8%AE%B0%E5%BD%95/"
-    >12.000.[笔记]-MySQL零散点记录</a> 
+  <a class="article-title" href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/"
+    >12I002.[新特性]-InnoDB关键特性-两次写</a> 
 </h2>
  
 
@@ -237,63 +232,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12.000.%5B%E7%AC%94%E8%AE%B0%5D-MySQL%E9%9B%B6%E6%95%A3%E7%82%B9%E8%AE%B0%E5%BD%95/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h4 id="&#x521B;&#x5EFA;&#x6570;&#x636E;&#x5E93;"><a href="#&#x521B;&#x5EFA;&#x6570;&#x636E;&#x5E93;" class="headerlink" title="&#x521B;&#x5EFA;&#x6570;&#x636E;&#x5E93;"></a>&#x521B;&#x5EFA;&#x6570;&#x636E;&#x5E93;</h4><p><code>create database xxx default character set utf8 collate utf8_general_ci;</code></p> 
-      <a class="article-more-link" href="/2020/05/01/12.000.%5B%E7%AC%94%E8%AE%B0%5D-MySQL%E9%9B%B6%E6%95%A3%E7%82%B9%E8%AE%B0%E5%BD%95/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E7%AC%94%E8%AE%B0/" rel="tag">MySQL笔记</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12A001.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8EInnoDB%E5%92%8CMyISAM%E5%8C%BA%E5%88%AB/"
-    >12A001.[存储引擎]-存储引擎InnoDB和MyISAM区别</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/01/12A001.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8EInnoDB%E5%92%8CMyISAM%E5%8C%BA%E5%88%AB/" class="article-date">
+      <a href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -305,9 +244,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>InnoDB &#x548C; MYISAM&#x533A;&#x522B;</p>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x4E24;&#x6B21;&#x5199; &#xFF08;double write)</p>
 </blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12A001.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8EInnoDB%E5%92%8CMyISAM%E5%8C%BA%E5%88%AB/"
+      <a class="article-more-link" href="/2020/05/01/12I002.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E4%B8%A4%E6%AC%A1%E5%86%99/"
         >阅读更多...</a
       >
        
@@ -320,7 +259,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
 
     </footer>
   </div>
@@ -331,7 +270,7 @@
 
     
     <article
-  id="post-12A005.[存储引擎]-深入理解InnoDB存储引擎的逻辑架构"
+  id="post-12I003.[新特性]-InnoDB关键特性-自适应哈希索引"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -342,8 +281,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12A005.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84/"
-    >12A005.[存储引擎]-深入理解InnoDB存储引擎的逻辑架构</a> 
+  <a class="article-title" href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/"
+    >12I003.[新特性]-InnoDB关键特性-自适应哈希索引</a> 
 </h2>
  
 
@@ -351,7 +290,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12A005.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84/" class="article-date">
+      <a href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -363,9 +302,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>&#x6DF1;&#x5165;&#x7406;&#x89E3;InnoDB&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x7684;&#x903B;&#x8F91;&#x67B6;&#x6784;</p>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x81EA;&#x9002;&#x5E94;&#x54C8;&#x5E0C;&#x7D22;&#x5F15;</p>
 </blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12A005.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84/"
+      <a class="article-more-link" href="/2020/05/01/12I003.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95/"
         >阅读更多...</a
       >
        
@@ -378,7 +317,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
 
     </footer>
   </div>
@@ -389,7 +328,7 @@
 
     
     <article
-  id="post-12B001.[底层原理]-MySQL的查询流程"
+  id="post-12I004.[新特性]-InnoDB关键特性-刷新邻接页"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -400,8 +339,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B001.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-MySQL%E7%9A%84%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/"
-    >12B001.[底层原理]-MySQL的查询流程</a> 
+  <a class="article-title" href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/"
+    >12I004.[新特性]-InnoDB关键特性-刷新邻接页</a> 
 </h2>
  
 
@@ -409,7 +348,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B001.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-MySQL%E7%9A%84%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/" class="article-date">
+      <a href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -421,9 +360,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>&#x753B;&#x51FA; MySQL &#x67B6;&#x6784;&#x56FE;&#xFF0C;&#x8FD9;&#x79CD;&#x53D8;&#x6001;&#x95EE;&#x9898;&#x90FD;&#x80FD;&#x95EE;&#x7684;&#x51FA;&#x6765;<br>MySQL &#x7684;&#x67E5;&#x8BE2;&#x6D41;&#x7A0B;&#x5177;&#x4F53;&#x662F;&#xFF1F;or  &#x4E00;&#x6761;SQL&#x8BED;&#x53E5;&#x5728;MySQL&#x4E2D;&#x5982;&#x4F55;&#x6267;&#x884C;&#x7684;&#xFF1F;</p>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x5237;&#x65B0;&#x90BB;&#x63A5;&#x9875;</p>
 </blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B001.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-MySQL%E7%9A%84%E6%9F%A5%E8%AF%A2%E6%B5%81%E7%A8%8B/"
+      <a class="article-more-link" href="/2020/05/01/12I004.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5/"
         >阅读更多...</a
       >
        
@@ -436,7 +375,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
 
     </footer>
   </div>
@@ -447,7 +386,7 @@
 
     
     <article
-  id="post-12B002.[底层原理]-整体内部刷盘流程"
+  id="post-12I005.[新特性]-InnoDB关键特性-异步IO"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -458,8 +397,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B002.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%95%B4%E4%BD%93%E5%86%85%E9%83%A8%E5%88%B7%E7%9B%98%E6%B5%81%E7%A8%8B/"
-    >12B002.[底层原理]-整体内部刷盘流程</a> 
+  <a class="article-title" href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/"
+    >12I005.[新特性]-InnoDB关键特性-异步IO</a> 
 </h2>
  
 
@@ -467,7 +406,7 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B002.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%95%B4%E4%BD%93%E5%86%85%E9%83%A8%E5%88%B7%E7%9B%98%E6%B5%81%E7%A8%8B/" class="article-date">
+      <a href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/" class="article-date">
   <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
 </a> 
   <div class="article-category">
@@ -479,9 +418,9 @@
     <div class="article-entry" itemprop="articleBody">
        
   <blockquote>
-<p>12B002.[&#x5E95;&#x5C42;&#x539F;&#x7406;]-&#x6574;&#x4F53;&#x5185;&#x90E8;&#x5237;&#x76D8;&#x6D41;&#x7A0B;</p>
+<p>InnoDB&#x5173;&#x952E;&#x7279;&#x6027;-&#x5F02;&#x6B65;IO</p>
 </blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B002.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%95%B4%E4%BD%93%E5%86%85%E9%83%A8%E5%88%B7%E7%9B%98%E6%B5%81%E7%A8%8B/"
+      <a class="article-more-link" href="/2020/05/01/12I005.%5B%E6%96%B0%E7%89%B9%E6%80%A7%5D-InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7-%E5%BC%82%E6%AD%A5IO/"
         >阅读更多...</a
       >
        
@@ -494,7 +433,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag">MySQL新特性</a></li></ul>
 
     </footer>
   </div>
@@ -505,7 +444,7 @@
 
     
     <article
-  id="post-12B003.[底层原理]-描述一下rollback的过程"
+  id="post-9A1.001.框架-[spring-ioc]-spring中的BeanDefinition作用"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -516,8 +455,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B003.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%8F%8F%E8%BF%B0%E4%B8%80%E4%B8%8Brollback%E7%9A%84%E8%BF%87%E7%A8%8B/"
-    >12B003.[底层原理]-描述一下rollback的过程</a> 
+  <a class="article-title" href="/2020/03/22/9A1.001.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E4%B8%AD%E7%9A%84BeanDefinition%E4%BD%9C%E7%94%A8/"
+    >框架-[spring-ioc]-spring中的BeanDefinition作用</a> 
 </h2>
  
 
@@ -525,24 +464,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B003.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%8F%8F%E8%BF%B0%E4%B8%80%E4%B8%8Brollback%E7%9A%84%E8%BF%87%E7%A8%8B/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A1.001.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E4%B8%AD%E7%9A%84BeanDefinition%E4%BD%9C%E7%94%A8/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x8BE6;&#x7EC6;&#x63CF;&#x8FF0;&#x4E00;&#x4E0B;rollback&#x7684;&#x8FC7;&#x7A0B;&#xFF1A;&#x7CFB;&#x7EDF;&#x4E8B;&#x52A1;&#x8868;&#x3001;&#x56DE;&#x6EDA;&#x6BB5;&#x3001;&#x56DE;&#x6EDA;&#x6BB5;&#x5934;&#x3001;&#x4E8B;&#x52A1;&#x69FD;&#x3001;&#x4E8B;&#x52A1;&#x6570;&#x636E;&#x5757;&#x94FE;&#x8868;&#x3002;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B003.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%8F%8F%E8%BF%B0%E4%B8%80%E4%B8%8Brollback%E7%9A%84%E8%BF%87%E7%A8%8B/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -552,7 +486,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li></ul>
 
     </footer>
   </div>
@@ -563,7 +497,7 @@
 
     
     <article
-  id="post-12A003.[存储引擎]-哪个存储引擎执行 select count() 更快，为什么"
+  id="post-9A1.000.框架-[spring-ioc]-BeanFactory和FactoryBean区别"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -574,8 +508,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12A003.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%93%AA%E4%B8%AA%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E6%89%A7%E8%A1%8C%20select%20count()%20%E6%9B%B4%E5%BF%AB%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88/"
-    >12A003.[存储引擎]-哪个存储引擎执行 select count() 更快，为什么</a> 
+  <a class="article-title" href="/2020/03/22/9A1.000.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-BeanFactory%E5%92%8CFactoryBean%E5%8C%BA%E5%88%AB/"
+    >框架-[spring-ioc]-BeanFactory和FactoryBean区别</a> 
 </h2>
  
 
@@ -583,24 +517,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12A003.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%93%AA%E4%B8%AA%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E6%89%A7%E8%A1%8C%20select%20count()%20%E6%9B%B4%E5%BF%AB%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A1.000.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-BeanFactory%E5%92%8CFactoryBean%E5%8C%BA%E5%88%AB/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x54EA;&#x4E2A;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x6267;&#x884C; select count(*) &#x66F4;&#x5FEB;&#xFF0C;&#x4E3A;&#x4EC0;&#x4E48;?</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12A003.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-%E5%93%AA%E4%B8%AA%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E6%89%A7%E8%A1%8C%20select%20count()%20%E6%9B%B4%E5%BF%AB%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -610,7 +539,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -621,7 +550,7 @@
 
     
     <article
-  id="post-12A004.[存储引擎]-lnnoDB逻辑存储结构"
+  id="post-9A1.002.框架-[spring-ioc]-spring中bean加载并实例化流程及原理"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -632,8 +561,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12A004.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-lnnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/"
-    >12A004.[存储引擎]-lnnoDB逻辑存储结构</a> 
+  <a class="article-title" href="/2020/03/22/9A1.002.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E4%B8%ADbean%E5%8A%A0%E8%BD%BD%E5%B9%B6%E5%AE%9E%E4%BE%8B%E5%8C%96%E6%B5%81%E7%A8%8B%E5%8F%8A%E5%8E%9F%E7%90%86/"
+    >框架-[spring-ioc]-spring中bean加载并实例化流程及原理</a> 
 </h2>
  
 
@@ -641,24 +570,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12A004.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-lnnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A1.002.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E4%B8%ADbean%E5%8A%A0%E8%BD%BD%E5%B9%B6%E5%AE%9E%E4%BE%8B%E5%8C%96%E6%B5%81%E7%A8%8B%E5%8F%8A%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>MySQL&#x8868;&#x7ED3;&#x6784;&#xFF0C;&#x8868;&#x7A7A;&#x95F4;&#xFF0C;&#x6BB5;&#xFF0C;&#x533A;&#xFF0C;&#x9875;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12A004.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-lnnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -668,7 +592,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li></ul>
 
     </footer>
   </div>
@@ -679,7 +603,7 @@
 
     
     <article
-  id="post-12A002.[存储引擎]-InnoDB表空间原理"
+  id="post-9A1.003.框架-[spring-ioc]-spring的bean在什么时候实例化"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -690,8 +614,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12A002.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-InnoDB%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%8E%9F%E7%90%86/"
-    >12A002.[存储引擎]-InnoDB表空间原理</a> 
+  <a class="article-title" href="/2020/03/22/9A1.003.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E7%9A%84bean%E5%9C%A8%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%AE%9E%E4%BE%8B%E5%8C%96/"
+    >框架-[spring-ioc]-spring的bean在什么时候实例化</a> 
 </h2>
  
 
@@ -699,22 +623,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12A002.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-InnoDB%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A1.003.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E7%9A%84bean%E5%9C%A8%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%AE%9E%E4%BE%8B%E5%8C%96/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h3 id="InnoDB&#x8868;&#x7A7A;&#x95F4;&#x539F;&#x7406;"><a href="#InnoDB&#x8868;&#x7A7A;&#x95F4;&#x539F;&#x7406;" class="headerlink" title="InnoDB&#x8868;&#x7A7A;&#x95F4;&#x539F;&#x7406;"></a>InnoDB&#x8868;&#x7A7A;&#x95F4;&#x539F;&#x7406;</h3><p>InnoDB&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x63D0;&#x4F9B;&#x4E8C;&#x79CD;&#x6570;&#x636E;&#x5E93;&#x8868;&#x7684;&#x5B58;&#x50A8;&#x65B9;&#x5F0F;<br>1&#x3001;&#x5171;&#x4EAB;&#x8868;&#x7A7A;&#x95F4;<br>2&#x3001;&#x72EC;&#x5360;&#x8868;&#x7A7A;&#x95F4;</p> 
-      <a class="article-more-link" href="/2020/05/01/12A002.%5B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%5D-InnoDB%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -724,7 +645,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="tag">存储引擎</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li></ul>
 
     </footer>
   </div>
@@ -735,7 +656,7 @@
 
     
     <article
-  id="post-12B007.[底层原理]-什么叫脏页"
+  id="post-9A2.001.框架-[spring-aop]-spring事务是怎么通过AOP实现的"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -746,8 +667,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/"
-    >12B007.[底层原理]-什么叫脏页</a> 
+  <a class="article-title" href="/2020/03/22/9A2.001.%E6%A1%86%E6%9E%B6-%5Bspring-aop%5D-spring%E4%BA%8B%E5%8A%A1%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%9A%E8%BF%87AOP%E5%AE%9E%E7%8E%B0%E7%9A%84/"
+    >框架-[spring-aop]-spring事务是怎么通过AOP实现的</a> 
 </h2>
  
 
@@ -755,24 +676,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A2.001.%E6%A1%86%E6%9E%B6-%5Bspring-aop%5D-spring%E4%BA%8B%E5%8A%A1%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%9A%E8%BF%87AOP%E5%AE%9E%E7%8E%B0%E7%9A%84/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x4EC0;&#x4E48;&#x53EB;&#x810F;&#x9875;<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/126fbdef0e12">https://www.jianshu.com/p/126fbdef0e12</a></p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B007.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%BB%80%E4%B9%88%E5%8F%AB%E8%84%8F%E9%A1%B5/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -782,7 +698,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-aop/" rel="tag">spring-aop</a></li></ul>
 
     </footer>
   </div>
@@ -793,7 +709,7 @@
 
     
     <article
-  id="post-12B004.[底层原理]-常见的页类型"
+  id="post-9A1.004.框架-[spring-ioc]-spring怎么解决循环依赖"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -804,8 +720,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B004.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E5%B8%B8%E8%A7%81%E7%9A%84%E9%A1%B5%E7%B1%BB%E5%9E%8B/"
-    >12B004.[底层原理]-常见的页类型</a> 
+  <a class="article-title" href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/"
+    >框架-[spring-ioc]-spring怎么解决循环依赖</a> 
 </h2>
  
 
@@ -813,22 +729,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B004.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E5%B8%B8%E8%A7%81%E7%9A%84%E9%A1%B5%E7%B1%BB%E5%9E%8B/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A1.004.%E6%A1%86%E6%9E%B6-%5Bspring-ioc%5D-spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>&#x5E38;&#x89C1;&#x7684;&#x9875;&#x7C7B;&#x578B;&#x6709; &#xFF1A;</p> 
-      <a class="article-more-link" href="/2020/05/01/12B004.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E5%B8%B8%E8%A7%81%E7%9A%84%E9%A1%B5%E7%B1%BB%E5%9E%8B/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -838,7 +751,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-ioc/" rel="tag">spring-ioc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -849,7 +762,7 @@
 
     
     <article
-  id="post-12B008.[底层原理]-随机读写和顺序读写-磁盘寻道-磁盘异步刷新策略"
+  id="post-9A2.002.框架-[spring-aop]-避免SpringAOP的自调用问题"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -860,8 +773,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B008.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E9%9A%8F%E6%9C%BA%E8%AF%BB%E5%86%99%E5%92%8C%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%86%99-%E7%A3%81%E7%9B%98%E5%AF%BB%E9%81%93-%E7%A3%81%E7%9B%98%E5%BC%82%E6%AD%A5%E5%88%B7%E6%96%B0%E7%AD%96%E7%95%A5/"
-    >12B008.[底层原理]-随机读写和顺序读写-磁盘寻道-磁盘异步刷新策略</a> 
+  <a class="article-title" href="/2020/03/22/9A2.002.%E6%A1%86%E6%9E%B6-%5Bspring-aop%5D-%E9%81%BF%E5%85%8DSpringAOP%E7%9A%84%E8%87%AA%E8%B0%83%E7%94%A8%E9%97%AE%E9%A2%98/"
+    >框架-[spring-aop]-避免SpringAOP的自调用问题</a> 
 </h2>
  
 
@@ -869,24 +782,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B008.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E9%9A%8F%E6%9C%BA%E8%AF%BB%E5%86%99%E5%92%8C%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%86%99-%E7%A3%81%E7%9B%98%E5%AF%BB%E9%81%93-%E7%A3%81%E7%9B%98%E5%BC%82%E6%AD%A5%E5%88%B7%E6%96%B0%E7%AD%96%E7%95%A5/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A2.002.%E6%A1%86%E6%9E%B6-%5Bspring-aop%5D-%E9%81%BF%E5%85%8DSpringAOP%E7%9A%84%E8%87%AA%E8%B0%83%E7%94%A8%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x78C1;&#x76D8;&#x5BFB;&#x9053;&#x3001;&#x968F;&#x673A;&#x8BFB;&#x5199;&#x548C;&#x987A;&#x5E8F;&#x8BFB;&#x5199;&#x3001;&#x78C1;&#x76D8;&#x5F02;&#x6B65;&#x5237;&#x65B0;&#x7B56;&#x7565;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B008.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E9%9A%8F%E6%9C%BA%E8%AF%BB%E5%86%99%E5%92%8C%E9%A1%BA%E5%BA%8F%E8%AF%BB%E5%86%99-%E7%A3%81%E7%9B%98%E5%AF%BB%E9%81%93-%E7%A3%81%E7%9B%98%E5%BC%82%E6%AD%A5%E5%88%B7%E6%96%B0%E7%AD%96%E7%95%A5/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -896,7 +804,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-aop/" rel="tag">spring-aop</a></li></ul>
 
     </footer>
   </div>
@@ -907,7 +815,7 @@
 
     
     <article
-  id="post-12B009.[底层原理]-WAL技术-数据预读-文件打开模式-同步IO-异步IO"
+  id="post-9A3.001.框架-[spring-transaction]-为什么@Transactional只能应用到public方法才有效"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -918,8 +826,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B009.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-WAL%E6%8A%80%E6%9C%AF-%E6%95%B0%E6%8D%AE%E9%A2%84%E8%AF%BB-%E6%96%87%E4%BB%B6%E6%89%93%E5%BC%80%E6%A8%A1%E5%BC%8F-%E5%90%8C%E6%AD%A5IO-%E5%BC%82%E6%AD%A5IO/"
-    >12B009.[底层原理]-WAL技术-数据预读-文件打开模式-同步IO-异步IO</a> 
+  <a class="article-title" href="/2020/03/22/9A3.001.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-%E4%B8%BA%E4%BB%80%E4%B9%88@Transactional%E5%8F%AA%E8%83%BD%E5%BA%94%E7%94%A8%E5%88%B0public%E6%96%B9%E6%B3%95%E6%89%8D%E6%9C%89%E6%95%88/"
+    >框架-[spring-transaction]-为什么@Transactional只能应用到public方法才有效</a> 
 </h2>
  
 
@@ -927,24 +835,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B009.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-WAL%E6%8A%80%E6%9C%AF-%E6%95%B0%E6%8D%AE%E9%A2%84%E8%AF%BB-%E6%96%87%E4%BB%B6%E6%89%93%E5%BC%80%E6%A8%A1%E5%BC%8F-%E5%90%8C%E6%AD%A5IO-%E5%BC%82%E6%AD%A5IO/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.001.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-%E4%B8%BA%E4%BB%80%E4%B9%88@Transactional%E5%8F%AA%E8%83%BD%E5%BA%94%E7%94%A8%E5%88%B0public%E6%96%B9%E6%B3%95%E6%89%8D%E6%9C%89%E6%95%88/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>WAL&#x6280;&#x672F;-&#x6570;&#x636E;&#x9884;&#x8BFB;-&#x6587;&#x4EF6;&#x6253;&#x5F00;&#x6A21;&#x5F0F;-&#x540C;&#x6B65;IO-&#x5F02;&#x6B65;IO</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B009.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-WAL%E6%8A%80%E6%9C%AF-%E6%95%B0%E6%8D%AE%E9%A2%84%E8%AF%BB-%E6%96%87%E4%BB%B6%E6%89%93%E5%BC%80%E6%A8%A1%E5%BC%8F-%E5%90%8C%E6%AD%A5IO-%E5%BC%82%E6%AD%A5IO/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -954,7 +857,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
 
     </footer>
   </div>
@@ -965,7 +868,7 @@
 
     
     <article
-  id="post-12B010.[底层原理]-主从复制过程"
+  id="post-9A3.003.框架-[spring-transaction]-Synchronized锁在Spring事务管理下，为啥还线程不安全"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -976,8 +879,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B010.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/"
-    >12B010.[底层原理]-主从复制过程</a> 
+  <a class="article-title" href="/2020/03/22/9A3.003.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-Synchronized%E9%94%81%E5%9C%A8Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E4%B8%8B%EF%BC%8C%E4%B8%BA%E5%95%A5%E8%BF%98%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8/"
+    >框架-[spring-transaction]-Synchronized锁在Spring事务管理下，为啥还线程不安全</a> 
 </h2>
  
 
@@ -985,24 +888,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B010.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.003.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-Synchronized%E9%94%81%E5%9C%A8Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E4%B8%8B%EF%BC%8C%E4%B8%BA%E5%95%A5%E8%BF%98%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x4E3B;&#x4ECE;&#x590D;&#x5236;&#x8FC7;&#x7A0B;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B010.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -1012,7 +910,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -1023,7 +921,7 @@
 
     
     <article
-  id="post-12B005.[底层原理]-binlog有几种格式"
+  id="post-9A3.002.框架-[spring-transaction]-spring-transaction中哪些情况不会回滚"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1034,8 +932,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/"
-    >12B005.[底层原理]-binlog有几种格式</a> 
+  <a class="article-title" href="/2020/03/22/9A3.002.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E4%B8%8D%E4%BC%9A%E5%9B%9E%E6%BB%9A/"
+    >框架-[spring-transaction]-spring-transaction中哪些情况不会回滚</a> 
 </h2>
  
 
@@ -1043,21 +941,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.002.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E4%B8%8D%E4%BC%9A%E5%9B%9E%E6%BB%9A/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>binlog&#x6709;&#x51E0;&#x79CD;&#x683C;&#x5F0F;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B005.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-binlog%E6%9C%89%E5%87%A0%E7%A7%8D%E6%A0%BC%E5%BC%8F/"
+  <h3 id="spring-transaction&#x54EA;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#x4E0D;&#x4F1A;&#x56DE;&#x6EDA;"><a href="#spring-transaction&#x54EA;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#x4E0D;&#x4F1A;&#x56DE;&#x6EDA;" class="headerlink" title="spring-transaction&#x54EA;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#x4E0D;&#x4F1A;&#x56DE;&#x6EDA;"></a>spring-transaction&#x54EA;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#x4E0D;&#x4F1A;&#x56DE;&#x6EDA;</h3> 
+      <a class="article-more-link" href="/2020/03/22/9A3.002.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E4%B8%8D%E4%BC%9A%E5%9B%9E%E6%BB%9A/"
         >阅读更多...</a
       >
        
@@ -1070,7 +966,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -1081,7 +977,7 @@
 
     
     <article
-  id="post-12B011.[底层原理]-InnoDB里有哪几个Buffer"
+  id="post-9A3.004.框架-[spring-transaction]-Spring是如何保证同一事务获取同一个Connection的"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1092,8 +988,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B011.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-InnoDB%E9%87%8C%E6%9C%89%E5%93%AA%E5%87%A0%E4%B8%AABuffer/"
-    >12B011.[底层原理]-InnoDB里有哪几个Buffer</a> 
+  <a class="article-title" href="/2020/03/22/9A3.004.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-Spring%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%90%8C%E4%B8%80%E4%BA%8B%E5%8A%A1%E8%8E%B7%E5%8F%96%E5%90%8C%E4%B8%80%E4%B8%AAConnection%E7%9A%84/"
+    >框架-[spring-transaction]-Spring是如何保证同一事务获取同一个Connection的</a> 
 </h2>
  
 
@@ -1101,24 +997,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B011.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-InnoDB%E9%87%8C%E6%9C%89%E5%93%AA%E5%87%A0%E4%B8%AABuffer/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.004.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-Spring%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%90%8C%E4%B8%80%E4%BA%8B%E5%8A%A1%E8%8E%B7%E5%8F%96%E5%90%8C%E4%B8%80%E4%B8%AAConnection%E7%9A%84/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>InnoDB&#x91CC;&#x6709;&#x54EA;&#x51E0;&#x4E2A;Buffer</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B011.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-InnoDB%E9%87%8C%E6%9C%89%E5%93%AA%E5%87%A0%E4%B8%AABuffer/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -1128,7 +1019,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag">面试题</a></li></ul>
 
     </footer>
   </div>
@@ -1139,7 +1030,7 @@
 
     
     <article
-  id="post-12B006.[底层原理]-有几种log日志"
+  id="post-9A3.005.框架-[spring-transaction]-spring-transation框架里propatation 6个传播属性"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1150,8 +1041,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B006.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%9C%89%E5%87%A0%E7%A7%8Dlog%E6%97%A5%E5%BF%97/"
-    >12B006.[底层原理]-有几种log日志</a> 
+  <a class="article-title" href="/2020/03/22/9A3.005.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transation%E6%A1%86%E6%9E%B6%E9%87%8Cpropatation%206%E4%B8%AA%E4%BC%A0%E6%92%AD%E5%B1%9E%E6%80%A7/"
+    >框架-[spring-transaction]-spring-transation框架里propatation 6个传播属性</a> 
 </h2>
  
 
@@ -1159,21 +1050,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B006.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%9C%89%E5%87%A0%E7%A7%8Dlog%E6%97%A5%E5%BF%97/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.005.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transation%E6%A1%86%E6%9E%B6%E9%87%8Cpropatation%206%E4%B8%AA%E4%BC%A0%E6%92%AD%E5%B1%9E%E6%80%A7/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x6709;&#x51E0;&#x79CD;log&#x65E5;&#x5FD7;</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B006.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-%E6%9C%89%E5%87%A0%E7%A7%8Dlog%E6%97%A5%E5%BF%97/"
+  <h3 id="spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;"><a href="#spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;" class="headerlink" title="spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;"></a>spring-transaction&#x91CC;&#x7684;propagation&#x8BF4;&#x660E;</h3><p>propagation&#x6307;&#x5B9A;&#x4E8B;&#x52A1;&#x7684;&#x4F20;&#x64AD;&#x884C;&#x4E3A;&#xFF0C;&#x5373;&#x5F53;&#x524D;&#x7684;&#x4E8B;&#x52A1;&#x65B9;&#x6CD5;&#x88AB;&#x53E6;&#x5916;&#x4E00;&#x4E2A;&#x4E8B;&#x52A1;&#x65B9;&#x6CD5;&#x8C03;&#x7528;&#x65F6;&#x5982;&#x4F55;&#x4F7F;&#x7528;&#x4E8B;&#x52A1;&#x3002;</p> 
+      <a class="article-more-link" href="/2020/03/22/9A3.005.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transation%E6%A1%86%E6%9E%B6%E9%87%8Cpropatation%206%E4%B8%AA%E4%BC%A0%E6%92%AD%E5%B1%9E%E6%80%A7/"
         >阅读更多...</a
       >
        
@@ -1186,7 +1075,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
 
     </footer>
   </div>
@@ -1197,7 +1086,7 @@
 
     
     <article
-  id="post-12B012.[底层原理]-Buffer Pool系列-深入理解Buffer Pool"
+  id="post-9A3.006.框架-[spring-transaction]-spring-transaction中的readOnly目的是什么"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1208,8 +1097,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B012.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Buffer%20Pool%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Buffer%20Pool/"
-    >12B012.[底层原理]-Buffer Pool系列-深入理解Buffer Pool</a> 
+  <a class="article-title" href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/"
+    >框架-[spring-transaction]-spring-transaction中的readOnly目的是什么</a> 
 </h2>
  
 
@@ -1217,24 +1106,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B012.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Buffer%20Pool%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Buffer%20Pool/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.006.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-spring-transaction%E4%B8%AD%E7%9A%84readOnly%E7%9B%AE%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>&#x6DF1;&#x5165;&#x7406;&#x89E3;Buffer Pool</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B012.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Buffer%20Pool%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Buffer%20Pool/"
-        >阅读更多...</a
-      >
-       
+  <span id="more"></span>
+ 
       <!-- reward -->
       
     </div>
@@ -1244,7 +1128,7 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
 
     </footer>
   </div>
@@ -1255,7 +1139,7 @@
 
     
     <article
-  id="post-12B016.[底层原理]-Merge Insert Buffer系列-深入理解Merge Insert Buffer"
+  id="post-9A3.007.框架-[spring-transaction]-propagation组合使用案例说明"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1266,8 +1150,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/"
-    >12B016.[底层原理]-Merge Insert Buffer系列-深入理解Merge Insert Buffer</a> 
+  <a class="article-title" href="/2020/03/22/9A3.007.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-propagation%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E/"
+    >框架-[spring-transaction]-propagation组合使用案例说明</a> 
 </h2>
  
 
@@ -1275,21 +1159,19 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/" class="article-date">
-  <time datetime="2020-04-30T16:00:00.000Z" itemprop="datePublished">2020-05-01</time>
+      <a href="/2020/03/22/9A3.007.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-propagation%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Database-%E6%95%B0%E6%8D%AE%E5%BA%93/">Database-数据库</a>
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>Merge Insert Buffer&#x7CFB;&#x5217;-&#x6DF1;&#x5165;&#x7406;&#x89E3;Merge Insert Buffer</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/05/01/12B016.%5B%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%5D-Merge%20Insert%20Buffer%E7%B3%BB%E5%88%97-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Merge%20Insert%20Buffer/"
+  <h3 id="spring-transaction-propagation&#x7EC4;&#x5408;&#x4F7F;&#x7528;&#x6848;&#x4F8B;&#x8BF4;&#x660E;"><a href="#spring-transaction-propagation&#x7EC4;&#x5408;&#x4F7F;&#x7528;&#x6848;&#x4F8B;&#x8BF4;&#x660E;" class="headerlink" title="spring-transaction propagation&#x7EC4;&#x5408;&#x4F7F;&#x7528;&#x6848;&#x4F8B;&#x8BF4;&#x660E;"></a>spring-transaction propagation&#x7EC4;&#x5408;&#x4F7F;&#x7528;&#x6848;&#x4F8B;&#x8BF4;&#x660E;</h3> 
+      <a class="article-more-link" href="/2020/03/22/9A3.007.%E6%A1%86%E6%9E%B6-%5Bspring-transaction%5D-propagation%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E/"
         >阅读更多...</a
       >
        
@@ -1302,7 +1184,63 @@
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="tag">底层原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-transaction/" rel="tag">spring-transaction</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-9A4.001.框架-[spring-mybatis]-spring整合mybatis源码"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/03/22/9A4.001.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/"
+    >框架源码-[myatis]-spring整合mybatis源码</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/03/22/9A4.001.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/" class="article-date">
+  <time datetime="2020-03-21T16:00:00.000Z" itemprop="datePublished">2020-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Framework-%E6%A1%86%E6%9E%B6/">Framework-框架</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>&#x5F53;MyBatis&#x6574;&#x5408;&#x5230;&#x4E86;Spring&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x53D1;&#x73B0;&#x5728;Spring&#x4E2D;&#x4F7F;&#x7528;&#x66F4;&#x52A0;&#x65B9;&#x4FBF;&#x4E86;&#x3002;&#x4F8B;&#x5982;&#x83B7;&#x53D6;Dao&#x7684;&#x5B9E;&#x4F8B;&#xFF0C;&#x5728;Spring&#x7684;&#x6211;&#x4EEC;&#x53EA;&#x9700;&#x8981;&#x4F7F;&#x7528;&#x6CE8;&#x5165;&#x7684;&#x65B9;&#x5F0F;&#x5C31;&#x53EF;&#x4EE5;&#x4E86;&#x4F7F;&#x7528;Dao&#x4E86;&#xFF0C;&#x5B8C;&#x5168;&#x4E0D;&#x9700;&#x8981;&#x8C03;&#x7528;SqlSession&#x7684;getMapper&#x65B9;&#x6CD5;&#x53BB;&#x83B7;&#x53D6;Dao&#x7684;&#x5B9E;&#x4F8B;&#xFF0C;&#x66F4;&#x4E0D;&#x9700;&#x8981;&#x6211;&#x4EEC;&#x53BB;&#x7BA1;&#x7406;SqlSessionFactory&#xFF0C;&#x4E5F;&#x4E0D;&#x9700;&#x8981;&#x53BB;&#x521B;&#x5EFA;SqlSession&#x4E4B;&#x7C7B;&#x7684;&#x4E86;&#xFF0C;&#x5BF9;&#x4E8E;&#x63D2;&#x5165;&#x64CD;&#x4F5C;&#x4E5F;&#x4E0D;&#x9700;&#x8981;&#x6211;&#x4EEC;commit&#x3002;</p> 
+      <a class="article-more-link" href="/2020/03/22/9A4.001.%E6%A1%86%E6%9E%B6-%5Bspring-mybatis%5D-spring%E6%95%B4%E5%90%88mybatis%E6%BA%90%E7%A0%81/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-mybatis/" rel="tag">spring-mybatis</a></li></ul>
 
     </footer>
   </div>
@@ -1318,7 +1256,7 @@
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/13/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/15/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/13/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/15/">下一页</a>
   </nav>
   
 </section>
@@ -1329,7 +1267,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2017-2024
+        2017-2025
         <i class="ri-heart-fill heart_icon"></i> xugang.xie
       </li>
     </ul>
